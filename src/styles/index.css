@@ -1,0 +1,22 @@
+@import './fonts.css';
+@import './tailwind.css';
+@import './theme.css';
+
+/* Hide scrollbar utility */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Mobile safe areas */
+body {
+  overscroll-behavior: none;
+}
