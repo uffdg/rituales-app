@@ -1,21 +1,101 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { useRitual } from "../context/RitualContext";
 import { ProgressBar } from "../components/ProgressBar";
+import { track } from "../lib/analytics";
+
+// Tipos mínimos para SpeechRecognition (no están en lib.dom.d.ts por defecto)
+interface SpeechRecognitionEvent extends Event {
+  results: SpeechRecognitionResultList;
+}
+interface SpeechRecognitionErrorEvent extends Event {
+  error: string;
+}
+interface SpeechRecognitionInstance extends EventTarget {
+  lang: string;
+  interimResults: boolean;
+  maxAlternatives: number;
+  continuous: boolean;
+  start(): void;
+  stop(): void;
+  onresult: ((e: SpeechRecognitionEvent) => void) | null;
+  onerror: ((e: SpeechRecognitionErrorEvent) => void) | null;
+  onend: (() => void) | null;
+}
+
+function createSpeechRecognition(): SpeechRecognitionInstance | null {
+  const Ctor =
+    (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+  if (!Ctor) return null;
+  return new Ctor() as SpeechRecognitionInstance;
+}
 
 export function StepIntention() {
   const navigate = useNavigate();
   const { ritual, updateRitual } = useRitual();
   const [intention, setIntention] = useState(ritual.intention || "");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [micError, setMicError] = useState("");
+  const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
+  const hasSpeechRecognition = typeof window !== "undefined" &&
+    !!(( window as any).SpeechRecognition || (window as any).webkitSpeechRecognition);
+
+  useEffect(() => {
+    return () => {
+      recognitionRef.current?.stop();
+    };
+  }, []);
+
+  const handleMic = () => {
+    if (isListening) {
+      recognitionRef.current?.stop();
+      setIsListening(false);
+      return;
+    }
+
+    setMicError("");
+    const recognition = createSpeechRecognition();
+    if (!recognition) {
+      setMicError("Tu navegador no soporta reconocimiento de voz.");
+      return;
+    }
+
+    recognition.lang = "es-AR";
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+    recognition.continuous = false;
+
+    recognition.onresult = (e: SpeechRecognitionEvent) => {
+      const transcript = e.results[0][0].transcript;
+      setIntention((prev) => (prev ? `${prev} ${transcript}` : transcript));
+      track("voice_input_used");
+    };
+
+    recognition.onerror = (e: SpeechRecognitionErrorEvent) => {
+      if (e.error !== "no-speech" && e.error !== "aborted") {
+        setMicError("No se pudo acceder al micrófono.");
+      }
+      setIsListening(false);
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+
+    recognitionRef.current = recognition;
+    recognition.start();
+    setIsListening(true);
+    track("voice_input_started");
+  };
 
   const SUGGESTED_INTENTIONS: Record<string, string> = {
     Claridad: "Quiero tener claridad para tomar una decisión que lleva tiempo rondándome.",
-    Calma: "Quiero soltar la tensión acumulada y sentirme en calma conmigo mismo/a.",
-    "Amor propio": "Quiero reconectarme con lo que valoro de mí mismo/a hoy.",
+    Calma: "Quiero soltar la tensión acumulada y sentirme en calma conmigo misma.",
+    "Amor propio": "Quiero reconectarme con lo que valoro de mí misma hoy.",
     Enfoque: "Quiero concentrar mi energía en lo que realmente importa ahora.",
-    Soltar: "Quiero dejar ir algo que ya no me sirve y que me tiene anclado/a.",
+    Soltar: "Quiero dejar ir algo que ya no me sirve y que me tiene anclada.",
     Oportunidad: "Quiero abrirme a nuevas posibilidades que no puedo ver todavía.",
   };
 
@@ -90,25 +170,43 @@ export function StepIntention() {
 
         {/* Text field */}
         <div className="mb-5">
-          <label
-            style={{
-              fontFamily: "Inter, sans-serif",
-              fontSize: "12px",
-              fontWeight: 400,
-              color: "#999",
-              letterSpacing: "0.06em",
-              display: "block",
-              marginBottom: "8px",
-              textTransform: "uppercase",
-            }}
-          >
-            Mi intención
-          </label>
+          <div className="flex items-center justify-between mb-2">
+            <label
+              style={{
+                fontFamily: "Inter, sans-serif",
+                fontSize: "12px",
+                fontWeight: 400,
+                color: "#999",
+                letterSpacing: "0.06em",
+                textTransform: "uppercase",
+              }}
+            >
+              Mi intención
+            </label>
+            {hasSpeechRecognition && (
+              <button
+                onClick={handleMic}
+                className={`flex items-center gap-1.5 px-3 py-1 rounded-full border transition-all ${
+                  isListening
+                    ? "border-[#0A0A0A] bg-[#0A0A0A] text-white"
+                    : "border-[rgba(0,0,0,0.15)] text-[#666] hover:border-[rgba(0,0,0,0.3)]"
+                }`}
+                style={{ fontFamily: "Inter, sans-serif", fontSize: "11px" }}
+              >
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                  <rect x="3" y="0.5" width="4" height="6" rx="2" stroke="currentColor" strokeWidth="1" />
+                  <path d="M1 5.5C1 7.71 2.79 9.5 5 9.5C7.21 9.5 9 7.71 9 5.5" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
+                  <line x1="5" y1="9.5" x2="5" y2="10" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
+                </svg>
+                {isListening ? "Escuchando..." : "Hablar"}
+              </button>
+            )}
+          </div>
           <div className="relative">
             <textarea
               value={intention}
               onChange={(e) => setIntention(e.target.value)}
-              placeholder="Ej: Quiero tener claridad para decidir si cambio de trabajo..."
+              placeholder={isListening ? "Hablá ahora..." : "Ej: Quiero tener claridad para decidir si cambio de trabajo..."}
               rows={4}
               className="w-full p-4 rounded-2xl border border-[rgba(0,0,0,0.1)] bg-[#FAFAFA] text-[#0A0A0A] placeholder-[#CCC] resize-none focus:outline-none focus:border-[rgba(0,0,0,0.3)] transition-colors"
               style={{
@@ -118,6 +216,18 @@ export function StepIntention() {
                 lineHeight: 1.5,
               }}
             />
+            {isListening && (
+              <div className="absolute bottom-3 right-3 flex gap-1">
+                {[0, 1, 2].map((i) => (
+                  <motion.div
+                    key={i}
+                    className="w-1 rounded-full bg-[#0A0A0A]"
+                    animate={{ height: ["4px", "12px", "4px"] }}
+                    transition={{ duration: 0.6, repeat: Infinity, delay: i * 0.15 }}
+                  />
+                ))}
+              </div>
+            )}
             <AnimatePresence>
               {isGenerating && (
                 <motion.div
@@ -151,6 +261,11 @@ export function StepIntention() {
               )}
             </AnimatePresence>
           </div>
+          {micError && (
+            <p style={{ fontFamily: "Inter, sans-serif", fontSize: "12px", color: "#B42318", marginTop: "6px" }}>
+              {micError}
+            </p>
+          )}
         </div>
 
         {/* AI button */}

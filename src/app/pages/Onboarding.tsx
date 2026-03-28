@@ -4,6 +4,7 @@ import { motion } from "motion/react";
 import { useRitual } from "../context/RitualContext";
 import { RITUAL_TYPES } from "../data/rituals";
 import { Sun, Heart, Wind, Target, RotateCcw, Sparkles } from "lucide-react";
+import { track } from "../lib/analytics";
 
 export function Onboarding() {
   const navigate = useNavigate();
@@ -22,6 +23,7 @@ export function Onboarding() {
 
   const handleContinue = () => {
     updateRitual({ ritualType: selected, simpleMode });
+    track("onboarding_completed", { ritualType: selected });
     navigate("/crear/1");
   };
 

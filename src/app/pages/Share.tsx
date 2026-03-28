@@ -12,8 +12,15 @@ export function Share() {
   const { ritual } = useRitual();
   const [showName, setShowName] = useState(false);
   const [copied, setCopied] = useState(false);
+  const appBaseUrl = import.meta.env.VITE_PUBLIC_APP_URL?.replace(/\/$/, "");
+  const shareLink = ritual.ritualId && appBaseUrl
+    ? `${appBaseUrl}/ritual/${ritual.ritualId}`
+    : ritual.ritualId
+      ? `/ritual/${ritual.ritualId}`
+      : MOCK_LINK;
 
   const handleCopy = () => {
+    navigator.clipboard?.writeText(shareLink).catch(() => {});
     setCopied(true);
     toast("Link copiado ✓", {
       description: "Listo para compartir.",
@@ -228,7 +235,7 @@ export function Share() {
                 overflow: "hidden",
               }}
             >
-              <span className="truncate">{MOCK_LINK}</span>
+              <span className="truncate">{shareLink}</span>
             </div>
             <button
               onClick={handleCopy}

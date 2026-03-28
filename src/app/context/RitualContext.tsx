@@ -7,7 +7,33 @@ export interface AIRitual {
   closing: string;
 }
 
+export interface GuidedSessionSegment {
+  id: string;
+  kind: "intro" | "personalized" | "ambient" | "closing";
+  label: string;
+  durationSeconds: number;
+  text?: string;
+  isReusable?: boolean;
+}
+
+export interface GuidedSessionPlan {
+  targetDurationMinutes: number;
+  soundscape: string;
+  personalizedScript: string;
+  notes: string;
+  segments: GuidedSessionSegment[];
+}
+
+export interface GuidedAudioState {
+  status: "idle" | "preview" | "rendering" | "ready" | "error";
+  audioUrl?: string;
+  provider?: string;
+  voice?: string;
+  model?: string;
+}
+
 export interface RitualData {
+  ritualId?: string;
   // Onboarding
   ritualType: string;
   simpleMode: boolean;
@@ -22,6 +48,8 @@ export interface RitualData {
   element: string;
   // Step 4: AI Ritual
   aiRitual: AIRitual;
+  guidedSession?: GuidedSessionPlan;
+  guidedAudio?: GuidedAudioState;
   // Step 5: Anchor
   anchor: string;
 }
@@ -37,6 +65,7 @@ interface RitualContextType {
 }
 
 const defaultRitual: RitualData = {
+  ritualId: undefined,
   ritualType: "",
   simpleMode: true,
   intention: "",
@@ -46,6 +75,8 @@ const defaultRitual: RitualData = {
   intensity: "",
   element: "",
   aiRitual: { title: "", opening: "", symbolicAction: "", closing: "" },
+  guidedSession: undefined,
+  guidedAudio: { status: "idle" },
   anchor: "",
 };
 
@@ -59,16 +90,39 @@ const RitualContext = createContext<RitualContextType>({
   setSelectedPublicRitual: () => {},
 });
 
+const STORAGE_KEY = "rituales_current";
+
+function loadFromStorage(): RitualData {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return defaultRitual;
+    return { ...defaultRitual, ...JSON.parse(raw) };
+  } catch {
+    return defaultRitual;
+  }
+}
+
 export const RitualProvider = ({ children }: { children: ReactNode }) => {
-  const [ritual, setRitual] = useState<RitualData>(defaultRitual);
+  const [ritual, setRitual] = useState<RitualData>(loadFromStorage);
   const [isViewMode, setIsViewMode] = useState(false);
   const [selectedPublicRitual, setSelectedPublicRitual] = useState<any>(null);
 
   const updateRitual = (updates: Partial<RitualData>) => {
-    setRitual((prev) => ({ ...prev, ...updates }));
+    setRitual((prev) => {
+      const next = { ...prev, ...updates };
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
   };
 
-  const resetRitual = () => setRitual(defaultRitual);
+  const resetRitual = () => {
+    setRitual(defaultRitual);
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch {}
+  };
   const setViewMode = (val: boolean) => setIsViewMode(val);
 
   return (

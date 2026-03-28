@@ -1,26 +1,28 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
-import { useRitual } from "../context/RitualContext";
+import { useRitual, type GuidedAudioState } from "../context/RitualContext";
 import { ProgressBar } from "../components/ProgressBar";
-import { AI_RITUALS } from "../data/rituals";
+import { generateRitual, renderGuidedAudio } from "../lib/ritual-service";
+import { track } from "../lib/analytics";
+import { GuidedAudioPlayer } from "../components/GuidedAudioPlayer";
 
 const RITUAL_VERSIONS = [
   {
     title: "Ritual de presencia plena",
-    opening: "Cierra los ojos. Toma tres respiraciones profundas, soltando con cada exhalación lo que no necesitas ahora. Cuando sientas tu cuerpo un poco más suave, estás listo para comenzar.",
+    opening: "Cierra los ojos. Toma tres respiraciones profundas, soltando con cada exhalación lo que no necesitas ahora. Cuando sientas tu cuerpo un poco más suave, estás segura para comenzar.",
     symbolicAction: "Llena un vaso con agua limpia. Sosténlo entre tus manos. Observa el agua — sin agitación, transparente, receptiva. Bebe lentamente en tres sorbos, como si bebieras claridad.",
     closing: "Cierra los ojos una vez más. Di en silencio: \"Gracias por lo que ya está tomando forma\". Quédate así 30 segundos. Eso fue suficiente.",
   },
   {
     title: "Ritual de soltura y apertura",
-    opening: "Párte con los pies bien apoyados en el suelo. Respira hondo. Imagina que con cada exhalación, suenas más liviano/a.",
+    opening: "Párate con los pies bien apoyados en el suelo. Respira hondo. Imagina que con cada exhalación, te sientes más liviana.",
     symbolicAction: "Escribe en papel lo que quieres dejar ir o lo que quieres recibir. Una sola frase, sin editar. Luego dóblalo y guárdalo en un lugar que veas.",
     closing: "Lee lo que escribiste en voz baja. Di: \"Confío en el proceso\". Dobla el papel. Ya terminó. Ya empezó.",
   },
   {
     title: "Ritual de conexión simple",
-    opening: "Siéntate cómodo/a. Coloca una mano en tu corazón. Siente tu latido durante unos segundos. Estás aquí.",
+    opening: "Siéntate cómoda. Coloca una mano en tu corazón. Siente tu latido durante unos segundos. Estás aquí.",
     symbolicAction: "Toma algo de la naturaleza — una hoja, una piedra, agua, sal — y sostenlo. Piensa en tu intención como si ya estuviera cumplida. Visualízala concreta, específica.",
     closing: "Deja el objeto en tu mesa o escritorio. Cada vez que lo veas hoy, recuerda tu intención. Di: \"Ya está en movimiento\".",
   },
@@ -31,8 +33,13 @@ export function StepRitual() {
   const { ritual, updateRitual } = useRitual();
   const [isGenerating, setIsGenerating] = useState(false);
   const [currentRitual, setCurrentRitual] = useState(ritual.aiRitual?.title ? ritual.aiRitual : null);
+  const [guidedSession, setGuidedSession] = useState(ritual.guidedSession || null);
   const [showVersions, setShowVersions] = useState(false);
   const [editingBlock, setEditingBlock] = useState<string | null>(null);
+  const [isGeneratingSpeech, setIsGeneratingSpeech] = useState(false);
+  const [speechError, setSpeechError] = useState("");
+  const [audioUrl, setAudioUrl] = useState("");
+  const [generateError, setGenerateError] = useState("");
   const [editedTexts, setEditedTexts] = useState({
     title: "",
     opening: "",
@@ -40,29 +47,48 @@ export function StepRitual() {
     closing: "",
   });
 
-  const generateRitual = () => {
+  const handleGenerateRitual = async () => {
     setIsGenerating(true);
-    setTimeout(() => {
-      const base = AI_RITUALS[ritual.ritualType] || AI_RITUALS["default"];
-      const result = {
-        title: base.title,
-        opening: base.opening,
-        symbolicAction: base.symbolicAction,
-        closing: base.closing,
-      };
-      setCurrentRitual(result);
-      setEditedTexts(result);
+    setGenerateError("");
+
+    try {
+      const result = await generateRitual(ritual);
+      setCurrentRitual(result.ritual);
+      setGuidedSession(result.guidedSession);
+      setEditedTexts(result.ritual);
+      updateRitual({
+        ritualId: result.ritualId,
+        aiRitual: result.ritual,
+        guidedSession: result.guidedSession,
+        guidedAudio: result.guidedAudio || { status: "idle" },
+      });
+      track("ritual_created", {
+        ritualId: result.ritualId,
+        ritualType: ritual.ritualType,
+        duration: ritual.duration,
+      });
+    } catch (err) {
+      setGenerateError(err instanceof Error ? err.message : "No se pudo generar el ritual.");
+    } finally {
       setIsGenerating(false);
-    }, 1800);
+    }
   };
 
   useEffect(() => {
     if (!currentRitual || !currentRitual.title) {
-      generateRitual();
+      handleGenerateRitual();
     } else {
       setEditedTexts(currentRitual);
     }
   }, []);
+
+  useEffect(() => {
+    return () => {
+      if (audioUrl) {
+        URL.revokeObjectURL(audioUrl);
+      }
+    };
+  }, [audioUrl]);
 
   const handleSimplify = () => {
     setIsGenerating(true);
@@ -75,6 +101,14 @@ export function StepRitual() {
       };
       setCurrentRitual(simple);
       setEditedTexts(simple);
+      setGuidedSession((prev) =>
+        prev
+          ? {
+              ...prev,
+              personalizedScript: `${simple.opening} ${simple.symbolicAction} ${simple.closing}`,
+            }
+          : prev,
+      );
       setIsGenerating(false);
     }, 1400);
   };
@@ -82,13 +116,116 @@ export function StepRitual() {
   const handleSelectVersion = (v: (typeof RITUAL_VERSIONS)[0]) => {
     setCurrentRitual(v);
     setEditedTexts(v);
+    setGuidedSession((prev) =>
+      prev
+        ? {
+            ...prev,
+            personalizedScript: `${v.opening} ${v.symbolicAction} ${v.closing}`,
+          }
+        : prev,
+    );
     setShowVersions(false);
   };
 
   const handleNext = () => {
     const finalRitual = editedTexts.title ? editedTexts : currentRitual;
-    updateRitual({ aiRitual: finalRitual as any });
+    updateRitual({
+      aiRitual: finalRitual as any,
+      guidedSession: guidedSession || undefined,
+    });
     navigate("/crear/5");
+  };
+
+  const ritualText = [
+    editedTexts.title || currentRitual?.title || "",
+    editedTexts.opening || currentRitual?.opening || "",
+    editedTexts.symbolicAction || currentRitual?.symbolicAction || "",
+    editedTexts.closing || currentRitual?.closing || "",
+  ]
+    .filter(Boolean)
+    .join("\n\n");
+
+  const handleGenerateSpeech = async () => {
+    if (!ritualText.trim()) {
+      setSpeechError("No hay texto del ritual para convertir en audio.");
+      return;
+    }
+
+    if (audioUrl) {
+      URL.revokeObjectURL(audioUrl);
+      setAudioUrl("");
+    }
+
+    setIsGeneratingSpeech(true);
+    setSpeechError("");
+    track("audio_requested", { ritualId: ritual.ritualId });
+    updateRitual({
+      guidedAudio: {
+        status: "rendering",
+        provider: "elevenlabs",
+      },
+    });
+
+    try {
+      const response = await renderGuidedAudio({
+        ritualId: ritual.ritualId,
+        guidedSession: guidedSession || {
+          targetDurationMinutes: ritual.duration,
+          soundscape: "deep-night",
+          personalizedScript: ritualText,
+          notes: "",
+          segments: [],
+        },
+        voice: import.meta.env.VITE_ELEVENLABS_VOICE_ID || "El3gkPAhMU9R5biL3rtU",
+        model: "eleven_multilingual_v2",
+        responseFormat: "mp3",
+      });
+
+      if ("audioUrl" in response && response.audioUrl) {
+        setAudioUrl(response.audioUrl);
+        const guidedAudio: GuidedAudioState = {
+          status: "ready",
+          audioUrl: response.audioUrl,
+          provider: response.provider || "elevenlabs",
+          voice: response.voice,
+          model: response.model,
+        };
+        updateRitual({ guidedAudio });
+        track("audio_ready", { ritualId: ritual.ritualId, provider: "elevenlabs-backend" });
+        return;
+      }
+
+      if (!("blob" in response) || !response.blob) {
+        throw new Error("No se recibió audio para reproducir.");
+      }
+
+      const blob = response.blob;
+      const nextAudioUrl = URL.createObjectURL(blob);
+      setAudioUrl(nextAudioUrl);
+      updateRitual({
+        guidedAudio: {
+          status: "ready",
+          audioUrl: nextAudioUrl,
+          provider: "elevenlabs",
+        },
+      });
+      track("audio_ready", { ritualId: ritual.ritualId, provider: "elevenlabs-proxy" });
+    } catch (error) {
+      setSpeechError(
+        error instanceof Error
+          ? error.message
+          : "Ocurrió un error inesperado al pedir el audio.",
+      );
+      updateRitual({
+        guidedAudio: {
+          status: "error",
+          provider: "elevenlabs",
+        },
+      });
+      track("audio_error", { ritualId: ritual.ritualId });
+    } finally {
+      setIsGeneratingSpeech(false);
+    }
   };
 
   const blocks = [
@@ -178,6 +315,22 @@ export function StepRitual() {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Error state */}
+        {!isGenerating && generateError && (
+          <div className="py-8 text-center">
+            <p style={{ fontFamily: "Inter, sans-serif", fontSize: "13px", color: "#B42318", marginBottom: "16px" }}>
+              {generateError}
+            </p>
+            <button
+              onClick={handleGenerateRitual}
+              className="px-5 py-2 rounded-full border border-[rgba(0,0,0,0.15)] text-[#555]"
+              style={{ fontFamily: "Inter, sans-serif", fontSize: "13px" }}
+            >
+              Reintentar
+            </button>
+          </div>
+        )}
 
         {/* Ritual content */}
         <AnimatePresence>
@@ -292,7 +445,7 @@ export function StepRitual() {
               {/* AI action buttons */}
               <div className="flex gap-2 mb-8 flex-wrap">
                 <button
-                  onClick={() => generateRitual()}
+                  onClick={() => handleGenerateRitual()}
                   className="flex items-center gap-1.5 px-3.5 py-2 rounded-full border border-[rgba(0,0,0,0.12)] text-[#555] hover:border-[rgba(0,0,0,0.3)] transition-all"
                   style={{ fontFamily: "Inter, sans-serif", fontSize: "12px" }}
                 >
@@ -315,6 +468,29 @@ export function StepRitual() {
                 >
                   Dame 3 versiones
                 </button>
+              </div>
+
+              <div className="mb-8">
+                <GuidedAudioPlayer
+                  src={audioUrl}
+                  onStart={handleGenerateSpeech}
+                  disabled={isGeneratingSpeech}
+                  title="Sesión guiada"
+                />
+                {speechError ? (
+                  <p
+                    className="mt-3"
+                    style={{
+                      fontFamily: "Inter, sans-serif",
+                      fontSize: "12px",
+                      lineHeight: 1.5,
+                      color: "#B42318",
+                      whiteSpace: "pre-wrap",
+                    }}
+                  >
+                    {speechError}
+                  </p>
+                ) : null}
               </div>
 
               {/* CTA */}

@@ -72,7 +72,7 @@ export const AI_RITUALS: Record<string, any> = {
   claridad: {
     title: "Ritual de claridad interior",
     opening:
-      "Siéntate en un lugar tranquilo. Apaga notificaciones. Cierra los ojos y toma cuatro respiraciones profundas, liberando tensión con cada exhalación. Cuando estés listo, lleva tu atención a la pregunta o situación que necesita claridad.",
+      "Siéntate en un lugar tranquilo. Apaga notificaciones. Cierra los ojos y toma cuatro respiraciones profundas, liberando tensión con cada exhalación. Cuando estés lista, lleva tu atención a la pregunta o situación que necesita claridad.",
     symbolicAction:
       "Toma un vaso de agua limpia. Sostenlo entre tus manos. Visualiza el agua como un espejo de tu mente — clara, sin agitación. Bebe lentamente, pensando en que cada sorbo te conecta con tu propia sabiduría. Si tienes una hoja y lapicero, escribe la pregunta central y rodéala con un círculo.",
     closing:
@@ -83,7 +83,7 @@ export const AI_RITUALS: Record<string, any> = {
     opening:
       "Párate frente a un espejo o siéntate cómodamente. Coloca una mano sobre tu corazón. Cierra los ojos. Toma tres respiraciones profundas y con cada una, siente el calor de tu propia mano. Nota que tu corazón late — ha estado ahí, contigo, siempre.",
     symbolicAction:
-      "Ponte algo de crema o aceite en las manos. Mientras te las aplicas, nombra en voz alta o mentalmente tres cosas que tu cuerpo hace por ti cada día. No tienen que ser grandes. Pueden ser: \"me lleva a donde necesito ir\", \"me permite abrazar\", \"me mantiene vivo/a\".",
+      "Ponte algo de crema o aceite en las manos. Mientras te las aplicas, nombra en voz alta o mentalmente tres cosas que tu cuerpo hace por ti cada día. No tienen que ser grandes. Pueden ser: \"me lleva a donde necesito ir\", \"me permite abrazar\", \"me mantiene viva\".",
     closing:
       "Coloca ambas manos en tu pecho. Di: \"Me elijo hoy\". No tiene que ser perfecto — solo sincero. Respira hondo una vez más y suelta. Ya terminaste. Eso fue suficiente.",
   },
@@ -140,7 +140,7 @@ export const EXPLORE_RITUALS = [
       closing:
         "Observa el espacio vacío que queda. Respira. Di: \"Gracias. Ya fue. Ahora sigo\".",
     },
-    intention: "Quiero cerrar un ciclo que me tiene anclado/a",
+    intention: "Quiero cerrar un ciclo que me tiene anclada",
     anchor: "Borrar o archivar algo que me recordaba eso",
   },
   {
@@ -156,11 +156,11 @@ export const EXPLORE_RITUALS = [
     aiRitual: {
       title: "Ritual de apertura y atracción",
       opening:
-        "Párate descalzo/a si puedes, con los pies bien apoyados en el suelo. Respira tres veces sintiendo el peso de tu cuerpo. Estás presente, estás aquí.",
+        "Párate descalza si puedes, con los pies bien apoyados en el suelo. Respira tres veces sintiendo el peso de tu cuerpo. Estás presente, estás aquí.",
       symbolicAction:
         "Sostén un objeto pequeño de la naturaleza — una piedra, una hoja, una semilla. Mientras lo sostienes, piensa en lo que quieres atraer como si ya estuviera en camino. No como un deseo, sino como una certeza en formación.",
       closing:
-        "Guarda el objeto en un lugar visible. Cada vez que lo veas, recuerda tu intención. Di: \"Estoy listo/a para recibir lo que se alinea conmigo\".",
+        "Guarda el objeto en un lugar visible. Cada vez que lo veas, recuerda tu intención. Di: \"Estoy segura para recibir lo que se alinea conmigo\".",
     },
     intention: "Quiero abrir espacio para nuevas oportunidades laborales",
     anchor: "Mandar una propuesta o mensaje que tenía pendiente",
@@ -182,9 +182,9 @@ export const EXPLORE_RITUALS = [
       symbolicAction:
         "Frota tus palmas durante 10 segundos hasta sentir calor. Colócalas suavemente sobre tus ojos cerrados. Visualiza exactamente cómo quieres que resulte el momento que viene.",
       closing:
-        "Suelta las manos. Abre los ojos. Respira. Di: \"Estoy preparado/a. Voy\".",
+        "Suelta las manos. Abre los ojos. Respira. Di: \"Estoy preparada. Voy\".",
     },
-    intention: "Quiero estar enfocado/a antes de mi presentación",
+    intention: "Quiero estar enfocada antes de mi presentación",
     anchor: "Revisar mis notas y apagar el celular 10 minutos antes",
   },
   {

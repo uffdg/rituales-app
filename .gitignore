@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+
+# Build
+dist/
+dist-ssr/
+
+# Environment — NUNCA commitear
+.env.local
+.env.*.local
+.env
+
+# Editor
+.DS_Store
+*.local
+
+# Logs
+*.log
+npm-debug.log*

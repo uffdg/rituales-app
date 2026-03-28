@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { motion } from "motion/react";
 import { useRitual } from "../context/RitualContext";
@@ -6,15 +7,69 @@ import { ELEMENTS, ENERGIES } from "../data/rituals";
 import { UserMenu } from "../components/UserMenu";
 import { toast } from "sonner";
 import { Bookmark, BookmarkCheck } from "lucide-react";
+import {
+  deriveGuidedSession,
+  getRitualById,
+  renderGuidedAudio,
+  type RitualRecord,
+} from "../lib/ritual-service";
+import { GuidedAudioPlayer } from "../components/GuidedAudioPlayer";
 
 export function RitualDetail() {
   const navigate = useNavigate();
   const { id } = useParams();
-  const { ritual, isViewMode, selectedPublicRitual } = useRitual();
+  const { ritual, isViewMode, selectedPublicRitual, updateRitual } = useRitual();
   const { saveRitual, isRitualSaved } = useUser();
+  const [loadedRitual, setLoadedRitual] = useState<RitualRecord | null>(null);
+  const [loadState, setLoadState] = useState<"idle" | "loading" | "error">("idle");
+  const [isGeneratingSpeech, setIsGeneratingSpeech] = useState(false);
+  const [speechError, setSpeechError] = useState("");
+  const [localAudioUrl, setLocalAudioUrl] = useState("");
 
   const isPublic = id === "publico" && isViewMode && selectedPublicRitual;
   const data = isPublic ? selectedPublicRitual : null;
+
+  useEffect(() => {
+    if (!id || id === "nuevo" || id === "publico") {
+      return;
+    }
+
+    let cancelled = false;
+    setLoadState("loading");
+
+    getRitualById(id)
+      .then((result) => {
+        if (cancelled) return;
+
+        if (!result) {
+          setLoadState("error");
+          return;
+        }
+
+        setLoadedRitual(result);
+        setLoadState("idle");
+        updateRitual({
+          ritualId: result.ritualId,
+          intention: result.intention || "",
+          energy: result.energy || "",
+          element: result.element || "",
+          intensity: result.intensity || "",
+          duration: result.duration || ritual.duration,
+          aiRitual: result.ritual,
+          guidedSession: result.guidedSession,
+          guidedAudio: result.guidedAudio,
+          anchor: result.anchor || "",
+        });
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setLoadState("error");
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [id]);
 
   const displayRitual = isPublic
     ? {
@@ -29,7 +84,25 @@ export function RitualDetail() {
         closing: data.aiRitual.closing,
         anchor: data.anchor,
         author: data.author,
+        guidedSession: data.guidedSession,
+        guidedAudio: data.guidedAudio,
       }
+    : loadedRitual
+      ? {
+          title: loadedRitual.ritual.title,
+          intention: loadedRitual.intention || "",
+          energy: loadedRitual.energy || "",
+          element: loadedRitual.element || "",
+          intensity: loadedRitual.intensity || "",
+          duration: loadedRitual.duration || ritual.duration,
+          opening: loadedRitual.ritual.opening,
+          symbolicAction: loadedRitual.ritual.symbolicAction,
+          closing: loadedRitual.ritual.closing,
+          anchor: loadedRitual.anchor || "",
+          author: loadedRitual.author || "Tú",
+          guidedSession: loadedRitual.guidedSession,
+          guidedAudio: loadedRitual.guidedAudio,
+        }
     : {
         title: ritual.aiRitual?.title || "Mi ritual personal",
         intention: ritual.intention,
@@ -42,6 +115,8 @@ export function RitualDetail() {
         closing: ritual.aiRitual?.closing || "",
         anchor: ritual.anchor,
         author: "Tú",
+        guidedSession: ritual.guidedSession,
+        guidedAudio: ritual.guidedAudio,
       };
 
   const elementData = ELEMENTS.find((e) => e.id === displayRitual.element);
@@ -58,6 +133,138 @@ export function RitualDetail() {
     poder: "Poder",
     conexion: "Conexión",
   };
+
+  const playbackSession =
+    displayRitual.guidedSession ||
+    deriveGuidedSession(
+      {
+        ritualId: ritual.ritualId,
+        ritualType: ritual.ritualType || "default",
+        simpleMode: ritual.simpleMode,
+        intention: displayRitual.intention || displayRitual.title,
+        intentionCategory: ritual.intentionCategory,
+        energy: displayRitual.energy || ritual.energy || "calma",
+        duration: displayRitual.duration || ritual.duration || 10,
+        intensity: displayRitual.intensity || ritual.intensity,
+        element: displayRitual.element || ritual.element,
+        aiRitual: {
+          title: displayRitual.title,
+          opening: displayRitual.opening,
+          symbolicAction: displayRitual.symbolicAction,
+          closing: displayRitual.closing,
+        },
+        guidedSession: undefined,
+        guidedAudio: undefined,
+        anchor: displayRitual.anchor || "",
+      },
+      {
+        title: displayRitual.title,
+        opening: displayRitual.opening,
+        symbolicAction: displayRitual.symbolicAction,
+        closing: displayRitual.closing,
+      },
+    );
+
+  const handleGenerateSpeech = async () => {
+    setIsGeneratingSpeech(true);
+    setSpeechError("");
+
+    try {
+      const response = await renderGuidedAudio({
+        ritualId: loadedRitual?.ritualId || ritual.ritualId,
+        guidedSession: playbackSession,
+        voice: import.meta.env.VITE_ELEVENLABS_VOICE_ID || "EXAVITQu4vr4xnSDxMaL",
+        model: "eleven_multilingual_v2",
+        responseFormat: "mp3",
+      });
+
+      if ("audioUrl" in response && response.audioUrl) {
+        setLocalAudioUrl(response.audioUrl);
+        updateRitual({
+          guidedAudio: {
+            status: "ready",
+            audioUrl: response.audioUrl,
+            provider: response.provider || "elevenlabs",
+            voice: response.voice,
+            model: response.model,
+          },
+        });
+        return;
+      }
+
+      if (!("blob" in response) || !response.blob) {
+        throw new Error("No se recibió audio para reproducir.");
+      }
+
+      const nextAudioUrl = URL.createObjectURL(response.blob);
+      setLocalAudioUrl(nextAudioUrl);
+      updateRitual({
+        guidedAudio: {
+          status: "ready",
+          audioUrl: nextAudioUrl,
+          provider: "elevenlabs",
+        },
+      });
+    } catch (error) {
+      setSpeechError(
+        error instanceof Error
+          ? error.message
+          : "No se pudo generar el audio de este ritual.",
+      );
+    } finally {
+      setIsGeneratingSpeech(false);
+    }
+  };
+
+  if (loadState === "loading") {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center px-6">
+        <p
+          style={{
+            fontFamily: "Cormorant Garamond, serif",
+            fontSize: "26px",
+            color: "#333",
+          }}
+        >
+          Cargando tu ritual...
+        </p>
+      </div>
+    );
+  }
+
+  if (loadState === "error") {
+    return (
+      <div className="min-h-screen bg-white flex flex-col items-center justify-center px-6 text-center">
+        <p
+          style={{
+            fontFamily: "Cormorant Garamond, serif",
+            fontSize: "28px",
+            color: "#111",
+            marginBottom: "8px",
+          }}
+        >
+          No pudimos abrir este ritual
+        </p>
+        <p
+          style={{
+            fontFamily: "Inter, sans-serif",
+            fontSize: "13px",
+            color: "#888",
+            marginBottom: "18px",
+          }}
+        >
+          Puede que todavía no esté disponible o que el enlace haya cambiado.
+        </p>
+        <button
+          onClick={() => navigate("/")}
+          className="px-5 py-3 rounded-xl bg-[#0A0A0A] text-white"
+          style={{ fontFamily: "Inter, sans-serif", fontSize: "14px" }}
+        >
+          Volver al inicio
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white flex flex-col overflow-y-auto">
@@ -314,6 +521,115 @@ export function RitualDetail() {
             >
               {displayRitual.anchor}
             </p>
+          </div>
+        )}
+
+        {playbackSession && (
+          <div className="mb-6 p-5 rounded-2xl border border-[rgba(0,0,0,0.06)] bg-[#FAFAFA]">
+            <p
+              style={{
+                fontFamily: "Inter, sans-serif",
+                fontSize: "10px",
+                fontWeight: 500,
+                letterSpacing: "0.14em",
+                textTransform: "uppercase",
+                color: "#AAA",
+                marginBottom: "8px",
+              }}
+            >
+              Sesión guiada
+            </p>
+            <p
+              style={{
+                fontFamily: "Cormorant Garamond, serif",
+                fontSize: "20px",
+                color: "#111",
+                marginBottom: "8px",
+              }}
+            >
+              {playbackSession.targetDurationMinutes} minutos con voz + ambiente
+            </p>
+            <p
+              style={{
+                fontFamily: "Inter, sans-serif",
+                fontSize: "12px",
+                lineHeight: 1.6,
+                color: "#777",
+                marginBottom: "14px",
+              }}
+            >
+              {playbackSession.notes}
+            </p>
+            <div className="flex flex-col gap-2">
+              {playbackSession.segments.map((segment) => (
+                <div
+                  key={segment.id}
+                  className="flex items-center justify-between gap-3"
+                >
+                  <div>
+                    <p
+                      style={{
+                        fontFamily: "Cormorant Garamond, serif",
+                        fontSize: "16px",
+                        color: "#111",
+                      }}
+                    >
+                      {segment.label}
+                    </p>
+                    <p
+                      style={{
+                        fontFamily: "Inter, sans-serif",
+                        fontSize: "11px",
+                        color: "#999",
+                      }}
+                    >
+                      {segment.isReusable ? "Base reutilizable" : "Personalizado"}
+                    </p>
+                  </div>
+                  <p
+                    style={{
+                      fontFamily: "Inter, sans-serif",
+                      fontSize: "12px",
+                      color: "#555",
+                    }}
+                  >
+                    {segment.durationSeconds >= 60
+                      ? `${Math.round(segment.durationSeconds / 60)} min`
+                      : `${segment.durationSeconds}s`}
+                  </p>
+                </div>
+              ))}
+            </div>
+            {speechError ? (
+              <p
+                className="mt-4"
+                style={{
+                  fontFamily: "Inter, sans-serif",
+                  fontSize: "12px",
+                  color: "#B42318",
+                }}
+              >
+                {speechError}
+              </p>
+            ) : null}
+            {localAudioUrl || displayRitual.guidedAudio?.audioUrl ? (
+              <div className="mt-4">
+                <GuidedAudioPlayer
+                  src={localAudioUrl || displayRitual.guidedAudio?.audioUrl}
+                  onStart={handleGenerateSpeech}
+                  disabled={isGeneratingSpeech}
+                  title="Sesión guiada"
+                />
+              </div>
+            ) : (
+              <div className="mt-4">
+                <GuidedAudioPlayer
+                  onStart={handleGenerateSpeech}
+                  disabled={isGeneratingSpeech}
+                  title="Sesión guiada"
+                />
+              </div>
+            )}
           </div>
         )}
 

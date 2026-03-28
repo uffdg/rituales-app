@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { useRitual } from "../context/RitualContext";
 import { ProgressBar } from "../components/ProgressBar";
 import { ANCHOR_SUGGESTIONS } from "../data/rituals";
+import { track } from "../lib/analytics";
 
 export function StepAnchor() {
   const navigate = useNavigate();
@@ -33,7 +34,13 @@ export function StepAnchor() {
 
   const handleFinish = () => {
     updateRitual({ anchor });
-    navigate("/ritual/nuevo");
+    track("ritual_completed", {
+      ritualId: ritual.ritualId,
+      ritualType: ritual.ritualType,
+      duration: ritual.duration,
+      hasAudio: !!ritual.guidedAudio?.audioUrl,
+    });
+    navigate(`/ritual/${ritual.ritualId || "nuevo"}`);
   };
 
   return (
