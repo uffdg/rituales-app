@@ -239,6 +239,21 @@ export async function renderGuidedAudio(args: {
   };
 }
 
+export async function reframeIntention(text: string): Promise<string | null> {
+  const apiBaseUrl = getApiBaseUrl();
+  if (!apiBaseUrl) return null;
+
+  const response = await fetch(`${apiBaseUrl}/rituals/reframe-intention`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text }),
+  });
+
+  if (!response.ok) return null;
+  const data = await response.json();
+  return data.reframed || null;
+}
+
 export async function getRitualById(id: string): Promise<RitualRecord | null> {
   const apiBaseUrl = getApiBaseUrl();
 

@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { useRitual } from "../context/RitualContext";
 import { ProgressBar } from "../components/ProgressBar";
 import { track } from "../lib/analytics";
+import { reframeIntention } from "../lib/ritual-service";
 
 // Tipos mínimos para SpeechRecognition (no están en lib.dom.d.ts por defecto)
 interface SpeechRecognitionEvent extends Event {
@@ -37,6 +38,7 @@ export function StepIntention() {
   const [intention, setIntention] = useState(ritual.intention || "");
   const [isGenerating, setIsGenerating] = useState(false);
   const [isListening, setIsListening] = useState(false);
+  const [isReframing, setIsReframing] = useState(false);
   const [micError, setMicError] = useState("");
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
   const hasSpeechRecognition = typeof window !== "undefined" &&
@@ -67,10 +69,18 @@ export function StepIntention() {
     recognition.maxAlternatives = 1;
     recognition.continuous = false;
 
-    recognition.onresult = (e: SpeechRecognitionEvent) => {
+    recognition.onresult = async (e: SpeechRecognitionEvent) => {
       const transcript = e.results[0][0].transcript;
       setIntention((prev) => (prev ? `${prev} ${transcript}` : transcript));
       track("voice_input_used");
+
+      setIsReframing(true);
+      try {
+        const reframed = await reframeIntention(transcript);
+        if (reframed) setIntention(reframed);
+      } finally {
+        setIsReframing(false);
+      }
     };
 
     recognition.onerror = (e: SpeechRecognitionErrorEvent) => {
@@ -229,7 +239,7 @@ export function StepIntention() {
               </div>
             )}
             <AnimatePresence>
-              {isGenerating && (
+              {(isGenerating || isReframing) && (
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -254,7 +264,7 @@ export function StepIntention() {
                         color: "#666",
                       }}
                     >
-                      Generando...
+                      {isReframing ? "Reencuadrando..." : "Generando..."}
                     </span>
                   </div>
                 </motion.div>
