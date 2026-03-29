@@ -4,6 +4,7 @@ import type {
   RitualData,
 } from "../context/RitualContext";
 import { AI_RITUALS } from "../data/rituals";
+import { supabase } from "./supabase";
 
 export interface GuidedSessionSegment {
   id: string;
@@ -32,6 +33,7 @@ export interface RitualGenerationResult {
 }
 
 export interface RitualRecord extends RitualGenerationResult {
+  ritualType?: string;
   intention?: string;
   energy?: string;
   element?: string;
@@ -39,6 +41,11 @@ export interface RitualRecord extends RitualGenerationResult {
   duration?: number;
   anchor?: string;
   author?: string;
+  createdAt?: string;
+  userId?: string | null;
+  likesCount?: number;
+  likedByViewer?: boolean;
+  favoritedByViewer?: boolean;
 }
 
 interface BackendAudioResponse {
@@ -179,6 +186,20 @@ function getApiBaseUrl() {
   return import.meta.env.VITE_RITUALES_API_BASE_URL?.replace(/\/$/, "") || "";
 }
 
+async function getAuthHeaders() {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session?.access_token) {
+    return {};
+  }
+
+  return {
+    Authorization: `Bearer ${session.access_token}`,
+  };
+}
+
 async function readErrorMessage(response: Response, fallback: string) {
   try {
     const text = await response.text();
@@ -207,9 +228,10 @@ export async function generateRitual(input: RitualData, userId?: string): Promis
     });
   }
 
+  const authHeaders = await getAuthHeaders();
   const response = await fetch(`${apiBaseUrl}/rituals/create`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...authHeaders },
     body: JSON.stringify({ ...input, userId }),
   });
 
@@ -230,10 +252,12 @@ export async function renderGuidedAudio(args: {
   const apiBaseUrl = getApiBaseUrl();
 
   if (apiBaseUrl && args.ritualId) {
+    const authHeaders = await getAuthHeaders();
     const response = await fetch(`${apiBaseUrl}/rituals/${args.ritualId}/render-audio`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        ...authHeaders,
       },
       body: JSON.stringify({
         voice: args.voice,
@@ -301,9 +325,10 @@ export async function reframeIntention(text: string): Promise<string | null> {
   const apiBaseUrl = getApiBaseUrl();
   if (!apiBaseUrl) return null;
 
+  const authHeaders = await getAuthHeaders();
   const response = await fetch(`${apiBaseUrl}/rituals/reframe-intention`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...authHeaders },
     body: JSON.stringify({ text }),
   });
 
@@ -319,7 +344,10 @@ export async function getRitualById(id: string): Promise<RitualRecord | null> {
     return null;
   }
 
-  const response = await fetch(`${apiBaseUrl}/rituals/${id}`);
+  const authHeaders = await getAuthHeaders();
+  const response = await fetch(`${apiBaseUrl}/rituals/${id}`, {
+    headers: authHeaders,
+  });
 
   if (response.status === 404) {
     return null;

@@ -127,7 +127,7 @@ export function StepRitual() {
   const blocks = [
     { key: "opening", label: "Apertura", icon: "◯" },
     { key: "symbolicAction", label: "Acción simbólica", icon: "◎" },
-    { key: "closing", label: "Cierre", icon: "·" },
+    { key: "closing", label: "Acción de cierre", icon: "·" },
   ];
 
   return (

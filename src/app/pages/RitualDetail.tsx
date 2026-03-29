@@ -16,9 +16,10 @@ export function RitualDetail() {
   const navigate = useNavigate();
   const { id } = useParams();
   const { ritual, isViewMode, selectedPublicRitual, updateRitual } = useRitual();
-  const { saveRitual, isRitualSaved } = useUser();
+  const { saveRitual, isRitualSaved, likeRitualById, session, unlikeRitualById } = useUser();
   const [loadedRitual, setLoadedRitual] = useState<RitualRecord | null>(null);
   const [loadState, setLoadState] = useState<"idle" | "loading" | "error">("idle");
+  const [likeState, setLikeState] = useState({ liked: false, likesCount: 0 });
 
   const isPublic = id === "publico" && isViewMode && selectedPublicRitual;
   const data = isPublic ? selectedPublicRitual : null;
@@ -41,6 +42,10 @@ export function RitualDetail() {
         }
 
         setLoadedRitual(result);
+        setLikeState({
+          liked: Boolean(result.likedByViewer),
+          likesCount: result.likesCount || 0,
+        });
         setLoadState("idle");
         updateRitual({
           ritualId: result.ritualId,
@@ -115,6 +120,30 @@ export function RitualDetail() {
 
   const elementData = ELEMENTS.find((e) => e.id === displayRitual.element);
   const energyData = ENERGIES.find((e) => e.id === displayRitual.energy);
+  const ritualForAccount = loadedRitual
+    ? {
+        ritualId: loadedRitual.ritualId,
+        ritualType: loadedRitual.ritualType || ritual.ritualType,
+        simpleMode: ritual.simpleMode,
+        intention: loadedRitual.intention || "",
+        intentionCategory: ritual.intentionCategory,
+        energy: loadedRitual.energy || "",
+        duration: loadedRitual.duration || ritual.duration,
+        intensity: loadedRitual.intensity || "",
+        element: loadedRitual.element || "",
+        aiRitual: loadedRitual.ritual,
+        guidedSession: loadedRitual.guidedSession,
+        guidedAudio: loadedRitual.guidedAudio,
+        anchor: loadedRitual.anchor || "",
+      }
+    : ritual;
+
+  useEffect(() => {
+    setLikeState({
+      liked: Boolean(loadedRitual?.likedByViewer),
+      likesCount: loadedRitual?.likesCount || 0,
+    });
+  }, [loadedRitual?.ritualId, loadedRitual?.likedByViewer, loadedRitual?.likesCount]);
 
   const INTENSITY_MAP: Record<string, string> = {
     suave: "Suave",
@@ -355,10 +384,25 @@ export function RitualDetail() {
         )}
 
         {/* Ritual sections */}
+        <div className="mb-4">
+          <p
+            style={{
+              fontFamily: "Inter, sans-serif",
+              fontSize: "10px",
+              fontWeight: 500,
+              letterSpacing: "0.14em",
+              textTransform: "uppercase",
+              color: "#BBB",
+            }}
+          >
+            Ritual completo
+          </p>
+        </div>
+
         {[
           { label: "Apertura", text: displayRitual.opening, symbol: "◯" },
           { label: "Acción simbólica", text: displayRitual.symbolicAction, symbol: "◎" },
-          { label: "Cierre", text: displayRitual.closing, symbol: "·" },
+          { label: "Acción de cierre", text: displayRitual.closing, symbol: "·" },
         ]
           .filter((s) => s.text)
           .map((section, i) => (
@@ -464,30 +508,39 @@ export function RitualDetail() {
             </button>
             <button
               className={`flex-1 py-3.5 border rounded-xl transition-all active:scale-[0.98] flex items-center justify-center gap-2 ${
-                isRitualSaved(ritual)
+                isRitualSaved(ritualForAccount)
                   ? "border-[#0A0A0A] bg-[#F5F5F5] text-[#0A0A0A]"
                   : "border-[rgba(0,0,0,0.12)] text-[#0A0A0A] hover:border-[rgba(0,0,0,0.25)]"
               }`}
               style={{ fontFamily: "Inter, sans-serif", fontSize: "14px" }}
-              onClick={() => {
-                const saved = saveRitual(ritual);
-                if (saved) {
-                  toast("Ritual guardado ✓", {
-                    description: "Lo encontrás en tu perfil.",
-                  });
-                } else {
-                  toast("Ya está guardado", {
-                    description: "Podés verlo en tu menú de usuario.",
-                  });
+              onClick={async () => {
+                if (!session) {
+                  navigate("/login");
+                  return;
+                }
+
+                try {
+                  const saved = await saveRitual(ritualForAccount);
+                  if (saved) {
+                    toast("Ritual guardado ✓", {
+                      description: "Lo encontrás en tu perfil.",
+                    });
+                  } else {
+                    toast("Ya está guardado", {
+                      description: "Podés verlo en tu menú de usuario.",
+                    });
+                  }
+                } catch (error) {
+                  toast(error instanceof Error ? error.message : "No se pudo guardar este ritual.");
                 }
               }}
             >
-              {isRitualSaved(ritual) ? (
+              {isRitualSaved(ritualForAccount) ? (
                 <BookmarkCheck size={15} strokeWidth={1.5} />
               ) : (
                 <Bookmark size={15} strokeWidth={1.5} />
               )}
-              {isRitualSaved(ritual) ? "Guardado" : "Guardar"}
+              {isRitualSaved(ritualForAccount) ? "Guardado" : "Guardar"}
             </button>
           </div>
         ) : (
@@ -504,8 +557,28 @@ export function RitualDetail() {
             <button
               className="px-4 py-3.5 border border-[rgba(0,0,0,0.12)] text-[#555] rounded-xl transition-all active:scale-[0.98]"
               style={{ fontFamily: "Inter, sans-serif", fontSize: "13px" }}
+              onClick={async () => {
+                if (!session) {
+                  navigate("/login");
+                  return;
+                }
+
+                if (!id || id === "publico" || !loadedRitual?.ritualId) {
+                  toast("Todavía no se puede dar me gusta a este ritual.");
+                  return;
+                }
+
+                try {
+                  const next = likeState.liked
+                    ? await unlikeRitualById(loadedRitual.ritualId)
+                    : await likeRitualById(loadedRitual.ritualId);
+                  setLikeState(next);
+                } catch (error) {
+                  toast(error instanceof Error ? error.message : "No se pudo registrar el me gusta.");
+                }
+              }}
             >
-              ♥ Me gusta
+              ♥ {likeState.likesCount > 0 ? `${likeState.likesCount} ` : ""}{likeState.liked ? "Te gusta" : "Me gusta"}
             </button>
           </div>
         )}
