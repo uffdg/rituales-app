@@ -4,14 +4,16 @@ import { motion, AnimatePresence } from "motion/react";
 import { useNavigate } from "react-router";
 import { useUser } from "../context/UserContext";
 import { useRitual } from "../context/RitualContext";
-import { X, Bookmark, ChevronRight } from "lucide-react";
+import { X, Bookmark, ChevronRight, LogOut } from "lucide-react";
 
 export function UserMenu() {
   const [open, setOpen] = useState(false);
   const [dropdownPos, setDropdownPos] = useState({ top: 0, right: 0 });
   const buttonRef = useRef<HTMLButtonElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const { user, savedRituals, removeSavedRitual } = useUser();
+  const { user, savedRituals, removeSavedRitual, signOut } = useUser();
+  const email = user?.email || "";
+  const initial = email ? email[0].toUpperCase() : "?";
   const { setSelectedPublicRitual, setViewMode } = useRitual();
   const navigate = useNavigate();
 
@@ -64,7 +66,7 @@ export function UserMenu() {
     setSelectedPublicRitual({
       ...entry.ritual,
       aiRitual: entry.ritual.aiRitual,
-      author: user.name,
+      author: email,
     });
     setViewMode(false);
     setOpen(false);
@@ -107,7 +109,7 @@ export function UserMenu() {
                     lineHeight: 1,
                   }}
                 >
-                  {user.initial}
+                  {initial}
                 </span>
               </div>
               <div>
@@ -120,7 +122,7 @@ export function UserMenu() {
                     lineHeight: 1.2,
                   }}
                 >
-                  {user.name}
+                  {email}
                 </p>
                 <p
                   style={{
@@ -223,17 +225,14 @@ export function UserMenu() {
 
             {/* Footer */}
             <div className="border-t border-[rgba(0,0,0,0.06)] px-5 py-3">
-              <p
-                style={{
-                  fontFamily: "Inter, sans-serif",
-                  fontSize: "11px",
-                  color: "#CCC",
-                  fontWeight: 300,
-                  textAlign: "center",
-                }}
+              <button
+                onClick={async () => { await signOut(); setOpen(false); }}
+                className="flex items-center gap-2 text-[#888] hover:text-[#0A0A0A] transition-colors w-full"
+                style={{ fontFamily: "Inter, sans-serif", fontSize: "12px" }}
               >
-                Rituales · MVP
-              </p>
+                <LogOut size={13} strokeWidth={1.5} />
+                Cerrar sesión
+              </button>
             </div>
           </motion.div>
         </div>
@@ -260,7 +259,7 @@ export function UserMenu() {
             letterSpacing: "0.02em",
           }}
         >
-          {user.initial}
+          {initial}
         </span>
       </button>
 

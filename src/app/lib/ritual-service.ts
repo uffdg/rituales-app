@@ -152,7 +152,7 @@ function getApiBaseUrl() {
   return import.meta.env.VITE_RITUALES_API_BASE_URL?.replace(/\/$/, "") || "";
 }
 
-export async function generateRitual(input: RitualData): Promise<RitualGenerationResult> {
+export async function generateRitual(input: RitualData, userId?: string): Promise<RitualGenerationResult> {
   const apiBaseUrl = getApiBaseUrl();
 
   if (!apiBaseUrl) {
@@ -163,10 +163,8 @@ export async function generateRitual(input: RitualData): Promise<RitualGeneratio
 
   const response = await fetch(`${apiBaseUrl}/rituals/create`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(input),
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ...input, userId }),
   });
 
   if (!response.ok) {

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { useRitual, type GuidedAudioState } from "../context/RitualContext";
+import { useUser } from "../context/UserContext";
 import { ProgressBar } from "../components/ProgressBar";
 import { generateRitual, renderGuidedAudio } from "../lib/ritual-service";
 import { track } from "../lib/analytics";
@@ -31,6 +32,7 @@ const RITUAL_VERSIONS = [
 export function StepRitual() {
   const navigate = useNavigate();
   const { ritual, updateRitual } = useRitual();
+  const { user } = useUser();
   const [isGenerating, setIsGenerating] = useState(false);
   const [currentRitual, setCurrentRitual] = useState(ritual.aiRitual?.title ? ritual.aiRitual : null);
   const [guidedSession, setGuidedSession] = useState(ritual.guidedSession || null);
@@ -52,7 +54,7 @@ export function StepRitual() {
     setGenerateError("");
 
     try {
-      const result = await generateRitual(ritual);
+      const result = await generateRitual(ritual, user?.id);
       setCurrentRitual(result.ritual);
       setGuidedSession(result.guidedSession);
       setEditedTexts(result.ritual);
