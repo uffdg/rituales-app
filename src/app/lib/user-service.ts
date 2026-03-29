@@ -1,5 +1,6 @@
 import type { RitualData } from "../context/RitualContext";
 import type { RitualRecord } from "./ritual-service";
+import { getUserFacingErrorMessage } from "./errors";
 import { supabase } from "./supabase";
 
 export interface UserProfileData {
@@ -34,6 +35,36 @@ async function getAuthHeaders() {
     Authorization: `Bearer ${session.access_token}`,
     "Content-Type": "application/json",
   };
+}
+
+async function readUserServiceError(response: Response, fallback: string) {
+  try {
+    const text = await response.text();
+
+    if (!text) {
+      return fallback;
+    }
+
+    try {
+      const parsed = JSON.parse(text) as {
+        error?: string;
+        detail?: string | { message?: string };
+        message?: string;
+      };
+
+      const detail =
+        typeof parsed.detail === "string" ? parsed.detail : parsed.detail?.message;
+
+      return getUserFacingErrorMessage(
+        parsed.error || parsed.message || detail || text,
+        fallback,
+      );
+    } catch {
+      return getUserFacingErrorMessage(text, fallback);
+    }
+  } catch {
+    return fallback;
+  }
 }
 
 export async function getUserDashboard(): Promise<UserDashboard | null> {
@@ -87,7 +118,7 @@ export async function favoriteRitual(ritualId: string) {
   });
 
   if (!response.ok) {
-    throw new Error("No se pudo guardar el ritual.");
+    throw new Error(await readUserServiceError(response, "No se pudo guardar el ritual."));
   }
 
   return response.json();
@@ -105,7 +136,9 @@ export async function unfavoriteRitual(ritualId: string) {
   });
 
   if (!response.ok) {
-    throw new Error("No se pudo quitar el ritual de guardados.");
+    throw new Error(
+      await readUserServiceError(response, "No se pudo quitar el ritual de guardados."),
+    );
   }
 
   return response.json();

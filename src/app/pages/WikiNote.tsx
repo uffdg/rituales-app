@@ -102,26 +102,76 @@ export function WikiNote() {
         <div className="rounded-[28px] border border-[rgba(0,0,0,0.07)] bg-white px-5 py-5">
           <p
             style={{
-              fontFamily: "Cormorant Garamond, serif",
-              fontSize: "22px",
-              fontWeight: 400,
-              color: "#0A0A0A",
-              lineHeight: 1.3,
-              marginBottom: "10px",
-            }}
-          >
-            Texto en preparación
-          </p>
-          <p
-            style={{
               fontFamily: "Inter, sans-serif",
               fontSize: "14px",
               color: "#777",
               lineHeight: 1.75,
+              marginBottom: note.sections?.length ? "20px" : 0,
             }}
           >
             {note.body}
           </p>
+
+          {note.sections?.map((section) => (
+            <section key={section.title} className="mb-6 last:mb-0">
+              <h2
+                style={{
+                  fontFamily: "Cormorant Garamond, serif",
+                  fontSize: "24px",
+                  fontWeight: 400,
+                  color: "#0A0A0A",
+                  lineHeight: 1.2,
+                  marginBottom: "10px",
+                }}
+              >
+                {section.title}
+              </h2>
+
+              {section.paragraphs?.map((paragraph) => (
+                <p
+                  key={paragraph}
+                  style={{
+                    fontFamily: "Inter, sans-serif",
+                    fontSize: "14px",
+                    color: "#777",
+                    lineHeight: 1.75,
+                    marginBottom: "10px",
+                  }}
+                >
+                  {paragraph}
+                </p>
+              ))}
+
+              {section.bullets?.length ? (
+                <div className="flex flex-col gap-2 mt-2">
+                  {section.bullets.map((bullet) => (
+                    <div key={bullet} className="flex items-start gap-3">
+                      <span
+                        style={{
+                          fontFamily: "Cormorant Garamond, serif",
+                          fontSize: "18px",
+                          color: "#0A0A0A",
+                          lineHeight: 1.4,
+                        }}
+                      >
+                        •
+                      </span>
+                      <p
+                        style={{
+                          fontFamily: "Inter, sans-serif",
+                          fontSize: "14px",
+                          color: "#777",
+                          lineHeight: 1.7,
+                        }}
+                      >
+                        {bullet}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+            </section>
+          ))}
         </div>
       </motion.div>
     </div>
