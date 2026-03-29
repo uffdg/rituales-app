@@ -23,16 +23,17 @@ export const router = createBrowserRouter([
     path: "/",
     Component: Layout,
     children: [
-      { index: true, Component: guard(Home) },
+      { index: true, Component: Home },
+      { path: "explorar", Component: Explore },
+      { path: "ritual/:id", Component: RitualDetail },
+      // Requieren login
       { path: "onboarding", Component: guard(Onboarding) },
       { path: "crear/1", Component: guard(StepIntention) },
       { path: "crear/2", Component: guard(StepEnergy) },
       { path: "crear/3", Component: guard(StepElement) },
       { path: "crear/4", Component: guard(StepRitual) },
       { path: "crear/5", Component: guard(StepAnchor) },
-      { path: "ritual/:id", Component: guard(RitualDetail) },
       { path: "compartir", Component: guard(Share) },
-      { path: "explorar", Component: guard(Explore) },
     ],
   },
 ]);
