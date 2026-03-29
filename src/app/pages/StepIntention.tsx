@@ -41,6 +41,7 @@ export function StepIntention() {
   const [isReframing, setIsReframing] = useState(false);
   const [micError, setMicError] = useState("");
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
+  const transcriptRef = useRef<string>("");
   const hasSpeechRecognition = typeof window !== "undefined" &&
     !!(( window as any).SpeechRecognition || (window as any).webkitSpeechRecognition);
 
@@ -53,7 +54,6 @@ export function StepIntention() {
   const handleMic = () => {
     if (isListening) {
       recognitionRef.current?.stop();
-      setIsListening(false);
       return;
     }
 
@@ -64,22 +64,18 @@ export function StepIntention() {
       return;
     }
 
+    transcriptRef.current = "";
     recognition.lang = "es-AR";
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
-    recognition.continuous = false;
+    recognition.continuous = true;
 
-    recognition.onresult = async (e: SpeechRecognitionEvent) => {
-      const transcript = e.results[0][0].transcript;
-      setIntention((prev) => (prev ? `${prev} ${transcript}` : transcript));
-      track("voice_input_used");
-
-      setIsReframing(true);
-      try {
-        const reframed = await reframeIntention(transcript);
-        if (reframed) setIntention(reframed);
-      } finally {
-        setIsReframing(false);
+    recognition.onresult = (e: SpeechRecognitionEvent) => {
+      for (let i = e.results.length - 1; i >= 0; i--) {
+        if (e.results[i].isFinal) {
+          transcriptRef.current += (transcriptRef.current ? " " : "") + e.results[i][0].transcript;
+          break;
+        }
       }
     };
 
@@ -90,8 +86,21 @@ export function StepIntention() {
       setIsListening(false);
     };
 
-    recognition.onend = () => {
+    recognition.onend = async () => {
       setIsListening(false);
+      const transcript = transcriptRef.current.trim();
+      if (!transcript) return;
+
+      setIntention(transcript);
+      track("voice_input_used");
+
+      setIsReframing(true);
+      try {
+        const reframed = await reframeIntention(transcript);
+        if (reframed) setIntention(reframed);
+      } finally {
+        setIsReframing(false);
+      }
     };
 
     recognitionRef.current = recognition;

@@ -50,6 +50,7 @@ export function Onboarding() {
   const [reframedIntention, setReframedIntention] = useState<string | null>(null);
   const [detectedType, setDetectedType] = useState<string | null>(null);
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
+  const transcriptRef = useRef<string>("");
 
   const hasSpeechRecognition =
     typeof window !== "undefined" &&
@@ -77,23 +78,41 @@ export function Onboarding() {
     navigate("/crear/2");
   };
 
-  const handleMic = () => {
+  const handleMic = async () => {
     if (isListening) {
       recognitionRef.current?.stop();
-      setIsListening(false);
       return;
     }
 
     const recognition = createSpeechRecognition();
     if (!recognition) return;
 
+    transcriptRef.current = "";
     recognition.lang = "es-AR";
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
-    recognition.continuous = false;
+    recognition.continuous = true;
 
-    recognition.onresult = async (e: SpeechRecognitionEvent) => {
-      const transcript = e.results[0][0].transcript;
+    recognition.onresult = (e: SpeechRecognitionEvent) => {
+      for (let i = e.results.length - 1; i >= 0; i--) {
+        if (e.results[i].isFinal) {
+          transcriptRef.current += (transcriptRef.current ? " " : "") + e.results[i][0].transcript;
+          break;
+        }
+      }
+    };
+
+    recognition.onerror = (e: SpeechRecognitionErrorEvent) => {
+      if (e.error !== "no-speech" && e.error !== "aborted") {
+        setIsListening(false);
+      }
+    };
+
+    recognition.onend = async () => {
+      setIsListening(false);
+      const transcript = transcriptRef.current.trim();
+      if (!transcript) return;
+
       const type = detectRitualType(transcript);
       setDetectedType(type);
       track("voice_onboarding_used");
@@ -106,14 +125,6 @@ export function Onboarding() {
         setIsReframing(false);
       }
     };
-
-    recognition.onerror = (e: SpeechRecognitionErrorEvent) => {
-      if (e.error !== "no-speech" && e.error !== "aborted") {
-        setIsListening(false);
-      }
-    };
-
-    recognition.onend = () => setIsListening(false);
 
     recognitionRef.current = recognition;
     recognition.start();
