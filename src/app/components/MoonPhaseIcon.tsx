@@ -1,6 +1,7 @@
 type MoonPhaseIconProps = {
   phase: string;
   size?: number;
+  darkTheme?: boolean;
   className?: string;
 };
 
@@ -19,72 +20,73 @@ function getPhaseVariant(phase: string) {
   return "full";
 }
 
-export function MoonPhaseIcon({ phase, size = 28, className }: MoonPhaseIconProps) {
+export function MoonPhaseIcon({ phase, size = 28, darkTheme = false, className }: MoonPhaseIconProps) {
   const variant = getPhaseVariant(phase);
-  const stroke = "#111111";
-  const light = "#F7F5F1";
+  const stroke = darkTheme ? "#FFFFFF" : "#111111";
+  const darkFill = darkTheme ? "#050505" : "#111111";
+  const lightFill = darkTheme ? "#FFFFFF" : "#F7F5F1";
 
   const renderPhase = () => {
     switch (variant) {
       case "new":
         return (
           <>
-            <circle cx="18" cy="18" r="12" fill="#111111" />
+            <circle cx="18" cy="18" r="12" fill={darkFill} />
             <circle cx="18" cy="18" r="12" fill="none" stroke={stroke} strokeWidth="1.5" />
           </>
         );
       case "full":
         return (
           <>
-            <circle cx="18" cy="18" r="12" fill={light} />
+            <circle cx="18" cy="18" r="12" fill={lightFill} />
             <circle cx="18" cy="18" r="12" fill="none" stroke={stroke} strokeWidth="1.5" />
           </>
         );
       case "first-quarter":
         return (
           <>
-            <path d="M18 6A12 12 0 0 0 18 30Z" fill="#111111" />
-            <path d="M18 6A12 12 0 0 1 18 30Z" fill={light} />
+            <path d="M18 6A12 12 0 0 0 18 30Z" fill={darkFill} />
+            <path d="M18 6A12 12 0 0 1 18 30Z" fill={lightFill} />
             <circle cx="18" cy="18" r="12" fill="none" stroke={stroke} strokeWidth="1.5" />
           </>
         );
       case "last-quarter":
         return (
           <>
-            <path d="M18 6A12 12 0 0 1 18 30Z" fill="#111111" />
-            <path d="M18 6A12 12 0 0 0 18 30Z" fill={light} />
+            <path d="M18 6A12 12 0 0 1 18 30Z" fill={darkFill} />
+            <path d="M18 6A12 12 0 0 0 18 30Z" fill={lightFill} />
             <circle cx="18" cy="18" r="12" fill="none" stroke={stroke} strokeWidth="1.5" />
           </>
         );
       case "waxing-crescent":
         return (
           <>
-            <circle cx="18" cy="18" r="12" fill="#111111" />
-            <ellipse cx="22.2" cy="18" rx="7" ry="11" fill={light} />
+            <circle cx="18" cy="18" r="12" fill={darkFill} />
+            <ellipse cx="22.2" cy="18" rx="7" ry="11" fill={lightFill} />
             <circle cx="18" cy="18" r="12" fill="none" stroke={stroke} strokeWidth="1.5" />
           </>
         );
       case "waning-crescent":
         return (
           <>
-            <circle cx="18" cy="18" r="12" fill="#111111" />
-            <ellipse cx="13.8" cy="18" rx="7" ry="11" fill={light} />
+            <circle cx="18" cy="18" r="12" fill={darkFill} />
+            <ellipse cx="13.8" cy="18" rx="7" ry="11" fill={lightFill} />
             <circle cx="18" cy="18" r="12" fill="none" stroke={stroke} strokeWidth="1.5" />
           </>
         );
       case "waxing-gibbous":
         return (
           <>
-            <circle cx="18" cy="18" r="12" fill={light} />
-            <ellipse cx="12.5" cy="18" rx="5.4" ry="11" fill="#111111" />
+            <circle cx="18" cy="18" r="12" fill={lightFill} />
+            <ellipse cx="12.5" cy="18" rx="5.4" ry="11" fill={darkFill} />
             <circle cx="18" cy="18" r="12" fill="none" stroke={stroke} strokeWidth="1.5" />
           </>
         );
       case "waning-gibbous":
         return (
           <>
-            <circle cx="18" cy="18" r="12" fill={light} />
-            <ellipse cx="23.5" cy="18" rx="5.4" ry="11" fill="#111111" />
+            <circle cx="18" cy="18" r="12" fill={lightFill} />
+            <ellipse cx="23.5" cy="18" rx="5.4" ry="11" fill={darkFill} />
             <circle cx="18" cy="18" r="12" fill="none" stroke={stroke} strokeWidth="1.5" />
           </>
         );

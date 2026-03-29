@@ -81,43 +81,59 @@ export function Wiki() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.45, delay: index * 0.05 }}
               onClick={() => navigate(`/wiki/${note.id}`)}
-              className="w-full text-left rounded-[28px] border border-[rgba(0,0,0,0.07)] bg-white px-5 py-5 transition-all hover:border-[rgba(0,0,0,0.14)] active:scale-[0.99]"
+              className="relative w-full text-left rounded-[6px] overflow-hidden transition-all hover:scale-[0.99] active:scale-[0.97] min-h-[200px] flex flex-col justify-end group isolate border border-[rgba(0,0,0,0.04)]"
             >
-              <p
-                style={{
-                  fontFamily: "Inter, sans-serif",
-                  fontSize: "10px",
-                  fontWeight: 500,
-                  letterSpacing: "0.14em",
-                  textTransform: "uppercase",
-                  color: "#BBB",
-                  marginBottom: "10px",
-                }}
-              >
-                {note.eyebrow}
-              </p>
-              <h2
-                style={{
-                  fontFamily: "Cormorant Garamond, serif",
-                  fontSize: "24px",
-                  fontWeight: 400,
-                  color: "#0A0A0A",
-                  lineHeight: 1.15,
-                  marginBottom: "10px",
-                }}
-              >
-                {note.title}
-              </h2>
-              <p
-                style={{
-                  fontFamily: "Inter, sans-serif",
-                  fontSize: "13px",
-                  color: "#777",
-                  lineHeight: 1.6,
-                }}
-              >
-                {note.summary}
-              </p>
+              {/* Background Image & Overlay */}
+              <div className="absolute inset-0 z-0 bg-[#F5F5F5]">
+                {note.image && (
+                  <img
+                    src={note.image}
+                    alt=""
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                )}
+                {/* Subtle gradient for text legibility ONLY at the very bottom */}
+                <div className="absolute inset-0 bg-gradient-to-t from-[rgba(0,0,0,0.7)] via-[rgba(0,0,0,0.1)] to-transparent" />
+              </div>
+
+              {/* Text Content */}
+              <div className="relative z-10 px-6 py-6 w-full">
+                <p
+                  style={{
+                    fontFamily: "Inter, sans-serif",
+                    fontSize: "10px",
+                    fontWeight: 500,
+                    letterSpacing: "0.14em",
+                    textTransform: "uppercase",
+                    color: "rgba(255,255,255,0.7)",
+                    marginBottom: "8px",
+                  }}
+                >
+                  {note.eyebrow}
+                </p>
+                <h2
+                  style={{
+                    fontFamily: "Cormorant Garamond, serif",
+                    fontSize: "26px",
+                    fontWeight: 400,
+                    color: "#FFFFFF",
+                    lineHeight: 1.15,
+                    marginBottom: "8px",
+                  }}
+                >
+                  {note.title}
+                </h2>
+                <p
+                  style={{
+                    fontFamily: "Inter, sans-serif",
+                    fontSize: "13px",
+                    color: "rgba(255,255,255,0.8)",
+                    lineHeight: 1.6,
+                  }}
+                >
+                  {note.summary}
+                </p>
+              </div>
             </motion.button>
           ))}
         </div>

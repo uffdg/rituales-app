@@ -1,11 +1,16 @@
 import { useNavigate, useParams } from "react-router";
-import { motion } from "motion/react";
+import { motion, useScroll, useTransform } from "motion/react";
+import { ArrowLeft, ChevronDown, Sparkle } from "lucide-react";
 import { getWikiNoteById } from "../data/wiki";
 
 export function WikiNote() {
   const navigate = useNavigate();
   const { id } = useParams();
   const note = id ? getWikiNoteById(id) : null;
+  const { scrollY } = useScroll();
+
+  const y = useTransform(scrollY, [0, 800], [0, 250]);
+  const opacity = useTransform(scrollY, [0, 400], [1, 0]);
 
   if (!note) {
     return (
@@ -32,148 +37,163 @@ export function WikiNote() {
   }
 
   return (
-    <div className="min-h-screen bg-white flex flex-col overflow-y-auto">
-      <div
-        className="fixed inset-0 pointer-events-none"
-        style={{
-          background:
-            "radial-gradient(ellipse 70% 45% at 50% 0%, rgba(0,0,0,0.04) 0%, transparent 60%)",
-        }}
-      />
+    <div className="min-h-screen bg-[#111] overflow-x-hidden relative">
+      <button
+        onClick={() => navigate("/wiki")}
+        className="fixed top-12 left-6 z-50 flex items-center justify-center w-10 h-10 rounded-full bg-black/20 backdrop-blur-md text-white border border-white/20 transition-all hover:bg-black/40 hover:scale-105 active:scale-95"
+      >
+        <ArrowLeft size={18} strokeWidth={2} />
+      </button>
 
-      <div className="relative z-10 pt-14 px-6 pb-4 flex items-center justify-between">
-        <button
-          onClick={() => navigate("/wiki")}
-          className="flex items-center gap-2 text-[#888] hover:text-[#0A0A0A] transition-colors"
-          style={{ fontFamily: "Inter, sans-serif", fontSize: "13px" }}
+      <div className="relative w-full h-[88vh] min-h-[500px] flex flex-col justify-end overflow-hidden isolate">
+        {note.image && (
+          <motion.div style={{ y, opacity }} className="absolute inset-0 z-0">
+            <img src={note.image} alt="" className="w-full h-full object-cover origin-bottom" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#111] via-black/40 to-black/10" />
+          </motion.div>
+        )}
+
+        <div className="relative z-10 px-8 pb-32 w-full max-w-2xl mx-auto flex flex-col items-start">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="mb-6 bg-white/10 backdrop-blur-md border border-white/20 px-4 py-1.5 rounded-full"
+          >
+            <p
+              className="text-white uppercase tracking-[0.2em] text-[10px] font-semibold"
+              style={{ fontFamily: "Inter, sans-serif" }}
+            >
+              {note.eyebrow}
+            </p>
+          </motion.div>
+
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="text-white text-[44px] leading-[1.05] mb-6"
+            style={{ fontFamily: "Cormorant Garamond, serif" }}
+          >
+            {note.title}
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="text-[#E0E0E0] text-[16px] leading-[1.65]"
+            style={{ fontFamily: "Inter, sans-serif" }}
+          >
+            {note.summary}
+          </motion.p>
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1, delay: 1 }}
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 text-white/50 animate-bounce flex flex-col items-center gap-2"
         >
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <path d="M9 2L4 7L9 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-          </svg>
-          Wiki
-        </button>
+          <span
+            className="text-[10px] uppercase tracking-widest font-medium"
+            style={{ fontFamily: "Inter, sans-serif" }}
+          >
+            Scroll
+          </span>
+          <ChevronDown size={20} />
+        </motion.div>
       </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-        className="relative z-10 px-6 pb-12"
-      >
-        <p
-          style={{
-            fontFamily: "Inter, sans-serif",
-            fontSize: "11px",
-            fontWeight: 500,
-            letterSpacing: "0.14em",
-            textTransform: "uppercase",
-            color: "#BBB",
-            marginBottom: "10px",
-          }}
-        >
-          {note.eyebrow}
-        </p>
-
-        <h1
-          style={{
-            fontFamily: "Cormorant Garamond, serif",
-            fontSize: "36px",
-            fontWeight: 400,
-            color: "#0A0A0A",
-            lineHeight: 1.08,
-            marginBottom: "14px",
-          }}
-        >
-          {note.title}
-        </h1>
+      <div className="relative z-20 bg-white min-h-screen rounded-t-[36px] -mt-10 pt-10 pb-24 px-8 shadow-[0_-12px_40px_rgba(0,0,0,0.15)] flex flex-col max-w-3xl mx-auto border-t border-white/50">
+        <div className="w-12 h-1.5 bg-[#E5E5E5] rounded-full mx-auto mb-14" />
 
         <p
-          style={{
-            fontFamily: "Inter, sans-serif",
-            fontSize: "14px",
-            color: "#777",
-            lineHeight: 1.7,
-            marginBottom: "24px",
-          }}
+          className="text-[#111] text-[19px] leading-[1.7] mb-14 font-medium"
+          style={{ fontFamily: "Inter, sans-serif" }}
         >
-          {note.summary}
+          {note.body}
         </p>
 
-        <div className="rounded-[28px] border border-[rgba(0,0,0,0.07)] bg-white px-5 py-5">
-          <p
-            style={{
-              fontFamily: "Inter, sans-serif",
-              fontSize: "14px",
-              color: "#777",
-              lineHeight: 1.75,
-              marginBottom: note.sections?.length ? "20px" : 0,
-            }}
-          >
-            {note.body}
-          </p>
+        <div className="h-[1px] w-full bg-[#F0F0F0] mb-14" />
 
-          {note.sections?.map((section) => (
-            <section key={section.title} className="mb-6 last:mb-0">
-              <h2
-                style={{
-                  fontFamily: "Cormorant Garamond, serif",
-                  fontSize: "24px",
-                  fontWeight: 400,
-                  color: "#0A0A0A",
-                  lineHeight: 1.2,
-                  marginBottom: "10px",
-                }}
+        {note.sections && (
+          <div className="flex flex-col gap-16">
+            {note.sections.map((section, idx) => (
+              <motion.div
+                key={section.title}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.6 }}
+                className="flex flex-col"
               >
-                {section.title}
-              </h2>
-
-              {section.paragraphs?.map((paragraph) => (
-                <p
-                  key={paragraph}
-                  style={{
-                    fontFamily: "Inter, sans-serif",
-                    fontSize: "14px",
-                    color: "#777",
-                    lineHeight: 1.75,
-                    marginBottom: "10px",
-                  }}
-                >
-                  {paragraph}
-                </p>
-              ))}
-
-              {section.bullets?.length ? (
-                <div className="flex flex-col gap-2 mt-2">
-                  {section.bullets.map((bullet) => (
-                    <div key={bullet} className="flex items-start gap-3">
-                      <span
-                        style={{
-                          fontFamily: "Cormorant Garamond, serif",
-                          fontSize: "18px",
-                          color: "#0A0A0A",
-                          lineHeight: 1.4,
-                        }}
-                      >
-                        •
-                      </span>
-                      <p
-                        style={{
-                          fontFamily: "Inter, sans-serif",
-                          fontSize: "14px",
-                          color: "#777",
-                          lineHeight: 1.7,
-                        }}
-                      >
-                        {bullet}
-                      </p>
-                    </div>
-                  ))}
+                <div className="flex items-center gap-4 mb-6">
+                  <span
+                    className="text-[#DDD] text-[20px] font-light"
+                    style={{ fontFamily: "Inter, sans-serif" }}
+                  >
+                    {String(idx + 1).padStart(2, "0")}
+                  </span>
+                  <h2
+                    className="text-[#0A0A0A] text-[28px]"
+                    style={{ fontFamily: "Cormorant Garamond, serif" }}
+                  >
+                    {section.title.replace(/^\d+\.\s*/, "")}
+                  </h2>
                 </div>
-              ) : null}
-            </section>
-          ))}
-        </div>
-      </motion.div>
+
+                {section.paragraphs?.map((paragraph, paragraphIndex) => (
+                  <p
+                    key={`${section.title}-paragraph-${paragraphIndex}`}
+                    className="text-[#555] text-[16px] leading-[1.8] mb-5"
+                    style={{ fontFamily: "Inter, sans-serif" }}
+                  >
+                    {paragraph}
+                  </p>
+                ))}
+
+                {section.bullets && (
+                  <div className="mt-6 bg-[#FAFAFA] rounded-[24px] p-7 border border-[#F0F0F0] shadow-sm">
+                    <ul className="flex flex-col gap-5">
+                      {section.bullets.map((bullet, bulletIndex) => {
+                        const parts = bullet.split(":");
+                        const hasColon = parts.length > 1 && parts[0].length < 40;
+
+                        return (
+                          <li
+                            key={`${section.title}-bullet-${bulletIndex}`}
+                            className="flex items-start gap-4"
+                          >
+                            <div className="shrink-0 mt-[4px] text-[#A0A0A0]">
+                              <Sparkle size={18} strokeWidth={1.5} />
+                            </div>
+                            <span
+                              className="text-[#444] text-[15px] leading-[1.7]"
+                              style={{ fontFamily: "Inter, sans-serif" }}
+                            >
+                              {hasColon ? (
+                                <>
+                                  <strong className="text-[#111] font-semibold">
+                                    {parts[0]}:
+                                  </strong>
+                                  {parts.slice(1).join(":")}
+                                </>
+                              ) : (
+                                bullet
+                              )}
+                            </span>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                )}
+              </motion.div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

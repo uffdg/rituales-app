@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router";
+import { useNavigate, useParams, useLocation } from "react-router";
 import { motion } from "motion/react";
 import { useRitual } from "../context/RitualContext";
 import { useUser } from "../context/UserContext";
@@ -18,6 +18,8 @@ import {
 export function RitualDetail() {
   const navigate = useNavigate();
   const { id } = useParams();
+  const location = useLocation();
+  const fromAccount = location.state?.fromAccount;
   const { ritual, isViewMode, resetRitual, selectedPublicRitual, setSelectedPublicRitual, setViewMode, updateRitual } = useRitual();
   const { saveRitual, isRitualSaved, session } = useUser();
   const [loadedRitual, setLoadedRitual] = useState<RitualRecord | null>(null);
@@ -315,14 +317,18 @@ export function RitualDetail() {
       {/* Header */}
       <div className="relative z-10 pt-14 px-6 pb-4 flex items-center justify-between">
         <button
-          onClick={() => navigate(isViewMode ? "/explorar" : "/")}
+          onClick={() => {
+            if (fromAccount) navigate("/cuenta");
+            else if (isViewMode) navigate("/explorar");
+            else navigate("/");
+          }}
           className="flex items-center gap-2 text-[#888] hover:text-[#0A0A0A] transition-colors"
           style={{ fontFamily: "Inter, sans-serif", fontSize: "13px" }}
         >
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
             <path d="M9 2L4 7L9 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
           </svg>
-          {isViewMode ? "Explorar" : "Inicio"}
+          {fromAccount ? "Volver" : isViewMode ? "Explorar" : "Inicio"}
         </button>
         <div className="flex items-center gap-3">
           {!isPublic && (

@@ -9,7 +9,7 @@ import { EXPLORE_RITUALS } from "../data/rituals";
 import { WIKI_NOTES } from "../data/wiki";
 import { UserMenu } from "../components/UserMenu";
 import { MoonPhaseIcon } from "../components/MoonPhaseIcon";
-import { getCosmicSliderDays } from "../lib/cosmic-calendar";
+import { getCosmicSliderDays, getPhaseBackgroundUrl } from "../lib/cosmic-calendar";
 import {
   generateRitual,
   ritualCardToRitualData,
@@ -314,42 +314,7 @@ export function Home() {
 
       {/* Hero section */}
       <div className="relative flex flex-col items-center px-6 pt-12 pb-10">
-        {/* Halo decorative rings */}
-        <div className="absolute top-6 left-1/2 -translate-x-1/2 pointer-events-none">
-          <div
-            style={{
-              width: 240,
-              height: 240,
-              borderRadius: "50%",
-              border: "1px solid rgba(0,0,0,0.05)",
-              position: "absolute",
-              top: -60,
-              left: -120,
-            }}
-          />
-          <div
-            style={{
-              width: 340,
-              height: 340,
-              borderRadius: "50%",
-              border: "1px solid rgba(0,0,0,0.03)",
-              position: "absolute",
-              top: -110,
-              left: -170,
-            }}
-          />
-          <div
-            style={{
-              width: 160,
-              height: 160,
-              borderRadius: "50%",
-              border: "1px solid rgba(0,0,0,0.06)",
-              position: "absolute",
-              top: -20,
-              left: -80,
-            }}
-          />
-        </div>
+
 
         {/* Brand */}
         <motion.div
@@ -358,9 +323,35 @@ export function Home() {
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
           className="relative z-10 flex flex-col items-center"
         >
-          {/* Logo mark */}
-          <div className="mb-6 relative">
-            <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+          {/* Logo mark with animated ripples perfectly centered */}
+          <div className="mb-6 relative flex items-center justify-center">
+            {/* Animated Ripples */}
+            <div className="absolute inset-0 pointer-events-none z-0">
+              {[0, 1, 2, 3].map((i) => (
+                <motion.div
+                  key={i}
+                  initial={{ scale: 0.15, opacity: 0.1, x: "-50%", y: "-50%" }}
+                  animate={{
+                    scale: [0.15, 1],
+                    opacity: [0.1, 0],
+                  }}
+                  transition={{
+                    duration: 4,
+                    repeat: Infinity,
+                    ease: "linear",
+                    delay: i * 1,
+                  }}
+                  className="absolute top-1/2 left-1/2 rounded-full"
+                  style={{
+                    width: "400px",
+                    height: "400px",
+                    border: "1px solid rgba(0,0,0,1)",
+                  }}
+                />
+              ))}
+            </div>
+            {/* Base SVG */}
+            <svg width="36" height="36" viewBox="0 0 36 36" fill="none" className="relative z-10">
               <circle cx="18" cy="18" r="17" stroke="#0A0A0A" strokeWidth="0.75" />
               <circle cx="18" cy="18" r="10" stroke="#0A0A0A" strokeWidth="0.5" />
               <circle cx="18" cy="18" r="3" fill="#0A0A0A" />
@@ -466,59 +457,55 @@ export function Home() {
 
         <div className="overflow-x-auto hide-scrollbar pb-2 pl-6 pr-0">
           <div className="flex gap-3 w-max pr-6">
-          {cosmicDays.map((day) => (
-            <button
-              key={day.dateKey}
-              onClick={() => navigate("/calendario-cosmico")}
-              className="shrink-0 w-[128px] rounded-[28px] border border-[rgba(0,0,0,0.07)] bg-white px-4 py-4 text-left"
-            >
-              <p
-                style={{
-                  fontFamily: "Inter, sans-serif",
-                  fontSize: "10px",
-                  fontWeight: 500,
-                  letterSpacing: "0.12em",
-                  textTransform: "uppercase",
-                  color: "#AAA",
-                  marginBottom: "8px",
-                }}
+          {cosmicDays.map((day) => {
+            const bgUrl = getPhaseBackgroundUrl(day.moonPhase);
+            const isNewMoon = bgUrl === "black";
+            return (
+              <button
+                key={day.dateKey}
+                onClick={() => navigate("/calendario-cosmico", { state: { selectedDate: day.dateKey } })}
+                className="relative overflow-hidden shrink-0 w-[128px] min-h-[160px] rounded-[6px] bg-[#000] px-4 py-4 text-left shadow-sm group hover:opacity-90 transition-all flex flex-col"
               >
-                {day.weekdayLabel}
-              </p>
-              <div className="flex items-center justify-between mb-3">
-                <p
-                  style={{
-                    fontFamily: "Cormorant Garamond, serif",
-                    fontSize: "28px",
-                    color: "#0A0A0A",
-                    lineHeight: 1,
-                  }}
-                >
-                    {day.shortLabel}
-                  </p>
-                <MoonPhaseIcon phase={day.moonPhase} size={26} />
-              </div>
-              <p
-                style={{
-                  fontFamily: "Inter, sans-serif",
-                  fontSize: "12px",
-                  color: "#666",
-                  lineHeight: 1.4,
-                  marginBottom: "8px",
-                }}
-              >
-                {day.moonPhase}
-              </p>
-              {day.events[0] ? (
-                <span
-                  className="inline-flex px-2.5 py-0.5 rounded-full border border-[rgba(0,0,0,0.08)] text-[#666]"
-                  style={{ fontFamily: "Inter, sans-serif", fontSize: "10px" }}
-                >
-                  {day.events[0].shortLabel}
-                </span>
-              ) : null}
-            </button>
-          ))}
+                {!isNewMoon && bgUrl && (
+                  <div
+                    className="absolute inset-0 pointer-events-none transition-opacity duration-500 ease-out"
+                    style={{
+                      backgroundImage: `url(${bgUrl})`,
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                      backgroundRepeat: "no-repeat",
+                    }}
+                  />
+                )}
+
+                <div className="relative z-10 w-full h-full flex flex-col flex-1 text-current">
+                  <div>
+                    <p style={{ fontFamily: "Inter, sans-serif", fontSize: "10px", fontWeight: 500, letterSpacing: "0.12em", textTransform: "uppercase", color: "#FFF", marginBottom: "8px" }}>
+                      {day.weekdayLabel}
+                    </p>
+                    <div className="flex items-center justify-between mb-3 text-current">
+                      <p style={{ fontFamily: "Cormorant Garamond, serif", fontSize: "28px", fontWeight: 500, color: "#FFF", lineHeight: 1 }}>
+                        {day.shortLabel}
+                      </p>
+                      <div>
+                        <MoonPhaseIcon phase={day.moonPhase} size={26} darkTheme={true} />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="mt-auto pt-4 flex flex-col items-start">
+                    <p style={{ fontFamily: "Inter, sans-serif", fontSize: "12px", fontWeight: 500, color: "#FFF", lineHeight: 1.4, marginBottom: day.events[0] ? "8px" : "0" }}>
+                      {day.moonPhase}
+                    </p>
+                    {day.events[0] ? (
+                      <span className="inline-flex px-2.5 py-0.5 rounded-[4px] bg-[#222] text-[#CCC]" style={{ fontFamily: "Inter, sans-serif", fontSize: "10px" }}>
+                        {day.events[0].shortLabel}
+                      </span>
+                    ) : null}
+                  </div>
+                </div>
+              </button>
+            );
+          })}
           </div>
         </div>
       </motion.div>
@@ -688,43 +675,58 @@ export function Home() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.45, delay: 0.58 + index * 0.05 }}
                 onClick={() => navigate(`/wiki/${note.id}`)}
-                className="shrink-0 w-[220px] rounded-[28px] border border-[rgba(0,0,0,0.07)] bg-white px-5 py-5 text-left transition-all hover:border-[rgba(0,0,0,0.14)] active:scale-[0.99]"
+                className="shrink-0 w-[220px] text-left transition-all hover:opacity-80 active:scale-[0.99] flex flex-col gap-3"
               >
-                <p
-                  style={{
-                    fontFamily: "Inter, sans-serif",
-                    fontSize: "10px",
-                    fontWeight: 500,
-                    letterSpacing: "0.14em",
-                    textTransform: "uppercase",
-                    color: "#BBB",
-                    marginBottom: "10px",
-                  }}
-                >
-                  {note.eyebrow}
-                </p>
-                <h3
-                  style={{
-                    fontFamily: "Cormorant Garamond, serif",
-                    fontSize: "24px",
-                    fontWeight: 400,
-                    color: "#0A0A0A",
-                    lineHeight: 1.15,
-                    marginBottom: "10px",
-                  }}
-                >
-                  {note.title}
-                </h3>
-                <p
-                  style={{
-                    fontFamily: "Inter, sans-serif",
-                    fontSize: "12px",
-                    color: "#777",
-                    lineHeight: 1.55,
-                  }}
-                >
-                  {note.summary}
-                </p>
+                <div className="w-full aspect-[4/4] rounded-[6px] bg-[#f5f5f5] overflow-hidden relative isolate">
+                  {note.image && (
+                    <img 
+                      src={note.image} 
+                      alt={note.title} 
+                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 hover:scale-105"
+                    />
+                  )}
+                </div>
+                <div className="pt-1">
+                  <p
+                    style={{
+                      fontFamily: "Inter, sans-serif",
+                      fontSize: "10px",
+                      fontWeight: 500,
+                      letterSpacing: "0.14em",
+                      textTransform: "uppercase",
+                      color: "#BBB",
+                      marginBottom: "6px",
+                    }}
+                  >
+                    {note.eyebrow}
+                  </p>
+                  <h3
+                    style={{
+                      fontFamily: "Cormorant Garamond, serif",
+                      fontSize: "22px",
+                      fontWeight: 400,
+                      color: "#0A0A0A",
+                      lineHeight: 1.15,
+                      marginBottom: "8px",
+                    }}
+                  >
+                    {note.title}
+                  </h3>
+                  <p
+                    style={{
+                      fontFamily: "Inter, sans-serif",
+                      fontSize: "12px",
+                      color: "#777",
+                      lineHeight: 1.55,
+                      display: "-webkit-box",
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: "vertical",
+                      overflow: "hidden",
+                    }}
+                  >
+                    {note.summary}
+                  </p>
+                </div>
               </motion.button>
             ))}
           </div>

@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { useNavigate } from "react-router";
+import { useMemo, useState, useEffect, useRef } from "react";
+import { useNavigate, useLocation } from "react-router";
 import { addMonths, addWeeks, format, subMonths, subWeeks } from "date-fns";
 import { es } from "date-fns/locale";
 import { MoonPhaseIcon } from "../components/MoonPhaseIcon";
@@ -7,18 +7,42 @@ import {
   buildCosmicDay,
   getMonthlyCosmicDays,
   getWeeklyCosmicDays,
+  getNextEvent,
+  getPhaseBackgroundUrl,
   isToday,
   type CosmicDay,
 } from "../lib/cosmic-calendar";
 
 export function CosmicCalendar() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [view, setView] = useState<"week" | "month">("week");
   const [currentDate, setCurrentDate] = useState(new Date());
+  
+  const initialSelectedDate: string | undefined = location.state?.selectedDate;
   const [selectedDay, setSelectedDay] = useState<CosmicDay | null>(null);
 
   const weeklyDays = useMemo(() => getWeeklyCosmicDays(currentDate), [currentDate]);
   const monthlyDays = useMemo(() => getMonthlyCosmicDays(currentDate), [currentDate]);
+
+  const hasOpenedInitialRef = useRef(false);
+
+  useEffect(() => {
+    if (initialSelectedDate && !hasOpenedInitialRef.current) {
+      const matchKey = initialSelectedDate.replace(/-/g, ""); // dateKey is e.g. "20240401" or YYYY-MM-DD?
+      const match = monthlyDays.find(d => d.dateKey === initialSelectedDate);
+      if (match) setSelectedDay(match);
+      else {
+        // Fallback: parse date manually if not in current month
+        const parts = initialSelectedDate.split("-");
+        if (parts.length === 3) {
+          const dateObj = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
+          setSelectedDay(buildCosmicDay(dateObj));
+        }
+      }
+      hasOpenedInitialRef.current = true;
+    }
+  }, [initialSelectedDate, monthlyDays]);
 
   const goPrevious = () => {
     setCurrentDate((prev) => (view === "week" ? subWeeks(prev, 1) : subMonths(prev, 1)));
@@ -141,33 +165,70 @@ export function CosmicCalendar() {
 
         {view === "week" ? (
           <div className="grid grid-cols-2 gap-3">
-            {weeklyDays.map((day) => (
-              <button
-                key={day.dateKey}
-                onClick={() => setSelectedDay(day)}
-                className="rounded-[28px] border border-[rgba(0,0,0,0.07)] bg-white px-4 py-4 text-left"
-              >
-                <p style={{ fontFamily: "Inter, sans-serif", fontSize: "10px", color: "#AAA", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "8px" }}>
-                  {day.weekdayLabel}
-                </p>
-                <div className="flex items-center justify-between mb-3">
-                  <p style={{ fontFamily: "Cormorant Garamond, serif", fontSize: "28px", color: "#0A0A0A" }}>
-                    {format(day.date, "d")}
-                  </p>
-                  <MoonPhaseIcon phase={getDisplayMoonPhase(day)} size={28} />
-                </div>
-                {day.perfection ? (
-                  <>
-                    <p style={{ fontFamily: "Inter, sans-serif", fontSize: "12px", color: "#666", marginBottom: "6px" }}>
-                      {day.perfection.label}
-                    </p>
-                    <p style={{ fontFamily: "Inter, sans-serif", fontSize: "10px", color: "#AAA", lineHeight: 1.5 }}>
-                      {day.perfection.timeBuenosAires} hs · {day.perfection.zodiacSign}
-                    </p>
-                  </>
-                ) : null}
-              </button>
-            ))}
+            {weeklyDays.map((day) => {
+              const bgUrl = isToday(day.date) ? getPhaseBackgroundUrl(getDisplayMoonPhase(day)) : null;
+              const isNewMoon = bgUrl === "black";
+              const isBlackCard = bgUrl !== null;
+              
+              const cardBgClass = isBlackCard ? "bg-[#000] border-transparent" : "bg-white border-[rgba(0,0,0,0.07)]";
+              const tagBg = isBlackCard ? "bg-[#222] text-[#E5E5E5]" : "bg-[#0A0A0A] text-white";
+              const dateColor = isBlackCard ? "#FFF" : "#0A0A0A";
+              const dayColor = isBlackCard ? "#FFF" : "#AAA";
+              const descColor = isBlackCard ? "#CCC" : "#666";
+
+              return (
+                <button
+                  key={day.dateKey}
+                  onClick={() => setSelectedDay(day)}
+                  className={`relative overflow-hidden rounded-[28px] border ${cardBgClass} px-5 py-5 text-left transition-all flex flex-col hover:opacity-90 min-h-[164px]`}
+                >
+                  {isBlackCard && !isNewMoon && bgUrl && (
+                    <div
+                      className="absolute inset-0 pointer-events-none transition-opacity duration-500 ease-out"
+                      style={{
+                        backgroundImage: `url(${bgUrl})`,
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
+                        backgroundRepeat: "no-repeat",
+                      }}
+                    />
+                  )}
+
+                  <div className="relative z-10 w-full h-full text-current flex flex-col flex-1">
+                    <div className="flex justify-between items-start mb-2">
+                      <p style={{ fontFamily: "Inter, sans-serif", fontSize: "10px", color: dayColor, textTransform: "uppercase", letterSpacing: "0.1em", fontWeight: 500 }}>
+                        {day.weekdayLabel}
+                      </p>
+                      {isToday(day.date) && (
+                        <span className={`text-[9px] px-2.5 py-1 rounded-[6px] ${tagBg} font-sans align-middle uppercase tracking-widest leading-none`}>
+                          Hoy
+                        </span>
+                      )}
+                    </div>
+                    
+                    <div className="flex items-center justify-between mb-auto text-current">
+                      <p style={{ fontFamily: "Cormorant Garamond, serif", fontSize: "32px", color: dateColor, lineHeight: 1 }}>
+                        {format(day.date, "d")}
+                      </p>
+                      <div className={isBlackCard ? "invert opacity-90" : ""}>
+                        <MoonPhaseIcon phase={getDisplayMoonPhase(day)} size={30} />
+                      </div>
+                    </div>
+                    
+                    {day.perfection ? (
+                      <div className="mt-auto pt-4">
+                        <p style={{ fontFamily: "Inter, sans-serif", fontSize: "12px", color: descColor, marginBottom: "4px", fontWeight: 500 }}>
+                          {day.perfection.label}
+                        </p>
+                        <p style={{ fontFamily: "Inter, sans-serif", fontSize: "10px", color: dayColor, lineHeight: 1.4 }}>
+                          {day.perfection.timeBuenosAires} hs · {day.perfection.zodiacSign}
+                        </p>
+                      </div>
+                    ) : null}
+                  </div>
+                </button>
+              );
+            })}
           </div>
         ) : (
           <>
@@ -202,11 +263,12 @@ export function CosmicCalendar() {
                 >
                   <div className="flex items-center justify-between mb-3">
                     <span
+                      className={isToday(day.date) ? "flex items-center justify-center w-6 h-6 rounded-full bg-[#0A0A0A] text-white" : ""}
                       style={{
                         fontFamily: "Inter, sans-serif",
                         fontSize: "11px",
                         fontWeight: isToday(day.date) ? 600 : 400,
-                        color: isToday(day.date) ? "#0A0A0A" : day.inCurrentMonth ? "#666" : "#BBB",
+                        color: isToday(day.date) ? "#FFF" : day.inCurrentMonth ? "#666" : "#BBB",
                       }}
                     >
                       {format(day.date, "d")}
@@ -215,8 +277,9 @@ export function CosmicCalendar() {
                   </div>
                   <div className="mt-auto min-h-[28px] flex flex-col justify-end">
                     {day.perfection ? (
-                      <>
+                      <div className="w-full flex flex-col overflow-hidden">
                         <span
+                          className="w-full truncate"
                           style={{
                             fontFamily: "Inter, sans-serif",
                             fontSize: "8px",
@@ -229,6 +292,7 @@ export function CosmicCalendar() {
                         {day.perfection.kind === "moon_phase" &&
                         day.perfection.label.toLowerCase() === "luna nueva" ? (
                           <span
+                            className="w-full truncate"
                             style={{
                               fontFamily: "Inter, sans-serif",
                               fontSize: "8px",
@@ -240,7 +304,7 @@ export function CosmicCalendar() {
                             Conjunción
                           </span>
                         ) : null}
-                      </>
+                      </div>
                     ) : day.events[0] ? (
                       <div className="flex items-center justify-center">
                         <span
@@ -266,6 +330,15 @@ export function CosmicCalendar() {
             onClick={() => setSelectedDay(null)}
           />
           <div className="absolute left-1/2 top-1/2 w-[calc(100%-3rem)] max-w-[330px] -translate-x-1/2 -translate-y-1/2 rounded-[28px] border border-[rgba(0,0,0,0.08)] bg-white px-5 py-5 shadow-[0_20px_60px_rgba(0,0,0,0.12)]">
+            <button
+              onClick={() => setSelectedDay(null)}
+              className="absolute top-5 right-5 w-8 h-8 flex items-center justify-center rounded-full bg-[#FAFAFA] border border-[rgba(0,0,0,0.06)] text-[#888] hover:text-[#0A0A0A] hover:bg-[#F0F0F0] transition-colors"
+            >
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                <path d="M1 1L9 9M9 1L1 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+              </svg>
+            </button>
+
             <p
               style={{
                 fontFamily: "Inter, sans-serif",
@@ -288,6 +361,7 @@ export function CosmicCalendar() {
                 color: "#0A0A0A",
                 lineHeight: 1.1,
                 marginBottom: "10px",
+                paddingRight: "24px",
               }}
             >
               {format(selectedDay.date, "d 'de' LLLL", { locale: es })}
@@ -307,7 +381,7 @@ export function CosmicCalendar() {
                   {selectedDay.perfection?.label}
                 </p>
 
-                <div className="rounded-[22px] border border-[rgba(0,0,0,0.06)] bg-[#FAFAFA] px-4 py-4 mb-4">
+                <div className="rounded-[22px] border border-[rgba(0,0,0,0.06)] bg-[#FAFAFA] px-4 py-4">
                   <p style={{ fontFamily: "Inter, sans-serif", fontSize: "10px", color: "#AAA", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "8px" }}>
                     Posición exacta
                   </p>
@@ -319,15 +393,49 @@ export function CosmicCalendar() {
                   </p>
                 </div>
               </>
-            ) : null}
-
-            <button
-              onClick={() => setSelectedDay(null)}
-              className="w-full rounded-[20px] bg-[#0A0A0A] px-5 py-3 text-white hover:bg-[#1A1A1A]"
-              style={{ fontFamily: "Inter, sans-serif", fontSize: "13px" }}
-            >
-              Cerrar
-            </button>
+            ) : (() => {
+              const nextEventData = getNextEvent(selectedDay.date);
+              return (
+                <div className="rounded-[22px] border border-[rgba(0,0,0,0.06)] bg-[#FAFAFA] px-4 py-4 mt-4">
+                  <p style={{ fontFamily: "Inter, sans-serif", fontSize: "13px", color: "#777", lineHeight: 1.6, marginBottom: "16px" }}>
+                    No hay eventos particulares hoy, pero te podés preparar para el próximo evento.
+                  </p>
+                  {nextEventData && (
+                    <>
+                      <p style={{ fontFamily: "Inter, sans-serif", fontSize: "10px", color: "#AAA", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "8px" }}>
+                        Próximo evento
+                      </p>
+                      <p style={{ fontFamily: "Cormorant Garamond, serif", fontSize: "18px", color: "#0A0A0A", lineHeight: 1.2, marginBottom: "2px" }}>
+                        {nextEventData.perfection.label}
+                      </p>
+                      <p style={{ fontFamily: "Inter, sans-serif", fontSize: "13px", color: "#777", lineHeight: 1.6 }}>
+                        {format(nextEventData.date, "d 'de' LLLL", { locale: es })}
+                      </p>
+                    </>
+                  )}
+                  
+                  <div className="mt-5 border-t border-[rgba(0,0,0,0.05)] pt-4 flex justify-center">
+                    <button
+                      onClick={() => {
+                        setSelectedDay(null);
+                        setTimeout(() => navigate("/wiki/las-lunas-y-su-energia"), 50);
+                      }}
+                      style={{
+                        fontFamily: "Inter, sans-serif",
+                        fontSize: "12px",
+                        color: "#0A0A0A",
+                        fontWeight: 500,
+                        textDecoration: "underline",
+                        textUnderlineOffset: "3px",
+                      }}
+                      className="hover:opacity-60 transition-opacity"
+                    >
+                      Aprende más sobre las lunas
+                    </button>
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         </div>
       ) : null}

@@ -1,13 +1,14 @@
-import { Outlet } from "react-router";
+import { Outlet, ScrollRestoration } from "react-router";
 import { Toaster } from "sonner";
 
 export function Layout() {
   return (
     <div className="min-h-screen bg-[#EEEAE6] flex items-center justify-center">
       <div
-        className="relative w-full max-w-[390px] min-h-screen bg-white overflow-hidden shadow-2xl"
+        className="relative w-full max-w-[390px] min-h-[100dvh] bg-white overflow-x-hidden shadow-2xl"
         style={{ boxShadow: "0 30px 80px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.08)" }}
       >
+        <ScrollRestoration />
         <Outlet />
       </div>
       <Toaster

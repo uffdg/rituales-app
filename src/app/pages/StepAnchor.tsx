@@ -56,8 +56,8 @@ export function StepAnchor() {
       <ProgressBar step={5} onBack={() => navigate("/crear/4")} />
 
       <motion.div
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         className="flex-1 px-6 pb-10 overflow-y-auto"
       >

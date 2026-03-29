@@ -64,7 +64,7 @@ export function Account() {
     updateRitual(entry.ritual);
     setSelectedPublicRitual(null);
     setViewMode(false);
-    navigate(`/ritual/${entry.ritual.ritualId || "nuevo"}`);
+    navigate(`/ritual/${entry.ritual.ritualId || "nuevo"}`, { state: { fromAccount: true } });
   };
 
   const handleConfirmDelete = async () => {
