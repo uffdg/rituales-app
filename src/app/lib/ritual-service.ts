@@ -20,6 +20,8 @@ export interface GuidedSessionPlan {
   segments: GuidedSessionSegment[];
   personalizedScript: string;
   notes: string;
+  locale?: string;
+  dialect?: string;
 }
 
 export interface RitualGenerationResult {
@@ -47,27 +49,50 @@ interface BackendAudioResponse {
   model?: string;
 }
 
+export const DEFAULT_ELEVENLABS_VOICE_ID = "El3gkPAhMU9R5biL3rtU";
+
 function normalizeText(text: string) {
   return text.trim().replace(/\s+/g, " ");
 }
 
+function sanitizeForSpeech(text: string) {
+  return normalizeText(text)
+    .replace(/[“”«»"]/g, "")
+    .replace(/[(){}\[\]]/g, "")
+    .replace(/\s*[:;]\s*/g, ". ")
+    .replace(/\s*[—–-]\s*/g, ", ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function buildSpeechSeed(text: string) {
+  let hash = 0;
+
+  for (let index = 0; index < text.length; index += 1) {
+    hash = (hash * 31 + text.charCodeAt(index)) >>> 0;
+  }
+
+  return hash || 1;
+}
+
 function buildPersonalizedScript(ritual: AIRitual, input: RitualData) {
-  const durationLine =
-    input.duration >= 20
-      ? "Hoy quédate sin apuro. No hace falta resolverlo todo de una vez."
-      : input.duration >= 10
-        ? "Quédate en este momento con suavidad y atención."
-        : "Toma este momento breve como un punto de regreso.";
+  const spokenSections = [
+    input.intention
+      ? `Tu intención para este momento es ${sanitizeForSpeech(input.intention)}.`
+      : "",
+    ritual.opening ? sanitizeForSpeech(ritual.opening) : "",
+    ritual.symbolicAction
+      ? `Ahora, muy despacio, ${sanitizeForSpeech(ritual.symbolicAction)}`
+      : "",
+    ritual.closing ? `Y para cerrar, ${sanitizeForSpeech(ritual.closing)}` : "",
+    input.anchor ? `Quedate con este anclaje: ${sanitizeForSpeech(input.anchor)}.` : "",
+  ];
 
   return [
-    `Tu intención para este momento es: ${normalizeText(input.intention)}.`,
-    ritual.opening,
-    durationLine,
-    ritual.symbolicAction,
-    ritual.closing,
+    ...spokenSections,
   ]
     .filter(Boolean)
-    .join(" ");
+    .join("\n\n");
 }
 
 export function deriveGuidedSession(input: RitualData, ritual: AIRitual): GuidedSessionPlan {
@@ -91,9 +116,11 @@ export function deriveGuidedSession(input: RitualData, ritual: AIRitual): Guided
   return {
     targetDurationMinutes: input.duration,
     soundscape,
+    locale: "castellano",
+    dialect: "rioplatense argentino de Buenos Aires",
     personalizedScript,
     notes:
-      "La intro y el cierre pueden reutilizarse para todos los rituales. El bloque personalizado es el único que debería sintetizarse con TTS premium.",
+      "La intro y el cierre pueden reutilizarse para todos los rituales. El bloque personalizado es el único que debería sintetizarse con TTS premium. El tono debe sonar en castellano rioplatense, argentino, de Buenos Aires, y sostener exactamente la duración elegida.",
     segments: [
       {
         id: "intro-universal",
@@ -101,7 +128,7 @@ export function deriveGuidedSession(input: RitualData, ritual: AIRitual): Guided
         label: "Inicio universal",
         durationSeconds: introSeconds,
         isReusable: true,
-        text: "Cierra los ojos. Respira profundo. No hace falta resolver todo ahora. Solo entra en este momento.",
+        text: "Cerrá los ojos. Respirá profundo. No hace falta resolver todo ahora. Solo entrá en este momento.",
       },
       {
         id: "middle-personalized",
@@ -123,7 +150,7 @@ export function deriveGuidedSession(input: RitualData, ritual: AIRitual): Guided
         label: "Cierre universal",
         durationSeconds: closingSeconds,
         isReusable: true,
-        text: "Vuelve despacio. Quédate con una sola palabra. Lleva esta intención contigo.",
+        text: "Volvé despacio. Quedate con una sola palabra. Llevá esta intención con vos.",
       },
     ],
   };
@@ -152,6 +179,25 @@ function getApiBaseUrl() {
   return import.meta.env.VITE_RITUALES_API_BASE_URL?.replace(/\/$/, "") || "";
 }
 
+async function readErrorMessage(response: Response, fallback: string) {
+  try {
+    const text = await response.text();
+
+    if (!text) {
+      return fallback;
+    }
+
+    try {
+      const parsed = JSON.parse(text) as { error?: string; detail?: { message?: string } };
+      return parsed.error || parsed.detail?.message || text;
+    } catch {
+      return text;
+    }
+  } catch {
+    return fallback;
+  }
+}
+
 export async function generateRitual(input: RitualData, userId?: string): Promise<RitualGenerationResult> {
   const apiBaseUrl = getApiBaseUrl();
 
@@ -168,7 +214,7 @@ export async function generateRitual(input: RitualData, userId?: string): Promis
   });
 
   if (!response.ok) {
-    throw new Error("No se pudo generar el ritual desde el backend.");
+    throw new Error(await readErrorMessage(response, "No se pudo generar el ritual desde el backend."));
   }
 
   return response.json();
@@ -198,7 +244,9 @@ export async function renderGuidedAudio(args: {
     });
 
     if (!response.ok) {
-      throw new Error("No se pudo renderizar el audio guiado desde el backend.");
+      throw new Error(
+        await readErrorMessage(response, "No se pudo renderizar el audio guiado desde el backend."),
+      );
     }
 
     return (await response.json()) as BackendAudioResponse;
@@ -210,12 +258,15 @@ export async function renderGuidedAudio(args: {
     args.guidedSession.segments.find((segment) => segment.kind === "closing")?.text,
   ]
     .filter(Boolean)
-    .join(" ");
+    .map((segment) => sanitizeForSpeech(segment as string))
+    .join("\n\n");
 
   const voiceId =
     args.voice ||
     import.meta.env.VITE_ELEVENLABS_VOICE_ID ||
-    "EXAVITQu4vr4xnSDxMaL";
+    DEFAULT_ELEVENLABS_VOICE_ID;
+
+  const seed = buildSpeechSeed(`${voiceId}:${previewText}`);
 
   const response = await fetch("/api/audio/speech", {
     method: "POST",
@@ -225,6 +276,11 @@ export async function renderGuidedAudio(args: {
     body: JSON.stringify({
       voice_id: voiceId,
       text: previewText,
+      language_code: "es",
+      dialect_hint: args.guidedSession.dialect || "rioplatense argentino de Buenos Aires",
+      output_format: "mp3_44100_128",
+      seed,
+      apply_text_normalization: "auto",
     }),
   });
 
@@ -233,8 +289,10 @@ export async function renderGuidedAudio(args: {
     throw new Error(errorText || "No se pudo generar el preview del audio guiado.");
   }
 
+  const voiceBlob = await response.blob();
+
   return {
-    blob: await response.blob(),
+    blob: voiceBlob,
     status: "preview",
   };
 }

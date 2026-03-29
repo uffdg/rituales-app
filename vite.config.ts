@@ -3,6 +3,8 @@ import path from 'path'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 
+const DEFAULT_ELEVENLABS_VOICE_ID = 'El3gkPAhMU9R5biL3rtU';
+
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
 
@@ -15,7 +17,7 @@ export default defineConfig(({ mode }) => {
       {
         name: 'elevenlabs-speech-proxy',
         configureServer(server) {
-          // POST /api/audio/speech  { voice_id, text, model_id?, voice_settings? }
+          // POST /api/audio/speech  { voice_id, text, model_id?, voice_settings?, dialect_hint? }
           server.middlewares.use('/api/audio/speech', async (req, res) => {
             if (req.method !== 'POST') {
               res.statusCode = 405;
@@ -39,8 +41,8 @@ export default defineConfig(({ mode }) => {
               }
               const body = JSON.parse(Buffer.concat(chunks).toString('utf8'));
 
-              const voiceId: string = body.voice_id || 'El3gkPAhMU9R5biL3rtU';
-              const { voice_id: _vid, ...elevenBody } = body;
+              const voiceId: string = body.voice_id || DEFAULT_ELEVENLABS_VOICE_ID;
+              const { voice_id: _vid, dialect_hint: _dialectHint, ...elevenBody } = body;
 
               const upstream = await fetch(
                 `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
@@ -54,10 +56,11 @@ export default defineConfig(({ mode }) => {
                     model_id: 'eleven_multilingual_v2',
                     language_code: 'es',
                     voice_settings: {
-                      stability: 0.55,
+                      stability: 0.6,
                       similarity_boost: 0.75,
-                      speed: 0.76,
-                      style: 0.45,
+                      speed: 0.96,
+                      style: 0,
+                      use_speaker_boost: false,
                     },
                     ...elevenBody,
                   }),

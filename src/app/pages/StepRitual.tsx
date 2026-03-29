@@ -1,12 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
-import { useRitual, type GuidedAudioState } from "../context/RitualContext";
-import { useUser } from "../context/UserContext";
+import { useRitual } from "../context/RitualContext";
 import { ProgressBar } from "../components/ProgressBar";
-import { generateRitual, renderGuidedAudio } from "../lib/ritual-service";
+import { generateRitual } from "../lib/ritual-service";
 import { track } from "../lib/analytics";
-import { GuidedAudioPlayer } from "../components/GuidedAudioPlayer";
 
 const RITUAL_VERSIONS = [
   {
@@ -32,15 +30,11 @@ const RITUAL_VERSIONS = [
 export function StepRitual() {
   const navigate = useNavigate();
   const { ritual, updateRitual } = useRitual();
-  const { user } = useUser();
   const [isGenerating, setIsGenerating] = useState(false);
   const [currentRitual, setCurrentRitual] = useState(ritual.aiRitual?.title ? ritual.aiRitual : null);
   const [guidedSession, setGuidedSession] = useState(ritual.guidedSession || null);
   const [showVersions, setShowVersions] = useState(false);
   const [editingBlock, setEditingBlock] = useState<string | null>(null);
-  const [isGeneratingSpeech, setIsGeneratingSpeech] = useState(false);
-  const [speechError, setSpeechError] = useState("");
-  const [audioUrl, setAudioUrl] = useState("");
   const [generateError, setGenerateError] = useState("");
   const [editedTexts, setEditedTexts] = useState({
     title: "",
@@ -54,7 +48,7 @@ export function StepRitual() {
     setGenerateError("");
 
     try {
-      const result = await generateRitual(ritual, user?.id);
+      const result = await generateRitual(ritual);
       setCurrentRitual(result.ritual);
       setGuidedSession(result.guidedSession);
       setEditedTexts(result.ritual);
@@ -83,14 +77,6 @@ export function StepRitual() {
       setEditedTexts(currentRitual);
     }
   }, []);
-
-  useEffect(() => {
-    return () => {
-      if (audioUrl) {
-        URL.revokeObjectURL(audioUrl);
-      }
-    };
-  }, [audioUrl]);
 
   const handleSimplify = () => {
     setIsGenerating(true);
@@ -136,98 +122,6 @@ export function StepRitual() {
       guidedSession: guidedSession || undefined,
     });
     navigate("/crear/5");
-  };
-
-  const ritualText = [
-    editedTexts.title || currentRitual?.title || "",
-    editedTexts.opening || currentRitual?.opening || "",
-    editedTexts.symbolicAction || currentRitual?.symbolicAction || "",
-    editedTexts.closing || currentRitual?.closing || "",
-  ]
-    .filter(Boolean)
-    .join("\n\n");
-
-  const handleGenerateSpeech = async () => {
-    if (!ritualText.trim()) {
-      setSpeechError("No hay texto del ritual para convertir en audio.");
-      return;
-    }
-
-    if (audioUrl) {
-      URL.revokeObjectURL(audioUrl);
-      setAudioUrl("");
-    }
-
-    setIsGeneratingSpeech(true);
-    setSpeechError("");
-    track("audio_requested", { ritualId: ritual.ritualId });
-    updateRitual({
-      guidedAudio: {
-        status: "rendering",
-        provider: "elevenlabs",
-      },
-    });
-
-    try {
-      const response = await renderGuidedAudio({
-        ritualId: ritual.ritualId,
-        guidedSession: guidedSession || {
-          targetDurationMinutes: ritual.duration,
-          soundscape: "deep-night",
-          personalizedScript: ritualText,
-          notes: "",
-          segments: [],
-        },
-        voice: import.meta.env.VITE_ELEVENLABS_VOICE_ID || "El3gkPAhMU9R5biL3rtU",
-        model: "eleven_multilingual_v2",
-        responseFormat: "mp3",
-      });
-
-      if ("audioUrl" in response && response.audioUrl) {
-        setAudioUrl(response.audioUrl);
-        const guidedAudio: GuidedAudioState = {
-          status: "ready",
-          audioUrl: response.audioUrl,
-          provider: response.provider || "elevenlabs",
-          voice: response.voice,
-          model: response.model,
-        };
-        updateRitual({ guidedAudio });
-        track("audio_ready", { ritualId: ritual.ritualId, provider: "elevenlabs-backend" });
-        return;
-      }
-
-      if (!("blob" in response) || !response.blob) {
-        throw new Error("No se recibió audio para reproducir.");
-      }
-
-      const blob = response.blob;
-      const nextAudioUrl = URL.createObjectURL(blob);
-      setAudioUrl(nextAudioUrl);
-      updateRitual({
-        guidedAudio: {
-          status: "ready",
-          audioUrl: nextAudioUrl,
-          provider: "elevenlabs",
-        },
-      });
-      track("audio_ready", { ritualId: ritual.ritualId, provider: "elevenlabs-proxy" });
-    } catch (error) {
-      setSpeechError(
-        error instanceof Error
-          ? error.message
-          : "Ocurrió un error inesperado al pedir el audio.",
-      );
-      updateRitual({
-        guidedAudio: {
-          status: "error",
-          provider: "elevenlabs",
-        },
-      });
-      track("audio_error", { ritualId: ritual.ritualId });
-    } finally {
-      setIsGeneratingSpeech(false);
-    }
   };
 
   const blocks = [
@@ -470,29 +364,6 @@ export function StepRitual() {
                 >
                   Dame 3 versiones
                 </button>
-              </div>
-
-              <div className="mb-8">
-                <GuidedAudioPlayer
-                  src={audioUrl}
-                  onStart={handleGenerateSpeech}
-                  disabled={isGeneratingSpeech}
-                  title="Sesión guiada"
-                />
-                {speechError ? (
-                  <p
-                    className="mt-3"
-                    style={{
-                      fontFamily: "Inter, sans-serif",
-                      fontSize: "12px",
-                      lineHeight: 1.5,
-                      color: "#B42318",
-                      whiteSpace: "pre-wrap",
-                    }}
-                  >
-                    {speechError}
-                  </p>
-                ) : null}
               </div>
 
               {/* CTA */}

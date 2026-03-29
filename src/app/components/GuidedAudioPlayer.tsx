@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Pause, Play, RotateCcw, SkipBack, SkipForward } from "lucide-react";
+import handpanSoundscape from "../assets/handpan-soundscape-432hz.mp3";
 import { motion } from "motion/react";
 
 interface GuidedAudioPlayerProps {
@@ -16,6 +17,7 @@ export function GuidedAudioPlayer({
   title = "Sesion guiada",
 }: GuidedAudioPlayerProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const ambienceRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -24,9 +26,22 @@ export function GuidedAudioPlayer({
     const audio = audioRef.current;
     if (!audio) return;
 
-    const handlePause = () => setIsPlaying(false);
-    const handlePlay = () => setIsPlaying(true);
-    const handleEnded = () => setIsPlaying(false);
+    const handlePause = () => {
+      setIsPlaying(false);
+      ambienceRef.current?.pause();
+    };
+    const handlePlay = () => {
+      setIsPlaying(true);
+      syncAmbienceToVoice();
+      ambienceRef.current?.play().catch(() => {});
+    };
+    const handleEnded = () => {
+      setIsPlaying(false);
+      ambienceRef.current?.pause();
+      if (ambienceRef.current) {
+        ambienceRef.current.currentTime = 0;
+      }
+    };
     const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
     const handleLoadedMetadata = () => setDuration(audio.duration || 0);
 
@@ -48,9 +63,33 @@ export function GuidedAudioPlayer({
   useEffect(() => {
     if (src && audioRef.current) {
       audioRef.current.load();
+      syncAmbienceToVoice();
       audioRef.current.play().catch(() => {});
+      ambienceRef.current?.play().catch(() => {});
     }
   }, [src]);
+
+  useEffect(() => {
+    if (ambienceRef.current) {
+      ambienceRef.current.volume = 0.03;
+      ambienceRef.current.loop = true;
+    }
+  }, []);
+
+  const syncAmbienceToVoice = () => {
+    const voice = audioRef.current;
+    const ambience = ambienceRef.current;
+
+    if (!voice || !ambience) {
+      return;
+    }
+
+    if (Number.isFinite(ambience.duration) && ambience.duration > 0) {
+      ambience.currentTime = voice.currentTime % ambience.duration;
+    } else {
+      ambience.currentTime = 0;
+    }
+  };
 
   const handleStart = async () => {
     if (disabled) {
@@ -64,7 +103,9 @@ export function GuidedAudioPlayer({
 
     if (audioRef.current) {
       try {
+        syncAmbienceToVoice();
         await audioRef.current.play();
+        await ambienceRef.current?.play().catch(() => {});
       } catch {
         if (onStart) {
           await onStart();
@@ -80,6 +121,7 @@ export function GuidedAudioPlayer({
 
     if (isPlaying) {
       audioRef.current.pause();
+      ambienceRef.current?.pause();
       return;
     }
 
@@ -92,6 +134,7 @@ export function GuidedAudioPlayer({
     }
 
     audioRef.current.currentTime = Math.max(0, audioRef.current.currentTime + seconds);
+    syncAmbienceToVoice();
   };
 
   const restart = () => {
@@ -101,6 +144,8 @@ export function GuidedAudioPlayer({
 
     audioRef.current.currentTime = 0;
     audioRef.current.pause();
+    ambienceRef.current?.pause();
+    ambienceRef.current && (ambienceRef.current.currentTime = 0);
     setCurrentTime(0);
     setIsPlaying(false);
   };
@@ -200,6 +245,7 @@ export function GuidedAudioPlayer({
             const nextTime = Number(e.target.value);
             audioRef.current.currentTime = nextTime;
             setCurrentTime(nextTime);
+            syncAmbienceToVoice();
           }}
           className="w-full accent-black disabled:opacity-40"
           style={{ height: "4px" }}
@@ -299,6 +345,7 @@ export function GuidedAudioPlayer({
       </div>
 
       <audio ref={audioRef} src={src} preload="metadata" className="hidden" />
+      <audio ref={ambienceRef} src={handpanSoundscape} preload="metadata" className="hidden" />
     </div>
   );
 }

@@ -8,6 +8,7 @@ import { UserMenu } from "../components/UserMenu";
 import { toast } from "sonner";
 import { Bookmark, BookmarkCheck } from "lucide-react";
 import {
+  DEFAULT_ELEVENLABS_VOICE_ID,
   deriveGuidedSession,
   getRitualById,
   renderGuidedAudio,
@@ -173,7 +174,7 @@ export function RitualDetail() {
       const response = await renderGuidedAudio({
         ritualId: loadedRitual?.ritualId || ritual.ritualId,
         guidedSession: playbackSession,
-        voice: import.meta.env.VITE_ELEVENLABS_VOICE_ID || "EXAVITQu4vr4xnSDxMaL",
+        voice: import.meta.env.VITE_ELEVENLABS_VOICE_ID || DEFAULT_ELEVENLABS_VOICE_ID,
         model: "eleven_multilingual_v2",
         responseFormat: "mp3",
       });
