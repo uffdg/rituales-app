@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Pause, Play, RotateCcw, SkipBack, SkipForward } from "lucide-react";
+import { motion } from "motion/react";
 
 interface GuidedAudioPlayerProps {
   src?: string;
@@ -154,11 +155,25 @@ export function GuidedAudioPlayer({
               color: "#999",
             }}
           >
-            {disabled
-              ? "Preparando audio..."
-              : src
-                ? "Listo para escuchar"
-                : "Toca comenzar para cargar el audio"}
+            {disabled ? (
+              <span className="flex items-center gap-2">
+                <span>Generando audio</span>
+                <span className="flex gap-[3px] items-center">
+                  {[0, 1, 2].map((i) => (
+                    <motion.span
+                      key={i}
+                      className="inline-block w-[3px] h-[3px] rounded-full bg-[#999]"
+                      animate={{ opacity: [0.2, 1, 0.2] }}
+                      transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.2 }}
+                    />
+                  ))}
+                </span>
+              </span>
+            ) : src ? (
+              "Listo para escuchar"
+            ) : (
+              "Tocá comenzar para cargar el audio"
+            )}
           </p>
         </div>
 
@@ -234,14 +249,31 @@ export function GuidedAudioPlayer({
         <button
           onClick={togglePlayPause}
           disabled={disabled}
-          className="flex h-16 w-16 items-center justify-center rounded-full bg-[#0A0A0A] text-white disabled:opacity-60"
+          className="relative flex h-16 w-16 items-center justify-center rounded-full bg-[#0A0A0A] text-white"
         >
-          {!src ? (
+          {disabled ? (
+            <>
+              <motion.span
+                className="absolute inset-0 rounded-full border-2 border-white/30"
+                animate={{ scale: [1, 1.3, 1], opacity: [0.4, 0, 0.4] }}
+                transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+              />
+              <motion.svg
+                width="22"
+                height="22"
+                viewBox="0 0 22 22"
+                fill="none"
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1.4, repeat: Infinity, ease: "linear" }}
+              >
+                <circle cx="11" cy="11" r="9" stroke="white" strokeWidth="2" strokeOpacity="0.2" />
+                <path d="M11 2a9 9 0 0 1 9 9" stroke="white" strokeWidth="2" strokeLinecap="round" />
+              </motion.svg>
+            </>
+          ) : !src || !isPlaying ? (
             <Play size={24} fill="currentColor" strokeWidth={1.8} />
-          ) : isPlaying ? (
-            <Pause size={24} fill="currentColor" strokeWidth={1.8} />
           ) : (
-            <Play size={24} fill="currentColor" strokeWidth={1.8} />
+            <Pause size={24} fill="currentColor" strokeWidth={1.8} />
           )}
         </button>
 
