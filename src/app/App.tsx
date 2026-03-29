@@ -4,6 +4,7 @@ import { router } from "./routes.tsx";
 import { RitualProvider } from "./context/RitualContext";
 import { UserProvider } from "./context/UserContext";
 import { track } from "./lib/analytics";
+import { Analytics } from "@vercel/analytics/react";
 
 export default function App() {
   useEffect(() => {
@@ -14,6 +15,7 @@ export default function App() {
     <UserProvider>
       <RitualProvider>
         <RouterProvider router={router} />
+        <Analytics />
       </RitualProvider>
     </UserProvider>
   );
