@@ -8,6 +8,7 @@ import { UserMenu } from "../components/UserMenu";
 import { toast } from "sonner";
 import { Bookmark, BookmarkCheck } from "lucide-react";
 import {
+  generateRitual,
   getRitualById,
   type RitualRecord,
 } from "../lib/ritual-service";
@@ -15,11 +16,12 @@ import {
 export function RitualDetail() {
   const navigate = useNavigate();
   const { id } = useParams();
-  const { ritual, isViewMode, selectedPublicRitual, updateRitual } = useRitual();
-  const { saveRitual, isRitualSaved, likeRitualById, session, unlikeRitualById } = useUser();
+  const { ritual, isViewMode, resetRitual, selectedPublicRitual, setSelectedPublicRitual, setViewMode, updateRitual } = useRitual();
+  const { saveRitual, isRitualSaved, session } = useUser();
   const [loadedRitual, setLoadedRitual] = useState<RitualRecord | null>(null);
   const [loadState, setLoadState] = useState<"idle" | "loading" | "error">("idle");
-  const [likeState, setLikeState] = useState({ liked: false, likesCount: 0 });
+  const [publicSavedRitualId, setPublicSavedRitualId] = useState<string | null>(null);
+  const [isSavingPublicRitual, setIsSavingPublicRitual] = useState(false);
 
   const isPublic = id === "publico" && isViewMode && selectedPublicRitual;
   const data = isPublic ? selectedPublicRitual : null;
@@ -42,10 +44,6 @@ export function RitualDetail() {
         }
 
         setLoadedRitual(result);
-        setLikeState({
-          liked: Boolean(result.likedByViewer),
-          likesCount: result.likesCount || 0,
-        });
         setLoadState("idle");
         updateRitual({
           ritualId: result.ritualId,
@@ -137,13 +135,24 @@ export function RitualDetail() {
         anchor: loadedRitual.anchor || "",
       }
     : ritual;
-
-  useEffect(() => {
-    setLikeState({
-      liked: Boolean(loadedRitual?.likedByViewer),
-      likesCount: loadedRitual?.likesCount || 0,
-    });
-  }, [loadedRitual?.ritualId, loadedRitual?.likedByViewer, loadedRitual?.likesCount]);
+  const publicRitualForAccount = isPublic
+    ? {
+        ritualId: publicSavedRitualId || undefined,
+        ritualType: data?.type || "",
+        simpleMode: true,
+        intention: data?.intention || "",
+        intentionCategory: "",
+        energy: typeof data?.energy === "string" ? data.energy.toLowerCase() : "",
+        duration: data?.duration || 10,
+        intensity: typeof data?.intensity === "string" ? data.intensity.toLowerCase() : "",
+        element: typeof data?.element === "string" ? data.element.toLowerCase() : "",
+        aiRitual: data?.aiRitual,
+        guidedSession: data?.guidedSession,
+        guidedAudio: data?.guidedAudio,
+        anchor: data?.anchor || "",
+      }
+    : null;
+  const isPublicSaved = publicRitualForAccount ? isRitualSaved(publicRitualForAccount) : false;
 
   const INTENSITY_MAP: Record<string, string> = {
     suave: "Suave",
@@ -155,6 +164,73 @@ export function RitualDetail() {
     apertura: "Apertura",
     poder: "Poder",
     conexion: "Conexión",
+  };
+  const anchorText =
+    displayRitual.anchor?.trim() ||
+    "Elegí una acción concreta y pequeña para llevar este ritual a tu vida real.";
+
+  const handleCreateOwnRitual = () => {
+    if (!session) {
+      navigate("/login");
+      return;
+    }
+
+    resetRitual();
+    setViewMode(false);
+    setSelectedPublicRitual(null);
+    navigate("/onboarding");
+  };
+
+  const handleSavePublicRitual = async () => {
+    if (!session) {
+      navigate("/login");
+      return;
+    }
+
+    if (!publicRitualForAccount?.aiRitual) {
+      toast("No pudimos guardar este ritual.");
+      return;
+    }
+
+    if (isPublicSaved) {
+      toast("Ya está guardado", {
+        description: "Podés verlo en Favoritos dentro de tu cuenta.",
+      });
+      return;
+    }
+
+    setIsSavingPublicRitual(true);
+    try {
+      let ritualToSave = publicRitualForAccount;
+
+      if (!ritualToSave.ritualId) {
+        const result = await generateRitual(ritualToSave);
+        ritualToSave = {
+          ...ritualToSave,
+          ritualId: result.ritualId,
+          aiRitual: result.ritual,
+          guidedSession: result.guidedSession,
+          guidedAudio: result.guidedAudio,
+        };
+        setPublicSavedRitualId(result.ritualId || null);
+      }
+
+      const saved = await saveRitual(ritualToSave);
+
+      if (saved) {
+        toast("Ritual guardado ✓", {
+          description: "Lo encontrás en Favoritos dentro de tu cuenta.",
+        });
+      } else {
+        toast("Ya está guardado", {
+          description: "Podés verlo en Favoritos dentro de tu cuenta.",
+        });
+      }
+    } catch (error) {
+      toast(error instanceof Error ? error.message : "No se pudo guardar este ritual.");
+    } finally {
+      setIsSavingPublicRitual(false);
+    }
   };
 
   if (loadState === "loading") {
@@ -451,34 +527,32 @@ export function RitualDetail() {
           ))}
 
         {/* Anchor */}
-        {displayRitual.anchor && (
-          <div className="mb-6 p-5 rounded-2xl border border-[#0A0A0A] bg-[#0A0A0A]">
-            <p
-              style={{
-                fontFamily: "Inter, sans-serif",
-                fontSize: "10px",
-                fontWeight: 500,
-                letterSpacing: "0.14em",
-                textTransform: "uppercase",
-                color: "rgba(255,255,255,0.4)",
-                marginBottom: "6px",
-              }}
-            >
-              Tu anclaje real
-            </p>
-            <p
-              style={{
-                fontFamily: "Cormorant Garamond, serif",
-                fontSize: "18px",
-                fontWeight: 300,
-                color: "white",
-                lineHeight: 1.45,
-              }}
-            >
-              {displayRitual.anchor}
-            </p>
-          </div>
-        )}
+        <div className="mb-6 p-5 rounded-2xl border border-[#0A0A0A] bg-[#0A0A0A]">
+          <p
+            style={{
+              fontFamily: "Inter, sans-serif",
+              fontSize: "10px",
+              fontWeight: 500,
+              letterSpacing: "0.14em",
+              textTransform: "uppercase",
+              color: "rgba(255,255,255,0.4)",
+              marginBottom: "6px",
+            }}
+          >
+            Tu anclaje real
+          </p>
+          <p
+            style={{
+              fontFamily: "Cormorant Garamond, serif",
+              fontSize: "18px",
+              fontWeight: 300,
+              color: "white",
+              lineHeight: 1.45,
+            }}
+          >
+            {anchorText}
+          </p>
+        </div>
 
         {/* Author */}
         {isPublic && (
@@ -496,18 +570,18 @@ export function RitualDetail() {
       </motion.div>
 
       {/* Bottom action bar */}
-      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[390px] bg-white border-t border-[rgba(0,0,0,0.06)] px-6 py-5">
+      <div className="fixed z-30 bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[390px] bg-white border-t border-[rgba(0,0,0,0.06)] px-6 py-5">
         {!isPublic ? (
           <div className="flex gap-2.5">
             <button
               onClick={() => navigate("/compartir")}
-              className="flex-1 py-3.5 bg-[#0A0A0A] text-white rounded-xl transition-all active:scale-[0.98]"
+              className="flex-1 py-3.5 bg-[#0A0A0A] text-white rounded-xl transition-all active:scale-[0.98] cursor-pointer"
               style={{ fontFamily: "Inter, sans-serif", fontSize: "14px" }}
             >
               Compartir
             </button>
             <button
-              className={`flex-1 py-3.5 border rounded-xl transition-all active:scale-[0.98] flex items-center justify-center gap-2 ${
+              className={`flex-1 py-3.5 border rounded-xl transition-all active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer ${
                 isRitualSaved(ritualForAccount)
                   ? "border-[#0A0A0A] bg-[#F5F5F5] text-[#0A0A0A]"
                   : "border-[rgba(0,0,0,0.12)] text-[#0A0A0A] hover:border-[rgba(0,0,0,0.25)]"
@@ -546,39 +620,28 @@ export function RitualDetail() {
         ) : (
           <div className="flex gap-2.5">
             <button
-              onClick={() => {
-                navigate("/onboarding");
-              }}
-              className="flex-1 py-3.5 bg-[#0A0A0A] text-white rounded-xl transition-all active:scale-[0.98]"
+              onClick={handleCreateOwnRitual}
+              className="flex-1 py-3.5 bg-[#0A0A0A] text-white rounded-xl transition-all active:scale-[0.98] cursor-pointer"
               style={{ fontFamily: "Inter, sans-serif", fontSize: "14px" }}
             >
               Crear el mío
             </button>
             <button
-              className="px-4 py-3.5 border border-[rgba(0,0,0,0.12)] text-[#555] rounded-xl transition-all active:scale-[0.98]"
+              className={`px-4 py-3.5 border rounded-xl transition-all active:scale-[0.98] cursor-pointer flex items-center justify-center gap-2 ${
+                isPublicSaved
+                  ? "border-[#0A0A0A] bg-[#F5F5F5] text-[#0A0A0A]"
+                  : "border-[rgba(0,0,0,0.12)] text-[#555]"
+              }`}
               style={{ fontFamily: "Inter, sans-serif", fontSize: "13px" }}
-              onClick={async () => {
-                if (!session) {
-                  navigate("/login");
-                  return;
-                }
-
-                if (!id || id === "publico" || !loadedRitual?.ritualId) {
-                  toast("Todavía no se puede dar me gusta a este ritual.");
-                  return;
-                }
-
-                try {
-                  const next = likeState.liked
-                    ? await unlikeRitualById(loadedRitual.ritualId)
-                    : await likeRitualById(loadedRitual.ritualId);
-                  setLikeState(next);
-                } catch (error) {
-                  toast(error instanceof Error ? error.message : "No se pudo registrar el me gusta.");
-                }
-              }}
+              onClick={handleSavePublicRitual}
+              disabled={isSavingPublicRitual}
             >
-              ♥ {likeState.likesCount > 0 ? `${likeState.likesCount} ` : ""}{likeState.liked ? "Te gusta" : "Me gusta"}
+              {isPublicSaved ? (
+                <BookmarkCheck size={15} strokeWidth={1.5} />
+              ) : (
+                <Bookmark size={15} strokeWidth={1.5} />
+              )}
+              {isSavingPublicRitual ? "Guardando..." : isPublicSaved ? "Guardado" : "Guardar"}
             </button>
           </div>
         )}

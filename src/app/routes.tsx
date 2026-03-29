@@ -11,6 +11,7 @@ import { StepAnchor } from "./pages/StepAnchor";
 import { RitualDetail } from "./pages/RitualDetail";
 import { Share } from "./pages/Share";
 import { Explore } from "./pages/Explore";
+import { Account } from "./pages/Account";
 import { AuthGuard } from "./components/AuthGuard";
 
 const guard = (Component: React.ComponentType) => () => (
@@ -34,6 +35,7 @@ export const router = createBrowserRouter([
       { path: "crear/4", Component: guard(StepRitual) },
       { path: "crear/5", Component: guard(StepAnchor) },
       { path: "compartir", Component: guard(Share) },
+      { path: "cuenta", Component: guard(Account) },
     ],
   },
 ]);
