@@ -109,7 +109,10 @@ export function Home() {
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           className="relative z-10 flex-1 px-6 flex flex-col items-center justify-center text-center"
         >
-          <div className="mb-8 relative">
+          <div
+            className="mb-8 relative flex items-center justify-center"
+            style={{ width: 180, height: 180 }}
+          >
             <div
               style={{
                 width: 180,
@@ -117,8 +120,9 @@ export function Home() {
                 borderRadius: "50%",
                 border: "1px solid rgba(0,0,0,0.05)",
                 position: "absolute",
-                top: -64,
-                left: -90,
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
               }}
             />
             <div
@@ -128,8 +132,9 @@ export function Home() {
                 borderRadius: "50%",
                 border: "1px solid rgba(0,0,0,0.08)",
                 position: "absolute",
-                top: -29,
-                left: -55,
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
               }}
             />
             <div
