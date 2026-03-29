@@ -104,9 +104,29 @@ export function Login() {
                 }}
               >
                 Te enviamos un link a{" "}
-                <span style={{ color: "#555" }}>{email}</span>.{" "}
+                <span 
+                  style={{ color: "#555" }} 
+                  data-detectors="false" 
+                  className="pointer-events-none select-none"
+                >
+                  {email.replace("@", " @ ")}
+                </span>.{" "}
                 Hacé click en él para entrar.
               </p>
+
+              <button
+                onClick={() => {
+                  window.location.href = "message://";
+                }}
+                className="mt-8 w-full py-4 bg-[#0A0A0A] text-white rounded-2xl cursor-pointer hover:bg-[#222] transition-all active:scale-[0.98]"
+                style={{
+                  fontFamily: "Inter, sans-serif",
+                  fontSize: "15px",
+                  fontWeight: 400,
+                }}
+              >
+                Abrir correo
+              </button>
             </motion.div>
           ) : (
             <motion.div key="form" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>

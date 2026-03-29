@@ -39,8 +39,8 @@ export function StepEnergy() {
       <ProgressBar step={2} onBack={() => navigate("/crear/1")} />
 
       <motion.div
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         className="flex-1 px-6 pb-10 overflow-y-auto"
       >
@@ -204,12 +204,18 @@ export function StepEnergy() {
                   </p>
                 </div>
                 <div
-                  className={`w-4 h-4 rounded-full border transition-all ${
+                  className={`shrink-0 ml-3 w-5 h-5 rounded-full flex items-center justify-center transition-all ${
                     intensity === item.id
-                      ? "bg-white border-white"
-                      : "border-[rgba(0,0,0,0.2)]"
+                      ? "bg-white"
+                      : "border border-[rgba(0,0,0,0.15)] bg-transparent"
                   }`}
-                />
+                >
+                  {intensity === item.id && (
+                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                      <path d="M2 5L4 7L8 3" stroke="#0A0A0A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  )}
+                </div>
               </button>
             ))}
           </div>

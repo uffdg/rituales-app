@@ -98,9 +98,9 @@ const PHASES = [
   { label: "Luna nueva", emoji: "●" },
   { label: "Creciente fina", emoji: "◔" },
   { label: "Cuarto creciente", emoji: "◑" },
-  { label: "Gibosa creciente", emoji: "◕" },
+  { label: "Cuarto creciente", emoji: "◕" },
   { label: "Luna llena", emoji: "○" },
-  { label: "Gibosa menguante", emoji: "◕" },
+  { label: "Cuarto menguante", emoji: "◕" },
   { label: "Cuarto menguante", emoji: "◐" },
   { label: "Menguante fina", emoji: "◓" },
 ];
@@ -163,3 +163,31 @@ export function getMonthlyCosmicDays(anchor = new Date()) {
 export function isToday(date: Date) {
   return isSameDay(date, new Date());
 }
+
+export function getPhaseBackgroundUrl(phaseLabel: string): string {
+  const map: Record<string, string> = {
+    "Luna nueva": "black",
+    "Creciente fina": "/moon-waxing.png",
+    "Cuarto creciente": "/moon-waxing.png",
+    "Luna llena": "/moon-full.png",
+    "Cuarto menguante": "/moon-waning.png",
+    "Menguante fina": "/moon-waning.png",
+  };
+  return map[phaseLabel] || "/moon-full.png";
+}
+
+export function getNextEvent(date: Date): { date: Date; perfection: CosmicPerfection } | null {
+  const dtStr = getDateKey(date);
+  const dateKeys = Object.keys(PERFECTED_POSITIONS).sort();
+  for (const key of dateKeys) {
+    if (key > dtStr) {
+      const parts = key.split("-");
+      if (parts.length === 3) {
+        const eventDate = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
+        return { date: eventDate, perfection: PERFECTED_POSITIONS[key] };
+      }
+    }
+  }
+  return null;
+}
+
