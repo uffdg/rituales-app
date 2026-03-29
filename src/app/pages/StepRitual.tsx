@@ -4,7 +4,9 @@ import { motion, AnimatePresence } from "motion/react";
 import { useRitual } from "../context/RitualContext";
 import { ProgressBar } from "../components/ProgressBar";
 import { generateRitual } from "../lib/ritual-service";
+import { deriveCandleGuide } from "../lib/candle";
 import { track } from "../lib/analytics";
+import { getUserFacingErrorMessage } from "../lib/errors";
 
 const RITUAL_VERSIONS = [
   {
@@ -64,7 +66,7 @@ export function StepRitual() {
         duration: ritual.duration,
       });
     } catch (err) {
-      setGenerateError(err instanceof Error ? err.message : "No se pudo generar el ritual.");
+      setGenerateError(getUserFacingErrorMessage(err, "No se pudo generar el ritual."));
     } finally {
       setIsGenerating(false);
     }
@@ -129,6 +131,18 @@ export function StepRitual() {
     { key: "symbolicAction", label: "Acción simbólica", icon: "◎" },
     { key: "closing", label: "Acción de cierre", icon: "·" },
   ];
+  const finalTexts = editedTexts.title ? editedTexts : currentRitual;
+  const candleGuide = finalTexts
+    ? deriveCandleGuide({
+        ritualType: ritual.ritualType,
+        intention: ritual.intention,
+        energy: ritual.energy,
+        title: finalTexts.title,
+        opening: finalTexts.opening,
+        symbolicAction: finalTexts.symbolicAction,
+        closing: finalTexts.closing,
+      })
+    : null;
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
@@ -336,6 +350,76 @@ export function StepRitual() {
                     </motion.div>
                   );
                 })}
+
+                {candleGuide ? (
+                  <motion.div
+                    className="rounded-2xl border border-[rgba(0,0,0,0.07)] overflow-hidden"
+                    layout
+                  >
+                    <div className="px-4 pt-4 pb-3">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span
+                          style={{
+                            fontFamily: "Cormorant Garamond, serif",
+                            fontSize: "14px",
+                            color: "#CCC",
+                          }}
+                        >
+                          ✦
+                        </span>
+                        <p
+                          style={{
+                            fontFamily: "Inter, sans-serif",
+                            fontSize: "10px",
+                            fontWeight: 500,
+                            letterSpacing: "0.12em",
+                            textTransform: "uppercase",
+                            color: "#AAA",
+                          }}
+                        >
+                          Vela para iniciar
+                        </p>
+                      </div>
+
+                      <p
+                        style={{
+                          fontFamily: "Cormorant Garamond, serif",
+                          fontSize: "22px",
+                          fontWeight: 400,
+                          lineHeight: 1.35,
+                          color: "#0A0A0A",
+                          marginBottom: "8px",
+                        }}
+                      >
+                        Vela {candleGuide.color}
+                      </p>
+
+                      <p
+                        style={{
+                          fontFamily: "Inter, sans-serif",
+                          fontSize: "11px",
+                          color: "#9A9A9A",
+                          marginBottom: "12px",
+                          letterSpacing: "0.04em",
+                        }}
+                      >
+                        {candleGuide.meaning}
+                      </p>
+
+                      <p
+                        style={{
+                          fontFamily: "Cormorant Garamond, serif",
+                          fontSize: "16px",
+                          fontWeight: 300,
+                          lineHeight: 1.6,
+                          color: "#0A0A0A",
+                        }}
+                      >
+                        {candleGuide.instruction}
+                      </p>
+                    </div>
+                  </motion.div>
+                ) : null}
               </div>
 
               {/* AI action buttons */}

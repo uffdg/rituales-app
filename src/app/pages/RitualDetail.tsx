@@ -5,6 +5,8 @@ import { useRitual } from "../context/RitualContext";
 import { useUser } from "../context/UserContext";
 import { ELEMENTS, ENERGIES } from "../data/rituals";
 import { UserMenu } from "../components/UserMenu";
+import { deriveCandleGuide } from "../lib/candle";
+import { getUserFacingErrorMessage } from "../lib/errors";
 import { toast } from "sonner";
 import { Bookmark, BookmarkCheck } from "lucide-react";
 import {
@@ -153,6 +155,13 @@ export function RitualDetail() {
       }
     : null;
   const isPublicSaved = publicRitualForAccount ? isRitualSaved(publicRitualForAccount) : false;
+  const isLoadedThirdPartyRitual = Boolean(
+    loadedRitual?.userId && session?.user?.id && loadedRitual.userId !== session.user.id,
+  );
+  const isOwnRitualView = !isPublic && !isLoadedThirdPartyRitual;
+  const canSaveCurrentRitual = isPublic || isLoadedThirdPartyRitual;
+  const currentSavableRitual = isPublic ? publicRitualForAccount : isLoadedThirdPartyRitual ? ritualForAccount : null;
+  const isCurrentRitualSaved = currentSavableRitual ? isRitualSaved(currentSavableRitual) : false;
 
   const INTENSITY_MAP: Record<string, string> = {
     suave: "Suave",
@@ -168,6 +177,15 @@ export function RitualDetail() {
   const anchorText =
     displayRitual.anchor?.trim() ||
     "Elegí una acción concreta y pequeña para llevar este ritual a tu vida real.";
+  const candleGuide = deriveCandleGuide({
+    ritualType: isPublic ? data?.type || "" : loadedRitual?.ritualType || ritualForAccount.ritualType,
+    intention: displayRitual.intention,
+    energy: displayRitual.energy,
+    title: displayRitual.title,
+    opening: displayRitual.opening,
+    symbolicAction: displayRitual.symbolicAction,
+    closing: displayRitual.closing,
+  });
 
   const handleCreateOwnRitual = () => {
     if (!session) {
@@ -227,7 +245,7 @@ export function RitualDetail() {
         });
       }
     } catch (error) {
-      toast(error instanceof Error ? error.message : "No se pudo guardar este ritual.");
+      toast(getUserFacingErrorMessage(error, "No se pudo guardar este ritual."));
     } finally {
       setIsSavingPublicRitual(false);
     }
@@ -374,8 +392,59 @@ export function RitualDetail() {
         </h1>
 
         {/* Badges */}
-        <div className="flex flex-wrap items-center justify-center gap-2 mb-8">
-          {displayRitual.element && (
+        <div className="mb-8">
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            {displayRitual.element && (
+              <span
+                className="px-3 py-1 rounded-full border border-[rgba(0,0,0,0.1)] text-[#555]"
+                style={{
+                  fontFamily: "Inter, sans-serif",
+                  fontSize: "11px",
+                  letterSpacing: "0.06em",
+                }}
+              >
+                {elementData?.label || displayRitual.element}
+              </span>
+            )}
+            {displayRitual.energy && (
+              <span
+                className="px-3 py-1 rounded-full border border-[rgba(0,0,0,0.1)] text-[#555]"
+                style={{
+                  fontFamily: "Inter, sans-serif",
+                  fontSize: "11px",
+                  letterSpacing: "0.06em",
+                }}
+              >
+                {ENERGY_MAP[displayRitual.energy] || displayRitual.energy}
+              </span>
+            )}
+            {displayRitual.intensity && (
+              <span
+                className="px-3 py-1 rounded-full bg-[#0A0A0A] text-white"
+                style={{
+                  fontFamily: "Inter, sans-serif",
+                  fontSize: "11px",
+                  letterSpacing: "0.06em",
+                }}
+              >
+                {INTENSITY_MAP[displayRitual.intensity] || displayRitual.intensity}
+              </span>
+            )}
+            {displayRitual.duration && (
+              <span
+                className="px-3 py-1 rounded-full border border-[rgba(0,0,0,0.1)] text-[#555]"
+                style={{
+                  fontFamily: "Inter, sans-serif",
+                  fontSize: "11px",
+                  letterSpacing: "0.06em",
+                }}
+              >
+                {displayRitual.duration} min
+              </span>
+            )}
+          </div>
+
+          <div className="flex justify-center mt-2">
             <span
               className="px-3 py-1 rounded-full border border-[rgba(0,0,0,0.1)] text-[#555]"
               style={{
@@ -384,45 +453,9 @@ export function RitualDetail() {
                 letterSpacing: "0.06em",
               }}
             >
-              {elementData?.label || displayRitual.element}
+              Vela {candleGuide.color}
             </span>
-          )}
-          {displayRitual.energy && (
-            <span
-              className="px-3 py-1 rounded-full border border-[rgba(0,0,0,0.1)] text-[#555]"
-              style={{
-                fontFamily: "Inter, sans-serif",
-                fontSize: "11px",
-                letterSpacing: "0.06em",
-              }}
-            >
-              {ENERGY_MAP[displayRitual.energy] || displayRitual.energy}
-            </span>
-          )}
-          {displayRitual.intensity && (
-            <span
-              className="px-3 py-1 rounded-full bg-[#0A0A0A] text-white"
-              style={{
-                fontFamily: "Inter, sans-serif",
-                fontSize: "11px",
-                letterSpacing: "0.06em",
-              }}
-            >
-              {INTENSITY_MAP[displayRitual.intensity] || displayRitual.intensity}
-            </span>
-          )}
-          {displayRitual.duration && (
-            <span
-              className="px-3 py-1 rounded-full border border-[rgba(0,0,0,0.1)] text-[#555]"
-              style={{
-                fontFamily: "Inter, sans-serif",
-                fontSize: "11px",
-                letterSpacing: "0.06em",
-              }}
-            >
-              {displayRitual.duration} min
-            </span>
-          )}
+          </div>
         </div>
 
         {/* Thin divider */}
@@ -477,6 +510,11 @@ export function RitualDetail() {
 
         {[
           { label: "Apertura", text: displayRitual.opening, symbol: "◯" },
+          {
+            label: `Vela ${candleGuide.color}`,
+            text: `${candleGuide.instruction} ${candleGuide.meaning}.`,
+            symbol: "✦",
+          },
           { label: "Acción simbólica", text: displayRitual.symbolicAction, symbol: "◎" },
           { label: "Acción de cierre", text: displayRitual.closing, symbol: "·" },
         ]
@@ -571,7 +609,7 @@ export function RitualDetail() {
 
       {/* Bottom action bar */}
       <div className="fixed z-30 bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[390px] bg-white border-t border-[rgba(0,0,0,0.06)] px-6 py-5">
-        {!isPublic ? (
+        {isOwnRitualView ? (
           <div className="flex gap-2.5">
             <button
               onClick={() => navigate("/compartir")}
@@ -580,14 +618,37 @@ export function RitualDetail() {
             >
               Compartir
             </button>
+          </div>
+        ) : (
+          <div className="flex gap-2.5">
+            {isPublic ? (
+              <button
+                onClick={handleCreateOwnRitual}
+                className="flex-1 py-3.5 bg-[#0A0A0A] text-white rounded-xl transition-all active:scale-[0.98] cursor-pointer"
+                style={{ fontFamily: "Inter, sans-serif", fontSize: "14px" }}
+              >
+                Crear el mío
+              </button>
+            ) : null}
             <button
-              className={`flex-1 py-3.5 border rounded-xl transition-all active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer ${
-                isRitualSaved(ritualForAccount)
+              className={`${
+                isPublic ? "px-4" : "flex-1"
+              } py-3.5 border rounded-xl transition-all active:scale-[0.98] cursor-pointer flex items-center justify-center gap-2 ${
+                isCurrentRitualSaved
                   ? "border-[#0A0A0A] bg-[#F5F5F5] text-[#0A0A0A]"
-                  : "border-[rgba(0,0,0,0.12)] text-[#0A0A0A] hover:border-[rgba(0,0,0,0.25)]"
+                  : "border-[rgba(0,0,0,0.12)] text-[#555]"
               }`}
-              style={{ fontFamily: "Inter, sans-serif", fontSize: "14px" }}
+              style={{ fontFamily: "Inter, sans-serif", fontSize: "13px" }}
               onClick={async () => {
+                if (!canSaveCurrentRitual) {
+                  return;
+                }
+
+                if (isPublic) {
+                  await handleSavePublicRitual();
+                  return;
+                }
+
                 if (!session) {
                   navigate("/login");
                   return;
@@ -597,51 +658,29 @@ export function RitualDetail() {
                   const saved = await saveRitual(ritualForAccount);
                   if (saved) {
                     toast("Ritual guardado ✓", {
-                      description: "Lo encontrás en tu perfil.",
+                      description: "Lo encontrás en Favoritos dentro de tu cuenta.",
                     });
                   } else {
                     toast("Ya está guardado", {
-                      description: "Podés verlo en tu menú de usuario.",
+                      description: "Podés verlo en Favoritos dentro de tu cuenta.",
                     });
                   }
                 } catch (error) {
-                  toast(error instanceof Error ? error.message : "No se pudo guardar este ritual.");
+                  toast(getUserFacingErrorMessage(error, "No se pudo guardar este ritual."));
                 }
               }}
-            >
-              {isRitualSaved(ritualForAccount) ? (
-                <BookmarkCheck size={15} strokeWidth={1.5} />
-              ) : (
-                <Bookmark size={15} strokeWidth={1.5} />
-              )}
-              {isRitualSaved(ritualForAccount) ? "Guardado" : "Guardar"}
-            </button>
-          </div>
-        ) : (
-          <div className="flex gap-2.5">
-            <button
-              onClick={handleCreateOwnRitual}
-              className="flex-1 py-3.5 bg-[#0A0A0A] text-white rounded-xl transition-all active:scale-[0.98] cursor-pointer"
-              style={{ fontFamily: "Inter, sans-serif", fontSize: "14px" }}
-            >
-              Crear el mío
-            </button>
-            <button
-              className={`px-4 py-3.5 border rounded-xl transition-all active:scale-[0.98] cursor-pointer flex items-center justify-center gap-2 ${
-                isPublicSaved
-                  ? "border-[#0A0A0A] bg-[#F5F5F5] text-[#0A0A0A]"
-                  : "border-[rgba(0,0,0,0.12)] text-[#555]"
-              }`}
-              style={{ fontFamily: "Inter, sans-serif", fontSize: "13px" }}
-              onClick={handleSavePublicRitual}
               disabled={isSavingPublicRitual}
             >
-              {isPublicSaved ? (
+              {isCurrentRitualSaved ? (
                 <BookmarkCheck size={15} strokeWidth={1.5} />
               ) : (
                 <Bookmark size={15} strokeWidth={1.5} />
               )}
-              {isSavingPublicRitual ? "Guardando..." : isPublicSaved ? "Guardado" : "Guardar"}
+              {isSavingPublicRitual
+                ? "Guardando..."
+                : isCurrentRitualSaved
+                  ? "Guardado"
+                  : "Guardar"}
             </button>
           </div>
         )}

@@ -3,6 +3,7 @@ import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "../lib/supabase";
 import { RitualData } from "./RitualContext";
 import {
+  deleteOwnRitual,
   favoriteRitual,
   getUserDashboard,
   likeRitual,
@@ -30,6 +31,7 @@ interface UserContextType {
   ownRituals: SavedRitual[];
   saveRitual: (ritual: RitualData) => Promise<boolean>;
   removeSavedRitual: (id: string) => Promise<void>;
+  deleteOwnRitualById: (id: string) => Promise<void>;
   isRitualSaved: (ritual: RitualData) => boolean;
   likesReceived: number;
   updateProfileName: (fullName: string) => Promise<void>;
@@ -48,6 +50,7 @@ const UserContext = createContext<UserContextType>({
   ownRituals: [],
   saveRitual: async () => true,
   removeSavedRitual: async () => {},
+  deleteOwnRitualById: async () => {},
   isRitualSaved: () => false,
   likesReceived: 0,
   updateProfileName: async () => {},
@@ -66,6 +69,18 @@ function toSavedRitual(ritual: RitualRecord): SavedRitual {
     ritual: ritualRecordToRitualData(ritual),
     likesCount: ritual.likesCount || 0,
   };
+}
+
+function matchesSavedRitual(saved: RitualData, ritual: RitualData) {
+  if (saved.ritualId && ritual.ritualId) {
+    return saved.ritualId === ritual.ritualId;
+  }
+
+  return (
+    saved.aiRitual.title.trim().toLowerCase() === ritual.aiRitual.title.trim().toLowerCase() &&
+    saved.intention.trim().toLowerCase() === ritual.intention.trim().toLowerCase() &&
+    saved.anchor.trim().toLowerCase() === ritual.anchor.trim().toLowerCase()
+  );
 }
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
@@ -134,7 +149,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   }, [loading, session?.user?.id]);
 
   const isRitualSaved = (ritual: RitualData) =>
-    savedRituals.some((entry) => entry.ritual.ritualId === ritual.ritualId);
+    savedRituals.some((entry) => matchesSavedRitual(entry.ritual, ritual));
 
   const saveRitual = async (ritual: RitualData): Promise<boolean> => {
     if (!ritual.ritualId || isRitualSaved(ritual)) {
@@ -148,6 +163,11 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
   const removeSavedRitual = async (id: string) => {
     await unfavoriteRitual(id);
+    await refreshDashboard();
+  };
+
+  const deleteOwnRitualById = async (id: string) => {
+    await deleteOwnRitual(id);
     await refreshDashboard();
   };
 
@@ -199,6 +219,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         ownRituals,
         saveRitual,
         removeSavedRitual,
+        deleteOwnRitualById,
         isRitualSaved,
         likesReceived: profile?.likesReceived || 0,
         updateProfileName,

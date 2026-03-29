@@ -7,6 +7,8 @@ export function Login() {
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const authRedirectUrl =
+    import.meta.env.VITE_AUTH_REDIRECT_URL?.trim() || window.location.origin;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,7 +20,7 @@ export function Login() {
     const { error } = await supabase.auth.signInWithOtp({
       email: email.trim().toLowerCase(),
       options: {
-        emailRedirectTo: window.location.origin,
+        emailRedirectTo: authRedirectUrl,
       },
     });
 

@@ -12,6 +12,9 @@ import { RitualDetail } from "./pages/RitualDetail";
 import { Share } from "./pages/Share";
 import { Explore } from "./pages/Explore";
 import { Account } from "./pages/Account";
+import { CosmicCalendar } from "./pages/CosmicCalendar";
+import { Wiki } from "./pages/Wiki";
+import { WikiNote } from "./pages/WikiNote";
 import { AuthGuard } from "./components/AuthGuard";
 
 const guard = (Component: React.ComponentType) => () => (
@@ -25,6 +28,9 @@ export const router = createBrowserRouter([
     Component: Layout,
     children: [
       { index: true, Component: Home },
+      { path: "calendario-cosmico", Component: CosmicCalendar },
+      { path: "wiki", Component: Wiki },
+      { path: "wiki/:id", Component: WikiNote },
       { path: "explorar", Component: Explore },
       { path: "ritual/:id", Component: RitualDetail },
       // Requieren login

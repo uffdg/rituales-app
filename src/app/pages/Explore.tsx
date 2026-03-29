@@ -1,8 +1,18 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { motion } from "motion/react";
+import { Bookmark, BookmarkCheck } from "lucide-react";
+import { toast } from "sonner";
 import { useRitual } from "../context/RitualContext";
-import { EXPLORE_RITUALS } from "../data/rituals";
+import { useUser } from "../context/UserContext";
+import { ELEMENTS, ENERGIES, EXPLORE_RITUALS, RITUAL_TYPES } from "../data/rituals";
+import {
+  generateRitual,
+  getPublicRituals,
+  ritualCardToRitualData,
+} from "../lib/ritual-service";
+import { getUserFacingErrorMessage } from "../lib/errors";
+import { deriveCandleGuide } from "../lib/candle";
 
 const FILTERS = {
   type: ["Claridad", "Amor propio", "Calma", "Enfoque", "Cerrar ciclo", "Atraer oportunidad"],
@@ -16,6 +26,8 @@ type FilterKey = keyof typeof FILTERS;
 export function Explore() {
   const navigate = useNavigate();
   const { setViewMode, setSelectedPublicRitual } = useRitual();
+  const { session, isRitualSaved, saveRitual } = useUser();
+  const [communityRituals, setCommunityRituals] = useState<any[]>([]);
   const [activeFilterGroup, setActiveFilterGroup] = useState<FilterKey>("type");
   const [activeFilters, setActiveFilters] = useState<Record<FilterKey, string>>({
     type: "",
@@ -23,6 +35,37 @@ export function Explore() {
     element: "",
     duration: "",
   });
+  const [savingRitualId, setSavingRitualId] = useState<string | null>(null);
+
+  useEffect(() => {
+    getPublicRituals()
+      .then((rituals) => {
+        setCommunityRituals(
+          rituals.map((ritual) => ({
+            id: ritual.ritualId,
+            title: ritual.ritual.title,
+            type: RITUAL_TYPES.find((item) => item.id === ritual.ritualType)?.label || "Ritual",
+            energy:
+              ENERGIES.find((item) => item.id === ritual.energy)?.label || ritual.energy || "Calma",
+            element:
+              ELEMENTS.find((item) => item.id === ritual.element)?.label || ritual.element || "Agua",
+            duration: ritual.duration || 10,
+            intensity: ritual.intensity
+              ? ritual.intensity.charAt(0).toUpperCase() + ritual.intensity.slice(1)
+              : "Suave",
+            author: ritual.author || "Anónimo",
+            likes: ritual.likesCount || 0,
+            aiRitual: ritual.ritual,
+            intention: ritual.intention || "",
+            anchor: ritual.anchor || "",
+            typeId: ritual.ritualType || "",
+          })),
+        );
+      })
+      .catch(() => {
+        setCommunityRituals([]);
+      });
+  }, []);
 
   const toggleFilter = (group: FilterKey, value: string) => {
     setActiveFilters((prev) => ({
@@ -31,7 +74,7 @@ export function Explore() {
     }));
   };
 
-  const filteredRituals = EXPLORE_RITUALS.filter((r) => {
+  const filteredRituals = [...communityRituals, ...EXPLORE_RITUALS].filter((r) => {
     if (activeFilters.type && r.type !== activeFilters.type) return false;
     if (activeFilters.energy && r.energy !== activeFilters.energy) return false;
     if (activeFilters.element && r.element !== activeFilters.element) return false;
@@ -43,6 +86,52 @@ export function Explore() {
     setSelectedPublicRitual(ritual);
     setViewMode(true);
     navigate("/ritual/publico");
+  };
+
+  const handleSaveRitual = async (ritual: any) => {
+    if (!session) {
+      navigate("/login");
+      return;
+    }
+
+    const ritualToSaveBase = ritualCardToRitualData(ritual);
+    if (isRitualSaved(ritualToSaveBase)) {
+      toast("Ya está guardado", {
+        description: "Lo encontrás en Favoritos dentro de tu cuenta.",
+      });
+      return;
+    }
+
+    setSavingRitualId(ritual.id);
+    try {
+      let ritualToSave = ritualToSaveBase;
+
+      if (!ritualToSave.ritualId) {
+        const result = await generateRitual(ritualToSave);
+        ritualToSave = {
+          ...ritualToSave,
+          ritualId: result.ritualId,
+          aiRitual: result.ritual,
+          guidedSession: result.guidedSession,
+          guidedAudio: result.guidedAudio,
+        };
+      }
+
+      const saved = await saveRitual(ritualToSave);
+      if (saved) {
+        toast("Ritual guardado ✓", {
+          description: "Lo encontrás en Favoritos dentro de tu cuenta.",
+        });
+      } else {
+        toast("Ya está guardado", {
+          description: "Lo encontrás en Favoritos dentro de tu cuenta.",
+        });
+      }
+    } catch (error) {
+      toast(getUserFacingErrorMessage(error, "No se pudo guardar este ritual."));
+    } finally {
+      setSavingRitualId(null);
+    }
   };
 
   const hasFilters = Object.values(activeFilters).some((v) => v !== "");
@@ -222,96 +311,130 @@ export function Explore() {
               </p>
             </div>
           ) : (
-            filteredRituals.map((ritual, i) => (
-              <motion.button
-                key={ritual.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: i * 0.06 }}
-                onClick={() => handleRitualTap(ritual)}
-                className="w-full text-left p-4 border border-[rgba(0,0,0,0.07)] rounded-2xl hover:border-[rgba(0,0,0,0.16)] transition-all active:scale-[0.99] bg-white"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex-1 min-w-0">
-                    <p
-                      style={{
-                        fontFamily: "Cormorant Garamond, serif",
-                        fontSize: "18px",
-                        fontWeight: 400,
-                        color: "#0A0A0A",
-                        lineHeight: 1.3,
-                        marginBottom: "8px",
+            filteredRituals.map((ritual, i) => {
+              const ritualData = ritualCardToRitualData(ritual);
+              const isSaved = isRitualSaved(ritualData);
+              const candleGuide = deriveCandleGuide({
+                ritualType: ritual.typeId || ritual.type,
+                intention: ritual.intention,
+                energy: ritual.energy,
+                title: ritual.aiRitual?.title || ritual.title,
+                opening: ritual.aiRitual?.opening,
+                symbolicAction: ritual.aiRitual?.symbolicAction,
+                closing: ritual.aiRitual?.closing,
+              });
+
+              return (
+                <motion.div
+                  key={ritual.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: i * 0.06 }}
+                  className="w-full p-4 border border-[rgba(0,0,0,0.07)] rounded-2xl hover:border-[rgba(0,0,0,0.16)] transition-all bg-white"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <button
+                      onClick={() => handleRitualTap(ritual)}
+                      className="flex-1 min-w-0 text-left active:scale-[0.99] transition-transform"
+                    >
+                      <p
+                        style={{
+                          fontFamily: "Cormorant Garamond, serif",
+                          fontSize: "18px",
+                          fontWeight: 400,
+                          color: "#0A0A0A",
+                          lineHeight: 1.3,
+                          marginBottom: "8px",
+                        }}
+                      >
+                        {ritual.title}
+                      </p>
+                      <p
+                        style={{
+                          fontFamily: "Inter, sans-serif",
+                          fontSize: "12px",
+                          fontWeight: 300,
+                          color: "#888",
+                          lineHeight: 1.5,
+                          marginBottom: "10px",
+                          display: "-webkit-box",
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: "vertical",
+                          overflow: "hidden",
+                        }}
+                      >
+                        {ritual.intention}
+                      </p>
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <span
+                          className="px-2.5 py-0.5 rounded-full border border-[rgba(0,0,0,0.08)] text-[#666]"
+                          style={{
+                            fontFamily: "Inter, sans-serif",
+                            fontSize: "10px",
+                            letterSpacing: "0.05em",
+                          }}
+                        >
+                          {ritual.element}
+                        </span>
+                        <span
+                          className="px-2.5 py-0.5 rounded-full border border-[rgba(0,0,0,0.08)] text-[#666]"
+                          style={{
+                            fontFamily: "Inter, sans-serif",
+                            fontSize: "10px",
+                            letterSpacing: "0.05em",
+                          }}
+                        >
+                          {ritual.intensity}
+                        </span>
+                        <span
+                          className="px-2.5 py-0.5 rounded-full border border-[rgba(0,0,0,0.08)] text-[#666]"
+                          style={{
+                            fontFamily: "Inter, sans-serif",
+                            fontSize: "10px",
+                          }}
+                        >
+                          {ritual.duration} min
+                        </span>
+                        <span
+                          className="px-2.5 py-0.5 rounded-full border border-[rgba(0,0,0,0.08)] text-[#666]"
+                          style={{
+                            fontFamily: "Inter, sans-serif",
+                            fontSize: "10px",
+                          }}
+                        >
+                          Vela {candleGuide.color}
+                        </span>
+                        <span
+                          className="text-[11px] text-[#CCC] ml-1"
+                          style={{ fontFamily: "Inter, sans-serif" }}
+                        >
+                          ♥ {ritual.likes}
+                        </span>
+                      </div>
+                    </button>
+                    <button
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        void handleSaveRitual(ritual);
                       }}
+                      disabled={savingRitualId === ritual.id}
+                      className={`shrink-0 w-8 h-8 rounded-xl border flex items-center justify-center transition-all ${
+                        isSaved
+                          ? "border-[#0A0A0A] bg-[#0A0A0A] text-white"
+                          : "border-[rgba(0,0,0,0.08)] bg-[#F5F5F5] text-[#555]"
+                      }`}
+                      aria-label="Guardar ritual"
                     >
-                      {ritual.title}
-                    </p>
-                    <p
-                      style={{
-                        fontFamily: "Inter, sans-serif",
-                        fontSize: "12px",
-                        fontWeight: 300,
-                        color: "#888",
-                        lineHeight: 1.5,
-                        marginBottom: "10px",
-                        display: "-webkit-box",
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: "vertical",
-                        overflow: "hidden",
-                      }}
-                    >
-                      {ritual.intention}
-                    </p>
-                    <div className="flex flex-wrap items-center gap-1.5">
-                      <span
-                        className="px-2.5 py-0.5 rounded-full border border-[rgba(0,0,0,0.08)] text-[#666]"
-                        style={{
-                          fontFamily: "Inter, sans-serif",
-                          fontSize: "10px",
-                          letterSpacing: "0.05em",
-                        }}
-                      >
-                        {ritual.element}
-                      </span>
-                      <span
-                        className="px-2.5 py-0.5 rounded-full border border-[rgba(0,0,0,0.08)] text-[#666]"
-                        style={{
-                          fontFamily: "Inter, sans-serif",
-                          fontSize: "10px",
-                          letterSpacing: "0.05em",
-                        }}
-                      >
-                        {ritual.intensity}
-                      </span>
-                      <span
-                        className="px-2.5 py-0.5 rounded-full border border-[rgba(0,0,0,0.08)] text-[#666]"
-                        style={{
-                          fontFamily: "Inter, sans-serif",
-                          fontSize: "10px",
-                        }}
-                      >
-                        {ritual.duration} min
-                      </span>
-                      <span
-                        className="text-[11px] text-[#CCC] ml-1"
-                        style={{ fontFamily: "Inter, sans-serif" }}
-                      >
-                        ♥ {ritual.likes}
-                      </span>
-                    </div>
+                      {isSaved ? (
+                        <BookmarkCheck size={14} strokeWidth={1.8} fill="currentColor" />
+                      ) : (
+                        <Bookmark size={14} strokeWidth={1.8} />
+                      )}
+                    </button>
                   </div>
-                  <div className="shrink-0">
-                    <div
-                      className="w-8 h-8 rounded-xl flex items-center justify-center"
-                      style={{ background: "#F5F5F5" }}
-                    >
-                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                        <path d="M3 6H9M6 3L9 6L6 9" stroke="#999" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-              </motion.button>
-            ))
+                </motion.div>
+              );
+            })
           )}
         </div>
       </div>

@@ -3,7 +3,8 @@ import type {
   GuidedAudioState,
   RitualData,
 } from "../context/RitualContext";
-import { AI_RITUALS } from "../data/rituals";
+import { AI_RITUALS, ELEMENTS, ENERGIES, RITUAL_TYPES } from "../data/rituals";
+import { getUserFacingErrorMessage } from "./errors";
 import { supabase } from "./supabase";
 
 export interface GuidedSessionSegment {
@@ -46,6 +47,7 @@ export interface RitualRecord extends RitualGenerationResult {
   likesCount?: number;
   likedByViewer?: boolean;
   favoritedByViewer?: boolean;
+  isPublic?: boolean;
 }
 
 interface BackendAudioResponse {
@@ -57,6 +59,40 @@ interface BackendAudioResponse {
 }
 
 export const DEFAULT_ELEVENLABS_VOICE_ID = "El3gkPAhMU9R5biL3rtU";
+
+function normalizeLookupValue(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+}
+
+function resolveCatalogId(
+  value: string | undefined,
+  source: Array<{ id: string; label: string }>,
+  fallback = "",
+) {
+  if (!value) return fallback;
+
+  const normalized = normalizeLookupValue(value);
+  const match = source.find(
+    (item) =>
+      normalizeLookupValue(item.id) === normalized ||
+      normalizeLookupValue(item.label) === normalized,
+  );
+
+  return match?.id || fallback;
+}
+
+function resolveCatalogRitualId(candidate: unknown) {
+  if (typeof candidate !== "string" || !candidate.trim()) {
+    return undefined;
+  }
+
+  const trimmed = candidate.trim();
+  return /^\d+$/.test(trimmed) ? undefined : trimmed;
+}
 
 function normalizeText(text: string) {
   return text.trim().replace(/\s+/g, " ");
@@ -163,6 +199,43 @@ export function deriveGuidedSession(input: RitualData, ritual: AIRitual): Guided
   };
 }
 
+export function ritualCardToRitualData(ritual: {
+  id?: string;
+  ritualId?: string;
+  type?: string;
+  typeId?: string;
+  intention?: string;
+  energy?: string;
+  duration?: number;
+  intensity?: string;
+  element?: string;
+  aiRitual?: AIRitual;
+  guidedSession?: GuidedSessionPlan;
+  guidedAudio?: GuidedAudioState;
+  anchor?: string;
+}): RitualData {
+  return {
+    ritualId: resolveCatalogRitualId(ritual.ritualId || ritual.id),
+    ritualType: ritual.typeId || resolveCatalogId(ritual.type, RITUAL_TYPES),
+    simpleMode: true,
+    intention: ritual.intention || "",
+    intentionCategory: "",
+    energy: resolveCatalogId(ritual.energy, ENERGIES, ritual.energy || ""),
+    duration: ritual.duration || 10,
+    intensity: normalizeLookupValue(ritual.intensity || ""),
+    element: resolveCatalogId(ritual.element, ELEMENTS, ritual.element || ""),
+    aiRitual: ritual.aiRitual || {
+      title: "",
+      opening: "",
+      symbolicAction: "",
+      closing: "",
+    },
+    guidedSession: ritual.guidedSession,
+    guidedAudio: ritual.guidedAudio,
+    anchor: ritual.anchor || "",
+  };
+}
+
 function buildMockRitual(input: RitualData): RitualGenerationResult {
   const base = AI_RITUALS[input.ritualType] || AI_RITUALS.default;
   const ritual: AIRitual = {
@@ -210,9 +283,9 @@ async function readErrorMessage(response: Response, fallback: string) {
 
     try {
       const parsed = JSON.parse(text) as { error?: string; detail?: { message?: string } };
-      return parsed.error || parsed.detail?.message || text;
+      return getUserFacingErrorMessage(parsed.error || parsed.detail?.message || text, fallback);
     } catch {
-      return text;
+      return getUserFacingErrorMessage(text, fallback);
     }
   } catch {
     return fallback;
@@ -310,7 +383,7 @@ export async function renderGuidedAudio(args: {
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(errorText || "No se pudo generar el preview del audio guiado.");
+    throw new Error(getUserFacingErrorMessage(errorText, "No se pudo generar el preview del audio guiado."));
   }
 
   const voiceBlob = await response.blob();
@@ -355,6 +428,47 @@ export async function getRitualById(id: string): Promise<RitualRecord | null> {
 
   if (!response.ok) {
     throw new Error("No se pudo cargar el ritual.");
+  }
+
+  return response.json();
+}
+
+export async function getPublicRituals(): Promise<RitualRecord[]> {
+  const apiBaseUrl = getApiBaseUrl();
+
+  if (!apiBaseUrl) {
+    return [];
+  }
+
+  const response = await fetch(`${apiBaseUrl}/rituals/public`);
+
+  if (!response.ok) {
+    return [];
+  }
+
+  const data = await response.json();
+  return data.rituals || [];
+}
+
+export async function publishRitualToCommunity(ritualId: string, showName: boolean) {
+  const apiBaseUrl = getApiBaseUrl();
+
+  if (!apiBaseUrl) {
+    throw new Error("No hay backend configurado para compartir en comunidad.");
+  }
+
+  const authHeaders = await getAuthHeaders();
+  const response = await fetch(`${apiBaseUrl}/rituals/${ritualId}/publish`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...authHeaders,
+    },
+    body: JSON.stringify({ showName }),
+  });
+
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response, "No se pudo publicar tu ritual en comunidad."));
   }
 
   return response.json();

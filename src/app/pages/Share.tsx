@@ -4,6 +4,9 @@ import { motion } from "motion/react";
 import { toast } from "sonner";
 import { useRitual } from "../context/RitualContext";
 import { UserMenu } from "../components/UserMenu";
+import { deriveCandleGuide } from "../lib/candle";
+import { getUserFacingErrorMessage } from "../lib/errors";
+import { publishRitualToCommunity } from "../lib/ritual-service";
 
 const MOCK_LINK = "rituales.app/r/claridad-interior-4f8a2";
 
@@ -12,12 +15,23 @@ export function Share() {
   const { ritual } = useRitual();
   const [showName, setShowName] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [isPublished, setIsPublished] = useState(false);
   const appBaseUrl = import.meta.env.VITE_PUBLIC_APP_URL?.replace(/\/$/, "");
   const shareLink = ritual.ritualId && appBaseUrl
     ? `${appBaseUrl}/ritual/${ritual.ritualId}`
     : ritual.ritualId
       ? `/ritual/${ritual.ritualId}`
       : MOCK_LINK;
+  const candleGuide = deriveCandleGuide({
+    ritualType: ritual.ritualType,
+    intention: ritual.intention,
+    energy: ritual.energy,
+    title: ritual.aiRitual?.title,
+    opening: ritual.aiRitual?.opening,
+    symbolicAction: ritual.aiRitual?.symbolicAction,
+    closing: ritual.aiRitual?.closing,
+  });
 
   const handleCopy = () => {
     navigator.clipboard?.writeText(shareLink).catch(() => {});
@@ -38,6 +52,29 @@ export function Share() {
     toast("Preparando para Instagram...", {
       description: "En la app real, esto generaría una imagen para stories.",
     });
+  };
+
+  const handlePublishToCommunity = async () => {
+    if (!ritual.ritualId) {
+      toast("Todavía no pudimos publicar este ritual.", {
+        description: "Probá de nuevo en unos segundos.",
+      });
+      return;
+    }
+
+    setIsPublishing(true);
+
+    try {
+      await publishRitualToCommunity(ritual.ritualId, showName);
+      setIsPublished(true);
+      toast("Ya está en la comunidad", {
+        description: "Ahora también puede aparecer en Explorar.",
+      });
+    } catch (error) {
+      toast(getUserFacingErrorMessage(error, "No se pudo publicar tu ritual en comunidad."));
+    } finally {
+      setIsPublishing(false);
+    }
   };
 
   return (
@@ -189,6 +226,18 @@ export function Share() {
                   {ritual.duration} min
                 </span>
               )}
+              <span
+                className="px-2.5 py-0.5 rounded-full"
+                style={{
+                  border: "1px solid rgba(255,255,255,0.15)",
+                  fontFamily: "Inter, sans-serif",
+                  fontSize: "10px",
+                  color: "rgba(255,255,255,0.55)",
+                  letterSpacing: "0.05em",
+                }}
+              >
+                Vela {candleGuide.color}
+              </span>
             </div>
 
             <div
@@ -314,6 +363,62 @@ export function Share() {
           >
             Compartís una versión legible y hermosa de tu ritual. Puedes desactivar tus datos personales antes de compartir.
           </p>
+        </div>
+
+        <div className="p-4 rounded-2xl border border-[rgba(0,0,0,0.07)] bg-white mb-6">
+          <p
+            style={{
+              fontFamily: "Inter, sans-serif",
+              fontSize: "11px",
+              fontWeight: 500,
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
+              color: "#BBB",
+              marginBottom: "8px",
+            }}
+          >
+            Comunidad
+          </p>
+          <p
+            style={{
+              fontFamily: "Cormorant Garamond, serif",
+              fontSize: "24px",
+              fontWeight: 400,
+              color: "#0A0A0A",
+              lineHeight: 1.15,
+              marginBottom: "8px",
+            }}
+          >
+            También podés dejarlo público en la app
+          </p>
+          <p
+            style={{
+              fontFamily: "Inter, sans-serif",
+              fontSize: "13px",
+              fontWeight: 300,
+              color: "#888",
+              lineHeight: 1.6,
+              marginBottom: "14px",
+            }}
+          >
+            Si lo publicás, otras personas lo van a poder descubrir en Explorar.
+          </p>
+          <button
+            onClick={handlePublishToCommunity}
+            disabled={isPublishing || isPublished}
+            className={`w-full py-3.5 rounded-xl transition-all active:scale-[0.98] ${
+              isPublished
+                ? "bg-[#F5F5F5] text-[#0A0A0A] border border-[rgba(0,0,0,0.08)]"
+                : "bg-[#0A0A0A] text-white"
+            }`}
+            style={{ fontFamily: "Inter, sans-serif", fontSize: "14px" }}
+          >
+            {isPublishing
+              ? "Publicando..."
+              : isPublished
+                ? "Ya está publicado"
+                : "Publicar en comunidad"}
+          </button>
         </div>
 
         {/* Name toggle */}

@@ -111,6 +111,25 @@ export async function unfavoriteRitual(ritualId: string) {
   return response.json();
 }
 
+export async function deleteOwnRitual(ritualId: string) {
+  const apiBaseUrl = getApiBaseUrl();
+  if (!apiBaseUrl) {
+    throw new Error("No hay backend configurado para borrar rituales.");
+  }
+
+  const response = await fetch(`${apiBaseUrl}/rituals/${ritualId}`, {
+    method: "DELETE",
+    headers: await getAuthHeaders(),
+  });
+
+  if (!response.ok) {
+    const data = await response.json().catch(() => null);
+    throw new Error(data?.error || "No se pudo borrar el ritual.");
+  }
+
+  return response.json();
+}
+
 export async function likeRitual(ritualId: string) {
   const apiBaseUrl = getApiBaseUrl();
   if (!apiBaseUrl) {

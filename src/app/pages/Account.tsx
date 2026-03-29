@@ -1,10 +1,27 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { motion } from "motion/react";
-import { Bookmark, ChevronRight, Heart, LogOut, Sparkles } from "lucide-react";
+import { Bookmark, Heart, LogOut, Sparkles, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useUser } from "../context/UserContext";
 import { useRitual } from "../context/RitualContext";
+import { deriveCandleGuide } from "../lib/candle";
+import { getUserFacingErrorMessage } from "../lib/errors";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../components/ui/alert-dialog";
+
+type PendingDelete = {
+  id: string;
+  mode: "favorites" | "own";
+};
 
 export function Account() {
   const navigate = useNavigate();
@@ -14,6 +31,7 @@ export function Account() {
     savedRituals,
     ownRituals,
     removeSavedRitual,
+    deleteOwnRitualById,
     updateProfileName,
     likesReceived,
     signOut,
@@ -22,6 +40,7 @@ export function Account() {
   const [fullNameDraft, setFullNameDraft] = useState("");
   const [isSavingName, setIsSavingName] = useState(false);
   const [activeTab, setActiveTab] = useState<"favorites" | "own">("favorites");
+  const [pendingDelete, setPendingDelete] = useState<PendingDelete | null>(null);
 
   useEffect(() => {
     setFullNameDraft(profile?.fullName || "");
@@ -35,7 +54,7 @@ export function Account() {
         description: "Tu perfil ya quedó actualizado.",
       });
     } catch (error) {
-      toast(error instanceof Error ? error.message : "No se pudo guardar tu nombre.");
+      toast(getUserFacingErrorMessage(error, "No se pudo guardar tu nombre."));
     } finally {
       setIsSavingName(false);
     }
@@ -46,6 +65,31 @@ export function Account() {
     setSelectedPublicRitual(null);
     setViewMode(false);
     navigate(`/ritual/${entry.ritual.ritualId || "nuevo"}`);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!pendingDelete) return;
+
+    try {
+      if (pendingDelete.mode === "favorites") {
+        await removeSavedRitual(pendingDelete.id);
+        toast("Se quitó de guardados");
+      } else {
+        await deleteOwnRitualById(pendingDelete.id);
+        toast("Ritual borrado");
+      }
+    } catch (error) {
+      toast(
+        getUserFacingErrorMessage(
+          error,
+          pendingDelete.mode === "favorites"
+            ? "No se pudo quitar el ritual de guardados."
+            : "No se pudo borrar el ritual.",
+        ),
+      );
+    } finally {
+      setPendingDelete(null);
+    }
   };
 
   const renderList = (
@@ -83,74 +127,102 @@ export function Account() {
 
     return (
       <div className="flex flex-col gap-3">
-        {entries.map((entry) => (
-          <div
+        {entries.map((entry) => {
+          const candleGuide = deriveCandleGuide({
+            ritualType: entry.ritual.ritualType,
+            intention: entry.ritual.intention,
+            energy: entry.ritual.energy,
+            title: entry.ritual.aiRitual?.title,
+            opening: entry.ritual.aiRitual?.opening,
+            symbolicAction: entry.ritual.aiRitual?.symbolicAction,
+            closing: entry.ritual.aiRitual?.closing,
+          });
+
+          return (
+          <button
             key={`${mode}-${entry.id}`}
-            className="rounded-3xl border border-[rgba(0,0,0,0.06)] bg-white px-4 py-4"
+            onClick={() => openRitual(entry)}
+            className="w-full text-left p-4 border border-[rgba(0,0,0,0.07)] rounded-[30px] hover:border-[rgba(0,0,0,0.16)] transition-all active:scale-[0.99] bg-white"
           >
-            <div className="flex items-start gap-3">
-              <button onClick={() => openRitual(entry)} className="flex-1 text-left min-w-0">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex-1 min-w-0">
                 <p
                   style={{
                     fontFamily: "Cormorant Garamond, serif",
-                    fontSize: "21px",
+                    fontSize: "18px",
                     color: "#0A0A0A",
-                    lineHeight: 1.2,
-                    marginBottom: "6px",
+                    lineHeight: 1.3,
+                    marginBottom: "10px",
                   }}
                 >
                   {entry.ritual.aiRitual?.title || "Ritual personal"}
                 </p>
-                <div className="flex items-center gap-2 flex-wrap">
+
+                <div className="flex flex-wrap items-center gap-1.5">
+                  {entry.ritual.element ? (
+                    <span
+                      className="px-2.5 py-0.5 rounded-full border border-[rgba(0,0,0,0.08)] text-[#666]"
+                      style={{
+                        fontFamily: "Inter, sans-serif",
+                        fontSize: "10px",
+                        letterSpacing: "0.05em",
+                      }}
+                    >
+                      {entry.ritual.element.charAt(0).toUpperCase() + entry.ritual.element.slice(1)}
+                    </span>
+                  ) : null}
+
+                  {entry.ritual.duration ? (
+                    <span
+                      className="px-2.5 py-0.5 rounded-full border border-[rgba(0,0,0,0.08)] text-[#666]"
+                      style={{
+                        fontFamily: "Inter, sans-serif",
+                        fontSize: "10px",
+                      }}
+                    >
+                      {entry.ritual.duration} min
+                    </span>
+                  ) : null}
+
+                  <span
+                    className="px-2.5 py-0.5 rounded-full border border-[rgba(0,0,0,0.08)] text-[#666]"
+                    style={{
+                      fontFamily: "Inter, sans-serif",
+                      fontSize: "10px",
+                      letterSpacing: "0.05em",
+                    }}
+                  >
+                    Vela {candleGuide.color}
+                  </span>
+
                   <span
                     style={{
                       fontFamily: "Inter, sans-serif",
                       fontSize: "11px",
-                      color: "#AAA",
+                      color: "#CCC",
+                      marginLeft: "4px",
                     }}
                   >
-                    {entry.savedAt}
+                    ♥ {entry.likesCount || 0}
                   </span>
-                  {mode === "own" ? (
-                    <span
-                      style={{
-                        fontFamily: "Inter, sans-serif",
-                        fontSize: "11px",
-                        color: "#AAA",
-                      }}
-                    >
-                      {entry.likesCount || 0} likes
-                    </span>
-                  ) : null}
                 </div>
-              </button>
-
-              <div className="flex items-center gap-2">
-                <ChevronRight size={16} strokeWidth={1.5} className="text-[#BBB]" />
-                {mode === "favorites" ? (
-                  <button
-                    onClick={async () => {
-                      try {
-                        await removeSavedRitual(entry.id);
-                        toast("Se quitó de favoritos");
-                      } catch (error) {
-                        toast(
-                          error instanceof Error
-                            ? error.message
-                            : "No se pudo quitar el ritual de favoritos.",
-                        );
-                      }
-                    }}
-                    className="px-3 py-2 rounded-full border border-[rgba(0,0,0,0.08)] text-[#666] hover:text-[#111] transition-colors"
-                    style={{ fontFamily: "Inter, sans-serif", fontSize: "11px" }}
-                  >
-                    Quitar
-                  </button>
-                ) : null}
               </div>
+
+              <button
+                type="button"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  setPendingDelete({ id: entry.id, mode });
+                }}
+                className="shrink-0 w-14 h-14 rounded-[20px] bg-[#F7F7F7] flex items-center justify-center text-[#888] hover:text-[#111] transition-colors"
+                aria-label={mode === "favorites" ? "Quitar de guardados" : "Borrar ritual"}
+              >
+                <Trash2 size={18} strokeWidth={1.6} />
+              </button>
             </div>
-          </div>
-        ))}
+          </button>
+          );
+        })}
       </div>
     );
   };
@@ -378,6 +450,64 @@ export function Account() {
             : renderList(ownRituals, "own")}
         </section>
       </motion.div>
+
+      <AlertDialog open={Boolean(pendingDelete)} onOpenChange={(open) => !open && setPendingDelete(null)}>
+        <AlertDialogContent className="max-w-[calc(100%-2.5rem)] rounded-[28px] border border-[rgba(0,0,0,0.08)] bg-white px-6 py-6 shadow-[0_20px_60px_rgba(0,0,0,0.12)] sm:max-w-[420px]">
+          <AlertDialogHeader className="text-left">
+            <p
+              style={{
+                fontFamily: "Inter, sans-serif",
+                fontSize: "10px",
+                fontWeight: 500,
+                letterSpacing: "0.14em",
+                textTransform: "uppercase",
+                color: "#BBB",
+              }}
+            >
+              Confirmar acción
+            </p>
+            <AlertDialogTitle
+              style={{
+                fontFamily: "Cormorant Garamond, serif",
+                fontSize: "30px",
+                fontWeight: 400,
+                color: "#0A0A0A",
+                lineHeight: 1.1,
+              }}
+            >
+              {pendingDelete?.mode === "favorites" ? "Quitar de guardados" : "Borrar ritual"}
+            </AlertDialogTitle>
+            <AlertDialogDescription
+              style={{
+                fontFamily: "Inter, sans-serif",
+                fontSize: "14px",
+                color: "#777",
+                lineHeight: 1.6,
+              }}
+            >
+              {pendingDelete?.mode === "favorites"
+                ? "Este ritual va a salir de tus favoritos. Este cambio no se puede deshacer."
+                : "Este ritual se va a borrar de forma permanente. Este cambio no se puede deshacer."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <AlertDialogFooter className="mt-2 gap-2 sm:justify-end">
+            <AlertDialogCancel
+              className="rounded-[20px] border-[rgba(0,0,0,0.08)] px-5 py-3 text-[#666]"
+              style={{ fontFamily: "Inter, sans-serif", fontSize: "13px" }}
+            >
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmDelete}
+              className="rounded-[20px] bg-[#0A0A0A] px-5 py-3 text-white hover:bg-[#1A1A1A]"
+              style={{ fontFamily: "Inter, sans-serif", fontSize: "13px" }}
+            >
+              Confirmar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

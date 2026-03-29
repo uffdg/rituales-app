@@ -1,9 +1,21 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { motion } from "motion/react";
+import { Bookmark, BookmarkCheck } from "lucide-react";
+import { toast } from "sonner";
 import { useRitual } from "../context/RitualContext";
+import { useUser } from "../context/UserContext";
 import { EXPLORE_RITUALS } from "../data/rituals";
+import { WIKI_NOTES } from "../data/wiki";
 import { UserMenu } from "../components/UserMenu";
+import { MoonPhaseIcon } from "../components/MoonPhaseIcon";
+import { getCosmicSliderDays } from "../lib/cosmic-calendar";
+import {
+  generateRitual,
+  ritualCardToRitualData,
+} from "../lib/ritual-service";
+import { getUserFacingErrorMessage } from "../lib/errors";
+import { deriveCandleGuide } from "../lib/candle";
 
 const HOME_INTRO_KEY = "rituales_home_intro_seen_v1";
 
@@ -28,8 +40,10 @@ const INTRO_SLIDES = [
 export function Home() {
   const navigate = useNavigate();
   const { resetRitual, setViewMode, setSelectedPublicRitual } = useRitual();
+  const { session, isRitualSaved, saveRitual } = useUser();
   const [introStep, setIntroStep] = useState(0);
   const [showIntro, setShowIntro] = useState(true);
+  const [savingRitualId, setSavingRitualId] = useState<string | null>(null);
 
   useEffect(() => {
     try {
@@ -56,6 +70,52 @@ export function Home() {
     navigate("/ritual/publico");
   };
 
+  const handleSaveRitual = async (ritual: any) => {
+    if (!session) {
+      navigate("/login");
+      return;
+    }
+
+    const ritualToSaveBase = ritualCardToRitualData(ritual);
+    if (isRitualSaved(ritualToSaveBase)) {
+      toast("Ya está guardado", {
+        description: "Lo encontrás en Favoritos dentro de tu cuenta.",
+      });
+      return;
+    }
+
+    setSavingRitualId(ritual.id);
+    try {
+      let ritualToSave = ritualToSaveBase;
+
+      if (!ritualToSave.ritualId) {
+        const result = await generateRitual(ritualToSave);
+        ritualToSave = {
+          ...ritualToSave,
+          ritualId: result.ritualId,
+          aiRitual: result.ritual,
+          guidedSession: result.guidedSession,
+          guidedAudio: result.guidedAudio,
+        };
+      }
+
+      const saved = await saveRitual(ritualToSave);
+      if (saved) {
+        toast("Ritual guardado ✓", {
+          description: "Lo encontrás en Favoritos dentro de tu cuenta.",
+        });
+      } else {
+        toast("Ya está guardado", {
+          description: "Lo encontrás en Favoritos dentro de tu cuenta.",
+        });
+      }
+    } catch (error) {
+      toast(getUserFacingErrorMessage(error, "No se pudo guardar este ritual."));
+    } finally {
+      setSavingRitualId(null);
+    }
+  };
+
   const completeIntro = () => {
     try {
       localStorage.setItem(HOME_INTRO_KEY, "true");
@@ -73,6 +133,7 @@ export function Home() {
   };
 
   const featuredRituals = EXPLORE_RITUALS.slice(0, 3);
+  const cosmicDays = getCosmicSliderDays(new Date(), 8);
 
   if (showIntro) {
     const slide = INTRO_SLIDES[introStep];
@@ -371,6 +432,97 @@ export function Home() {
       {/* Thin divider */}
       <div className="mx-6 h-[1px] bg-[#F0F0F0]" />
 
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, delay: 0.35 }}
+        className="pt-8"
+      >
+        <div className="px-6 flex items-baseline justify-between mb-5">
+          <p
+            style={{
+              fontFamily: "Inter, sans-serif",
+              fontSize: "11px",
+              fontWeight: 500,
+              letterSpacing: "0.14em",
+              color: "#999",
+              textTransform: "uppercase",
+            }}
+          >
+            Cielo de la semana
+          </p>
+          <button
+            onClick={() => navigate("/calendario-cosmico")}
+            style={{
+              fontFamily: "Inter, sans-serif",
+              fontSize: "12px",
+              color: "#0A0A0A",
+              letterSpacing: "0.03em",
+            }}
+          >
+            Ver calendario →
+          </button>
+        </div>
+
+        <div className="overflow-x-auto hide-scrollbar pb-2 pl-6 pr-0">
+          <div className="flex gap-3 w-max pr-6">
+          {cosmicDays.map((day) => (
+            <button
+              key={day.dateKey}
+              onClick={() => navigate("/calendario-cosmico")}
+              className="shrink-0 w-[128px] rounded-[28px] border border-[rgba(0,0,0,0.07)] bg-white px-4 py-4 text-left"
+            >
+              <p
+                style={{
+                  fontFamily: "Inter, sans-serif",
+                  fontSize: "10px",
+                  fontWeight: 500,
+                  letterSpacing: "0.12em",
+                  textTransform: "uppercase",
+                  color: "#AAA",
+                  marginBottom: "8px",
+                }}
+              >
+                {day.weekdayLabel}
+              </p>
+              <div className="flex items-center justify-between mb-3">
+                <p
+                  style={{
+                    fontFamily: "Cormorant Garamond, serif",
+                    fontSize: "28px",
+                    color: "#0A0A0A",
+                    lineHeight: 1,
+                  }}
+                >
+                    {day.shortLabel}
+                  </p>
+                <MoonPhaseIcon phase={day.moonPhase} size={26} />
+              </div>
+              <p
+                style={{
+                  fontFamily: "Inter, sans-serif",
+                  fontSize: "12px",
+                  color: "#666",
+                  lineHeight: 1.4,
+                  marginBottom: "8px",
+                }}
+              >
+                {day.moonPhase}
+              </p>
+              {day.events[0] ? (
+                <span
+                  className="inline-flex px-2.5 py-0.5 rounded-full border border-[rgba(0,0,0,0.08)] text-[#666]"
+                  style={{ fontFamily: "Inter, sans-serif", fontSize: "10px" }}
+                >
+                  {day.events[0].shortLabel}
+                </span>
+              ) : null}
+            </button>
+          ))}
+          </div>
+        </div>
+      </motion.div>
+
       {/* Recent / Popular section */}
       <motion.div
         initial={{ opacity: 0, y: 16 }}
@@ -405,55 +557,177 @@ export function Home() {
         </div>
 
         <div className="flex flex-col gap-3">
-          {featuredRituals.map((ritual, i) => (
-            <motion.button
-              key={ritual.id}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.5 + i * 0.08 }}
-              onClick={() => handleRitualCard(ritual)}
-              className="w-full text-left p-4 border border-[rgba(0,0,0,0.07)] rounded-2xl hover:border-[rgba(0,0,0,0.15)] transition-all active:scale-[0.99] bg-white"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex-1 min-w-0">
-                  <p
-                    style={{
-                      fontFamily: "Cormorant Garamond, serif",
-                      fontSize: "17px",
-                      fontWeight: 400,
-                      color: "#0A0A0A",
-                      lineHeight: 1.35,
-                    }}
+          {featuredRituals.map((ritual, i) => {
+            const ritualData = ritualCardToRitualData(ritual);
+            const isSaved = isRitualSaved(ritualData);
+            const candleGuide = deriveCandleGuide({
+              ritualType: ritual.type,
+              intention: ritual.intention,
+              energy: ritual.energy,
+              title: ritual.aiRitual?.title || ritual.title,
+              opening: ritual.aiRitual?.opening,
+              symbolicAction: ritual.aiRitual?.symbolicAction,
+              closing: ritual.aiRitual?.closing,
+            });
+
+            return (
+              <motion.div
+                key={ritual.id}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.5 + i * 0.08 }}
+                className="w-full p-4 border border-[rgba(0,0,0,0.07)] rounded-2xl hover:border-[rgba(0,0,0,0.15)] transition-all bg-white"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <button
+                    onClick={() => handleRitualCard(ritual)}
+                    className="flex-1 min-w-0 text-left active:scale-[0.99] transition-transform"
                   >
-                    {ritual.title}
-                  </p>
-                  <div className="flex items-center gap-2 mt-2">
-                    <span
-                      className="text-[10px] px-2 py-0.5 rounded-full border border-[rgba(0,0,0,0.1)] text-[#666]"
-                      style={{ fontFamily: "Inter, sans-serif", letterSpacing: "0.06em" }}
+                    <p
+                      style={{
+                        fontFamily: "Cormorant Garamond, serif",
+                        fontSize: "17px",
+                        fontWeight: 400,
+                        color: "#0A0A0A",
+                        lineHeight: 1.35,
+                      }}
                     >
-                      {ritual.element}
-                    </span>
-                    <span
-                      className="text-[10px] px-2 py-0.5 rounded-full border border-[rgba(0,0,0,0.1)] text-[#666]"
-                      style={{ fontFamily: "Inter, sans-serif", letterSpacing: "0.06em" }}
-                    >
-                      {ritual.duration} min
-                    </span>
-                    <span
-                      className="text-[10px] text-[#AAA]"
-                      style={{ fontFamily: "Inter, sans-serif" }}
-                    >
-                      ♥ {ritual.likes}
-                    </span>
-                  </div>
+                      {ritual.title}
+                    </p>
+                    <div className="flex flex-wrap items-center gap-2 mt-2">
+                      <span
+                        className="text-[10px] px-2 py-0.5 rounded-full border border-[rgba(0,0,0,0.1)] text-[#666]"
+                        style={{ fontFamily: "Inter, sans-serif", letterSpacing: "0.06em" }}
+                      >
+                        {ritual.element}
+                      </span>
+                      <span
+                        className="text-[10px] px-2 py-0.5 rounded-full border border-[rgba(0,0,0,0.1)] text-[#666]"
+                        style={{ fontFamily: "Inter, sans-serif", letterSpacing: "0.06em" }}
+                      >
+                        {ritual.duration} min
+                      </span>
+                      <span
+                        className="text-[10px] px-2 py-0.5 rounded-full border border-[rgba(0,0,0,0.1)] text-[#666]"
+                        style={{ fontFamily: "Inter, sans-serif", letterSpacing: "0.06em" }}
+                      >
+                        Vela {candleGuide.color}
+                      </span>
+                      <span
+                        className="text-[10px] text-[#AAA]"
+                        style={{ fontFamily: "Inter, sans-serif" }}
+                      >
+                        ♥ {ritual.likes}
+                      </span>
+                    </div>
+                  </button>
+                  <button
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      void handleSaveRitual(ritual);
+                    }}
+                    disabled={savingRitualId === ritual.id}
+                    className={`shrink-0 w-9 h-9 rounded-xl border flex items-center justify-center transition-all ${
+                      isSaved
+                        ? "border-[#0A0A0A] bg-[#0A0A0A] text-white"
+                        : "border-[rgba(0,0,0,0.08)] bg-[#F5F5F5] text-[#555]"
+                    }`}
+                    aria-label="Guardar ritual"
+                  >
+                    {isSaved ? (
+                      <BookmarkCheck size={16} strokeWidth={1.8} fill="currentColor" />
+                    ) : (
+                      <Bookmark size={16} strokeWidth={1.8} />
+                    )}
+                  </button>
                 </div>
-                <div className="shrink-0 w-9 h-9 rounded-xl bg-[#F5F5F5] flex items-center justify-center">
-                  <span className="text-base">{ritual.type === "Claridad" ? "◯" : ritual.type === "Cerrar ciclo" ? "⊘" : "✦"}</span>
-                </div>
-              </div>
-            </motion.button>
-          ))}
+              </motion.div>
+            );
+          })}
+        </div>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, delay: 0.5 }}
+        className="pt-2 pb-12"
+      >
+        <div className="px-6 flex items-baseline justify-between mb-5">
+          <p
+            style={{
+              fontFamily: "Inter, sans-serif",
+              fontSize: "11px",
+              fontWeight: 500,
+              letterSpacing: "0.14em",
+              color: "#999",
+              textTransform: "uppercase",
+            }}
+          >
+            Notas para rituales
+          </p>
+          <button
+            onClick={() => navigate("/wiki")}
+            style={{
+              fontFamily: "Inter, sans-serif",
+              fontSize: "12px",
+              color: "#0A0A0A",
+              letterSpacing: "0.03em",
+            }}
+          >
+            Ver wiki →
+          </button>
+        </div>
+
+        <div className="overflow-x-auto hide-scrollbar pb-2 pl-6 pr-0">
+          <div className="flex gap-3 w-max pr-6">
+            {WIKI_NOTES.map((note, index) => (
+              <motion.button
+                key={note.id}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.45, delay: 0.58 + index * 0.05 }}
+                onClick={() => navigate(`/wiki/${note.id}`)}
+                className="shrink-0 w-[220px] rounded-[28px] border border-[rgba(0,0,0,0.07)] bg-white px-5 py-5 text-left transition-all hover:border-[rgba(0,0,0,0.14)] active:scale-[0.99]"
+              >
+                <p
+                  style={{
+                    fontFamily: "Inter, sans-serif",
+                    fontSize: "10px",
+                    fontWeight: 500,
+                    letterSpacing: "0.14em",
+                    textTransform: "uppercase",
+                    color: "#BBB",
+                    marginBottom: "10px",
+                  }}
+                >
+                  {note.eyebrow}
+                </p>
+                <h3
+                  style={{
+                    fontFamily: "Cormorant Garamond, serif",
+                    fontSize: "24px",
+                    fontWeight: 400,
+                    color: "#0A0A0A",
+                    lineHeight: 1.15,
+                    marginBottom: "10px",
+                  }}
+                >
+                  {note.title}
+                </h3>
+                <p
+                  style={{
+                    fontFamily: "Inter, sans-serif",
+                    fontSize: "12px",
+                    color: "#777",
+                    lineHeight: 1.55,
+                  }}
+                >
+                  {note.summary}
+                </p>
+              </motion.button>
+            ))}
+          </div>
         </div>
       </motion.div>
     </div>
