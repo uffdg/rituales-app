@@ -9,7 +9,7 @@ import { EXPLORE_RITUALS } from "../data/rituals";
 import { WIKI_NOTES } from "../data/wiki";
 import { UserMenu } from "../components/UserMenu";
 import { MoonPhaseIcon } from "../components/MoonPhaseIcon";
-import { getCosmicSliderDays, getPhaseBackgroundUrl } from "../lib/cosmic-calendar";
+import { getCosmicSliderDays } from "../lib/cosmic-calendar";
 import {
   generateRitual,
   ritualCardToRitualData,
@@ -458,46 +458,43 @@ export function Home() {
         <div className="overflow-x-auto hide-scrollbar pb-2 pl-6 pr-0">
           <div className="flex gap-3 w-max pr-6">
           {cosmicDays.map((day) => {
-            const bgUrl = getPhaseBackgroundUrl(day.moonPhase);
-            const isNewMoon = bgUrl === "black";
             return (
               <button
                 key={day.dateKey}
                 onClick={() => navigate("/calendario-cosmico", { state: { selectedDate: day.dateKey } })}
-                className="relative overflow-hidden shrink-0 w-[128px] min-h-[160px] rounded-[6px] bg-[#000] px-4 py-4 text-left shadow-sm group hover:opacity-90 transition-all flex flex-col"
+                className="relative overflow-hidden shrink-0 w-[128px] min-h-[160px] bg-white px-4 py-4 text-left shadow-none transition-colors flex flex-col"
+                style={{
+                  border: "1px solid rgba(0, 0, 0, 0.15)",
+                  borderRadius: "var(--radius-2xl, 24px)",
+                }}
               >
-                {!isNewMoon && bgUrl && (
-                  <div
-                    className="absolute inset-0 pointer-events-none transition-opacity duration-500 ease-out"
-                    style={{
-                      backgroundImage: `url(${bgUrl})`,
-                      backgroundSize: "cover",
-                      backgroundPosition: "center",
-                      backgroundRepeat: "no-repeat",
-                    }}
-                  />
-                )}
-
                 <div className="relative z-10 w-full h-full flex flex-col flex-1 text-current">
                   <div>
-                    <p style={{ fontFamily: "Inter, sans-serif", fontSize: "10px", fontWeight: 500, letterSpacing: "0.12em", textTransform: "uppercase", color: "#FFF", marginBottom: "8px" }}>
+                    <p style={{ fontFamily: "Inter, sans-serif", fontSize: "10px", fontWeight: 500, letterSpacing: "0.12em", textTransform: "uppercase", color: "#A3A3A3", marginBottom: "8px" }}>
                       {day.weekdayLabel}
                     </p>
                     <div className="flex items-center justify-between mb-3 text-current">
-                      <p style={{ fontFamily: "Cormorant Garamond, serif", fontSize: "28px", fontWeight: 500, color: "#FFF", lineHeight: 1 }}>
+                      <p style={{ fontFamily: "Cormorant Garamond, serif", fontSize: "28px", fontWeight: 500, color: "#0A0A0A", lineHeight: 1 }}>
                         {day.shortLabel}
                       </p>
                       <div>
-                        <MoonPhaseIcon phase={day.moonPhase} size={26} darkTheme={true} />
+                        <MoonPhaseIcon phase={day.moonPhase} size={26} />
                       </div>
                     </div>
                   </div>
                   <div className="mt-auto pt-4 flex flex-col items-start">
-                    <p style={{ fontFamily: "Inter, sans-serif", fontSize: "12px", fontWeight: 500, color: "#FFF", lineHeight: 1.4, marginBottom: day.events[0] ? "8px" : "0" }}>
+                    <p style={{ fontFamily: "Inter, sans-serif", fontSize: "12px", fontWeight: 500, color: "#4B4B4B", lineHeight: 1.4, marginBottom: day.events[0] ? "8px" : "0" }}>
                       {day.moonPhase}
                     </p>
                     {day.events[0] ? (
-                      <span className="inline-flex px-2.5 py-0.5 rounded-[4px] bg-[#222] text-[#CCC]" style={{ fontFamily: "Inter, sans-serif", fontSize: "10px" }}>
+                      <span
+                        className="inline-flex px-2.5 py-0.5 rounded-[999px] text-[#0A0A0A]"
+                        style={{
+                          fontFamily: "Inter, sans-serif",
+                          fontSize: "10px",
+                          border: "1px solid rgba(0, 0, 0, 0.15)",
+                        }}
+                      >
                         {day.events[0].shortLabel}
                       </span>
                     ) : null}
