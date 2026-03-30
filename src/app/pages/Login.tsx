@@ -104,13 +104,18 @@ export function Login() {
                 }}
               >
                 Te enviamos un link a{" "}
-                <span 
-                  style={{ color: "#555" }} 
-                  data-detectors="false" 
+                <span
+                  style={{
+                    color: "#555",
+                    wordBreak: "break-word",
+                    overflowWrap: "anywhere",
+                  }}
+                  data-detectors="false"
                   className="pointer-events-none select-none"
                 >
-                  {email.replace("@", " @ ")}
-                </span>.{" "}
+                  {email.trim().toLowerCase()}
+                </span>
+                .{" "}
                 Hacé click en él para entrar.
               </p>
 
