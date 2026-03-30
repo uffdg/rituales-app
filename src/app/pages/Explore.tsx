@@ -426,9 +426,19 @@ export function Explore() {
                       aria-label="Guardar ritual"
                     >
                       {isSaved ? (
-                        <BookmarkCheck size={14} strokeWidth={1.8} fill="currentColor" />
+                        <BookmarkCheck
+                          size={14}
+                          strokeWidth={1.8}
+                          color="currentColor"
+                          fill="currentColor"
+                        />
                       ) : (
-                        <Bookmark size={14} strokeWidth={1.8} />
+                        <Bookmark
+                          size={14}
+                          strokeWidth={1.8}
+                          color="currentColor"
+                          fill="none"
+                        />
                       )}
                     </button>
                   </div>

@@ -14,6 +14,7 @@ import {
   type UserProfileData,
 } from "../lib/user-service";
 import type { RitualRecord } from "../lib/ritual-service";
+import { track } from "../lib/analytics";
 
 export interface SavedRitual {
   id: string;
@@ -83,6 +84,15 @@ function matchesSavedRitual(saved: RitualData, ritual: RitualData) {
   );
 }
 
+function toOptimisticSavedRitual(ritual: RitualData): SavedRitual {
+  return {
+    id: ritual.ritualId || `local-${Date.now()}`,
+    savedAt: new Date().toLocaleDateString("es-AR", { day: "numeric", month: "long" }),
+    ritual,
+    likesCount: 0,
+  };
+}
+
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
@@ -119,7 +129,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         id: session.user.id,
         email: session.user.email || "",
         fullName: session.user.user_metadata?.full_name || "",
-        likesReceived: 0,
+        likesReceived: profile?.likesReceived || 0,
       });
     }
   };
@@ -133,10 +143,20 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
+
+      if (event === "SIGNED_IN" && session?.user) {
+        track("login", {
+          userId: session.user.id,
+        });
+      }
+
+      if (event === "SIGNED_OUT") {
+        track("logout");
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -157,18 +177,30 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     }
 
     await favoriteRitual(ritual.ritualId);
-    await refreshDashboard();
+
+    setSavedRituals((current) => {
+      if (current.some((entry) => matchesSavedRitual(entry.ritual, ritual))) {
+        return current;
+      }
+
+      return [toOptimisticSavedRitual(ritual), ...current];
+    });
+
+    refreshDashboard().catch(() => {});
     return true;
   };
 
   const removeSavedRitual = async (id: string) => {
     await unfavoriteRitual(id);
-    await refreshDashboard();
+    setSavedRituals((current) => current.filter((entry) => entry.id !== id));
+    refreshDashboard().catch(() => {});
   };
 
   const deleteOwnRitualById = async (id: string) => {
     await deleteOwnRitual(id);
-    await refreshDashboard();
+    setOwnRituals((current) => current.filter((entry) => entry.id !== id));
+    setSavedRituals((current) => current.filter((entry) => entry.id !== id));
+    refreshDashboard().catch(() => {});
   };
 
   const updateProfileName = async (fullName: string) => {

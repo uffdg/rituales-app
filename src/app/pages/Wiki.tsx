@@ -81,7 +81,8 @@ export function Wiki() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.45, delay: index * 0.05 }}
               onClick={() => navigate(`/wiki/${note.id}`)}
-              className="relative w-full text-left rounded-[6px] overflow-hidden transition-all hover:scale-[0.99] active:scale-[0.97] min-h-[200px] flex flex-col justify-end group isolate border border-[rgba(0,0,0,0.04)]"
+              className="relative w-full text-left overflow-hidden transition-all hover:scale-[0.99] active:scale-[0.97] min-h-[200px] flex flex-col justify-end group isolate border border-[rgba(0,0,0,0.04)]"
+              style={{ borderRadius: "var(--radius-2xl, 24px)" }}
             >
               {/* Background Image & Overlay */}
               <div className="absolute inset-0 z-0 bg-[#F5F5F5]">

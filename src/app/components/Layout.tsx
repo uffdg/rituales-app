@@ -1,5 +1,20 @@
-import { Outlet, ScrollRestoration } from "react-router";
+import { useEffect } from "react";
+import { Outlet, ScrollRestoration, useLocation } from "react-router";
 import { Toaster } from "sonner";
+import { track } from "../lib/analytics";
+
+function RouteTracker() {
+  const location = useLocation();
+
+  useEffect(() => {
+    track("page_view", {
+      path: location.pathname,
+      search: location.search || undefined,
+    });
+  }, [location.pathname, location.search]);
+
+  return null;
+}
 
 export function Layout() {
   return (
@@ -9,6 +24,7 @@ export function Layout() {
         style={{ boxShadow: "0 30px 80px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.08)" }}
       >
         <ScrollRestoration />
+        <RouteTracker />
         <Outlet />
       </div>
       <Toaster

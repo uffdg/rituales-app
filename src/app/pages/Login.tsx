@@ -7,8 +7,11 @@ export function Login() {
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const configuredRedirectUrl = import.meta.env.VITE_AUTH_REDIRECT_URL?.trim();
+  const isLocalHost =
+    window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
   const authRedirectUrl =
-    import.meta.env.VITE_AUTH_REDIRECT_URL?.trim() || window.location.origin;
+    isLocalHost && configuredRedirectUrl ? configuredRedirectUrl : window.location.origin;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,7 +30,7 @@ export function Login() {
     setLoading(false);
 
     if (error) {
-      setError("No pudimos enviar el link. Revisá el email e intentá de nuevo.");
+      setError("No pudimos enviar el link. Probá de nuevo en unos segundos.");
       return;
     }
 

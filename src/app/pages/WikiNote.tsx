@@ -154,7 +154,10 @@ export function WikiNote() {
                 ))}
 
                 {section.bullets && (
-                  <div className="mt-6 bg-[#FAFAFA] rounded-[24px] p-7 border border-[#F0F0F0] shadow-sm">
+                  <div
+                    className="mt-6 bg-[#FAFAFA] p-7 border border-[#F0F0F0] shadow-sm"
+                    style={{ borderRadius: "var(--radius-2xl, 24px)" }}
+                  >
                     <ul className="flex flex-col gap-5">
                       {section.bullets.map((bullet, bulletIndex) => {
                         const parts = bullet.split(":");

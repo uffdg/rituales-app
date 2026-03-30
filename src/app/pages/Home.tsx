@@ -619,9 +619,19 @@ export function Home() {
                     aria-label="Guardar ritual"
                   >
                     {isSaved ? (
-                      <BookmarkCheck size={16} strokeWidth={1.8} fill="currentColor" />
+                      <BookmarkCheck
+                        size={16}
+                        strokeWidth={1.8}
+                        color="currentColor"
+                        fill="currentColor"
+                      />
                     ) : (
-                      <Bookmark size={16} strokeWidth={1.8} />
+                      <Bookmark
+                        size={16}
+                        strokeWidth={1.8}
+                        color="currentColor"
+                        fill="none"
+                      />
                     )}
                   </button>
                 </div>
@@ -674,7 +684,10 @@ export function Home() {
                 onClick={() => navigate(`/wiki/${note.id}`)}
                 className="shrink-0 w-[220px] text-left transition-all hover:opacity-80 active:scale-[0.99] flex flex-col gap-3"
               >
-                <div className="w-full aspect-[4/4] rounded-[6px] bg-[#f5f5f5] overflow-hidden relative isolate">
+                <div
+                  className="w-full aspect-[4/4] bg-[#f5f5f5] overflow-hidden relative isolate"
+                  style={{ borderRadius: "var(--radius-2xl, 24px)" }}
+                >
                   {note.image && (
                     <img 
                       src={note.image} 
