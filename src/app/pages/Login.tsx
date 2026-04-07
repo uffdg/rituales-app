@@ -70,7 +70,7 @@ export function Login() {
     const { error } = await supabase.auth.verifyOtp({
       email: email.trim().toLowerCase(),
       token,
-      type: "magiclink",
+      type: "email",
     });
 
     setVerifying(false);
