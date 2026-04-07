@@ -1,19 +1,17 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { supabase } from "../lib/supabase";
 
 export function Login() {
   const [email, setEmail] = useState("");
-  const [sent, setSent] = useState(false);
+  const [code, setCode] = useState(["", "", "", "", "", ""]);
+  const [step, setStep] = useState<"email" | "code">("email");
   const [loading, setLoading] = useState(false);
+  const [verifying, setVerifying] = useState(false);
   const [error, setError] = useState("");
-  const configuredRedirectUrl = import.meta.env.VITE_AUTH_REDIRECT_URL?.trim();
-  const isLocalHost =
-    window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
-  const authRedirectUrl =
-    isLocalHost && configuredRedirectUrl ? configuredRedirectUrl : window.location.origin;
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim()) return;
 
@@ -22,19 +20,66 @@ export function Login() {
 
     const { error } = await supabase.auth.signInWithOtp({
       email: email.trim().toLowerCase(),
-      options: {
-        emailRedirectTo: authRedirectUrl,
-      },
     });
 
     setLoading(false);
 
     if (error) {
-      setError("No pudimos enviar el link. Probá de nuevo en unos segundos.");
+      setError("No pudimos enviar el código. Probá de nuevo.");
       return;
     }
 
-    setSent(true);
+    setStep("code");
+  };
+
+  const handleCodeChange = (index: number, value: string) => {
+    const digit = value.replace(/\D/g, "").slice(-1);
+    const next = [...code];
+    next[index] = digit;
+    setCode(next);
+
+    if (digit && index < 5) {
+      inputRefs.current[index + 1]?.focus();
+    }
+
+    if (next.every((d) => d !== "") && next.join("").length === 6) {
+      handleVerify(next.join(""));
+    }
+  };
+
+  const handleKeyDown = (index: number, e: React.KeyboardEvent) => {
+    if (e.key === "Backspace" && !code[index] && index > 0) {
+      inputRefs.current[index - 1]?.focus();
+    }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent) => {
+    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+    if (pasted.length === 6) {
+      const next = pasted.split("");
+      setCode(next);
+      inputRefs.current[5]?.focus();
+      handleVerify(pasted);
+    }
+  };
+
+  const handleVerify = async (token: string) => {
+    setVerifying(true);
+    setError("");
+
+    const { error } = await supabase.auth.verifyOtp({
+      email: email.trim().toLowerCase(),
+      token,
+      type: "email",
+    });
+
+    setVerifying(false);
+
+    if (error) {
+      setError("Código incorrecto o expirado. Pedí uno nuevo.");
+      setCode(["", "", "", "", "", ""]);
+      inputRefs.current[0]?.focus();
+    }
   };
 
   return (
@@ -66,78 +111,13 @@ export function Login() {
               justifyContent: "center",
             }}
           >
-            <div
-              style={{
-                width: 10,
-                height: 10,
-                borderRadius: "50%",
-                background: "#0A0A0A",
-              }}
-            />
+            <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#0A0A0A" }} />
           </div>
         </div>
 
         <AnimatePresence mode="wait">
-          {sent ? (
-            <motion.div
-              key="sent"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-center"
-            >
-              <h1
-                style={{
-                  fontFamily: "Cormorant Garamond, serif",
-                  fontSize: "28px",
-                  fontWeight: 400,
-                  color: "#0A0A0A",
-                  marginBottom: "12px",
-                  lineHeight: 1.2,
-                }}
-              >
-                Revisá tu email
-              </h1>
-              <p
-                style={{
-                  fontFamily: "Inter, sans-serif",
-                  fontSize: "14px",
-                  fontWeight: 300,
-                  color: "#888",
-                  lineHeight: 1.6,
-                }}
-              >
-                Te enviamos un link a{" "}
-                <span
-                  style={{
-                    color: "#555",
-                    wordBreak: "break-word",
-                    overflowWrap: "anywhere",
-                  }}
-                  data-detectors="false"
-                  className="pointer-events-none select-none"
-                >
-                  {email.trim().toLowerCase()}
-                </span>
-                .{" "}
-                Hacé click en él para entrar.
-              </p>
-
-              <button
-                onClick={() => {
-                  window.location.href = "message://";
-                }}
-                className="mt-8 w-full py-4 bg-[#0A0A0A] text-white rounded-2xl cursor-pointer hover:bg-[#222] transition-all active:scale-[0.98]"
-                style={{
-                  fontFamily: "Inter, sans-serif",
-                  fontSize: "15px",
-                  fontWeight: 400,
-                }}
-              >
-                Abrir correo
-              </button>
-            </motion.div>
-          ) : (
-            <motion.div key="form" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+          {step === "email" ? (
+            <motion.div key="email" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
               <h1
                 style={{
                   fontFamily: "Cormorant Garamond, serif",
@@ -164,7 +144,7 @@ export function Login() {
                 Ingresá tu email para continuar
               </p>
 
-              <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+              <form onSubmit={handleSend} className="flex flex-col gap-3">
                 <input
                   type="email"
                   value={email}
@@ -172,22 +152,11 @@ export function Login() {
                   placeholder="tu@email.com"
                   autoFocus
                   className="w-full px-4 py-4 rounded-2xl border border-[rgba(0,0,0,0.1)] bg-[#FAFAFA] focus:outline-none focus:border-[rgba(0,0,0,0.3)]"
-                  style={{
-                    fontFamily: "Inter, sans-serif",
-                    fontSize: "15px",
-                    fontWeight: 300,
-                    color: "#0A0A0A",
-                  }}
+                  style={{ fontFamily: "Inter, sans-serif", fontSize: "15px", fontWeight: 300, color: "#0A0A0A" }}
                 />
 
                 {error && (
-                  <p
-                    style={{
-                      fontFamily: "Inter, sans-serif",
-                      fontSize: "12px",
-                      color: "#B42318",
-                    }}
-                  >
+                  <p style={{ fontFamily: "Inter, sans-serif", fontSize: "12px", color: "#B42318" }}>
                     {error}
                   </p>
                 )}
@@ -196,15 +165,106 @@ export function Login() {
                   type="submit"
                   disabled={loading || !email.trim()}
                   className="w-full py-4 bg-[#0A0A0A] text-white rounded-2xl disabled:opacity-50 cursor-pointer hover:bg-[#222] transition-all active:scale-[0.98]"
-                  style={{
-                    fontFamily: "Inter, sans-serif",
-                    fontSize: "15px",
-                    fontWeight: 400,
-                  }}
+                  style={{ fontFamily: "Inter, sans-serif", fontSize: "15px", fontWeight: 400 }}
                 >
-                  {loading ? "Enviando..." : "Recibir link de acceso"}
+                  {loading ? "Enviando..." : "Recibir código"}
                 </button>
               </form>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="code"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+            >
+              <h1
+                style={{
+                  fontFamily: "Cormorant Garamond, serif",
+                  fontSize: "28px",
+                  fontWeight: 400,
+                  color: "#0A0A0A",
+                  marginBottom: "8px",
+                  lineHeight: 1.2,
+                  textAlign: "center",
+                }}
+              >
+                Revisá tu email
+              </h1>
+              <p
+                style={{
+                  fontFamily: "Inter, sans-serif",
+                  fontSize: "13px",
+                  fontWeight: 300,
+                  color: "#888",
+                  textAlign: "center",
+                  marginBottom: "32px",
+                  lineHeight: 1.6,
+                }}
+              >
+                Enviamos un código de 6 dígitos a{" "}
+                <span style={{ color: "#555" }}>{email.trim().toLowerCase()}</span>
+              </p>
+
+              {/* Code inputs */}
+              <div className="flex gap-2 justify-center mb-4" onPaste={handlePaste}>
+                {code.map((digit, i) => (
+                  <input
+                    key={i}
+                    ref={(el) => { inputRefs.current[i] = el; }}
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={1}
+                    value={digit}
+                    autoFocus={i === 0}
+                    onChange={(e) => handleCodeChange(i, e.target.value)}
+                    onKeyDown={(e) => handleKeyDown(i, e)}
+                    className="w-12 h-14 text-center rounded-xl border border-[rgba(0,0,0,0.12)] bg-[#FAFAFA] focus:outline-none focus:border-[#0A0A0A] transition-colors"
+                    style={{
+                      fontFamily: "Inter, sans-serif",
+                      fontSize: "22px",
+                      fontWeight: 400,
+                      color: "#0A0A0A",
+                    }}
+                  />
+                ))}
+              </div>
+
+              {verifying && (
+                <p
+                  style={{
+                    fontFamily: "Inter, sans-serif",
+                    fontSize: "13px",
+                    color: "#AAA",
+                    textAlign: "center",
+                    marginBottom: "8px",
+                  }}
+                >
+                  Verificando...
+                </p>
+              )}
+
+              {error && (
+                <p
+                  style={{
+                    fontFamily: "Inter, sans-serif",
+                    fontSize: "12px",
+                    color: "#B42318",
+                    textAlign: "center",
+                    marginBottom: "8px",
+                  }}
+                >
+                  {error}
+                </p>
+              )}
+
+              <button
+                onClick={() => { setStep("email"); setError(""); setCode(["", "", "", "", "", ""]); }}
+                className="w-full mt-4 py-3 text-[#888] hover:text-[#0A0A0A] transition-colors"
+                style={{ fontFamily: "Inter, sans-serif", fontSize: "13px", fontWeight: 300 }}
+              >
+                Cambiar email o reenviar código
+              </button>
             </motion.div>
           )}
         </AnimatePresence>
