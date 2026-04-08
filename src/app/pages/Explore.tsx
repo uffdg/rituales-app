@@ -111,7 +111,6 @@ export function Explore() {
         ritualToSave = {
           ...ritualToSave,
           ritualId: result.ritualId,
-          aiRitual: result.ritual,
           guidedSession: result.guidedSession,
           guidedAudio: result.guidedAudio,
         };

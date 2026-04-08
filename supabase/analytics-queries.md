@@ -23,6 +23,7 @@ La app ahora inserta en `public.ritual_events`:
 - `onboarding_voice_completed`
 - `ritual_created`
 - `ritual_completed`
+- `ritual_saved`
 
 Y cualquier otro evento que ya se mande con `track(...)`.
 
@@ -44,6 +45,18 @@ select * from public.analytics_retention_rates;
 
 ```sql
 select * from public.analytics_event_summary;
+```
+
+### Embudo diario
+
+```sql
+select * from public.analytics_funnel_daily;
+```
+
+### Embudo total
+
+```sql
+select * from public.analytics_funnel_totals;
 ```
 
 ## 4. Consultas útiles
@@ -72,6 +85,18 @@ select
   count(*) as rituals_created
 from public.ritual_events
 where event_name = 'ritual_created'
+group by 1
+order by 1 desc;
+```
+
+### Rituales guardados por día
+
+```sql
+select
+  (occurred_at at time zone 'America/Argentina/Buenos_Aires')::date as day,
+  count(*) as rituals_saved
+from public.ritual_events
+where event_name = 'ritual_saved'
 group by 1
 order by 1 desc;
 ```

@@ -141,6 +141,77 @@ from public.ritual_events
 group by event_name
 order by total_events desc;
 
+create or replace view public.analytics_funnel_daily as
+with actor_events as (
+  select
+    (occurred_at at time zone 'America/Argentina/Buenos_Aires')::date as activity_date,
+    coalesce(user_id::text, session_id) as actor_key,
+    event_name
+  from public.ritual_events
+),
+page_views as (
+  select activity_date, count(distinct actor_key) as page_view_users
+  from actor_events
+  where event_name = 'page_view'
+  group by activity_date
+),
+logins as (
+  select activity_date, count(distinct actor_key) as login_users
+  from actor_events
+  where event_name = 'login'
+  group by activity_date
+),
+ritual_created as (
+  select activity_date, count(distinct actor_key) as ritual_created_users
+  from actor_events
+  where event_name = 'ritual_created'
+  group by activity_date
+),
+ritual_saved as (
+  select activity_date, count(distinct actor_key) as ritual_saved_users
+  from actor_events
+  where event_name = 'ritual_saved'
+  group by activity_date
+)
+select
+  activity_date,
+  coalesce(page_views.page_view_users, 0) as page_view_users,
+  coalesce(logins.login_users, 0) as login_users,
+  coalesce(ritual_created.ritual_created_users, 0) as ritual_created_users,
+  coalesce(ritual_saved.ritual_saved_users, 0) as ritual_saved_users,
+  round(
+    (coalesce(logins.login_users, 0)::numeric / nullif(coalesce(page_views.page_view_users, 0), 0)) * 100,
+    2
+  ) as login_from_visit_pct,
+  round(
+    (coalesce(ritual_created.ritual_created_users, 0)::numeric / nullif(coalesce(logins.login_users, 0), 0)) * 100,
+    2
+  ) as ritual_created_from_login_pct,
+  round(
+    (coalesce(ritual_saved.ritual_saved_users, 0)::numeric / nullif(coalesce(ritual_created.ritual_created_users, 0), 0)) * 100,
+    2
+  ) as ritual_saved_from_created_pct
+from (
+  select distinct activity_date
+  from actor_events
+) days
+left join page_views using (activity_date)
+left join logins using (activity_date)
+left join ritual_created using (activity_date)
+left join ritual_saved using (activity_date)
+order by activity_date desc;
+
+create or replace view public.analytics_funnel_totals as
+select
+  sum(page_view_users) as page_view_users,
+  sum(login_users) as login_users,
+  sum(ritual_created_users) as ritual_created_users,
+  sum(ritual_saved_users) as ritual_saved_users,
+  round((sum(login_users)::numeric / nullif(sum(page_view_users), 0)) * 100, 2) as login_from_visit_pct,
+  round((sum(ritual_created_users)::numeric / nullif(sum(login_users), 0)) * 100, 2) as ritual_created_from_login_pct,
+  round((sum(ritual_saved_users)::numeric / nullif(sum(ritual_created_users), 0)) * 100, 2) as ritual_saved_from_created_pct
+from public.analytics_funnel_daily;
+
 comment on table public.ritual_events is
 'Eventos de producto para medir uso y recurrencia de Rituales.';
 
@@ -149,3 +220,9 @@ comment on view public.analytics_daily_active_users is
 
 comment on view public.analytics_retention_rates is
 'Retención exacta D1, D7 y D30 por cohorte de primera actividad.';
+
+comment on view public.analytics_funnel_daily is
+'Embudo diario de producto: visita, login, ritual creado y ritual guardado.';
+
+comment on view public.analytics_funnel_totals is
+'Embudo acumulado de producto sobre todos los días disponibles.';

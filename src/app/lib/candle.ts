@@ -1,15 +1,15 @@
 type CandleColor =
-  | "Blanco"
-  | "Negro"
-  | "Rojo"
+  | "Blanca"
+  | "Negra"
+  | "Roja"
   | "Rosa"
   | "Verde"
   | "Azul"
-  | "Amarillo"
+  | "Amarilla"
   | "Violeta"
   | "Naranja"
-  | "Dorado"
-  | "Plateado";
+  | "Dorada"
+  | "Plateada";
 
 export interface CandleGuide {
   color: CandleColor;
@@ -23,17 +23,17 @@ const CANDLE_MAP: Array<{
   matches: string[];
 }> = [
   {
-    color: "Dorado",
+    color: "Dorada",
     meaning: "éxito, expansión, merecimiento",
     matches: ["dorado", "dorada", "oro", "exito", "éxito", "brillo", "merecimiento"],
   },
   {
-    color: "Plateado",
+    color: "Plateada",
     meaning: "intuición, sensibilidad, guía interna",
     matches: ["plateado", "plateada", "plata", "intuicion", "intuición", "sueño", "sueno", "lunar"],
   },
   {
-    color: "Negro",
+    color: "Negra",
     meaning: "protección, absorción, corte",
     matches: ["proteccion", "proteger", "corte", "cortar", "cerrar ciclo", "soltar", "absorber"],
   },
@@ -53,7 +53,7 @@ const CANDLE_MAP: Array<{
     matches: ["calma", "paz", "comunic", "seren", "respira", "descanso"],
   },
   {
-    color: "Amarillo",
+    color: "Amarilla",
     meaning: "mente, enfoque, creatividad",
     matches: ["mente", "enfoque", "creativ", "idea", "claridad mental", "concentr"],
   },
@@ -68,12 +68,12 @@ const CANDLE_MAP: Array<{
     matches: ["impulso", "motiv", "cambio", "avanzar", "movimiento", "oportunidad"],
   },
   {
-    color: "Rojo",
+    color: "Roja",
     meaning: "fuerza, deseo, acción",
     matches: ["fuerza", "deseo", "accion", "acción", "poder", "coraje", "valent"],
   },
   {
-    color: "Blanco",
+    color: "Blanca",
     meaning: "limpieza, claridad, neutralidad",
     matches: ["limpieza", "claridad", "neutral", "orden", "presencia"],
   },

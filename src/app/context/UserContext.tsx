@@ -177,6 +177,11 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     }
 
     await favoriteRitual(ritual.ritualId);
+    track("ritual_saved", {
+      ritualId: ritual.ritualId,
+      ritualType: ritual.ritualType || undefined,
+      duration: ritual.duration || undefined,
+    });
 
     setSavedRituals((current) => {
       if (current.some((entry) => matchesSavedRitual(entry.ritual, ritual))) {
