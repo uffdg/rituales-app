@@ -1,6 +1,8 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
+import { useNavigate } from "react-router";
 import { supabase } from "../lib/supabase";
+import { useUser } from "../context/UserContext";
 
 export function Login() {
   const [email, setEmail] = useState("");
@@ -10,6 +12,14 @@ export function Login() {
   const [verifying, setVerifying] = useState(false);
   const [error, setError] = useState("");
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const { session } = useUser();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (session) {
+      navigate("/", { replace: true });
+    }
+  }, [session]);
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
