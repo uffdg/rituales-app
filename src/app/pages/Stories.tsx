@@ -502,10 +502,10 @@ export function Stories() {
               {card.isMoodPicker ? (
                 /* ── Mood picker ── */
                 <div>
-                  <p style={{ fontFamily: "Inter, sans-serif", fontSize: 10, letterSpacing: "0.14em", color: "rgba(255,255,255,0.55)", marginBottom: 12, fontWeight: 500, textTransform: "uppercase" }}>
+                  <p style={{ fontFamily: "var(--font-sans-ui)", fontSize: 10, letterSpacing: "0.14em", color: "rgba(255,255,255,0.55)", marginBottom: 12, fontWeight: 500, textTransform: "uppercase" }}>
                     {card.eyebrow}
                   </p>
-                  <h1 style={{ fontFamily: "Cormorant Garamond, serif", fontSize: 32, fontWeight: 400, color: "rgba(255,255,255,0.95)", lineHeight: 1.15, marginBottom: 24 }}>
+                  <h1 style={{ fontFamily: "var(--font-serif-display)", fontSize: 32, fontWeight: 400, color: "rgba(255,255,255,0.95)", lineHeight: 1.15, marginBottom: 24 }}>
                     {card.title}
                   </h1>
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8, marginBottom: 20 }}>
@@ -523,7 +523,7 @@ export function Stories() {
                         }}
                       >
                         <span style={{ fontSize: 20, color: "rgba(255,255,255,0.85)", fontFamily: "monospace" }}>{mood.emoji}</span>
-                        <span style={{ fontFamily: "Inter, sans-serif", fontSize: 10, color: selectedMood === mood.id ? "rgba(255,255,255,0.95)" : "rgba(255,255,255,0.5)", letterSpacing: "0.04em" }}>
+                        <span style={{ fontFamily: "var(--font-sans-ui)", fontSize: 10, color: selectedMood === mood.id ? "rgba(255,255,255,0.95)" : "rgba(255,255,255,0.5)", letterSpacing: "0.04em" }}>
                           {mood.label}
                         </span>
                       </button>
@@ -535,7 +535,7 @@ export function Stories() {
                         initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
                         transition={{ duration: 0.22 }}
                         onClick={handleMoodContinue}
-                        style={{ width: "100%", padding: "15px 0", borderRadius: 16, background: "rgba(255,255,255,0.95)", border: "none", fontFamily: "Inter, sans-serif", fontSize: 14, fontWeight: 500, color: "#0A0A0A", cursor: "pointer", letterSpacing: "0.03em" }}
+                        style={{ width: "100%", padding: "15px 0", borderRadius: 16, background: "rgba(255,255,255,0.95)", border: "none", fontFamily: "var(--font-sans-ui)", fontSize: 14, fontWeight: 500, color: "#0A0A0A", cursor: "pointer", letterSpacing: "0.03em" }}
                       >
                         Crear ritual para este momento →
                       </motion.button>
@@ -545,19 +545,19 @@ export function Stories() {
               ) : (
                 /* ── Card editorial ── */
                 <div>
-                  <p style={{ fontFamily: "Inter, sans-serif", fontSize: 10, letterSpacing: "0.14em", color: "rgba(255,255,255,0.5)", marginBottom: 12, fontWeight: 500, textTransform: "uppercase" }}>
+                  <p style={{ fontFamily: "var(--font-sans-ui)", fontSize: 10, letterSpacing: "0.14em", color: "rgba(255,255,255,0.5)", marginBottom: 12, fontWeight: 500, textTransform: "uppercase" }}>
                     {card.eyebrow}
                   </p>
-                  <h1 style={{ fontFamily: "Cormorant Garamond, serif", fontSize: 36, fontWeight: 400, color: "rgba(255,255,255,0.95)", lineHeight: 1.12, marginBottom: 16 }}>
+                  <h1 style={{ fontFamily: "var(--font-serif-display)", fontSize: 36, fontWeight: 400, color: "rgba(255,255,255,0.95)", lineHeight: 1.12, marginBottom: 16 }}>
                     {card.title}
                   </h1>
-                  <p style={{ fontFamily: "Inter, sans-serif", fontSize: 14, fontWeight: 300, color: "rgba(255,255,255,0.72)", lineHeight: 1.72 }}>
+                  <p style={{ fontFamily: "var(--font-sans-ui)", fontSize: 14, fontWeight: 300, color: "rgba(255,255,255,0.72)", lineHeight: 1.72 }}>
                     {card.body}
                   </p>
                   {card.cta && (
                     <button
                       onClick={() => handleCardCta(card)}
-                      style={{ marginTop: 22, padding: "13px 22px", borderRadius: 14, border: "1px solid rgba(255,255,255,0.28)", background: "rgba(255,255,255,0.08)", fontFamily: "Inter, sans-serif", fontSize: 13, color: "rgba(255,255,255,0.9)", cursor: "pointer", letterSpacing: "0.03em", backdropFilter: "blur(4px)" }}
+                      style={{ marginTop: 22, padding: "13px 22px", borderRadius: 14, border: "1px solid rgba(255,255,255,0.28)", background: "rgba(255,255,255,0.08)", fontFamily: "var(--font-sans-ui)", fontSize: 13, color: "rgba(255,255,255,0.9)", cursor: "pointer", letterSpacing: "0.03em", backdropFilter: "blur(4px)" }}
                     >
                       {card.cta.label} →
                     </button>
@@ -590,7 +590,7 @@ export function Stories() {
             >
               <div style={{ width: 3, height: 40, borderRadius: 999, background: "rgba(255,255,255,0.85)" }} />
               <div style={{ width: 20, height: 20, borderRadius: "50%", border: "1px solid rgba(255,255,255,0.3)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <span style={{ fontFamily: "Inter, sans-serif", fontSize: 8, color: "rgba(255,255,255,0.7)" }}>↑↓</span>
+                <span style={{ fontFamily: "var(--font-sans-ui)", fontSize: 8, color: "rgba(255,255,255,0.7)" }}>↑↓</span>
               </div>
             </motion.div>
           </motion.div>

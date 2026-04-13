@@ -1,5 +1,4 @@
 import {
-  Cloud,
   CloudRain,
   CloudSun,
   MoonStar,
@@ -21,6 +20,7 @@ interface TodayContextCardProps {
   weatherCondition?: WeatherCondition;
   nextEventLabel?: string;
   nextEventMeta?: string;
+  nextEventPhase?: string;
 }
 
 function getSkyMood(momentOfDay: MomentOfDay, weatherCondition: WeatherCondition = "unknown") {
@@ -93,16 +93,18 @@ export function TodayContextCard({
   weatherCondition = "unknown",
   nextEventLabel,
   nextEventMeta,
+  nextEventPhase,
 }: TodayContextCardProps) {
   const mood = getSkyMood(momentOfDay, weatherCondition);
   const MoodIcon = mood.icon;
   const isLight = textTheme === "light";
-  const labelColor = isLight ? "rgba(255,255,255,0.76)" : "rgba(0,0,0,0.34)";
-  const titleColor = isLight ? "#FFFFFF" : "#111111";
-  const bodyColor = isLight ? "rgba(255,255,255,0.9)" : "rgba(0,0,0,0.72)";
-  const chipBackground = isLight ? "rgba(15,15,15,0.24)" : "rgba(250,247,241,0.9)";
-  const chipText = isLight ? "#FFFFFF" : "rgba(0,0,0,0.64)";
-  const dividerColor = isLight ? "rgba(255,255,255,0.18)" : undefined;
+  const labelColor = isLight ? "rgba(255,255,255,0.72)" : "rgba(10,10,10,0.46)";
+  const titleColor = isLight ? "#FFFFFF" : "var(--ink-strong)";
+  const bodyColor = isLight ? "rgba(255,255,255,0.9)" : "rgba(23,25,28,0.82)";
+  const chipBackground = isLight ? "rgba(17,17,17,0.24)" : "rgba(255,255,255,0.86)";
+  const chipText = isLight ? "#FFFFFF" : "rgba(10,10,10,0.72)";
+  const portalIconBg = isLight ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.78)";
+  const portalIconColor = isLight ? "#FFFFFF" : "rgba(10,10,10,0.62)";
 
   return (
     <div
@@ -112,30 +114,31 @@ export function TodayContextCard({
         <div>
           <p
             style={{
-              fontFamily: "Inter, sans-serif",
+              fontFamily: "var(--font-sans-ui)",
               fontSize: "10px",
               fontWeight: 600,
               letterSpacing: "0.16em",
               textTransform: "uppercase",
-              color: "rgba(255,255,255,0.7)",
+              color: labelColor,
             }}
           >
-            Tu ciclo hoy
+            Tu cielo hoy
           </p>
         </div>
 
         <div
           className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5"
           style={{
-            background: "rgba(255,255,255,0.12)",
+            background: chipBackground,
+            backdropFilter: "blur(10px)",
           }}
         >
-          <MoodIcon size={12} strokeWidth={1.8} color="#FFFFFF" />
+          <MoodIcon size={12} strokeWidth={1.8} color={chipText} />
           <span
             style={{
-              fontFamily: "Inter, sans-serif",
+              fontFamily: "var(--font-sans-ui)",
               fontSize: "10px",
-              color: "#FFFFFF",
+              color: chipText,
               letterSpacing: "0.02em",
               fontWeight: 500
             }}
@@ -151,12 +154,12 @@ export function TodayContextCard({
         </div>
         <p
           style={{
-            fontFamily: "Inter, sans-serif",
+            fontFamily: "var(--font-sans-ui)",
             fontSize: "10px",
             fontWeight: 600,
             textTransform: "uppercase",
             letterSpacing: "0.2em",
-            color: "rgba(255,255,255,0.7)",
+            color: labelColor,
             marginBottom: "6px",
           }}
         >
@@ -164,9 +167,9 @@ export function TodayContextCard({
         </p>
         <p
           style={{
-            fontFamily: "Inter, sans-serif",
+            fontFamily: "var(--font-sans-ui)",
             fontSize: "14px",
-            color: "rgba(255,255,255,0.9)",
+            color: bodyColor,
             marginBottom: "20px"
           }}
         >
@@ -175,10 +178,10 @@ export function TodayContextCard({
 
         <h3
           style={{
-            fontFamily: "Cormorant Garamond, serif",
-            fontSize: "52px",
-            lineHeight: 1,
-            color: "#FFFFFF",
+            fontFamily: "var(--font-serif-display)",
+            fontSize: "50px",
+            lineHeight: 0.98,
+            color: titleColor,
             marginBottom: "20px",
             fontStyle: "italic",
             maxWidth: "320px",
@@ -188,9 +191,9 @@ export function TodayContextCard({
         </h3>
         <p
           style={{
-            fontFamily: "Inter, sans-serif",
+            fontFamily: "var(--font-sans-ui)",
             fontSize: "13px",
-            color: "rgba(255,255,255,0.85)",
+            color: bodyColor,
             lineHeight: 1.6,
             maxWidth: "300px",
           }}
@@ -204,24 +207,33 @@ export function TodayContextCard({
           <div>
             <p
               style={{
-                fontFamily: "Inter, sans-serif",
+                fontFamily: "var(--font-sans-ui)",
                 fontSize: "10px",
                 fontWeight: 600,
                 letterSpacing: "0.14em",
                 textTransform: "uppercase",
-                color: "rgba(255,255,255,0.6)",
+                color: labelColor,
                 marginBottom: "6px",
               }}
             >
               Próximo portal
             </p>
             <div className="flex items-center justify-center gap-2 mb-1">
-              <Cloud size={14} strokeWidth={1.8} className="text-white" />
+              <div
+                className="flex h-8 w-8 items-center justify-center rounded-full"
+                style={{ background: portalIconBg }}
+              >
+                <MoonPhaseIcon
+                  phase={nextEventPhase ?? nextEventLabel ?? phase}
+                  size={16}
+                  darkTheme={isLight}
+                />
+              </div>
               <p
                 style={{
-                  fontFamily: "Inter, sans-serif",
+                  fontFamily: "var(--font-sans-ui)",
                   fontSize: "14px",
-                  color: "#FFFFFF",
+                  color: titleColor,
                   fontWeight: 500
                 }}
               >
@@ -231,9 +243,9 @@ export function TodayContextCard({
             {nextEventMeta ? (
               <p
                 style={{
-                  fontFamily: "Inter, sans-serif",
+                  fontFamily: "var(--font-sans-ui)",
                   fontSize: "11px",
-                  color: "rgba(255,255,255,0.6)",
+                  color: labelColor,
                 }}
               >
                 {nextEventMeta}
@@ -245,18 +257,18 @@ export function TodayContextCard({
         <div className="flex flex-col items-center gap-2 mt-4 opacity-80">
           <p
             style={{
-              fontFamily: "Inter, sans-serif",
+              fontFamily: "var(--font-sans-ui)",
               fontSize: "9px",
               fontWeight: 600,
               letterSpacing: "0.14em",
               textTransform: "uppercase",
-              color: "#FFFFFF",
+              color: isLight ? "#FFFFFF" : "var(--ink-body)",
             }}
           >
             Scroll
           </p>
           <svg width="12" height="7" viewBox="0 0 12 7" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M1 1L6 6L11 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M1 1L6 6L11 1" stroke={isLight ? "#FFFFFF" : "var(--ink-body)"} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </div>
       </div>

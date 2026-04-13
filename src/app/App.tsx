@@ -57,7 +57,7 @@ function SplashScreen() {
 
           <h1
             style={{
-              fontFamily: "Cormorant Garamond, serif",
+              fontFamily: "var(--font-serif-display)",
               fontSize: "52px",
               fontWeight: 300,
               letterSpacing: "0.12em",
@@ -72,7 +72,7 @@ function SplashScreen() {
           <p
             className="mt-4 text-center text-[#888]"
             style={{
-              fontFamily: "Inter, sans-serif",
+              fontFamily: "var(--font-sans-ui)",
               fontSize: "13px",
               fontWeight: 300,
               letterSpacing: "0.08em",

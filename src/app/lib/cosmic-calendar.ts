@@ -269,19 +269,32 @@ export function getPhaseBackgroundUrl(phaseLabel: string): string {
   return map[phaseLabel] || "/moon-full.png";
 }
 
-export function getNextEvent(date: Date): { date: Date; perfection: CosmicPerfection } | null {
-  const dtStr = getDateKey(date);
-  const dateKeys = Object.keys(PERFECTED_POSITIONS).sort();
-  for (const key of dateKeys) {
-    if (key > dtStr) {
-      const parts = key.split("-");
-      if (parts.length === 3) {
-        const eventDate = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
-        return { date: eventDate, perfection: PERFECTED_POSITIONS[key] };
-      }
-    }
+function getPerfectionDateTimeBuenosAires(dateKey: string, timeBuenosAires: string): Date | null {
+  const [year, month, day] = dateKey.split("-").map((part) => parseInt(part, 10));
+  const [hours, minutes] = timeBuenosAires.split(":").map((part) => parseInt(part, 10));
+  if ([year, month, day, hours, minutes].some((value) => Number.isNaN(value))) {
+    return null;
   }
-  return null;
+
+  return new Date(year, month - 1, day, hours, minutes, 0, 0);
+}
+
+export function getNextEvent(date: Date): { date: Date; perfection: CosmicPerfection } | null {
+  const rangeStart = new Date(date);
+  const rangeEnd = addDays(rangeStart, 90);
+  const perfections = getMoonPerfectionsForRange(rangeStart, rangeEnd);
+
+  const nextNewMoon = Object.entries(perfections)
+    .filter(([, perfection]) => perfection.label === "Luna nueva")
+    .map(([dateKey, perfection]) => {
+      const eventDateTime = getPerfectionDateTimeBuenosAires(dateKey, perfection.timeBuenosAires);
+      return eventDateTime ? { date: eventDateTime, perfection } : null;
+    })
+    .filter((entry): entry is { date: Date; perfection: CosmicPerfection } => Boolean(entry))
+    .filter((entry) => entry.date.getTime() >= date.getTime())
+    .sort((a, b) => a.date.getTime() - b.date.getTime());
+
+  return nextNewMoon[0] ?? null;
 }
 
 // Retorna cuántos días faltan entre two y from (ambas sin hora)

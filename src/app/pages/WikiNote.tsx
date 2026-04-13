@@ -17,7 +17,7 @@ export function WikiNote() {
       <div className="min-h-screen bg-white flex flex-col items-center justify-center px-6 text-center">
         <p
           style={{
-            fontFamily: "Cormorant Garamond, serif",
+            fontFamily: "var(--font-serif-display)",
             fontSize: "28px",
             color: "#111",
             marginBottom: "8px",
@@ -28,7 +28,7 @@ export function WikiNote() {
         <button
           onClick={() => navigate("/wiki")}
           className="px-5 py-3 rounded-xl bg-[#0A0A0A] text-white"
-          style={{ fontFamily: "Inter, sans-serif", fontSize: "14px" }}
+          style={{ fontFamily: "var(--font-sans-ui)", fontSize: "14px" }}
         >
           Volver a la wiki
         </button>
@@ -62,7 +62,7 @@ export function WikiNote() {
           >
             <p
               className="text-white uppercase tracking-[0.2em] text-[10px] font-semibold"
-              style={{ fontFamily: "Inter, sans-serif" }}
+              style={{ fontFamily: "var(--font-sans-ui)" }}
             >
               {note.eyebrow}
             </p>
@@ -73,7 +73,7 @@ export function WikiNote() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-white text-[44px] leading-[1.05] mb-6"
-            style={{ fontFamily: "Cormorant Garamond, serif" }}
+            style={{ fontFamily: "var(--font-serif-display)" }}
           >
             {note.title}
           </motion.h1>
@@ -83,7 +83,7 @@ export function WikiNote() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
             className="text-[#E0E0E0] text-[16px] leading-[1.65]"
-            style={{ fontFamily: "Inter, sans-serif" }}
+            style={{ fontFamily: "var(--font-sans-ui)" }}
           >
             {note.summary}
           </motion.p>
@@ -97,7 +97,7 @@ export function WikiNote() {
         >
           <span
             className="text-[10px] uppercase tracking-widest font-medium"
-            style={{ fontFamily: "Inter, sans-serif" }}
+            style={{ fontFamily: "var(--font-sans-ui)" }}
           >
             Scroll
           </span>
@@ -110,7 +110,7 @@ export function WikiNote() {
 
         <p
           className="text-[#111] text-[19px] leading-[1.7] mb-14 font-medium"
-          style={{ fontFamily: "Inter, sans-serif" }}
+          style={{ fontFamily: "var(--font-sans-ui)" }}
         >
           {note.body}
         </p>
@@ -131,13 +131,13 @@ export function WikiNote() {
                 <div className="flex items-center gap-4 mb-6">
                   <span
                     className="text-[#DDD] text-[20px] font-light"
-                    style={{ fontFamily: "Inter, sans-serif" }}
+                    style={{ fontFamily: "var(--font-sans-ui)" }}
                   >
                     {String(idx + 1).padStart(2, "0")}
                   </span>
                   <h2
                     className="text-[#0A0A0A] text-[28px]"
-                    style={{ fontFamily: "Cormorant Garamond, serif" }}
+                    style={{ fontFamily: "var(--font-serif-display)" }}
                   >
                     {section.title.replace(/^\d+\.\s*/, "")}
                   </h2>
@@ -147,7 +147,7 @@ export function WikiNote() {
                   <p
                     key={`${section.title}-paragraph-${paragraphIndex}`}
                     className="text-[#555] text-[16px] leading-[1.8] mb-5"
-                    style={{ fontFamily: "Inter, sans-serif" }}
+                    style={{ fontFamily: "var(--font-sans-ui)" }}
                   >
                     {paragraph}
                   </p>
@@ -173,7 +173,7 @@ export function WikiNote() {
                             </div>
                             <span
                               className="text-[#444] text-[15px] leading-[1.7]"
-                              style={{ fontFamily: "Inter, sans-serif" }}
+                              style={{ fontFamily: "var(--font-sans-ui)" }}
                             >
                               {hasColon ? (
                                 <>

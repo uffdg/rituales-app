@@ -171,7 +171,7 @@ export function GuidedAudioPlayer({
     <div className="rounded-[28px] border border-[rgba(0,0,0,0.08)] bg-[#FCFCFA] p-5">
       <p
         style={{
-          fontFamily: "Inter, sans-serif",
+          fontFamily: "var(--font-sans-ui)",
           fontSize: "10px",
           fontWeight: 500,
           letterSpacing: "0.12em",
@@ -187,7 +187,7 @@ export function GuidedAudioPlayer({
         <div>
           <h3
             style={{
-              fontFamily: "Cormorant Garamond, serif",
+              fontFamily: "var(--font-serif-display)",
               fontSize: "24px",
               lineHeight: 1.1,
               color: "#0A0A0A",
@@ -198,7 +198,7 @@ export function GuidedAudioPlayer({
           </h3>
           <p
             style={{
-              fontFamily: "Inter, sans-serif",
+              fontFamily: "var(--font-sans-ui)",
               fontSize: "12px",
               color: "#999",
             }}
@@ -229,7 +229,7 @@ export function GuidedAudioPlayer({
           onClick={restart}
           disabled={!src || disabled}
           className="shrink-0 rounded-full border border-[rgba(0,0,0,0.08)] bg-white px-4 py-2 text-[#222] disabled:opacity-40"
-          style={{ fontFamily: "Inter, sans-serif", fontSize: "12px", fontWeight: 500 }}
+          style={{ fontFamily: "var(--font-sans-ui)", fontSize: "12px", fontWeight: 500 }}
         >
           Reiniciar
         </button>
@@ -258,7 +258,7 @@ export function GuidedAudioPlayer({
       <div className="mb-5 flex items-center justify-between">
         <p
           style={{
-            fontFamily: "Inter, sans-serif",
+            fontFamily: "var(--font-sans-ui)",
             fontSize: "12px",
             color: "#888",
             fontVariantNumeric: "tabular-nums",
@@ -276,7 +276,7 @@ export function GuidedAudioPlayer({
 
         <p
           style={{
-            fontFamily: "Inter, sans-serif",
+            fontFamily: "var(--font-sans-ui)",
             fontSize: "12px",
             color: "#888",
             fontVariantNumeric: "tabular-nums",
@@ -341,7 +341,7 @@ export function GuidedAudioPlayer({
           onClick={restart}
           disabled={!src || disabled}
           className="disabled:opacity-40"
-          style={{ fontFamily: "Inter, sans-serif", fontSize: "12px", fontWeight: 500 }}
+          style={{ fontFamily: "var(--font-sans-ui)", fontSize: "12px", fontWeight: 500 }}
         >
           Volver a empezar
         </button>

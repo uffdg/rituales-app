@@ -23,62 +23,23 @@ export function RitualRecommendationCard({
   onSave,
 }: RitualRecommendationCardProps) {
   return (
-    <div
-      className="rounded-[26px] border border-[rgba(0,0,0,0.04)] bg-white px-4 py-4 text-[#0A0A0A]"
-      style={{ boxShadow: "0 18px 40px rgba(15, 15, 15, 0.06)" }}
-    >
-      <p
-        style={{
-          fontFamily: "Inter, sans-serif",
-          fontSize: "9px",
-          fontWeight: 500,
-          letterSpacing: "0.14em",
-          textTransform: "uppercase",
-          color: "#AAA59E",
-          marginBottom: "8px",
-        }}
-      >
+    <div className="editorial-card-elevated rounded-[24px] px-4 py-4">
+      <p className="editorial-eyebrow mb-2">
         {eyebrow}
       </p>
 
       <button type="button" onClick={onOpen} className="w-full text-left">
-        <h3
-          style={{
-            fontFamily: "Cormorant Garamond, serif",
-            fontSize: "24px",
-            lineHeight: 1.02,
-            color: "#0A0A0A",
-            marginBottom: "8px",
-          }}
-        >
+        <h3 className="editorial-title-section mb-2">
           {title}
         </h3>
-        <p
-          style={{
-            fontFamily: "Inter, sans-serif",
-            fontSize: "12px",
-            color: "#737373",
-            lineHeight: 1.6,
-            marginBottom: "14px",
-          }}
-        >
+        <p className="editorial-body-muted mb-3.5">
           {description}
         </p>
       </button>
 
       <div className="flex flex-wrap gap-2 mb-4">
         {meta.map((item) => (
-          <span
-            key={item}
-            className="rounded-full px-2.5 py-1"
-            style={{
-              border: "1px solid rgba(0,0,0,0.08)",
-              fontFamily: "Inter, sans-serif",
-              fontSize: "10px",
-              color: "#6E6E6E",
-              letterSpacing: "0.06em",
-            }}
-          >
+          <span key={item} className="ritual-list-meta-chip">
             {item}
           </span>
         ))}
@@ -88,13 +49,7 @@ export function RitualRecommendationCard({
         <button
           type="button"
           onClick={onOpen}
-          className="flex-1 rounded-[18px] border border-[rgba(0,0,0,0.06)] bg-[#0A0A0A] px-4 py-3.5 text-white"
-          style={{
-            fontFamily: "Inter, sans-serif",
-            fontSize: "12px",
-            fontWeight: 500,
-            letterSpacing: "0.03em",
-          }}
+          className="editorial-button-primary flex-1 rounded-[18px] border border-[var(--ink-strong)] px-4 py-3.5 text-[12px] tracking-[0.03em]"
         >
           Ver ritual
         </button>
@@ -102,7 +57,7 @@ export function RitualRecommendationCard({
           type="button"
           onClick={onSave}
           disabled={saving}
-          className="flex h-[46px] w-[46px] items-center justify-center rounded-[18px] border border-[rgba(0,0,0,0.06)] bg-[#FBFBFA] text-[#0A0A0A]"
+          className="editorial-icon-button h-[46px] w-[46px]"
           aria-label="Guardar ritual"
         >
           {saved ? (

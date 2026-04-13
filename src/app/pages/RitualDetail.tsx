@@ -263,47 +263,22 @@ export function RitualDetail() {
 
   if (loadState === "loading") {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center px-6">
-        <p
-          style={{
-            fontFamily: "Cormorant Garamond, serif",
-            fontSize: "26px",
-            color: "#333",
-          }}
-        >
-          Cargando tu ritual...
-        </p>
+      <div className="editorial-page-bg items-center justify-center px-6">
+        <p className="font-serif text-[26px] text-[var(--ink-body)]">Cargando tu ritual...</p>
       </div>
     );
   }
 
   if (loadState === "error") {
     return (
-      <div className="min-h-screen bg-white flex flex-col items-center justify-center px-6 text-center">
-        <p
-          style={{
-            fontFamily: "Cormorant Garamond, serif",
-            fontSize: "28px",
-            color: "#111",
-            marginBottom: "8px",
-          }}
-        >
-          No pudimos abrir este ritual
-        </p>
-        <p
-          style={{
-            fontFamily: "Inter, sans-serif",
-            fontSize: "13px",
-            color: "#888",
-            marginBottom: "18px",
-          }}
-        >
+      <div className="editorial-page-bg flex-col items-center justify-center px-6 text-center">
+        <p className="font-serif text-[28px] text-[var(--ink-strong)] mb-2">No pudimos abrir este ritual</p>
+        <p className="editorial-body-muted mb-[18px]">
           Puede que todavía no esté disponible o que el enlace haya cambiado.
         </p>
         <button
           onClick={() => navigate("/")}
-          className="px-5 py-3 rounded-xl bg-[#0A0A0A] text-white"
-          style={{ fontFamily: "Inter, sans-serif", fontSize: "14px" }}
+          className="editorial-button-primary px-5 py-3"
         >
           Volver al inicio
         </button>
@@ -312,15 +287,8 @@ export function RitualDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-white flex flex-col overflow-y-auto">
-      {/* Gradient */}
-      <div
-        className="fixed inset-0 pointer-events-none"
-        style={{
-          background:
-            "radial-gradient(ellipse 80% 50% at 50% 0%, rgba(0,0,0,0.05) 0%, transparent 60%)",
-        }}
-      />
+    <div className="editorial-detail-shell">
+      <div className="editorial-radial-wash" />
 
       {/* Header */}
       <div className="relative z-10 pt-14 px-6 pb-4 flex items-center justify-between">
@@ -330,8 +298,7 @@ export function RitualDetail() {
             else if (isViewMode) navigate("/explorar");
             else navigate("/");
           }}
-          className="flex items-center gap-2 text-[#888] hover:text-[#0A0A0A] transition-colors"
-          style={{ fontFamily: "Inter, sans-serif", fontSize: "13px" }}
+          className="editorial-detail-header-link"
         >
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
             <path d="M9 2L4 7L9 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
@@ -342,8 +309,7 @@ export function RitualDetail() {
           {!isPublic && (
             <button
               onClick={() => navigate("/crear/1")}
-              className="text-[#888] hover:text-[#0A0A0A] transition-colors"
-              style={{ fontFamily: "Inter, sans-serif", fontSize: "13px" }}
+              className="editorial-detail-header-link"
             >
               Editar
             </button>
@@ -362,46 +328,16 @@ export function RitualDetail() {
         {/* Decorative mark */}
         <div className="flex justify-center mb-6">
           <div className="relative">
-            <div
-              style={{
-                width: 60,
-                height: 60,
-                borderRadius: "50%",
-                border: "1px solid rgba(0,0,0,0.08)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <div
-                style={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: "50%",
-                  border: "1px solid rgba(0,0,0,0.1)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#0A0A0A" }} />
+            <div className="w-[60px] h-[60px] rounded-full border border-[var(--border-soft)] flex items-center justify-center">
+              <div className="w-9 h-9 rounded-full border border-[var(--border-default)] flex items-center justify-center">
+                <div className="w-2 h-2 rounded-full bg-[var(--ink-strong)]" />
               </div>
             </div>
           </div>
         </div>
 
         {/* Title */}
-        <h1
-          style={{
-            fontFamily: "Cormorant Garamond, serif",
-            fontSize: "30px",
-            fontWeight: 400,
-            color: "#0A0A0A",
-            lineHeight: 1.25,
-            textAlign: "center",
-            marginBottom: "8px",
-          }}
-        >
+        <h1 className="font-serif text-[30px] font-normal text-[var(--ink-strong)] leading-[1.25] text-center mb-2">
           {displayRitual.title}
         </h1>
 
@@ -409,98 +345,42 @@ export function RitualDetail() {
         <div className="mb-8">
           <div className="flex flex-wrap items-center justify-center gap-2">
             {displayRitual.element && (
-              <span
-                className="px-3 py-1 rounded-full border border-[rgba(0,0,0,0.1)] text-[#555]"
-                style={{
-                  fontFamily: "Inter, sans-serif",
-                  fontSize: "11px",
-                  letterSpacing: "0.06em",
-                }}
-              >
+              <span className="editorial-meta-badge">
                 {elementData?.label || displayRitual.element}
               </span>
             )}
             {displayRitual.energy && (
-              <span
-                className="px-3 py-1 rounded-full border border-[rgba(0,0,0,0.1)] text-[#555]"
-                style={{
-                  fontFamily: "Inter, sans-serif",
-                  fontSize: "11px",
-                  letterSpacing: "0.06em",
-                }}
-              >
+              <span className="editorial-meta-badge">
                 {ENERGY_MAP[displayRitual.energy] || displayRitual.energy}
               </span>
             )}
             {displayRitual.intensity && (
-              <span
-                className="px-3 py-1 rounded-full bg-[#0A0A0A] text-white"
-                style={{
-                  fontFamily: "Inter, sans-serif",
-                  fontSize: "11px",
-                  letterSpacing: "0.06em",
-                }}
-              >
+              <span className="editorial-meta-badge editorial-meta-badge-active">
                 {INTENSITY_MAP[displayRitual.intensity] || displayRitual.intensity}
               </span>
             )}
             {displayRitual.duration && (
-              <span
-                className="px-3 py-1 rounded-full border border-[rgba(0,0,0,0.1)] text-[#555]"
-                style={{
-                  fontFamily: "Inter, sans-serif",
-                  fontSize: "11px",
-                  letterSpacing: "0.06em",
-                }}
-              >
+              <span className="editorial-meta-badge">
                 {displayRitual.duration} min
               </span>
             )}
           </div>
 
           <div className="flex justify-center mt-2">
-            <span
-              className="px-3 py-1 rounded-full border border-[rgba(0,0,0,0.1)] text-[#555]"
-              style={{
-                fontFamily: "Inter, sans-serif",
-                fontSize: "11px",
-                letterSpacing: "0.06em",
-              }}
-            >
+            <span className="editorial-meta-badge">
               Vela {candleGuide.color}
             </span>
           </div>
         </div>
 
         {/* Thin divider */}
-        <div className="h-[1px] bg-[#F0F0F0] mb-7" />
+        <div className="editorial-divider mb-7" />
 
         {/* Intention */}
         {displayRitual.intention && (
           <div className="mb-7">
-            <p
-              style={{
-                fontFamily: "Inter, sans-serif",
-                fontSize: "10px",
-                fontWeight: 500,
-                letterSpacing: "0.14em",
-                textTransform: "uppercase",
-                color: "#BBB",
-                marginBottom: "8px",
-              }}
-            >
-              Intención
-            </p>
-            <p
-              style={{
-                fontFamily: "Cormorant Garamond, serif",
-                fontSize: "18px",
-                fontWeight: 300,
-                fontStyle: "italic",
-                color: "#333",
-                lineHeight: 1.5,
-              }}
-            >
+            <p className="editorial-eyebrow mb-2">Intención</p>
+            <p className="font-serif text-[18px] font-light italic text-[var(--ink-body)] leading-[1.5]">
               "{displayRitual.intention}"
             </p>
           </div>
@@ -508,18 +388,7 @@ export function RitualDetail() {
 
         {/* Ritual sections */}
         <div className="mb-4">
-          <p
-            style={{
-              fontFamily: "Inter, sans-serif",
-              fontSize: "10px",
-              fontWeight: 500,
-              letterSpacing: "0.14em",
-              textTransform: "uppercase",
-              color: "#BBB",
-            }}
-          >
-            Ritual completo
-          </p>
+          <p className="editorial-eyebrow">Ritual completo</p>
         </div>
 
         {[
@@ -539,103 +408,43 @@ export function RitualDetail() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.1 + i * 0.1 }}
-              className="mb-5 p-5 rounded-2xl border border-[rgba(0,0,0,0.06)] bg-[#FAFAFA]"
+              className="editorial-card-soft mb-5 p-5 rounded-2xl"
             >
               <div className="flex items-center gap-2 mb-3">
-                <span
-                  style={{
-                    fontFamily: "Cormorant Garamond, serif",
-                    fontSize: "14px",
-                    color: "#CCC",
-                  }}
-                >
-                  {section.symbol}
-                </span>
-                <p
-                  style={{
-                    fontFamily: "Inter, sans-serif",
-                    fontSize: "10px",
-                    fontWeight: 500,
-                    letterSpacing: "0.12em",
-                    textTransform: "uppercase",
-                    color: "#AAA",
-                  }}
-                >
-                  {section.label}
-                </p>
+                <span className="font-serif text-[14px] text-[var(--ink-soft)]">{section.symbol}</span>
+                <p className="editorial-eyebrow">{section.label}</p>
               </div>
-              <p
-                style={{
-                  fontFamily: "Cormorant Garamond, serif",
-                  fontSize: "16px",
-                  fontWeight: 300,
-                  lineHeight: 1.65,
-                  color: "#2A2A2A",
-                }}
-              >
-                {section.text}
-              </p>
+              <p className="font-serif text-[16px] font-light leading-[1.65] text-[var(--ink-body)]">{section.text}</p>
             </motion.div>
           ))}
 
         {/* Anchor */}
-        <div className="mb-6 p-5 rounded-2xl border border-[#0A0A0A] bg-[#0A0A0A]">
-          <p
-            style={{
-              fontFamily: "Inter, sans-serif",
-              fontSize: "10px",
-              fontWeight: 500,
-              letterSpacing: "0.14em",
-              textTransform: "uppercase",
-              color: "rgba(255,255,255,0.4)",
-              marginBottom: "6px",
-            }}
-          >
-            Tu anclaje real
-          </p>
-          <p
-            style={{
-              fontFamily: "Cormorant Garamond, serif",
-              fontSize: "18px",
-              fontWeight: 300,
-              color: "white",
-              lineHeight: 1.45,
-            }}
-          >
-            {anchorText}
-          </p>
+        <div className="mb-6 p-5 rounded-2xl border border-[var(--ink-strong)] bg-[var(--ink-strong)]">
+          <p className="font-sans text-[10px] font-medium tracking-[0.14em] uppercase text-white/40 mb-1.5">Tu anclaje real</p>
+          <p className="font-serif text-[18px] font-light text-white leading-[1.45]">{anchorText}</p>
         </div>
 
         {/* Author */}
         {isPublic && (
-          <p
-            className="text-center mb-6"
-            style={{
-              fontFamily: "Inter, sans-serif",
-              fontSize: "12px",
-              color: "#CCC",
-            }}
-          >
+          <p className="text-center mb-6 editorial-meta">
             Compartido por {displayRitual.author}
           </p>
         )}
       </motion.div>
 
       {/* Bottom action bar */}
-      <div className="fixed z-30 bottom-16 left-1/2 -translate-x-1/2 w-full max-w-[390px] bg-white border-t border-[rgba(0,0,0,0.06)] px-6 py-4">
+      <div className="editorial-bottom-bar">
         {isOwnRitualView ? (
           <div className="flex gap-2.5">
             <button
               onClick={() => setShowPlayer(true)}
-              className="flex-1 py-3.5 bg-[#0A0A0A] text-white rounded-xl transition-all active:scale-[0.98] cursor-pointer"
-              style={{ fontFamily: "Inter, sans-serif", fontSize: "14px" }}
+              className="editorial-button-primary flex-1 py-3.5 transition-all active:scale-[0.98] cursor-pointer"
             >
               Iniciar
             </button>
             <button
               onClick={() => navigate("/compartir")}
-              className="px-4 py-3.5 border border-[rgba(0,0,0,0.12)] text-[#555] rounded-xl transition-all active:scale-[0.98] cursor-pointer"
-              style={{ fontFamily: "Inter, sans-serif", fontSize: "13px" }}
+              className="editorial-button-soft px-4 py-3.5 transition-all active:scale-[0.98] cursor-pointer"
             >
               Compartir
             </button>
@@ -645,8 +454,7 @@ export function RitualDetail() {
             {isPublic ? (
               <button
                 onClick={handleCreateOwnRitual}
-                className="flex-1 py-3.5 bg-[#0A0A0A] text-white rounded-xl transition-all active:scale-[0.98] cursor-pointer"
-                style={{ fontFamily: "Inter, sans-serif", fontSize: "14px" }}
+                className="editorial-button-primary flex-1 py-3.5 transition-all active:scale-[0.98] cursor-pointer"
               >
                 Crear el mío
               </button>
@@ -654,12 +462,11 @@ export function RitualDetail() {
             <button
               className={`${
                 isPublic ? "px-4" : "flex-1"
-              } py-3.5 border rounded-xl transition-all active:scale-[0.98] cursor-pointer flex items-center justify-center gap-2 ${
+              } py-3.5 border rounded-xl transition-all active:scale-[0.98] cursor-pointer flex items-center justify-center gap-2 font-sans text-[13px] ${
                 isCurrentRitualSaved
-                  ? "border-[#0A0A0A] bg-[#F5F5F5] text-[#0A0A0A]"
-                  : "border-[rgba(0,0,0,0.12)] text-[#555]"
+                  ? "border-[var(--ink-strong)] bg-[var(--surface-soft)] text-[var(--ink-strong)]"
+                  : "border-[var(--border-default)] text-[var(--ink-muted)]"
               }`}
-              style={{ fontFamily: "Inter, sans-serif", fontSize: "13px" }}
               onClick={async () => {
                 if (!canSaveCurrentRitual) {
                   return;
@@ -728,23 +535,11 @@ export function RitualDetail() {
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
               transition={{ type: "spring", damping: 28, stiffness: 280 }}
-              className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[390px] bg-white rounded-t-3xl z-50 px-6 pt-5 pb-10"
+              className="editorial-sheet fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[390px] z-50 px-6 pt-5 pb-10"
             >
-              <div className="w-10 h-1 bg-[#E0E0E0] rounded-full mx-auto mb-6" />
+              <div className="editorial-sheet-handle mb-6" />
 
-              <p
-                style={{
-                  fontFamily: "Inter, sans-serif",
-                  fontSize: "10px",
-                  fontWeight: 500,
-                  letterSpacing: "0.14em",
-                  textTransform: "uppercase",
-                  color: "#AAA",
-                  marginBottom: "16px",
-                }}
-              >
-                Elige una pista
-              </p>
+              <p className="editorial-eyebrow mb-4">Elige una pista</p>
 
               <div className="flex flex-col gap-3 mb-6">
                 {TRACKS.map((t) => {
@@ -777,38 +572,14 @@ export function RitualDetail() {
                           });
                         }
                       }}
-                      className={`flex items-center justify-between px-4 py-4 rounded-2xl border transition-all ${
-                        isActive
-                          ? "border-[#0A0A0A] bg-[#0A0A0A] text-white"
-                          : "border-[rgba(0,0,0,0.08)] bg-[#FAFAFA] text-[#0A0A0A]"
-                      }`}
+                      className={`editorial-option-card flex items-center justify-between ${isActive ? "editorial-option-card-active" : "editorial-card-soft"}`}
                     >
                       <div className="text-left">
-                        <p
-                          style={{
-                            fontFamily: "Cormorant Garamond, serif",
-                            fontSize: "18px",
-                            fontWeight: 400,
-                            lineHeight: 1.2,
-                          }}
-                        >
-                          {t.label}
-                        </p>
-                        <p
-                          style={{
-                            fontFamily: "Inter, sans-serif",
-                            fontSize: "11px",
-                            opacity: isActive ? 0.6 : 0.45,
-                            marginTop: "2px",
-                          }}
-                        >
-                          {t.sublabel}
-                        </p>
+                        <p className="font-serif text-[18px] font-normal leading-[1.2]">{t.label}</p>
+                        <p className={`font-sans text-[11px] mt-0.5 ${isActive ? "opacity-60" : "text-[var(--ink-muted)] opacity-70"}`}>{t.sublabel}</p>
                       </div>
                       <div
-                        className={`flex h-10 w-10 items-center justify-center rounded-full ${
-                          isActive ? "bg-white/15" : "bg-[rgba(0,0,0,0.05)]"
-                        }`}
+                        className={`flex h-10 w-10 items-center justify-center rounded-full ${isActive ? "bg-white/15" : "bg-[var(--surface-soft)]"}`}
                       >
                         {isThisPlaying ? (
                           <Pause size={16} strokeWidth={1.8} />

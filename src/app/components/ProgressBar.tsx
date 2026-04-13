@@ -31,7 +31,7 @@ export function ProgressBar({ step, total = 5, onBack }: ProgressBarProps) {
         </div>
         <span
           className="text-xs text-[#999] shrink-0"
-          style={{ fontFamily: "Inter, sans-serif", letterSpacing: "0.06em" }}
+          style={{ fontFamily: "var(--font-sans-ui)", letterSpacing: "0.06em" }}
         >
           {step}/{total}
         </span>

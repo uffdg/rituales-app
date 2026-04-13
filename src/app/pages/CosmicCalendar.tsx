@@ -79,20 +79,13 @@ export function CosmicCalendar() {
     day.perfection?.kind === "moon_phase" ? day.perfection.label : day.moonPhase;
 
   return (
-    <div className="min-h-screen bg-white flex flex-col overflow-y-auto">
-      <div
-        className="fixed inset-0 pointer-events-none"
-        style={{
-          background:
-            "radial-gradient(ellipse 70% 45% at 50% 0%, rgba(0,0,0,0.04) 0%, transparent 60%)",
-        }}
-      />
+    <div className="editorial-detail-shell">
+      <div className="editorial-radial-wash" />
 
       <div className="relative z-10 pt-14 px-6 pb-4 flex items-center justify-between">
         <button
           onClick={() => navigate("/")}
-          className="flex items-center gap-2 text-[#888] hover:text-[#0A0A0A] transition-colors"
-          style={{ fontFamily: "Inter, sans-serif", fontSize: "13px" }}
+          className="editorial-detail-header-link"
         >
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
             <path d="M9 2L4 7L9 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
@@ -103,83 +96,37 @@ export function CosmicCalendar() {
 
       <div className="relative z-10 px-6 pb-12">
         <div className="mb-8">
-          <p
-            style={{
-              fontFamily: "Inter, sans-serif",
-              fontSize: "11px",
-              fontWeight: 500,
-              letterSpacing: "0.14em",
-              textTransform: "uppercase",
-              color: "#BBB",
-              marginBottom: "8px",
-            }}
-          >
-            Calendario cósmico
-          </p>
-          <h1
-            style={{
-              fontFamily: "Cormorant Garamond, serif",
-              fontSize: "32px",
-              fontWeight: 400,
-              color: "#0A0A0A",
-              lineHeight: 1.15,
-              marginBottom: "10px",
-            }}
-          >
+          <p className="editorial-eyebrow mb-2">Calendario cósmico</p>
+          <h1 className="editorial-title-hero mb-2.5 max-w-[280px]">
             Luna, eclipses y equinoccios
           </h1>
-          <p
-            style={{
-              fontFamily: "Inter, sans-serif",
-              fontSize: "13px",
-              color: "#888",
-              lineHeight: 1.6,
-            }}
-          >
+          <p className="editorial-body-muted">
             Tocá un día para ver el clima astral y sumar recomendaciones para rituales.
           </p>
         </div>
 
         <div className="flex items-center justify-between mb-4">
-          <button
-            onClick={goPrevious}
-            className="w-10 h-10 rounded-full border border-[rgba(0,0,0,0.08)] text-[#666]"
-          >
+          <button onClick={goPrevious} className="editorial-icon-button h-10 w-10 rounded-full text-[var(--ink-muted)]">
             ←
           </button>
-          <p
-            style={{
-              fontFamily: "Cormorant Garamond, serif",
-              fontSize: "26px",
-              color: "#0A0A0A",
-            }}
-          >
+          <p className="font-serif text-[26px] text-[var(--ink-strong)]">
             {format(currentDate, "LLLL yyyy", { locale: es })}
           </p>
-          <button
-            onClick={goNext}
-            className="w-10 h-10 rounded-full border border-[rgba(0,0,0,0.08)] text-[#666]"
-          >
+          <button onClick={goNext} className="editorial-icon-button h-10 w-10 rounded-full text-[var(--ink-muted)]">
             →
           </button>
         </div>
 
-        <div className="inline-flex rounded-full border border-[rgba(0,0,0,0.08)] p-1 bg-[#FAFAFA] mb-6">
+        <div className="editorial-segmented mb-6 inline-flex">
           <button
             onClick={() => setView("week")}
-            className={`px-4 py-2 rounded-full transition-colors ${
-              view === "week" ? "bg-[#0A0A0A] text-white" : "text-[#777]"
-            }`}
-            style={{ fontFamily: "Inter, sans-serif", fontSize: "12px", fontWeight: 500 }}
+            className={`editorial-segmented-option px-4 ${view === "week" ? "editorial-segmented-option-active" : ""}`}
           >
             Semana
           </button>
           <button
             onClick={() => setView("month")}
-            className={`px-4 py-2 rounded-full transition-colors ${
-              view === "month" ? "bg-[#0A0A0A] text-white" : "text-[#777]"
-            }`}
-            style={{ fontFamily: "Inter, sans-serif", fontSize: "12px", fontWeight: 500 }}
+            className={`editorial-segmented-option px-4 ${view === "month" ? "editorial-segmented-option-active" : ""}`}
           >
             Mes
           </button>
@@ -219,7 +166,7 @@ export function CosmicCalendar() {
 
                   <div className="relative z-10 w-full h-full text-current flex flex-col flex-1">
                     <div className="flex justify-between items-start mb-2">
-                      <p style={{ fontFamily: "Inter, sans-serif", fontSize: "10px", color: dayColor, textTransform: "uppercase", letterSpacing: "0.1em", fontWeight: 500 }}>
+                      <p style={{ fontFamily: "var(--font-sans-ui)", fontSize: "10px", color: dayColor, textTransform: "uppercase", letterSpacing: "0.1em", fontWeight: 500 }}>
                         {day.weekdayLabel}
                       </p>
                       {isToday(day.date) && (
@@ -230,7 +177,7 @@ export function CosmicCalendar() {
                     </div>
 
                     <div className="flex items-center justify-between mb-auto text-current">
-                      <p style={{ fontFamily: "Cormorant Garamond, serif", fontSize: "32px", color: dateColor, lineHeight: 1 }}>
+                      <p style={{ fontFamily: "var(--font-serif-display)", fontSize: "32px", color: dateColor, lineHeight: 1 }}>
                         {format(day.date, "d")}
                       </p>
                       <div className={isBlackCard ? "invert opacity-90" : ""}>
@@ -241,10 +188,10 @@ export function CosmicCalendar() {
                     <div className="mt-auto pt-4 flex items-end justify-between">
                       {day.perfection ? (
                         <div>
-                          <p style={{ fontFamily: "Inter, sans-serif", fontSize: "12px", color: descColor, marginBottom: "4px", fontWeight: 500 }}>
+                          <p style={{ fontFamily: "var(--font-sans-ui)", fontSize: "12px", color: descColor, marginBottom: "4px", fontWeight: 500 }}>
                             {day.perfection.label}
                           </p>
-                          <p style={{ fontFamily: "Inter, sans-serif", fontSize: "10px", color: dayColor, lineHeight: 1.4 }}>
+                          <p style={{ fontFamily: "var(--font-sans-ui)", fontSize: "10px", color: dayColor, lineHeight: 1.4 }}>
                             {day.perfection.timeBuenosAires} hs · {day.perfection.zodiacSign}
                           </p>
                         </div>
@@ -268,7 +215,7 @@ export function CosmicCalendar() {
                   key={weekday}
                   className="text-center"
                   style={{
-                    fontFamily: "Inter, sans-serif",
+                    fontFamily: "var(--font-sans-ui)",
                     fontSize: "10px",
                     letterSpacing: "0.1em",
                     textTransform: "uppercase",
@@ -298,7 +245,7 @@ export function CosmicCalendar() {
                       <span
                         className={isToday(day.date) ? "flex items-center justify-center w-6 h-6 rounded-full bg-[#0A0A0A] text-white" : ""}
                         style={{
-                          fontFamily: "Inter, sans-serif",
+                          fontFamily: "var(--font-sans-ui)",
                           fontSize: "11px",
                           fontWeight: isToday(day.date) ? 600 : 400,
                           color: isToday(day.date) ? "#FFF" : inCurrentMonth ? "#666" : "#BBB",
@@ -313,7 +260,7 @@ export function CosmicCalendar() {
                         <>
                           <span
                             className="w-full truncate leading-tight"
-                            style={{ fontFamily: "Inter, sans-serif", fontSize: "7.5px", color: "#0A0A0A", fontWeight: 500 }}
+                            style={{ fontFamily: "var(--font-sans-ui)", fontSize: "7.5px", color: "#0A0A0A", fontWeight: 500 }}
                           >
                             {day.perfection.label === "Luna nueva" ? "L. nueva"
                               : day.perfection.label === "Luna llena" ? "L. llena"
@@ -321,15 +268,15 @@ export function CosmicCalendar() {
                               : day.perfection.label === "Cuarto menguante" ? "C. menguante"
                               : day.perfection.label}
                           </span>
-                          <span className="w-full truncate" style={{ fontFamily: "Inter, sans-serif", fontSize: "7px", color: "#999" }}>
+                          <span className="w-full truncate" style={{ fontFamily: "var(--font-sans-ui)", fontSize: "7px", color: "#999" }}>
                             {day.perfection.zodiacSign}
                           </span>
-                          <span className="w-full truncate" style={{ fontFamily: "Inter, sans-serif", fontSize: "7px", color: "#BBB" }}>
+                          <span className="w-full truncate" style={{ fontFamily: "var(--font-sans-ui)", fontSize: "7px", color: "#BBB" }}>
                             {day.perfection.timeBuenosAires}
                           </span>
                         </>
                       ) : day.events[0] ? (
-                        <span className="w-full truncate" style={{ fontFamily: "Inter, sans-serif", fontSize: "7.5px", color: "#0A0A0A", fontWeight: 500 }}>
+                        <span className="w-full truncate" style={{ fontFamily: "var(--font-sans-ui)", fontSize: "7.5px", color: "#0A0A0A", fontWeight: 500 }}>
                           {day.events[0].shortLabel}
                         </span>
                       ) : null}
@@ -351,57 +298,35 @@ export function CosmicCalendar() {
             className="absolute inset-0 bg-black/35"
             onClick={() => setSelectedDay(null)}
           />
-          <div className="absolute left-1/2 top-1/2 w-[calc(100%-3rem)] max-w-[330px] -translate-x-1/2 -translate-y-1/2 rounded-[28px] border border-[rgba(0,0,0,0.08)] bg-white px-5 py-5 shadow-[0_20px_60px_rgba(0,0,0,0.12)]">
+          <div className="editorial-calendar-dialog absolute left-1/2 top-1/2 w-[calc(100%-3rem)] max-w-[330px] -translate-x-1/2 -translate-y-1/2 px-5 py-5">
             <button
               onClick={() => setSelectedDay(null)}
-              className="absolute top-5 right-5 w-8 h-8 flex items-center justify-center rounded-full bg-[#FAFAFA] border border-[rgba(0,0,0,0.06)] text-[#888] hover:text-[#0A0A0A] hover:bg-[#F0F0F0] transition-colors"
+              className="editorial-icon-button absolute top-5 right-5 h-8 w-8 rounded-full text-[var(--ink-muted)]"
             >
               <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
                 <path d="M1 1L9 9M9 1L1 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
               </svg>
             </button>
 
-            <p
-              style={{
-                fontFamily: "Inter, sans-serif",
-                fontSize: "10px",
-                fontWeight: 500,
-                letterSpacing: "0.14em",
-                textTransform: "uppercase",
-                color: "#BBB",
-                marginBottom: "10px",
-              }}
-            >
-              {selectedDay.weekdayLabel}
-            </p>
+            <p className="editorial-eyebrow mb-2.5">{selectedDay.weekdayLabel}</p>
 
-            <p
-              style={{
-                fontFamily: "Cormorant Garamond, serif",
-                fontSize: "26px",
-                fontWeight: 400,
-                color: "#0A0A0A",
-                lineHeight: 1.1,
-                marginBottom: "10px",
-                paddingRight: "24px",
-              }}
-            >
+            <p className="font-serif text-[26px] font-normal text-[var(--ink-strong)] leading-[1.1] mb-2.5 pr-6">
               {format(selectedDay.date, "d 'de' LLLL", { locale: es })}
             </p>
 
             {/* Entradas del diario personal para este día */}
             {journalByDate.has(selectedDay.dateKey) && (
-              <div className="mb-4 rounded-[22px] border border-[rgba(0,0,0,0.06)] bg-[#F7F5F2] px-4 py-4">
-                <p style={{ fontFamily: "Inter, sans-serif", fontSize: "10px", color: "#BBB", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10 }}>
+              <div className="editorial-calendar-soft-block mb-4">
+                <p className="editorial-eyebrow mb-2.5">
                   Tu práctica este día
                 </p>
                 {journalByDate.get(selectedDay.dateKey)!.map((entry, i) => (
-                  <div key={i} className={i > 0 ? "mt-3 pt-3 border-t border-[rgba(0,0,0,0.05)]" : ""}>
-                    <p style={{ fontFamily: "Cormorant Garamond, serif", fontSize: 16, color: "#0A0A0A", lineHeight: 1.4 }}>
+                  <div key={i} className={i > 0 ? "mt-3 pt-3 border-t border-[var(--border-soft)]" : ""}>
+                    <p className="font-serif text-[16px] text-[var(--ink-strong)] leading-[1.4]">
                       "{entry.anchor}"
                     </p>
                     {entry.element && (
-                      <p style={{ fontFamily: "Inter, sans-serif", fontSize: 10, color: "#AAA", marginTop: 4, textTransform: "capitalize", letterSpacing: "0.04em" }}>
+                      <p className="font-sans text-[10px] text-[var(--ink-subtle)] mt-1 capitalize tracking-[0.04em]">
                         {entry.ritualType} · {entry.element}
                       </p>
                     )}
@@ -412,26 +337,18 @@ export function CosmicCalendar() {
 
             {selectedDayHasPerfection ? (
               <>
-                <p
-                  style={{
-                    fontFamily: "Inter, sans-serif",
-                    fontSize: "13px",
-                    color: "#777",
-                    lineHeight: 1.6,
-                    marginBottom: "16px",
-                  }}
-                >
+                <p className="editorial-body-muted mb-4">
                   {selectedDay.perfection?.label}
                 </p>
 
-                <div className="rounded-[22px] border border-[rgba(0,0,0,0.06)] bg-[#FAFAFA] px-4 py-4">
-                  <p style={{ fontFamily: "Inter, sans-serif", fontSize: "10px", color: "#AAA", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "8px" }}>
+                <div className="editorial-calendar-soft-block">
+                  <p className="editorial-eyebrow mb-2">
                     Posición exacta
                   </p>
-                  <p style={{ fontFamily: "Cormorant Garamond, serif", fontSize: "18px", color: "#0A0A0A", lineHeight: 1.2, marginBottom: "6px" }}>
+                  <p className="font-serif text-[18px] text-[var(--ink-strong)] leading-[1.2] mb-1.5">
                     {selectedDay.perfection?.timeBuenosAires} hs en Buenos Aires
                   </p>
-                  <p style={{ fontFamily: "Inter, sans-serif", fontSize: "13px", color: "#777", lineHeight: 1.6 }}>
+                  <p className="editorial-body-muted">
                     Se perfecciona en {selectedDay.perfection?.zodiacSign}.
                   </p>
                 </div>
@@ -439,39 +356,31 @@ export function CosmicCalendar() {
             ) : (() => {
               const nextEventData = getNextEvent(selectedDay.date);
               return (
-                <div className="rounded-[22px] border border-[rgba(0,0,0,0.06)] bg-[#FAFAFA] px-4 py-4 mt-4">
-                  <p style={{ fontFamily: "Inter, sans-serif", fontSize: "13px", color: "#777", lineHeight: 1.6, marginBottom: "16px" }}>
+                <div className="editorial-calendar-soft-block mt-4">
+                  <p className="editorial-body-muted mb-4">
                     No hay eventos particulares hoy, pero te podés preparar para el próximo evento.
                   </p>
                   {nextEventData && (
                     <>
-                      <p style={{ fontFamily: "Inter, sans-serif", fontSize: "10px", color: "#AAA", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "8px" }}>
+                      <p className="editorial-eyebrow mb-2">
                         Próximo evento
                       </p>
-                      <p style={{ fontFamily: "Cormorant Garamond, serif", fontSize: "18px", color: "#0A0A0A", lineHeight: 1.2, marginBottom: "2px" }}>
+                      <p className="font-serif text-[18px] text-[var(--ink-strong)] leading-[1.2] mb-0.5">
                         {nextEventData.perfection.label}
                       </p>
-                      <p style={{ fontFamily: "Inter, sans-serif", fontSize: "13px", color: "#777", lineHeight: 1.6 }}>
+                      <p className="editorial-body-muted">
                         {format(nextEventData.date, "d 'de' LLLL", { locale: es })}
                       </p>
                     </>
                   )}
                   
-                  <div className="mt-5 border-t border-[rgba(0,0,0,0.05)] pt-4 flex justify-center">
+                  <div className="mt-5 border-t border-[var(--border-soft)] pt-4 flex justify-center">
                     <button
                       onClick={() => {
                         setSelectedDay(null);
                         setTimeout(() => navigate("/"), 50);
                       }}
-                      style={{
-                        fontFamily: "Inter, sans-serif",
-                        fontSize: "12px",
-                        color: "#0A0A0A",
-                        fontWeight: 500,
-                        textDecoration: "underline",
-                        textUnderlineOffset: "3px",
-                      }}
-                      className="hover:opacity-60 transition-opacity"
+                      className="font-sans text-[12px] text-[var(--ink-strong)] font-medium underline underline-offset-[3px] hover:opacity-60 transition-opacity"
                     >
                       Ir a Inicio para abrir la wiki
                     </button>

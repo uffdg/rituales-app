@@ -161,7 +161,7 @@ export function StepRitual() {
         <p
           className="mb-3 text-[#AAA]"
           style={{
-            fontFamily: "Inter, sans-serif",
+            fontFamily: "var(--font-sans-ui)",
             fontSize: "11px",
             fontWeight: 500,
             letterSpacing: "0.14em",
@@ -203,7 +203,7 @@ export function StepRitual() {
               </div>
               <p
                 style={{
-                  fontFamily: "Cormorant Garamond, serif",
+                  fontFamily: "var(--font-serif-display)",
                   fontSize: "20px",
                   fontWeight: 300,
                   color: "#0A0A0A",
@@ -214,7 +214,7 @@ export function StepRitual() {
               </p>
               <p
                 style={{
-                  fontFamily: "Inter, sans-serif",
+                  fontFamily: "var(--font-sans-ui)",
                   fontSize: "12px",
                   color: "#BBB",
                   fontWeight: 300,
@@ -229,13 +229,13 @@ export function StepRitual() {
         {/* Error state */}
         {!isGenerating && generateError && (
           <div className="py-8 text-center">
-            <p style={{ fontFamily: "Inter, sans-serif", fontSize: "13px", color: "#B42318", marginBottom: "16px" }}>
+            <p style={{ fontFamily: "var(--font-sans-ui)", fontSize: "13px", color: "#B42318", marginBottom: "16px" }}>
               {generateError}
             </p>
             <button
               onClick={handleGenerateRitual}
               className="px-5 py-2 rounded-full border border-[rgba(0,0,0,0.15)] text-[#555]"
-              style={{ fontFamily: "Inter, sans-serif", fontSize: "13px" }}
+              style={{ fontFamily: "var(--font-sans-ui)", fontSize: "13px" }}
             >
               Reintentar
             </button>
@@ -253,7 +253,7 @@ export function StepRitual() {
               {/* Title */}
               <h2
                 style={{
-                  fontFamily: "Cormorant Garamond, serif",
+                  fontFamily: "var(--font-serif-display)",
                   fontSize: "26px",
                   fontWeight: 400,
                   color: "#0A0A0A",
@@ -282,7 +282,7 @@ export function StepRitual() {
                         <div className="flex items-center gap-2 mb-2">
                           <span
                             style={{
-                              fontFamily: "Cormorant Garamond, serif",
+                              fontFamily: "var(--font-serif-display)",
                               fontSize: "14px",
                               color: "#CCC",
                             }}
@@ -291,7 +291,7 @@ export function StepRitual() {
                           </span>
                           <p
                             style={{
-                              fontFamily: "Inter, sans-serif",
+                              fontFamily: "var(--font-sans-ui)",
                               fontSize: "10px",
                               fontWeight: 500,
                               letterSpacing: "0.12em",
@@ -315,7 +315,7 @@ export function StepRitual() {
                             className="w-full border-none bg-transparent focus:outline-none resize-none"
                             rows={4}
                             style={{
-                              fontFamily: "Cormorant Garamond, serif",
+                              fontFamily: "var(--font-serif-display)",
                               fontSize: "16px",
                               fontWeight: 300,
                               lineHeight: 1.6,
@@ -325,7 +325,7 @@ export function StepRitual() {
                         ) : (
                           <p
                             style={{
-                              fontFamily: "Cormorant Garamond, serif",
+                              fontFamily: "var(--font-serif-display)",
                               fontSize: "16px",
                               fontWeight: 300,
                               lineHeight: 1.6,
@@ -342,7 +342,7 @@ export function StepRitual() {
                             setEditingBlock(isEditing ? null : block.key)
                           }
                           className="text-[11px] text-[#AAA] hover:text-[#555] transition-colors"
-                          style={{ fontFamily: "Inter, sans-serif", letterSpacing: "0.04em" }}
+                          style={{ fontFamily: "var(--font-sans-ui)", letterSpacing: "0.04em" }}
                         >
                           {isEditing ? "Guardar" : "Editar"}
                         </button>
@@ -360,7 +360,7 @@ export function StepRitual() {
                       <div className="flex items-center gap-2 mb-2">
                         <span
                           style={{
-                            fontFamily: "Cormorant Garamond, serif",
+                            fontFamily: "var(--font-serif-display)",
                             fontSize: "14px",
                             color: "#CCC",
                           }}
@@ -369,7 +369,7 @@ export function StepRitual() {
                         </span>
                         <p
                           style={{
-                            fontFamily: "Inter, sans-serif",
+                            fontFamily: "var(--font-sans-ui)",
                             fontSize: "10px",
                             fontWeight: 500,
                             letterSpacing: "0.12em",
@@ -383,7 +383,7 @@ export function StepRitual() {
 
                       <p
                         style={{
-                          fontFamily: "Cormorant Garamond, serif",
+                          fontFamily: "var(--font-serif-display)",
                           fontSize: "22px",
                           fontWeight: 400,
                           lineHeight: 1.35,
@@ -396,7 +396,7 @@ export function StepRitual() {
 
                       <p
                         style={{
-                          fontFamily: "Inter, sans-serif",
+                          fontFamily: "var(--font-sans-ui)",
                           fontSize: "11px",
                           color: "#9A9A9A",
                           marginBottom: "12px",
@@ -408,7 +408,7 @@ export function StepRitual() {
 
                       <p
                         style={{
-                          fontFamily: "Cormorant Garamond, serif",
+                          fontFamily: "var(--font-serif-display)",
                           fontSize: "16px",
                           fontWeight: 300,
                           lineHeight: 1.6,
@@ -427,7 +427,7 @@ export function StepRitual() {
                 <button
                   onClick={() => handleGenerateRitual()}
                   className="flex items-center gap-1.5 px-3.5 py-2 rounded-full border border-[rgba(0,0,0,0.12)] text-[#555] hover:border-[rgba(0,0,0,0.3)] transition-all"
-                  style={{ fontFamily: "Inter, sans-serif", fontSize: "12px" }}
+                  style={{ fontFamily: "var(--font-sans-ui)", fontSize: "12px" }}
                 >
                   <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
                     <path d="M5.5 1L6.8 4.2L10 5.5L6.8 6.8L5.5 10L4.2 6.8L1 5.5L4.2 4.2L5.5 1Z" stroke="currentColor" strokeWidth="1" strokeLinejoin="round" />
@@ -437,14 +437,14 @@ export function StepRitual() {
                 <button
                   onClick={handleSimplify}
                   className="flex items-center gap-1.5 px-3.5 py-2 rounded-full border border-[rgba(0,0,0,0.12)] text-[#555] hover:border-[rgba(0,0,0,0.3)] transition-all"
-                  style={{ fontFamily: "Inter, sans-serif", fontSize: "12px" }}
+                  style={{ fontFamily: "var(--font-sans-ui)", fontSize: "12px" }}
                 >
                   Hacerlo más simple
                 </button>
                 <button
                   onClick={() => setShowVersions(true)}
                   className="flex items-center gap-1.5 px-3.5 py-2 rounded-full border border-[rgba(0,0,0,0.12)] text-[#555] hover:border-[rgba(0,0,0,0.3)] transition-all"
-                  style={{ fontFamily: "Inter, sans-serif", fontSize: "12px" }}
+                  style={{ fontFamily: "var(--font-sans-ui)", fontSize: "12px" }}
                 >
                   Dame 3 versiones
                 </button>
@@ -453,13 +453,7 @@ export function StepRitual() {
               {/* CTA */}
               <button
                 onClick={handleNext}
-                className="w-full py-4 px-6 bg-[#0A0A0A] text-white rounded-2xl transition-all active:scale-[0.98] hover:bg-[#1A1A1A]"
-                style={{
-                  fontFamily: "Inter, sans-serif",
-                  fontSize: "15px",
-                  fontWeight: 400,
-                  letterSpacing: "0.03em",
-                }}
+                className="editorial-action-button editorial-action-button-primary"
               >
                 Siguiente
               </button>
@@ -490,7 +484,7 @@ export function StepRitual() {
               <div className="w-10 h-1 bg-[#E0E0E0] rounded-full mx-auto mb-6" />
               <p
                 style={{
-                  fontFamily: "Cormorant Garamond, serif",
+                  fontFamily: "var(--font-serif-display)",
                   fontSize: "22px",
                   fontWeight: 400,
                   marginBottom: "16px",
@@ -508,7 +502,7 @@ export function StepRitual() {
                   >
                     <p
                       style={{
-                        fontFamily: "Cormorant Garamond, serif",
+                        fontFamily: "var(--font-serif-display)",
                         fontSize: "17px",
                         fontWeight: 500,
                         color: "#0A0A0A",
@@ -519,7 +513,7 @@ export function StepRitual() {
                     </p>
                     <p
                       style={{
-                        fontFamily: "Inter, sans-serif",
+                        fontFamily: "var(--font-sans-ui)",
                         fontSize: "12px",
                         fontWeight: 300,
                         color: "#888",

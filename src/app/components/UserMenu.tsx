@@ -15,7 +15,7 @@ export function UserMenu() {
     >
       <span
         style={{
-          fontFamily: "Cormorant Garamond, serif",
+          fontFamily: "var(--font-serif-display)",
           fontSize: "16px",
           fontWeight: 500,
           color: "white",
