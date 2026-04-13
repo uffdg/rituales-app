@@ -556,7 +556,7 @@ const isSelectedStepBlocked = !isJourneyComplete && selectedStepIndex > complete
     : undefined;
 
   return (
-    <div className="min-h-screen flex flex-col overflow-y-auto relative bg-[var(--ink-strong)]">
+    <div className="min-h-screen flex flex-col overflow-y-auto overflow-x-hidden relative bg-[var(--ink-strong)]">
       {/* Dynamic Background Image */}
       <div className="absolute top-0 left-0 w-full h-[85vh] z-0 pointer-events-none">
         <div className="absolute inset-0 bg-black/30 z-10" />
