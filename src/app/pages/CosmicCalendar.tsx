@@ -461,7 +461,7 @@ export function CosmicCalendar() {
                     <button
                       onClick={() => {
                         setSelectedDay(null);
-                        setTimeout(() => navigate("/wiki/las-lunas-y-su-energia"), 50);
+                        setTimeout(() => navigate("/"), 50);
                       }}
                       style={{
                         fontFamily: "Inter, sans-serif",
@@ -473,7 +473,7 @@ export function CosmicCalendar() {
                       }}
                       className="hover:opacity-60 transition-opacity"
                     >
-                      Aprende más sobre las lunas
+                      Ir a Inicio para abrir la wiki
                     </button>
                   </div>
                 </div>

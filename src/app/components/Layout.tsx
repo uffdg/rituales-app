@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router";
 import { Toaster } from "sonner";
 import { track } from "../lib/analytics";
+import { useUser } from "../context/UserContext";
 
 function RouteTracker() {
   const location = useLocation();
@@ -19,6 +20,11 @@ function RouteTracker() {
 function BottomNav() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { session, user, profile } = useUser();
+  const displayName = profile?.fullName?.trim() || user?.email || "";
+  const initial = displayName ? displayName[0].toUpperCase() : "?";
+  const accountActive =
+    location.pathname.startsWith("/cuenta") || location.pathname.startsWith("/login");
 
   const tabs = [
     {
@@ -65,13 +71,32 @@ function BottomNav() {
       ),
     },
     {
-      label: "Wiki",
-      path: "/wiki",
-      active: location.pathname.startsWith("/wiki"),
+      label: session ? "Perfil" : "Entrar",
+      path: session ? "/cuenta" : "/login",
+      active: accountActive,
       icon: (active: boolean) => (
-        <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke={active ? "#0A0A0A" : "#C0BAB4"} strokeWidth={1.75}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
-        </svg>
+        <div
+          className="flex items-center justify-center rounded-full"
+          style={{
+            width: 28,
+            height: 28,
+            background: active ? "#0A0A0A" : "#F3F1EE",
+            border: active ? "1px solid #0A0A0A" : "1px solid rgba(0,0,0,0.08)",
+          }}
+        >
+          <span
+            style={{
+              fontFamily: "Cormorant Garamond, serif",
+              fontSize: "16px",
+              fontWeight: 500,
+              color: active ? "#FFFFFF" : "#8E8881",
+              lineHeight: 1,
+              letterSpacing: "0.02em",
+            }}
+          >
+            {initial}
+          </span>
+        </div>
       ),
     },
   ];

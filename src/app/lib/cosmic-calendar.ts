@@ -291,12 +291,13 @@ export function daysUntil(from: Date, to: Date): number {
   return Math.round((b.getTime() - a.getTime()) / (1000 * 60 * 60 * 24));
 }
 
-export type MomentOfDay = "mañana" | "mediodía" | "noche";
+export type MomentOfDay = "madrugada" | "mañana" | "tarde" | "noche";
 
 export function getMomentOfDay(date: Date = new Date()): MomentOfDay {
   const h = date.getHours();
+  if (h < 6) return "madrugada";
   if (h < 12) return "mañana";
-  if (h < 17) return "mediodía";
+  if (h < 19) return "tarde";
   return "noche";
 }
 
@@ -381,4 +382,3 @@ export function getLunarPhaseKey(date: Date): string {
   const phaseId = getLunarPhaseId(date);
   return `cycle${cycleNumber}-phase${phaseId}`;
 }
-
