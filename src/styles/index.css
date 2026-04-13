@@ -12,8 +12,9 @@
 }
 
 /* Smooth scrolling */
-html {
+html, body {
   scroll-behavior: smooth;
+  overflow-x: hidden;
 }
 
 /* Mobile safe areas */
