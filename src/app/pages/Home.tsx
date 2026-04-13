@@ -980,7 +980,7 @@ const isSelectedStepBlocked = !isJourneyComplete && selectedStepIndex > complete
                   <p className="font-sans text-[12px] font-light leading-[1.5] text-[var(--ink-muted)] mb-2 tracking-[0.02em]">
                     {STEP_COPY[selectedStep].intro}
                   </p>
-                  <h3 className="font-serif text-[18px] leading-[1.2] text-[var(--ink-strong)]" style={{ fontWeight: 400 }}>
+                  <h3 className="font-serif text-[24px] leading-[1.2] text-[var(--ink-strong)]" style={{ fontWeight: 400 }}>
                     {STEP_COPY[selectedStep].title}
                   </h3>
                   <p className="mt-2 font-sans text-[13px] font-light leading-[1.55] text-[var(--ink-subtle)]">
