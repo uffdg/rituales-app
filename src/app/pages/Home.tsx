@@ -20,6 +20,7 @@ import {
   completeDailyAnchorStep,
   getDailyAnchorContent,
   getDailyAnchorJourney,
+  resetDailyAnchorJourney,
   type DailyAnchorStepContent,
   type DailyAnchorType,
 } from "../lib/daily-anchor";
@@ -147,6 +148,12 @@ function chooseRecommendedRitual(
   return byPhase ?? rituals[0];
 }
 
+function setHourForDate(date: Date, hour: number) {
+  const next = new Date(date);
+  next.setHours(hour, 0, 0, 0);
+  return next;
+}
+
 export function Home() {
   const navigate = useNavigate();
   const { resetRitual, setViewMode, setSelectedPublicRitual } = useRitual();
@@ -157,6 +164,7 @@ export function Home() {
   const [heroImageIndex, setHeroImageIndex] = useState(1);
   const [heroTextTheme, setHeroTextTheme] = useState<"light" | "dark">("light");
   const [localNow, setLocalNow] = useState(() => new Date());
+  const [devTestHour, setDevTestHour] = useState<number | null>(null);
   const [weatherCondition, setWeatherCondition] = useState<WeatherCondition>("unknown");
   const [isListening, setIsListening] = useState(false);
   const [isReframing, setIsReframing] = useState(false);
@@ -191,7 +199,11 @@ export function Home() {
   const recommendationData = ritualCardToRitualData(recommendation);
   const recommendationSaved = isRitualSaved(recommendationData);
   const popularRituals = EXPLORE_RITUALS.slice(0, 2);
-  const journeyNow = localNow;
+  const isDev = import.meta.env.DEV;
+  const journeyNow = useMemo(
+    () => (devTestHour === null ? localNow : setHourForDate(localNow, devTestHour)),
+    [devTestHour, localNow],
+  );
   const completedCount = dailyJourney.completedCount;
   const journeyHour = journeyNow.getHours();
   const nextPendingStep = STEP_ORDER[completedCount] ?? null;
@@ -405,6 +417,25 @@ export function Home() {
     });
   };
 
+  const handleResetDayForDev = () => {
+    resetDailyAnchorJourney();
+    setGeneratedIntention(null);
+    setInicioFeeling(null);
+    setMomentoAlignment(null);
+    setMomentoFeeling(null);
+    setClosingReflection("");
+    setCierreFeeling(null);
+    setSelectedAnchorStep("inicio");
+    setDailyAnchorVersion((current) => current + 1);
+    toast("Diario reiniciado", {
+      description: "Se limpió el recorrido local de hoy para seguir probando.",
+    });
+  };
+
+  const handleSetDevTestHour = (hour: number | null) => {
+    setDevTestHour(hour);
+  };
+
   const handleMic = async () => {
     if (isListening) {
       recognitionRef.current?.stop();
@@ -500,9 +531,43 @@ export function Home() {
         {/* Diario de anclas */}
         <div className="px-6 mb-12">
           <div className="mb-6">
-            <p className="font-sans text-[10px] font-medium tracking-[0.14em] uppercase text-[#9B978F] mb-2">
-              Diario de anclas
-            </p>
+            <div className="flex items-center justify-between gap-4 mb-2">
+              <p className="font-sans text-[10px] font-medium tracking-[0.14em] uppercase text-[#9B978F]">
+                Diario de anclas
+              </p>
+              {isDev ? (
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1 rounded-full border border-[rgba(0,0,0,0.04)] bg-[#F7F5F2] px-1 py-1">
+                    {[
+                      { label: "Real", value: null as number | null },
+                      { label: "09", value: 9 },
+                      { label: "14", value: 14 },
+                      { label: "19", value: 19 },
+                    ].map((option) => (
+                      <button
+                        key={option.label}
+                        onClick={() => handleSetDevTestHour(option.value)}
+                        className={`rounded-full px-2 py-1 font-sans text-[10px] font-medium tracking-[0.04em] transition-colors ${
+                          devTestHour === option.value
+                            ? "bg-[#0A0A0A] text-white"
+                            : option.value === null && devTestHour === null
+                            ? "bg-[#0A0A0A] text-white"
+                            : "text-[#999]"
+                        }`}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                  <button
+                    onClick={handleResetDayForDev}
+                    className="font-sans text-[10px] font-medium uppercase tracking-[0.12em] text-[#AAA] hover:text-[#444] transition-colors"
+                  >
+                    Reset dev
+                  </button>
+                </div>
+              ) : null}
+            </div>
             <div className="flex items-start justify-between gap-4">
               <h2 className="font-serif text-[32px] text-[#0A0A0A] leading-[0.92] max-w-[210px]">
                 Tu recorrido de hoy
