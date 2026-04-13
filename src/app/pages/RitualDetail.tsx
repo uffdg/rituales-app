@@ -15,9 +15,10 @@ import {
   type RitualRecord,
 } from "../lib/ritual-service";
 const TRACKS = [
-  { id: 0, label: "Handpan",    sublabel: "Tierra · 432hz",   load: () => import("../assets/handpan-soundscape-432hz.mp3").then((m) => m.default as string) },
-  { id: 1, label: "Meditación", sublabel: "Flujo · 432hz",    load: () => import("../assets/danamusic-432hz-meditation-355839.mp3").then((m) => m.default as string) },
-  { id: 2, label: "Tercer ojo", sublabel: "Profundo · 432hz", load: () => import("../assets/meditativecalmbuddha-third-eye-frequency-deep-healing-432hz-480114.mp3").then((m) => m.default as string) },
+  { id: 0, label: "Handpan",    sublabel: "Tierra · 432hz",   load: () => Promise.resolve("https://sztefmznsleedqythllo.supabase.co/storage/v1/object/public/audio/handpan-soundscape-432hz.mp3") },
+  { id: 1, label: "Meditación", sublabel: "Flujo · 432hz",    load: () => Promise.resolve("https://sztefmznsleedqythllo.supabase.co/storage/v1/object/public/audio/danamusic-432hz-meditation-355839.mp3") },
+  { id: 2, label: "Tercer ojo", sublabel: "Profundo · 432hz", load: () => Promise.resolve("https://sztefmznsleedqythllo.supabase.co/storage/v1/object/public/audio/meditativecalmbuddha-third-eye-frequency-deep-healing-432hz-480114.mp3") },
+  { id: 3, label: "Handpan II", sublabel: "Etéreo · 432hz",   load: () => Promise.resolve("https://sztefmznsleedqythllo.supabase.co/storage/v1/object/public/audio/siarhei_korbut-handpan-soundscape-432-hz-396231.mp3") },
 ];
 
 export function RitualDetail() {

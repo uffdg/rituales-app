@@ -72,10 +72,8 @@ export function GuidedAudioPlayer({
     if (ambienceRef.current) {
       ambienceRef.current.volume = 0.03;
       ambienceRef.current.loop = true;
-      // Lazy-load the handpan only once, on first mount
-      import("../assets/handpan-soundscape-432hz.mp3").then((m) => {
-        if (ambienceRef.current) ambienceRef.current.src = m.default as string;
-      });
+      // Ambience track from CDN
+      if (ambienceRef.current) ambienceRef.current.src = "https://sztefmznsleedqythllo.supabase.co/storage/v1/object/public/audio/handpan-soundscape-432hz.mp3";
     }
   }, []);
 
