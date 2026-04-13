@@ -141,7 +141,7 @@ export function CosmicCalendar() {
               const isBlackCard = bgUrl !== null;
               
               const cardBgClass = isBlackCard ? "bg-[#000] border-transparent" : "bg-white border-[rgba(0,0,0,0.07)]";
-              const tagBg = isBlackCard ? "bg-[#222] text-[#E5E5E5]" : "bg-[#0A0A0A] text-white";
+              const tagBg = isBlackCard ? "bg-[var(--ink-strong)] text-[var(--surface-muted)]" : "bg-[var(--ink-strong)] text-white";
               const dateColor = isBlackCard ? "#FFF" : "#0A0A0A";
               const dayColor = isBlackCard ? "#FFF" : "#AAA";
               const descColor = isBlackCard ? "#CCC" : "#666";
@@ -219,7 +219,7 @@ export function CosmicCalendar() {
                     fontSize: "10px",
                     letterSpacing: "0.1em",
                     textTransform: "uppercase",
-                    color: "#AAA",
+                    color: "var(--ink-soft)",
                   }}
                 >
                   {weekday}
@@ -238,12 +238,12 @@ export function CosmicCalendar() {
                     className={`min-h-[96px] rounded-[22px] border px-2 py-2 text-left transition-colors flex flex-col ${
                       inCurrentMonth
                         ? "border-[rgba(0,0,0,0.07)] bg-white"
-                        : "border-[rgba(0,0,0,0.04)] bg-[#FAFAFA]"
+                        : "border-[rgba(0,0,0,0.04)] bg-[var(--surface-softest)]"
                     }`}
                   >
                     <div className="flex items-center justify-between mb-1">
                       <span
-                        className={isToday(day.date) ? "flex items-center justify-center w-6 h-6 rounded-full bg-[#0A0A0A] text-white" : ""}
+                        className={isToday(day.date) ? "flex items-center justify-center w-6 h-6 rounded-full bg-[var(--ink-strong)] text-white" : ""}
                         style={{
                           fontFamily: "var(--font-sans-ui)",
                           fontSize: "11px",
@@ -260,7 +260,7 @@ export function CosmicCalendar() {
                         <>
                           <span
                             className="w-full truncate leading-tight"
-                            style={{ fontFamily: "var(--font-sans-ui)", fontSize: "7.5px", color: "#0A0A0A", fontWeight: 500 }}
+                            style={{ fontFamily: "var(--font-sans-ui)", fontSize: "7.5px", color: "var(--ink-strong)", fontWeight: 500 }}
                           >
                             {day.perfection.label === "Luna nueva" ? "L. nueva"
                               : day.perfection.label === "Luna llena" ? "L. llena"
@@ -268,15 +268,15 @@ export function CosmicCalendar() {
                               : day.perfection.label === "Cuarto menguante" ? "C. menguante"
                               : day.perfection.label}
                           </span>
-                          <span className="w-full truncate" style={{ fontFamily: "var(--font-sans-ui)", fontSize: "7px", color: "#999" }}>
+                          <span className="w-full truncate" style={{ fontFamily: "var(--font-sans-ui)", fontSize: "7px", color: "var(--ink-subtle)" }}>
                             {day.perfection.zodiacSign}
                           </span>
-                          <span className="w-full truncate" style={{ fontFamily: "var(--font-sans-ui)", fontSize: "7px", color: "#BBB" }}>
+                          <span className="w-full truncate" style={{ fontFamily: "var(--font-sans-ui)", fontSize: "7px", color: "var(--ink-soft)" }}>
                             {day.perfection.timeBuenosAires}
                           </span>
                         </>
                       ) : day.events[0] ? (
-                        <span className="w-full truncate" style={{ fontFamily: "var(--font-sans-ui)", fontSize: "7.5px", color: "#0A0A0A", fontWeight: 500 }}>
+                        <span className="w-full truncate" style={{ fontFamily: "var(--font-sans-ui)", fontSize: "7.5px", color: "var(--ink-strong)", fontWeight: 500 }}>
                           {day.events[0].shortLabel}
                         </span>
                       ) : null}

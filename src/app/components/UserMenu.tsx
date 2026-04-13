@@ -10,7 +10,7 @@ export function UserMenu() {
   return (
     <button
       onClick={() => navigate(session ? "/cuenta" : "/login")}
-      className="w-9 h-9 rounded-full bg-[#0A0A0A] flex items-center justify-center flex-shrink-0 transition-all active:scale-[0.93] hover:bg-[#222]"
+      className="w-9 h-9 rounded-full bg-[var(--ink-strong)] flex items-center justify-center flex-shrink-0 transition-all active:scale-[0.93] hover:bg-[var(--ink-strong)]"
       aria-label={session ? "Ir a mi cuenta" : "Iniciar sesión"}
     >
       <span

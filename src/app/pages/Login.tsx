@@ -192,7 +192,7 @@ export function Login() {
                   fontFamily: "var(--font-serif-display)",
                   fontSize: "28px",
                   fontWeight: 400,
-                  color: "#0A0A0A",
+                  color: "var(--ink-strong)",
                   marginBottom: "8px",
                   lineHeight: 1.2,
                   textAlign: "center",
@@ -205,14 +205,14 @@ export function Login() {
                   fontFamily: "var(--font-sans-ui)",
                   fontSize: "13px",
                   fontWeight: 300,
-                  color: "#888",
+                  color: "var(--ink-subtle)",
                   textAlign: "center",
                   marginBottom: "32px",
                   lineHeight: 1.6,
                 }}
               >
                 Enviamos un código de 6 dígitos a{" "}
-                <span style={{ color: "#555" }}>{email.trim().toLowerCase()}</span>
+                <span style={{ color: "var(--ink-muted)" }}>{email.trim().toLowerCase()}</span>
               </p>
 
               {/* Code inputs */}
@@ -228,12 +228,12 @@ export function Login() {
                     autoFocus={i === 0}
                     onChange={(e) => handleCodeChange(i, e.target.value)}
                     onKeyDown={(e) => handleKeyDown(i, e)}
-                    className="w-12 h-14 text-center rounded-xl border border-[rgba(0,0,0,0.12)] bg-[#FAFAFA] focus:outline-none focus:border-[#0A0A0A] transition-colors"
+                    className="w-12 h-14 text-center rounded-xl border border-[rgba(0,0,0,0.12)] bg-[var(--surface-softest)] focus:outline-none focus:border-[var(--ink-strong)] transition-colors"
                     style={{
                       fontFamily: "var(--font-sans-ui)",
                       fontSize: "22px",
                       fontWeight: 400,
-                      color: "#0A0A0A",
+                      color: "var(--ink-strong)",
                     }}
                   />
                 ))}
@@ -244,7 +244,7 @@ export function Login() {
                   style={{
                     fontFamily: "var(--font-sans-ui)",
                     fontSize: "13px",
-                    color: "#AAA",
+                    color: "var(--ink-soft)",
                     textAlign: "center",
                     marginBottom: "8px",
                   }}
@@ -269,7 +269,7 @@ export function Login() {
 
               <button
                 onClick={() => { setStep("email"); setError(""); setCode(["", "", "", "", "", ""]); }}
-                className="w-full mt-4 py-3 text-[#888] hover:text-[#0A0A0A] transition-colors"
+                className="w-full mt-4 py-3 text-[var(--ink-subtle)] hover:text-[var(--ink-strong)] transition-colors"
                 style={{ fontFamily: "var(--font-sans-ui)", fontSize: "13px", fontWeight: 300 }}
               >
                 Cambiar email o reenviar código

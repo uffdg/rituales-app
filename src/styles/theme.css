@@ -3,7 +3,7 @@
 :root {
   --font-size: 16px;
   --font-sans-ui: "Inter", sans-serif;
-  --font-serif-display: "Source Serif 4", serif;
+  --font-serif-display: "Cormorant Garamond", serif;
   --background: #ffffff;
   --foreground: oklch(0.145 0 0);
   --card: #ffffff;

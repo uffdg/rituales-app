@@ -522,7 +522,7 @@ export function Stories() {
                           cursor: "pointer", transition: "all 0.18s ease",
                         }}
                       >
-                        <span style={{ fontSize: 20, color: "rgba(255,255,255,0.85)", fontFamily: "monospace" }}>{mood.emoji}</span>
+                        <span style={{ fontSize: 20, color: "rgba(255,255,255,0.85)", fontFamily: "var(--font-sans-ui)" }}>{mood.emoji}</span>
                         <span style={{ fontFamily: "var(--font-sans-ui)", fontSize: 10, color: selectedMood === mood.id ? "rgba(255,255,255,0.95)" : "rgba(255,255,255,0.5)", letterSpacing: "0.04em" }}>
                           {mood.label}
                         </span>
@@ -535,7 +535,7 @@ export function Stories() {
                         initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
                         transition={{ duration: 0.22 }}
                         onClick={handleMoodContinue}
-                        style={{ width: "100%", padding: "15px 0", borderRadius: 16, background: "rgba(255,255,255,0.95)", border: "none", fontFamily: "var(--font-sans-ui)", fontSize: 14, fontWeight: 500, color: "#0A0A0A", cursor: "pointer", letterSpacing: "0.03em" }}
+                        style={{ width: "100%", padding: "15px 0", borderRadius: 16, background: "rgba(255,255,255,0.95)", border: "none", fontFamily: "var(--font-sans-ui)", fontSize: 14, fontWeight: 500, color: "var(--ink-strong)", cursor: "pointer", letterSpacing: "0.03em" }}
                       >
                         Crear ritual para este momento →
                       </motion.button>

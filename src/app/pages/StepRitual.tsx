@@ -159,7 +159,7 @@ export function StepRitual() {
       <div className="flex-1 px-6 pb-10 overflow-y-auto relative z-10">
         {/* Step label */}
         <p
-          className="mb-3 text-[#AAA]"
+          className="mb-3 text-[var(--ink-soft)]"
           style={{
             fontFamily: "var(--font-sans-ui)",
             fontSize: "11px",
@@ -185,7 +185,7 @@ export function StepRitual() {
                 style={{ width: 64, height: 64 }}
               >
                 <motion.div
-                  className="absolute inset-0 rounded-full border border-[#0A0A0A]"
+                  className="absolute inset-0 rounded-full border border-[var(--ink-strong)]"
                   animate={{ scale: [1, 1.4, 1], opacity: [0.4, 0, 0.4] }}
                   transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
                 />
@@ -194,7 +194,7 @@ export function StepRitual() {
                   <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
                     <path
                       d="M9 1L11 7L17 9L11 11L9 17L7 11L1 9L7 7L9 1Z"
-                      stroke="#0A0A0A"
+                      stroke="var(--ink-strong)"
                       strokeWidth="1"
                       strokeLinejoin="round"
                     />
@@ -206,7 +206,7 @@ export function StepRitual() {
                   fontFamily: "var(--font-serif-display)",
                   fontSize: "20px",
                   fontWeight: 300,
-                  color: "#0A0A0A",
+                  color: "var(--ink-strong)",
                   marginBottom: "4px",
                 }}
               >
@@ -216,7 +216,7 @@ export function StepRitual() {
                 style={{
                   fontFamily: "var(--font-sans-ui)",
                   fontSize: "12px",
-                  color: "#BBB",
+                  color: "var(--ink-soft)",
                   fontWeight: 300,
                 }}
               >
@@ -234,7 +234,7 @@ export function StepRitual() {
             </p>
             <button
               onClick={handleGenerateRitual}
-              className="px-5 py-2 rounded-full border border-[rgba(0,0,0,0.15)] text-[#555]"
+              className="px-5 py-2 rounded-full border border-[rgba(0,0,0,0.15)] text-[var(--ink-muted)]"
               style={{ fontFamily: "var(--font-sans-ui)", fontSize: "13px" }}
             >
               Reintentar
@@ -256,7 +256,7 @@ export function StepRitual() {
                   fontFamily: "var(--font-serif-display)",
                   fontSize: "26px",
                   fontWeight: 400,
-                  color: "#0A0A0A",
+                  color: "var(--ink-strong)",
                   lineHeight: 1.3,
                   marginBottom: "20px",
                 }}
@@ -284,7 +284,7 @@ export function StepRitual() {
                             style={{
                               fontFamily: "var(--font-serif-display)",
                               fontSize: "14px",
-                              color: "#CCC",
+                              color: "var(--ink-soft)",
                             }}
                           >
                             {block.icon}
@@ -296,7 +296,7 @@ export function StepRitual() {
                               fontWeight: 500,
                               letterSpacing: "0.12em",
                               textTransform: "uppercase",
-                              color: "#AAA",
+                              color: "var(--ink-soft)",
                             }}
                           >
                             {block.label}
@@ -319,7 +319,7 @@ export function StepRitual() {
                               fontSize: "16px",
                               fontWeight: 300,
                               lineHeight: 1.6,
-                              color: "#0A0A0A",
+                              color: "var(--ink-strong)",
                             }}
                           />
                         ) : (
@@ -329,7 +329,7 @@ export function StepRitual() {
                               fontSize: "16px",
                               fontWeight: 300,
                               lineHeight: 1.6,
-                              color: "#0A0A0A",
+                              color: "var(--ink-strong)",
                             }}
                           >
                             {text}
@@ -341,7 +341,7 @@ export function StepRitual() {
                           onClick={() =>
                             setEditingBlock(isEditing ? null : block.key)
                           }
-                          className="text-[11px] text-[#AAA] hover:text-[#555] transition-colors"
+                          className="text-[11px] text-[var(--ink-soft)] hover:text-[var(--ink-muted)] transition-colors"
                           style={{ fontFamily: "var(--font-sans-ui)", letterSpacing: "0.04em" }}
                         >
                           {isEditing ? "Guardar" : "Editar"}
@@ -362,7 +362,7 @@ export function StepRitual() {
                           style={{
                             fontFamily: "var(--font-serif-display)",
                             fontSize: "14px",
-                            color: "#CCC",
+                            color: "var(--ink-soft)",
                           }}
                         >
                           ✦
@@ -374,7 +374,7 @@ export function StepRitual() {
                             fontWeight: 500,
                             letterSpacing: "0.12em",
                             textTransform: "uppercase",
-                            color: "#AAA",
+                            color: "var(--ink-soft)",
                           }}
                         >
                           Vela para iniciar
@@ -387,7 +387,7 @@ export function StepRitual() {
                           fontSize: "22px",
                           fontWeight: 400,
                           lineHeight: 1.35,
-                          color: "#0A0A0A",
+                          color: "var(--ink-strong)",
                           marginBottom: "8px",
                         }}
                       >
@@ -412,7 +412,7 @@ export function StepRitual() {
                           fontSize: "16px",
                           fontWeight: 300,
                           lineHeight: 1.6,
-                          color: "#0A0A0A",
+                          color: "var(--ink-strong)",
                         }}
                       >
                         {candleGuide.instruction}
@@ -426,7 +426,7 @@ export function StepRitual() {
               <div className="flex gap-2 mb-8 flex-wrap">
                 <button
                   onClick={() => handleGenerateRitual()}
-                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-full border border-[rgba(0,0,0,0.12)] text-[#555] hover:border-[rgba(0,0,0,0.3)] transition-all"
+                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-full border border-[rgba(0,0,0,0.12)] text-[var(--ink-muted)] hover:border-[rgba(0,0,0,0.3)] transition-all"
                   style={{ fontFamily: "var(--font-sans-ui)", fontSize: "12px" }}
                 >
                   <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
@@ -436,14 +436,14 @@ export function StepRitual() {
                 </button>
                 <button
                   onClick={handleSimplify}
-                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-full border border-[rgba(0,0,0,0.12)] text-[#555] hover:border-[rgba(0,0,0,0.3)] transition-all"
+                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-full border border-[rgba(0,0,0,0.12)] text-[var(--ink-muted)] hover:border-[rgba(0,0,0,0.3)] transition-all"
                   style={{ fontFamily: "var(--font-sans-ui)", fontSize: "12px" }}
                 >
                   Hacerlo más simple
                 </button>
                 <button
                   onClick={() => setShowVersions(true)}
-                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-full border border-[rgba(0,0,0,0.12)] text-[#555] hover:border-[rgba(0,0,0,0.3)] transition-all"
+                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-full border border-[rgba(0,0,0,0.12)] text-[var(--ink-muted)] hover:border-[rgba(0,0,0,0.3)] transition-all"
                   style={{ fontFamily: "var(--font-sans-ui)", fontSize: "12px" }}
                 >
                   Dame 3 versiones
@@ -488,7 +488,7 @@ export function StepRitual() {
                   fontSize: "22px",
                   fontWeight: 400,
                   marginBottom: "16px",
-                  color: "#0A0A0A",
+                  color: "var(--ink-strong)",
                 }}
               >
                 Elige una versión
@@ -505,7 +505,7 @@ export function StepRitual() {
                         fontFamily: "var(--font-serif-display)",
                         fontSize: "17px",
                         fontWeight: 500,
-                        color: "#0A0A0A",
+                        color: "var(--ink-strong)",
                         marginBottom: "4px",
                       }}
                     >
@@ -516,7 +516,7 @@ export function StepRitual() {
                         fontFamily: "var(--font-sans-ui)",
                         fontSize: "12px",
                         fontWeight: 300,
-                        color: "#888",
+                        color: "var(--ink-subtle)",
                         lineHeight: 1.5,
                         WebkitLineClamp: 2,
                         display: "-webkit-box",

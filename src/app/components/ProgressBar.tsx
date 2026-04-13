@@ -13,7 +13,7 @@ export function ProgressBar({ step, total = 5, onBack }: ProgressBarProps) {
         {onBack && (
           <button
             onClick={onBack}
-            className="flex items-center justify-center w-8 h-8 rounded-full border border-[rgba(0,0,0,0.1)] text-[#0A0A0A] hover:bg-[#F5F5F5] transition-colors"
+            className="flex items-center justify-center w-8 h-8 rounded-full border border-[rgba(0,0,0,0.1)] text-[var(--ink-strong)] hover:bg-[var(--surface-softest)] transition-colors"
             aria-label="Volver"
           >
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -22,15 +22,15 @@ export function ProgressBar({ step, total = 5, onBack }: ProgressBarProps) {
           </button>
         )}
         <div className="flex-1">
-          <div className="h-[1px] bg-[#E8E8E8] w-full relative">
+          <div className="h-[1px] bg-[var(--surface-muted)] w-full relative">
             <div
-              className="absolute left-0 top-0 h-[1px] bg-[#0A0A0A] transition-all duration-500 ease-out"
+              className="absolute left-0 top-0 h-[1px] bg-[var(--ink-strong)] transition-all duration-500 ease-out"
               style={{ width: `${progress}%` }}
             />
           </div>
         </div>
         <span
-          className="text-xs text-[#999] shrink-0"
+          className="text-xs text-[var(--ink-subtle)] shrink-0"
           style={{ fontFamily: "var(--font-sans-ui)", letterSpacing: "0.06em" }}
         >
           {step}/{total}

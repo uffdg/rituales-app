@@ -206,7 +206,7 @@ export function Account() {
             await signOut();
             navigate("/");
           }}
-          className="flex items-center gap-2 text-[#888] hover:text-[#0A0A0A] transition-colors"
+          className="flex items-center gap-2 text-[var(--ink-subtle)] hover:text-[var(--ink-strong)] transition-colors"
           style={{ fontFamily: "var(--font-sans-ui)", fontSize: "12px" }}
         >
           <LogOut size={13} strokeWidth={1.5} />
@@ -228,7 +228,7 @@ export function Account() {
               fontWeight: 500,
               letterSpacing: "0.14em",
               textTransform: "uppercase",
-              color: "#BBB",
+              color: "var(--ink-soft)",
               marginBottom: "8px",
             }}
           >
@@ -239,7 +239,7 @@ export function Account() {
               fontFamily: "var(--font-serif-display)",
               fontSize: "32px",
               fontWeight: 400,
-              color: "#0A0A0A",
+              color: "var(--ink-strong)",
               lineHeight: 1.15,
             }}
           >
@@ -255,7 +255,7 @@ export function Account() {
               fontWeight: 500,
               letterSpacing: "0.12em",
               textTransform: "uppercase",
-              color: "#BBB",
+              color: "var(--ink-soft)",
               marginBottom: "6px",
             }}
           >
@@ -265,7 +265,7 @@ export function Account() {
             style={{
               fontFamily: "var(--font-sans-ui)",
               fontSize: "13px",
-              color: "#666",
+              color: "var(--ink-muted)",
               marginBottom: "18px",
             }}
           >
@@ -280,7 +280,7 @@ export function Account() {
               fontWeight: 500,
               letterSpacing: "0.12em",
               textTransform: "uppercase",
-              color: "#BBB",
+              color: "var(--ink-soft)",
               marginBottom: "6px",
             }}
           >
@@ -291,11 +291,11 @@ export function Account() {
               value={fullNameDraft}
               onChange={(event) => setFullNameDraft(event.target.value)}
               placeholder="Cómo querés aparecer"
-              className="w-full px-5 py-4 rounded-[28px] border border-[rgba(0,0,0,0.08)] bg-[#FAFAFA] outline-none"
+              className="w-full px-5 py-4 rounded-[28px] border border-[rgba(0,0,0,0.08)] bg-[var(--surface-softest)] outline-none"
               style={{
                 fontFamily: "var(--font-serif-display)",
                 fontSize: "22px",
-                color: "#111",
+                color: "var(--ink-strong)",
               }}
             />
             <button
@@ -316,14 +316,14 @@ export function Account() {
           ].map((item) => (
             <div
               key={item.label}
-              className="rounded-3xl border border-[rgba(0,0,0,0.06)] bg-[#FAFAFA] px-4 py-4"
+              className="rounded-3xl border border-[rgba(0,0,0,0.06)] bg-[var(--surface-softest)] px-4 py-4"
             >
-              <item.icon size={15} strokeWidth={1.5} className="text-[#888] mb-3" />
+              <item.icon size={15} strokeWidth={1.5} className="text-[var(--ink-subtle)] mb-3" />
               <p
                 style={{
                   fontFamily: "var(--font-serif-display)",
                   fontSize: "26px",
-                  color: "#0A0A0A",
+                  color: "var(--ink-strong)",
                   lineHeight: 1,
                 }}
               >
@@ -333,7 +333,7 @@ export function Account() {
                 style={{
                   fontFamily: "var(--font-sans-ui)",
                   fontSize: "10px",
-                  color: "#AAA",
+                  color: "var(--ink-soft)",
                   marginTop: "6px",
                   textTransform: "uppercase",
                   letterSpacing: "0.1em",
@@ -355,7 +355,7 @@ export function Account() {
                 fontWeight: 500,
                 letterSpacing: "0.14em",
                 textTransform: "uppercase",
-                color: "#BBB",
+                color: "var(--ink-soft)",
                 marginBottom: "12px",
               }}
             >
@@ -367,7 +367,7 @@ export function Account() {
               {/* Elemento dominante */}
               {dominantElement && ELEMENT_DESCRIPTIONS[dominantElement] && (
                 <div>
-                  <p style={{ fontFamily: "var(--font-sans-ui)", fontSize: "10px", color: "#BBB", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 6 }}>
+                  <p style={{ fontFamily: "var(--font-sans-ui)", fontSize: "10px", color: "var(--ink-soft)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 6 }}>
                     Elemento dominante
                   </p>
                   <div className="flex items-center gap-3">
@@ -375,10 +375,10 @@ export function Account() {
                       {ELEMENT_DESCRIPTIONS[dominantElement].symbol}
                     </span>
                     <div>
-                      <p style={{ fontFamily: "var(--font-serif-display)", fontSize: 20, color: "#0A0A0A", lineHeight: 1.2, textTransform: "capitalize" }}>
+                      <p style={{ fontFamily: "var(--font-serif-display)", fontSize: 20, color: "var(--ink-strong)", lineHeight: 1.2, textTransform: "capitalize" }}>
                         {dominantElement}
                       </p>
-                      <p style={{ fontFamily: "var(--font-sans-ui)", fontSize: 12, color: "#777", lineHeight: 1.5, marginTop: 2 }}>
+                      <p style={{ fontFamily: "var(--font-sans-ui)", fontSize: 12, color: "var(--ink-muted)", lineHeight: 1.5, marginTop: 2 }}>
                         {ELEMENT_DESCRIPTIONS[dominantElement].text}
                       </p>
                     </div>
@@ -389,13 +389,13 @@ export function Account() {
               {/* Racha lunar */}
               {lunarStreak >= 2 && (
                 <div>
-                  <p style={{ fontFamily: "var(--font-sans-ui)", fontSize: "10px", color: "#BBB", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 6 }}>
+                  <p style={{ fontFamily: "var(--font-sans-ui)", fontSize: "10px", color: "var(--ink-soft)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 6 }}>
                     Práctica continua
                   </p>
-                  <p style={{ fontFamily: "var(--font-serif-display)", fontSize: 20, color: "#0A0A0A", lineHeight: 1.2 }}>
+                  <p style={{ fontFamily: "var(--font-serif-display)", fontSize: 20, color: "var(--ink-strong)", lineHeight: 1.2 }}>
                     ✦ {lunarStreak} lunas en práctica continua
                   </p>
-                  <p style={{ fontFamily: "var(--font-sans-ui)", fontSize: 12, color: "#999", marginTop: 4, lineHeight: 1.5 }}>
+                  <p style={{ fontFamily: "var(--font-sans-ui)", fontSize: 12, color: "var(--ink-subtle)", marginTop: 4, lineHeight: 1.5 }}>
                     Hiciste al menos un ritual en {lunarStreak} fases lunares consecutivas.
                   </p>
                 </div>
@@ -403,7 +403,7 @@ export function Account() {
 
               {/* Diario de anclas */}
               <div>
-                <p style={{ fontFamily: "var(--font-sans-ui)", fontSize: "10px", color: "#BBB", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 10 }}>
+                <p style={{ fontFamily: "var(--font-sans-ui)", fontSize: "10px", color: "var(--ink-soft)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 10 }}>
                   Tus anclas recientes
                 </p>
                 <div className="flex flex-col gap-3">
@@ -427,13 +427,13 @@ export function Account() {
                             style={{
                               fontFamily: "var(--font-serif-display)",
                               fontSize: 16,
-                              color: "#0A0A0A",
+                              color: "var(--ink-strong)",
                               lineHeight: 1.4,
                             }}
                           >
                             "{entry.anchor}"
                           </p>
-                          <p style={{ fontFamily: "var(--font-sans-ui)", fontSize: 10, color: "#BBB", marginTop: 3, letterSpacing: "0.04em" }}>
+                          <p style={{ fontFamily: "var(--font-sans-ui)", fontSize: 10, color: "var(--ink-soft)", marginTop: 3, letterSpacing: "0.04em" }}>
                             {entry.moonPhase} · {new Date(entry.completedAt).toLocaleDateString("es-AR", { day: "numeric", month: "short" })}
                           </p>
                         </div>
@@ -455,18 +455,18 @@ export function Account() {
                 fontWeight: 500,
                 letterSpacing: "0.14em",
                 textTransform: "uppercase",
-                color: "#BBB",
+                color: "var(--ink-soft)",
                 marginBottom: "10px",
               }}
             >
               Tus rituales
             </p>
 
-            <div className="inline-flex rounded-full border border-[rgba(0,0,0,0.08)] p-1 bg-[#FAFAFA] mb-4">
+            <div className="inline-flex rounded-full border border-[rgba(0,0,0,0.08)] p-1 bg-[var(--surface-softest)] mb-4">
               <button
                 onClick={() => setActiveTab("favorites")}
                 className={`px-4 py-2 rounded-full transition-colors ${
-                  activeTab === "favorites" ? "bg-[#0A0A0A] text-white" : "text-[#777]"
+                  activeTab === "favorites" ? "bg-[var(--ink-strong)] text-white" : "text-[var(--ink-muted)]"
                 }`}
                 style={{ fontFamily: "var(--font-sans-ui)", fontSize: "12px", fontWeight: 500 }}
               >
@@ -475,7 +475,7 @@ export function Account() {
               <button
                 onClick={() => setActiveTab("own")}
                 className={`px-4 py-2 rounded-full transition-colors ${
-                  activeTab === "own" ? "bg-[#0A0A0A] text-white" : "text-[#777]"
+                  activeTab === "own" ? "bg-[var(--ink-strong)] text-white" : "text-[var(--ink-muted)]"
                 }`}
                 style={{ fontFamily: "var(--font-sans-ui)", fontSize: "12px", fontWeight: 500 }}
               >
@@ -487,7 +487,7 @@ export function Account() {
               style={{
                 fontFamily: "var(--font-serif-display)",
                 fontSize: "28px",
-                color: "#0A0A0A",
+                color: "var(--ink-strong)",
                 lineHeight: 1.1,
               }}
             >
@@ -513,7 +513,7 @@ export function Account() {
                 fontWeight: 500,
                 letterSpacing: "0.14em",
                 textTransform: "uppercase",
-                color: "#BBB",
+                color: "var(--ink-soft)",
               }}
             >
               Confirmar acción
@@ -523,7 +523,7 @@ export function Account() {
                 fontFamily: "var(--font-serif-display)",
                 fontSize: "30px",
                 fontWeight: 400,
-                color: "#0A0A0A",
+                color: "var(--ink-strong)",
                 lineHeight: 1.1,
               }}
             >
@@ -533,7 +533,7 @@ export function Account() {
               style={{
                 fontFamily: "var(--font-sans-ui)",
                 fontSize: "14px",
-                color: "#777",
+                color: "var(--ink-muted)",
                 lineHeight: 1.6,
               }}
             >
@@ -545,7 +545,7 @@ export function Account() {
 
           <AlertDialogFooter className="mt-2 gap-2 sm:justify-end">
             <AlertDialogCancel
-              className="rounded-[20px] border-[rgba(0,0,0,0.08)] px-5 py-3 text-[#666]"
+              className="rounded-[20px] border-[rgba(0,0,0,0.08)] px-5 py-3 text-[var(--ink-muted)]"
               style={{ fontFamily: "var(--font-sans-ui)", fontSize: "13px" }}
             >
               Cancelar

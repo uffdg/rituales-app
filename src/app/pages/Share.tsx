@@ -91,7 +91,7 @@ export function Share() {
       <div className="relative z-10 pt-14 px-6 pb-4 flex items-center justify-between">
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-[#888] hover:text-[#0A0A0A] transition-colors"
+          className="flex items-center gap-2 text-[var(--ink-subtle)] hover:text-[var(--ink-strong)] transition-colors"
           style={{ fontFamily: "var(--font-sans-ui)", fontSize: "13px" }}
         >
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -117,7 +117,7 @@ export function Share() {
               fontWeight: 500,
               letterSpacing: "0.14em",
               textTransform: "uppercase",
-              color: "#BBB",
+              color: "var(--ink-soft)",
               marginBottom: "8px",
             }}
           >
@@ -128,7 +128,7 @@ export function Share() {
               fontFamily: "var(--font-serif-display)",
               fontSize: "30px",
               fontWeight: 400,
-              color: "#0A0A0A",
+              color: "var(--ink-strong)",
               lineHeight: 1.25,
             }}
           >
@@ -267,7 +267,7 @@ export function Share() {
               fontWeight: 500,
               letterSpacing: "0.1em",
               textTransform: "uppercase",
-              color: "#BBB",
+              color: "var(--ink-soft)",
               marginBottom: "8px",
             }}
           >
@@ -275,11 +275,11 @@ export function Share() {
           </p>
           <div className="flex gap-2">
             <div
-              className="flex-1 px-4 py-3 rounded-xl bg-[#F5F5F5] flex items-center"
+              className="flex-1 px-4 py-3 rounded-xl bg-[var(--surface-softest)] flex items-center"
               style={{
                 fontFamily: "var(--font-sans-ui)",
                 fontSize: "13px",
-                color: "#666",
+                color: "var(--ink-muted)",
                 overflow: "hidden",
               }}
             >
@@ -289,8 +289,8 @@ export function Share() {
               onClick={handleCopy}
               className={`px-4 py-3 rounded-xl font-medium transition-all text-sm active:scale-[0.95] ${
                 copied
-                  ? "bg-[#0A0A0A] text-white"
-                  : "bg-[#0A0A0A] text-white hover:bg-[#222]"
+                  ? "bg-[var(--ink-strong)] text-white"
+                  : "bg-[var(--ink-strong)] text-white hover:bg-[var(--ink-strong)]"
               }`}
               style={{ fontFamily: "var(--font-sans-ui)", minWidth: "64px" }}
             >
@@ -308,7 +308,7 @@ export function Share() {
               fontWeight: 500,
               letterSpacing: "0.1em",
               textTransform: "uppercase",
-              color: "#BBB",
+              color: "var(--ink-soft)",
               marginBottom: "10px",
             }}
           >
@@ -317,7 +317,7 @@ export function Share() {
           <div className="flex gap-3">
             <button
               onClick={handleWhatsApp}
-              className="flex-1 flex items-center justify-center gap-2.5 py-3.5 rounded-xl border border-[rgba(0,0,0,0.1)] text-[#0A0A0A] hover:border-[rgba(0,0,0,0.2)] hover:bg-[#FAFAFA] transition-all active:scale-[0.97]"
+              className="flex-1 flex items-center justify-center gap-2.5 py-3.5 rounded-xl border border-[rgba(0,0,0,0.1)] text-[var(--ink-strong)] hover:border-[rgba(0,0,0,0.2)] hover:bg-[var(--surface-softest)] transition-all active:scale-[0.97]"
               style={{ fontFamily: "var(--font-sans-ui)", fontSize: "13px" }}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="#25D366">
@@ -327,7 +327,7 @@ export function Share() {
             </button>
             <button
               onClick={handleInstagram}
-              className="flex-1 flex items-center justify-center gap-2.5 py-3.5 rounded-xl border border-[rgba(0,0,0,0.1)] text-[#0A0A0A] hover:border-[rgba(0,0,0,0.2)] hover:bg-[#FAFAFA] transition-all active:scale-[0.97]"
+              className="flex-1 flex items-center justify-center gap-2.5 py-3.5 rounded-xl border border-[rgba(0,0,0,0.1)] text-[var(--ink-strong)] hover:border-[rgba(0,0,0,0.2)] hover:bg-[var(--surface-softest)] transition-all active:scale-[0.97]"
               style={{ fontFamily: "var(--font-sans-ui)", fontSize: "13px" }}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="url(#ig)" strokeWidth="1.5">
@@ -356,7 +356,7 @@ export function Share() {
               fontFamily: "var(--font-sans-ui)",
               fontSize: "12px",
               fontWeight: 300,
-              color: "#888",
+              color: "var(--ink-subtle)",
               lineHeight: 1.6,
             }}
           >
@@ -372,7 +372,7 @@ export function Share() {
               fontWeight: 500,
               letterSpacing: "0.1em",
               textTransform: "uppercase",
-              color: "#BBB",
+              color: "var(--ink-soft)",
               marginBottom: "8px",
             }}
           >
@@ -383,7 +383,7 @@ export function Share() {
               fontFamily: "var(--font-serif-display)",
               fontSize: "24px",
               fontWeight: 400,
-              color: "#0A0A0A",
+              color: "var(--ink-strong)",
               lineHeight: 1.15,
               marginBottom: "8px",
             }}
@@ -395,7 +395,7 @@ export function Share() {
               fontFamily: "var(--font-sans-ui)",
               fontSize: "13px",
               fontWeight: 300,
-              color: "#888",
+              color: "var(--ink-subtle)",
               lineHeight: 1.6,
               marginBottom: "14px",
             }}
@@ -407,8 +407,8 @@ export function Share() {
             disabled={isPublishing || isPublished}
             className={`w-full py-3.5 rounded-xl transition-all active:scale-[0.98] ${
               isPublished
-                ? "bg-[#F5F5F5] text-[#0A0A0A] border border-[rgba(0,0,0,0.08)]"
-                : "bg-[#0A0A0A] text-white"
+                ? "bg-[var(--surface-softest)] text-[var(--ink-strong)] border border-[rgba(0,0,0,0.08)]"
+                : "bg-[var(--ink-strong)] text-white"
             }`}
             style={{ fontFamily: "var(--font-sans-ui)", fontSize: "14px" }}
           >
@@ -428,7 +428,7 @@ export function Share() {
                 fontFamily: "var(--font-sans-ui)",
                 fontSize: "14px",
                 fontWeight: 400,
-                color: "#0A0A0A",
+                color: "var(--ink-strong)",
               }}
             >
               Mostrar mi nombre
@@ -438,7 +438,7 @@ export function Share() {
                 fontFamily: "var(--font-sans-ui)",
                 fontSize: "12px",
                 fontWeight: 300,
-                color: "#AAA",
+                color: "var(--ink-soft)",
               }}
             >
               {showName ? "Visible para quien reciba el link" : "Compartirás de forma anónima"}
@@ -447,7 +447,7 @@ export function Share() {
           <button
             onClick={() => setShowName(!showName)}
             className={`relative w-12 h-6 rounded-full transition-all duration-300 ${
-              showName ? "bg-[#0A0A0A]" : "bg-[#CCC]"
+              showName ? "bg-[var(--ink-strong)]" : "bg-[var(--ink-soft)]"
             }`}
           >
             <div
@@ -461,7 +461,7 @@ export function Share() {
         {/* Done button */}
         <button
           onClick={() => navigate("/")}
-          className="w-full mt-6 py-4 px-6 border border-[rgba(0,0,0,0.12)] text-[#0A0A0A] rounded-2xl transition-all active:scale-[0.98] hover:border-[rgba(0,0,0,0.25)]"
+          className="w-full mt-6 py-4 px-6 border border-[rgba(0,0,0,0.12)] text-[var(--ink-strong)] rounded-2xl transition-all active:scale-[0.98] hover:border-[rgba(0,0,0,0.25)]"
           style={{
             fontFamily: "var(--font-sans-ui)",
             fontSize: "15px",

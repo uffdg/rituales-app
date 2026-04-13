@@ -269,7 +269,7 @@ export function Explore() {
           style={{
             fontFamily: "var(--font-sans-ui)",
             fontSize: "11px",
-            color: "#BBB",
+            color: "var(--ink-soft)",
             letterSpacing: "0.06em",
           }}
         >
@@ -292,7 +292,7 @@ export function Explore() {
                   fontFamily: "var(--font-serif-display)",
                   fontSize: "20px",
                   fontWeight: 400,
-                  color: "#555",
+                  color: "var(--ink-muted)",
                   marginBottom: "4px",
                 }}
               >
@@ -303,7 +303,7 @@ export function Explore() {
                   fontFamily: "var(--font-sans-ui)",
                   fontSize: "13px",
                   fontWeight: 300,
-                  color: "#BBB",
+                  color: "var(--ink-soft)",
                 }}
               >
                 Prueba con otros filtros.
