@@ -142,7 +142,7 @@ function BottomNav() {
 
 export function Layout() {
   return (
-    <div className="min-h-screen flex items-center justify-center overflow-x-hidden" style={{ background: "var(--app-shell)" }}>
+    <div className="min-h-screen flex items-start md:items-center justify-center overflow-x-hidden" style={{ background: "var(--app-shell)" }}>
       <div
         className="relative w-full max-w-[390px] min-h-[100dvh] bg-white overflow-x-hidden shadow-2xl"
         style={{ boxShadow: "0 30px 80px rgba(15,23,42,0.14), 0 2px 8px rgba(15,23,42,0.08)" }}

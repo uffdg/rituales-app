@@ -12,12 +12,12 @@
 }
 
 /* Smooth scrolling */
-html, body {
+html {
   scroll-behavior: smooth;
-  overflow-x: hidden;
 }
 
 /* Mobile safe areas */
 body {
+  overflow-x: hidden;
   overscroll-behavior: none;
 }
