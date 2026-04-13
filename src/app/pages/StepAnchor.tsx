@@ -40,7 +40,8 @@ export function StepAnchor() {
       duration: ritual.duration,
       hasAudio: !!ritual.guidedAudio?.audioUrl,
     });
-    navigate(`/ritual/${ritual.ritualId || "nuevo"}`);
+    const isRealId = ritual.ritualId && !ritual.ritualId.startsWith("dev-") && !ritual.ritualId.startsWith("mock-");
+    navigate(`/ritual/${isRealId ? ritual.ritualId : "nuevo"}`);
   };
 
   return (
@@ -204,7 +205,7 @@ export function StepAnchor() {
             letterSpacing: "0.03em",
           }}
         >
-          Finalizar ritual
+          Construir ritual
         </button>
       </motion.div>
     </div>

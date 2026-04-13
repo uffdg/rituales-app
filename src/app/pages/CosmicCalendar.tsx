@@ -9,9 +9,12 @@ import {
   getWeeklyCosmicDays,
   getNextEvent,
   getPhaseBackgroundUrl,
+  getMoonPerfectionsForRange,
   isToday,
   type CosmicDay,
+  type CosmicPerfection,
 } from "../lib/cosmic-calendar";
+import { getJournalEntries, getJournalByDate } from "../lib/practice-journal";
 
 export function CosmicCalendar() {
   const navigate = useNavigate();
@@ -25,23 +28,42 @@ export function CosmicCalendar() {
   const weeklyDays = useMemo(() => getWeeklyCosmicDays(currentDate), [currentDate]);
   const monthlyDays = useMemo(() => getMonthlyCosmicDays(currentDate), [currentDate]);
 
+  const journalByDate = useMemo(() => getJournalByDate(getJournalEntries()), []);
+
+  // Calcula perfecciones lunares para el rango visible (semana o mes)
+  // Incluye ±2 meses de margen para no cortar fases en el borde
+  const perfectionMap = useMemo((): Record<string, CosmicPerfection> => {
+    const days = view === "week" ? weeklyDays : monthlyDays;
+    if (days.length === 0) return {};
+    const first = days[0].date;
+    const last  = days[days.length - 1].date;
+    const start = new Date(first.getFullYear(), first.getMonth() - 1, 1);
+    const end   = new Date(last.getFullYear(),  last.getMonth()  + 2, 0);
+    return getMoonPerfectionsForRange(start, end);
+  }, [view, weeklyDays, monthlyDays]);
+
+  // Enriquece un CosmicDay con la perfección calculada para su dateKey
+  function enrichDay(day: CosmicDay): CosmicDay {
+    const p = perfectionMap[day.dateKey];
+    return p ? { ...day, perfection: p } : day;
+  }
+
   const hasOpenedInitialRef = useRef(false);
 
   useEffect(() => {
     if (initialSelectedDate && !hasOpenedInitialRef.current) {
-      const matchKey = initialSelectedDate.replace(/-/g, ""); // dateKey is e.g. "20240401" or YYYY-MM-DD?
       const match = monthlyDays.find(d => d.dateKey === initialSelectedDate);
-      if (match) setSelectedDay(match);
+      if (match) setSelectedDay(enrichDay(match));
       else {
-        // Fallback: parse date manually if not in current month
         const parts = initialSelectedDate.split("-");
         if (parts.length === 3) {
           const dateObj = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
-          setSelectedDay(buildCosmicDay(dateObj));
+          setSelectedDay(enrichDay(buildCosmicDay(dateObj)));
         }
       }
       hasOpenedInitialRef.current = true;
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialSelectedDate, monthlyDays]);
 
   const goPrevious = () => {
@@ -165,7 +187,8 @@ export function CosmicCalendar() {
 
         {view === "week" ? (
           <div className="grid grid-cols-2 gap-3">
-            {weeklyDays.map((day) => {
+            {weeklyDays.map((rawDay) => {
+              const day = enrichDay(rawDay);
               const bgUrl = isToday(day.date) ? getPhaseBackgroundUrl(getDisplayMoonPhase(day)) : null;
               const isNewMoon = bgUrl === "black";
               const isBlackCard = bgUrl !== null;
@@ -205,7 +228,7 @@ export function CosmicCalendar() {
                         </span>
                       )}
                     </div>
-                    
+
                     <div className="flex items-center justify-between mb-auto text-current">
                       <p style={{ fontFamily: "Cormorant Garamond, serif", fontSize: "32px", color: dateColor, lineHeight: 1 }}>
                         {format(day.date, "d")}
@@ -214,17 +237,24 @@ export function CosmicCalendar() {
                         <MoonPhaseIcon phase={getDisplayMoonPhase(day)} size={30} />
                       </div>
                     </div>
-                    
-                    {day.perfection ? (
-                      <div className="mt-auto pt-4">
-                        <p style={{ fontFamily: "Inter, sans-serif", fontSize: "12px", color: descColor, marginBottom: "4px", fontWeight: 500 }}>
-                          {day.perfection.label}
-                        </p>
-                        <p style={{ fontFamily: "Inter, sans-serif", fontSize: "10px", color: dayColor, lineHeight: 1.4 }}>
-                          {day.perfection.timeBuenosAires} hs · {day.perfection.zodiacSign}
-                        </p>
-                      </div>
-                    ) : null}
+
+                    <div className="mt-auto pt-4 flex items-end justify-between">
+                      {day.perfection ? (
+                        <div>
+                          <p style={{ fontFamily: "Inter, sans-serif", fontSize: "12px", color: descColor, marginBottom: "4px", fontWeight: 500 }}>
+                            {day.perfection.label}
+                          </p>
+                          <p style={{ fontFamily: "Inter, sans-serif", fontSize: "10px", color: dayColor, lineHeight: 1.4 }}>
+                            {day.perfection.timeBuenosAires} hs · {day.perfection.zodiacSign}
+                          </p>
+                        </div>
+                      ) : <div />}
+                      {journalByDate.has(day.dateKey) && (
+                        <span style={{ fontSize: 12, color: isBlackCard ? "rgba(255,255,255,0.6)" : "#C0BAB4", lineHeight: 1 }} title="Hiciste un ritual este día">
+                          ✦
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </button>
               );
@@ -251,73 +281,65 @@ export function CosmicCalendar() {
             </div>
 
             <div className="grid grid-cols-7 gap-2">
-              {monthlyDays.map((day) => (
-                <button
-                  key={day.dateKey}
-                  onClick={() => setSelectedDay(buildCosmicDay(day.date))}
-                  className={`min-h-[96px] rounded-[22px] border px-2 py-2 text-left transition-colors flex flex-col ${
-                    day.inCurrentMonth
-                      ? "border-[rgba(0,0,0,0.07)] bg-white"
-                      : "border-[rgba(0,0,0,0.04)] bg-[#FAFAFA]"
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-3">
-                    <span
-                      className={isToday(day.date) ? "flex items-center justify-center w-6 h-6 rounded-full bg-[#0A0A0A] text-white" : ""}
-                      style={{
-                        fontFamily: "Inter, sans-serif",
-                        fontSize: "11px",
-                        fontWeight: isToday(day.date) ? 600 : 400,
-                        color: isToday(day.date) ? "#FFF" : day.inCurrentMonth ? "#666" : "#BBB",
-                      }}
-                    >
-                      {format(day.date, "d")}
-                    </span>
-                    <MoonPhaseIcon phase={getDisplayMoonPhase(day)} size={18} />
-                  </div>
-                  <div className="mt-auto min-h-[28px] flex flex-col justify-end">
-                    {day.perfection ? (
-                      <div className="w-full flex flex-col overflow-hidden">
-                        <span
-                          className="w-full truncate"
-                          style={{
-                            fontFamily: "Inter, sans-serif",
-                            fontSize: "8px",
-                            lineHeight: 1.2,
-                            color: "#888",
-                          }}
-                        >
-                          {day.perfection.timeBuenosAires} hs
-                        </span>
-                        {day.perfection.kind === "moon_phase" &&
-                        day.perfection.label.toLowerCase() === "luna nueva" ? (
+              {monthlyDays.map((rawDay) => {
+                const day = enrichDay(rawDay);
+                const inCurrentMonth = rawDay.inCurrentMonth;
+                return (
+                  <button
+                    key={day.dateKey}
+                    onClick={() => setSelectedDay(day)}
+                    className={`min-h-[96px] rounded-[22px] border px-2 py-2 text-left transition-colors flex flex-col ${
+                      inCurrentMonth
+                        ? "border-[rgba(0,0,0,0.07)] bg-white"
+                        : "border-[rgba(0,0,0,0.04)] bg-[#FAFAFA]"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <span
+                        className={isToday(day.date) ? "flex items-center justify-center w-6 h-6 rounded-full bg-[#0A0A0A] text-white" : ""}
+                        style={{
+                          fontFamily: "Inter, sans-serif",
+                          fontSize: "11px",
+                          fontWeight: isToday(day.date) ? 600 : 400,
+                          color: isToday(day.date) ? "#FFF" : inCurrentMonth ? "#666" : "#BBB",
+                        }}
+                      >
+                        {format(day.date, "d")}
+                      </span>
+                      <MoonPhaseIcon phase={getDisplayMoonPhase(day)} size={16} />
+                    </div>
+                    <div className="mt-auto flex flex-col gap-0.5">
+                      {day.perfection ? (
+                        <>
                           <span
-                            className="w-full truncate"
-                            style={{
-                              fontFamily: "Inter, sans-serif",
-                              fontSize: "8px",
-                              lineHeight: 1.2,
-                              color: "#0A0A0A",
-                              fontWeight: 500,
-                            }}
+                            className="w-full truncate leading-tight"
+                            style={{ fontFamily: "Inter, sans-serif", fontSize: "7.5px", color: "#0A0A0A", fontWeight: 500 }}
                           >
-                            Conjunción
+                            {day.perfection.label === "Luna nueva" ? "L. nueva"
+                              : day.perfection.label === "Luna llena" ? "L. llena"
+                              : day.perfection.label === "Cuarto creciente" ? "C. creciente"
+                              : day.perfection.label === "Cuarto menguante" ? "C. menguante"
+                              : day.perfection.label}
                           </span>
-                        ) : null}
-                      </div>
-                    ) : day.events[0] ? (
-                      <div className="flex items-center justify-center">
-                        <span
-                          className="inline-flex w-2 h-2 rounded-full bg-[#0A0A0A]"
-                          aria-hidden="true"
-                        />
-                      </div>
-                    ) : (
-                      <div className="h-2" />
-                    )}
-                  </div>
-                </button>
-              ))}
+                          <span className="w-full truncate" style={{ fontFamily: "Inter, sans-serif", fontSize: "7px", color: "#999" }}>
+                            {day.perfection.zodiacSign}
+                          </span>
+                          <span className="w-full truncate" style={{ fontFamily: "Inter, sans-serif", fontSize: "7px", color: "#BBB" }}>
+                            {day.perfection.timeBuenosAires}
+                          </span>
+                        </>
+                      ) : day.events[0] ? (
+                        <span className="w-full truncate" style={{ fontFamily: "Inter, sans-serif", fontSize: "7.5px", color: "#0A0A0A", fontWeight: 500 }}>
+                          {day.events[0].shortLabel}
+                        </span>
+                      ) : null}
+                      {journalByDate.has(day.dateKey) && (
+                        <span style={{ fontSize: 8, color: "#C0BAB4", lineHeight: 1 }}>✦</span>
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </>
         )}
@@ -366,6 +388,27 @@ export function CosmicCalendar() {
             >
               {format(selectedDay.date, "d 'de' LLLL", { locale: es })}
             </p>
+
+            {/* Entradas del diario personal para este día */}
+            {journalByDate.has(selectedDay.dateKey) && (
+              <div className="mb-4 rounded-[22px] border border-[rgba(0,0,0,0.06)] bg-[#F7F5F2] px-4 py-4">
+                <p style={{ fontFamily: "Inter, sans-serif", fontSize: "10px", color: "#BBB", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10 }}>
+                  Tu práctica este día
+                </p>
+                {journalByDate.get(selectedDay.dateKey)!.map((entry, i) => (
+                  <div key={i} className={i > 0 ? "mt-3 pt-3 border-t border-[rgba(0,0,0,0.05)]" : ""}>
+                    <p style={{ fontFamily: "Cormorant Garamond, serif", fontSize: 16, color: "#0A0A0A", lineHeight: 1.4 }}>
+                      "{entry.anchor}"
+                    </p>
+                    {entry.element && (
+                      <p style={{ fontFamily: "Inter, sans-serif", fontSize: 10, color: "#AAA", marginTop: 4, textTransform: "capitalize", letterSpacing: "0.04em" }}>
+                        {entry.ritualType} · {entry.element}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
 
             {selectedDayHasPerfection ? (
               <>

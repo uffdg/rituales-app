@@ -17,12 +17,11 @@ export function Share() {
   const [copied, setCopied] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   const [isPublished, setIsPublished] = useState(false);
-  const appBaseUrl = import.meta.env.VITE_PUBLIC_APP_URL?.replace(/\/$/, "");
-  const shareLink = ritual.ritualId && appBaseUrl
-    ? `${appBaseUrl}/ritual/${ritual.ritualId}`
-    : ritual.ritualId
-      ? `/ritual/${ritual.ritualId}`
-      : MOCK_LINK;
+  const appBaseUrl = (import.meta.env.VITE_PUBLIC_APP_URL?.replace(/\/$/, "")) || window.location.origin;
+  const realId = ritual.ritualId && !ritual.ritualId.startsWith("mock-") && !ritual.ritualId.startsWith("dev-")
+    ? ritual.ritualId
+    : null;
+  const shareLink = realId ? `${appBaseUrl}/ritual/${realId}` : MOCK_LINK;
   const candleGuide = deriveCandleGuide({
     ritualType: ritual.ritualType,
     intention: ritual.intention,
@@ -55,7 +54,7 @@ export function Share() {
   };
 
   const handlePublishToCommunity = async () => {
-    if (!ritual.ritualId) {
+    if (!realId) {
       toast("Todavía no pudimos publicar este ritual.", {
         description: "Probá de nuevo en unos segundos.",
       });
@@ -65,7 +64,7 @@ export function Share() {
     setIsPublishing(true);
 
     try {
-      await publishRitualToCommunity(ritual.ritualId, showName);
+      await publishRitualToCommunity(realId, showName);
       setIsPublished(true);
       toast("Ya está en la comunidad", {
         description: "Ahora también puede aparecer en Explorar.",

@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { useRitual } from "../context/RitualContext";
@@ -43,7 +43,11 @@ function detectRitualType(text: string): string {
 
 export function Onboarding() {
   const navigate = useNavigate();
-  const { updateRitual } = useRitual();
+  const { updateRitual, resetRitual } = useRitual();
+
+  useEffect(() => {
+    resetRitual();
+  }, []);
   const [selected, setSelected] = useState("");
   const [isListening, setIsListening] = useState(false);
   const [isReframing, setIsReframing] = useState(false);
@@ -66,16 +70,15 @@ export function Onboarding() {
   };
 
   const handleContinue = () => {
-    updateRitual({ ritualType: selected });
-    track("onboarding_completed", { ritualType: selected });
-    navigate("/crear/1");
-  };
-
-  const handleVoiceContinue = () => {
-    if (!reframedIntention || !detectedType) return;
-    updateRitual({ ritualType: detectedType, intention: reframedIntention });
-    track("onboarding_voice_completed", { ritualType: detectedType });
-    navigate("/crear/2");
+    if (reframedIntention && detectedType) {
+      updateRitual({ ritualType: detectedType, intention: reframedIntention });
+      track("onboarding_voice_completed", { ritualType: detectedType });
+      navigate("/crear/2");
+    } else {
+      updateRitual({ ritualType: selected });
+      track("onboarding_completed", { ritualType: selected });
+      navigate("/crear/1");
+    }
   };
 
   const handleMic = async () => {
@@ -347,18 +350,6 @@ export function Onboarding() {
                   >
                     Vamos a construir un ritual para acompañar lo que necesitás.
                   </p>
-                  <button
-                    onClick={handleVoiceContinue}
-                    className="w-full py-3.5 px-6 rounded-2xl bg-[#0A0A0A] text-white transition-all active:scale-[0.98] hover:bg-[#1A1A1A]"
-                    style={{
-                      fontFamily: "Inter, sans-serif",
-                      fontSize: "14px",
-                      fontWeight: 400,
-                      letterSpacing: "0.03em",
-                    }}
-                  >
-                    Comenzar ritual
-                  </button>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -368,9 +359,9 @@ export function Onboarding() {
         {/* CTA cards */}
         <button
           onClick={handleContinue}
-          disabled={!selected}
+          disabled={!selected && !reframedIntention}
           className={`w-full py-4 px-6 rounded-2xl transition-all active:scale-[0.98] ${
-            selected
+            selected || reframedIntention
               ? "bg-[#0A0A0A] text-white hover:bg-[#1A1A1A]"
               : "bg-[#F0F0F0] text-[#BBB] cursor-not-allowed"
           }`}

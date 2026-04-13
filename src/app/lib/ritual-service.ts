@@ -292,21 +292,76 @@ async function readErrorMessage(response: Response, fallback: string) {
   }
 }
 
+async function saveRitualToSupabase(input: RitualData, ritual: AIRitual, guidedSession: GuidedSessionPlan): Promise<string | undefined> {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    const { data, error } = await supabase
+      .from("rituals")
+      .insert({
+        title: ritual.title || "Ritual",
+        ritual_type: input.ritualType,
+        intention: input.intention,
+        energy: input.energy,
+        element: input.element,
+        duration: input.duration,
+        intensity: input.intensity,
+        anchor: input.anchor || null,
+        user_id: session?.user?.id || null,
+        ai_ritual: ritual,
+        guided_session: guidedSession,
+      })
+      .select("id")
+      .single();
+    if (error || !data) return undefined;
+    return data.id as string;
+  } catch {
+    return undefined;
+  }
+}
+
+async function generateRitualWithDevProxy(input: RitualData): Promise<RitualGenerationResult> {
+  try {
+    const response = await fetch("/api/claude/create", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+    });
+    if (response.ok) {
+      const { ritual } = await response.json();
+      const guidedSession = deriveGuidedSession(input, ritual);
+      const ritualId = await saveRitualToSupabase(input, ritual, guidedSession);
+      return {
+        ritualId,
+        ritual,
+        guidedSession,
+        guidedAudio: { status: "idle" },
+      };
+    }
+  } catch {
+    // dev proxy unavailable
+  }
+  return buildMockRitual(input);
+}
+
 export async function generateRitual(input: RitualData, userId?: string): Promise<RitualGenerationResult> {
   const apiBaseUrl = getApiBaseUrl();
 
   if (!apiBaseUrl) {
-    return new Promise((resolve) => {
-      window.setTimeout(() => resolve(buildMockRitual(input)), 1200);
-    });
+    return generateRitualWithDevProxy(input);
   }
 
   const authHeaders = await getAuthHeaders();
-  const response = await fetch(`${apiBaseUrl}/rituals/create`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", ...authHeaders },
-    body: JSON.stringify({ ...input, userId }),
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${apiBaseUrl}/rituals/create`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...authHeaders },
+      body: JSON.stringify({ ...input, userId }),
+    });
+  } catch {
+    // Backend unreachable (dev without server running) — use dev proxy or mock
+    return generateRitualWithDevProxy(input);
+  }
 
   if (!response.ok) {
     throw new Error(await readErrorMessage(response, "No se pudo generar el ritual desde el backend."));
@@ -394,33 +449,99 @@ export async function renderGuidedAudio(args: {
   };
 }
 
+async function reframeWithDevProxy(text: string): Promise<string | null> {
+  try {
+    const response = await fetch("/api/claude/reframe-intention", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text }),
+    });
+    if (response.ok) {
+      const data = await response.json();
+      return data.reframed || null;
+    }
+  } catch {
+    // dev proxy unavailable
+  }
+  return null;
+}
+
 export async function reframeIntention(text: string): Promise<string | null> {
   const apiBaseUrl = getApiBaseUrl();
-  if (!apiBaseUrl) return null;
+
+  if (!apiBaseUrl) {
+    return reframeWithDevProxy(text);
+  }
 
   const authHeaders = await getAuthHeaders();
-  const response = await fetch(`${apiBaseUrl}/rituals/reframe-intention`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", ...authHeaders },
-    body: JSON.stringify({ text }),
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${apiBaseUrl}/rituals/reframe-intention`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...authHeaders },
+      body: JSON.stringify({ text }),
+    });
+  } catch {
+    return reframeWithDevProxy(text);
+  }
 
   if (!response.ok) return null;
   const data = await response.json();
   return data.reframed || null;
 }
 
+async function getRitualFromSupabase(id: string): Promise<RitualRecord | null> {
+  try {
+    const { data, error } = await supabase
+      .from("rituals")
+      .select("*")
+      .eq("id", id)
+      .single();
+    if (error || !data) return null;
+    return {
+      ritualId: data.id,
+      ritual: data.ai_ritual || { title: data.title || "", opening: "", symbolicAction: "", closing: "" },
+      guidedSession: data.guided_session,
+      guidedAudio: data.guided_audio || { status: "idle" },
+      ritualType: data.ritual_type,
+      intention: data.intention,
+      energy: data.energy,
+      element: data.element,
+      intensity: data.intensity,
+      duration: data.duration,
+      anchor: data.anchor,
+      createdAt: data.created_at,
+      userId: data.user_id,
+      isPublic: data.is_public ?? false,
+      likesCount: 0,
+      likedByViewer: false,
+      favoritedByViewer: false,
+    };
+  } catch {
+    return null;
+  }
+}
+
 export async function getRitualById(id: string): Promise<RitualRecord | null> {
   const apiBaseUrl = getApiBaseUrl();
 
-  if (!apiBaseUrl || id === "nuevo" || id === "publico") {
+  if (id === "nuevo" || id === "publico" || id.startsWith("dev-") || id.startsWith("mock-")) {
     return null;
   }
 
+  if (!apiBaseUrl) {
+    return getRitualFromSupabase(id);
+  }
+
   const authHeaders = await getAuthHeaders();
-  const response = await fetch(`${apiBaseUrl}/rituals/${id}`, {
-    headers: authHeaders,
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${apiBaseUrl}/rituals/${id}`, {
+      headers: authHeaders,
+    });
+  } catch {
+    return getRitualFromSupabase(id);
+  }
 
   if (response.status === 404) {
     return null;

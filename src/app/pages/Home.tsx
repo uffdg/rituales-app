@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import { motion } from "motion/react";
 import { Bookmark, BookmarkCheck } from "lucide-react";
@@ -7,15 +7,17 @@ import { useRitual } from "../context/RitualContext";
 import { useUser } from "../context/UserContext";
 import { EXPLORE_RITUALS } from "../data/rituals";
 import { WIKI_NOTES } from "../data/wiki";
+import { track } from "../lib/analytics";
 import { UserMenu } from "../components/UserMenu";
 import { MoonPhaseIcon } from "../components/MoonPhaseIcon";
-import { getCosmicSliderDays } from "../lib/cosmic-calendar";
+import { getCosmicSliderDays, getTodayCosmicContext } from "../lib/cosmic-calendar";
 import {
   generateRitual,
   ritualCardToRitualData,
 } from "../lib/ritual-service";
 import { getUserFacingErrorMessage } from "../lib/errors";
 import { deriveCandleGuide } from "../lib/candle";
+import { getJournalEntries } from "../lib/practice-journal";
 
 const HOME_INTRO_KEY = "rituales_home_intro_seen_v1";
 
@@ -57,10 +59,12 @@ export function Home() {
   const handleCreateRitual = () => {
     resetRitual();
     setViewMode(false);
+    track("home_create_ritual_tapped");
     navigate("/onboarding");
   };
 
   const handleExplore = () => {
+    track("home_explore_tapped");
     navigate("/explorar");
   };
 
@@ -133,6 +137,15 @@ export function Home() {
 
   const featuredRituals = EXPLORE_RITUALS.slice(0, 3);
   const cosmicDays = getCosmicSliderDays(new Date(), 8);
+  const cosmicContext = useMemo(() => getTodayCosmicContext(), []);
+  const nextEvent = cosmicContext.nextEvent;
+  const showCountdown = nextEvent !== null && nextEvent.daysAway <= 7;
+
+  // Modo express: último ritual completado del diario local
+  const lastJournalEntry = useMemo(() => {
+    const entries = getJournalEntries();
+    return entries.length > 0 ? entries[entries.length - 1] : null;
+  }, []);
 
   if (showIntro) {
     const slide = INTRO_SLIDES[introStep];
@@ -416,11 +429,92 @@ export function Home() {
           >
             Explorar rituales
           </button>
+
+          {/* Modo express — solo si hay un ritual previo en el diario */}
+          {lastJournalEntry && (
+            <button
+              onClick={() => {
+                track("home_express_mode_tapped", { ritualType: lastJournalEntry.ritualType, element: lastJournalEntry.element });
+                navigate("/onboarding");
+              }}
+              className="w-full pt-1 pb-0 text-center transition-colors"
+            >
+              <span
+                style={{
+                  fontFamily: "Inter, sans-serif",
+                  fontSize: "12px",
+                  color: "#AAA",
+                  letterSpacing: "0.02em",
+                }}
+              >
+                O retomá tu práctica de{" "}
+                <span style={{ color: "#555", textDecoration: "underline", textUnderlineOffset: "3px" }}>
+                  {lastJournalEntry.ritualType || lastJournalEntry.element} →
+                </span>
+              </span>
+            </button>
+          )}
         </motion.div>
       </div>
 
       {/* Thin divider */}
       <div className="mx-6 h-[1px] bg-[#F0F0F0]" />
+
+      {/* Countdown lunar — visible si hay evento en ≤7 días */}
+      {showCountdown && nextEvent && (
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.28 }}
+          className="mx-6 mt-6"
+        >
+          <button
+            onClick={() => { track("home_countdown_banner_tapped", { event: nextEvent.perfection.label, daysAway: nextEvent.daysAway }); navigate("/onboarding"); }}
+            className="w-full flex items-center justify-between px-4 py-3.5 rounded-2xl border border-[rgba(0,0,0,0.08)] bg-[#FAFAF9] hover:border-[rgba(0,0,0,0.18)] transition-colors active:scale-[0.99]"
+          >
+            <div className="flex items-center gap-3">
+              <MoonPhaseIcon phase={cosmicContext.day.moonPhase} size={22} />
+              <div className="text-left">
+                <p
+                  style={{
+                    fontFamily: "Inter, sans-serif",
+                    fontSize: "13px",
+                    fontWeight: 500,
+                    color: "#0A0A0A",
+                    lineHeight: 1.3,
+                  }}
+                >
+                  {nextEvent.perfection.label} en {nextEvent.perfection.zodiacSign}
+                </p>
+                <p
+                  style={{
+                    fontFamily: "Inter, sans-serif",
+                    fontSize: "11px",
+                    color: "#999",
+                    marginTop: "1px",
+                  }}
+                >
+                  {nextEvent.daysAway === 0
+                    ? `Hoy · ${nextEvent.perfection.timeBuenosAires} Bs. As.`
+                    : nextEvent.daysAway === 1
+                    ? "Mañana"
+                    : `En ${nextEvent.daysAway} días`}
+                </p>
+              </div>
+            </div>
+            <span
+              style={{
+                fontFamily: "Inter, sans-serif",
+                fontSize: "11px",
+                color: "#0A0A0A",
+                letterSpacing: "0.04em",
+              }}
+            >
+              Preparar →
+            </span>
+          </button>
+        </motion.div>
+      )}
 
       <motion.div
         initial={{ opacity: 0, y: 16 }}
@@ -460,7 +554,7 @@ export function Home() {
             return (
               <button
                 key={day.dateKey}
-                onClick={() => navigate("/calendario-cosmico", { state: { selectedDate: day.dateKey } })}
+                onClick={() => { track("home_cosmic_day_tapped", { date: day.dateKey, moonPhase: day.moonPhase }); navigate("/calendario-cosmico", { state: { selectedDate: day.dateKey } }); }}
                 className="relative overflow-hidden shrink-0 w-[128px] min-h-[160px] bg-white px-4 py-4 text-left shadow-none transition-colors flex flex-col"
                 style={{
                   border: "1px solid rgba(0, 0, 0, 0.15)",
@@ -563,7 +657,7 @@ export function Home() {
               >
                 <div className="flex items-start justify-between gap-3">
                   <button
-                    onClick={() => handleRitualCard(ritual)}
+                    onClick={() => { track("home_ritual_card_tapped", { ritualId: ritual.id, ritualType: ritual.type }); handleRitualCard(ritual); }}
                     className="flex-1 min-w-0 text-left active:scale-[0.99] transition-transform"
                   >
                     <p
@@ -680,7 +774,7 @@ export function Home() {
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.45, delay: 0.58 + index * 0.05 }}
-                onClick={() => navigate(`/wiki/${note.id}`)}
+                onClick={() => { track("home_wiki_note_tapped", { noteId: note.id }); navigate(`/wiki/${note.id}`); }}
                 className="shrink-0 w-[220px] text-left transition-all hover:opacity-80 active:scale-[0.99] flex flex-col gap-3"
               >
                 <div

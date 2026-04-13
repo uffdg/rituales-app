@@ -96,7 +96,11 @@ function loadFromStorage(): RitualData {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return defaultRitual;
-    return { ...defaultRitual, ...JSON.parse(raw) };
+    const parsed = JSON.parse(raw);
+    if (parsed.ritualId?.startsWith("dev-") || parsed.ritualId?.startsWith("mock-")) {
+      parsed.ritualId = undefined;
+    }
+    return { ...defaultRitual, ...parsed };
   } catch {
     return defaultRitual;
   }

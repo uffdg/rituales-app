@@ -67,13 +67,76 @@ async function readUserServiceError(response: Response, fallback: string) {
   }
 }
 
+function mapRitualRow(row: any): RitualRecord {
+  return {
+    ritualId: row.id,
+    ritual: row.ai_ritual || { title: row.title || "", opening: "", symbolicAction: "", closing: "" },
+    guidedSession: row.guided_session,
+    guidedAudio: row.guided_audio || { status: "idle" },
+    ritualType: row.ritual_type,
+    intention: row.intention,
+    energy: row.energy,
+    element: row.element,
+    intensity: row.intensity,
+    duration: row.duration,
+    anchor: row.anchor,
+    createdAt: row.created_at,
+    userId: row.user_id,
+    isPublic: row.is_public ?? false,
+    likesCount: 0,
+    likedByViewer: false,
+    favoritedByViewer: false,
+  };
+}
+
+async function getDashboardFromSupabase(): Promise<UserDashboard | null> {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+
+  const { data: ownRows } = await supabase
+    .from("rituals")
+    .select("*")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false });
+
+  const { data: favRows } = await supabase
+    .from("ritual_favorites")
+    .select("ritual_id, rituals(*)")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false });
+
+  const own: RitualRecord[] = (ownRows || []).map(mapRitualRow);
+  const favorites: RitualRecord[] = (favRows || [])
+    .map((f: any) => f.rituals)
+    .filter(Boolean)
+    .map(mapRitualRow);
+
+  return {
+    profile: {
+      id: user.id,
+      email: user.email || "",
+      fullName: user.user_metadata?.full_name || "",
+      likesReceived: 0,
+    },
+    rituals: { own, favorites },
+  };
+}
+
 export async function getUserDashboard(): Promise<UserDashboard | null> {
   const apiBaseUrl = getApiBaseUrl();
-  if (!apiBaseUrl) return null;
 
-  const response = await fetch(`${apiBaseUrl}/me/dashboard`, {
-    headers: await getAuthHeaders(),
-  });
+  if (!apiBaseUrl) {
+    return getDashboardFromSupabase();
+  }
+
+  let response: Response;
+  try {
+    response = await fetch(`${apiBaseUrl}/me/dashboard`, {
+      headers: await getAuthHeaders(),
+    });
+  } catch {
+    return getDashboardFromSupabase();
+  }
 
   if (response.status === 401) {
     return null;

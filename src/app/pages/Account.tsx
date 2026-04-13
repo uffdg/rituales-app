@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import { motion } from "motion/react";
 import { Bookmark, Heart, LogOut, Sparkles, Trash2 } from "lucide-react";
+import { getJournalEntries, getDominantElement, getLunarStreak } from "../lib/practice-journal";
 import { toast } from "sonner";
 import { useUser } from "../context/UserContext";
 import { useRitual } from "../context/RitualContext";
@@ -41,6 +42,17 @@ export function Account() {
   const [isSavingName, setIsSavingName] = useState(false);
   const [activeTab, setActiveTab] = useState<"favorites" | "own">("favorites");
   const [pendingDelete, setPendingDelete] = useState<PendingDelete | null>(null);
+
+  const journalEntries = useMemo(() => getJournalEntries(), []);
+  const dominantElement = useMemo(() => getDominantElement(journalEntries), [journalEntries]);
+  const lunarStreak = useMemo(() => getLunarStreak(journalEntries), [journalEntries]);
+
+  const ELEMENT_DESCRIPTIONS: Record<string, { symbol: string; text: string }> = {
+    fuego:  { symbol: "🜂", text: "Practicás desde la acción, la transformación y el deseo." },
+    agua:   { symbol: "🜄", text: "Tu práctica nace de la intuición, la emoción y la profundidad." },
+    tierra: { symbol: "🜃", text: "Te movés desde la constancia, el cuerpo y lo concreto." },
+    aire:   { symbol: "🜁", text: "Conectás desde el pensamiento, la claridad y la visión." },
+  };
 
   useEffect(() => {
     setFullNameDraft(profile?.fullName || "");
@@ -393,6 +405,107 @@ export function Account() {
             </div>
           ))}
         </div>
+
+        {/* ── Tu práctica ── */}
+        {journalEntries.length > 0 && (
+          <section className="mb-8">
+            <p
+              style={{
+                fontFamily: "Inter, sans-serif",
+                fontSize: "10px",
+                fontWeight: 500,
+                letterSpacing: "0.14em",
+                textTransform: "uppercase",
+                color: "#BBB",
+                marginBottom: "12px",
+              }}
+            >
+              Tu práctica
+            </p>
+
+            <div className="rounded-3xl border border-[rgba(0,0,0,0.06)] bg-[#FAFAF9] p-5 flex flex-col gap-5">
+
+              {/* Elemento dominante */}
+              {dominantElement && ELEMENT_DESCRIPTIONS[dominantElement] && (
+                <div>
+                  <p style={{ fontFamily: "Inter, sans-serif", fontSize: "10px", color: "#BBB", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 6 }}>
+                    Elemento dominante
+                  </p>
+                  <div className="flex items-center gap-3">
+                    <span style={{ fontSize: 22, lineHeight: 1 }}>
+                      {ELEMENT_DESCRIPTIONS[dominantElement].symbol}
+                    </span>
+                    <div>
+                      <p style={{ fontFamily: "Cormorant Garamond, serif", fontSize: 20, color: "#0A0A0A", lineHeight: 1.2, textTransform: "capitalize" }}>
+                        {dominantElement}
+                      </p>
+                      <p style={{ fontFamily: "Inter, sans-serif", fontSize: 12, color: "#777", lineHeight: 1.5, marginTop: 2 }}>
+                        {ELEMENT_DESCRIPTIONS[dominantElement].text}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Racha lunar */}
+              {lunarStreak >= 2 && (
+                <div>
+                  <p style={{ fontFamily: "Inter, sans-serif", fontSize: "10px", color: "#BBB", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 6 }}>
+                    Práctica continua
+                  </p>
+                  <p style={{ fontFamily: "Cormorant Garamond, serif", fontSize: 20, color: "#0A0A0A", lineHeight: 1.2 }}>
+                    ✦ {lunarStreak} lunas en práctica continua
+                  </p>
+                  <p style={{ fontFamily: "Inter, sans-serif", fontSize: 12, color: "#999", marginTop: 4, lineHeight: 1.5 }}>
+                    Hiciste al menos un ritual en {lunarStreak} fases lunares consecutivas.
+                  </p>
+                </div>
+              )}
+
+              {/* Diario de anclas */}
+              <div>
+                <p style={{ fontFamily: "Inter, sans-serif", fontSize: "10px", color: "#BBB", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 10 }}>
+                  Tus anclas recientes
+                </p>
+                <div className="flex flex-col gap-3">
+                  {journalEntries
+                    .slice(-5)
+                    .reverse()
+                    .map((entry, i) => (
+                      <div key={i} className="flex items-start gap-3">
+                        <div
+                          style={{
+                            width: 6,
+                            height: 6,
+                            borderRadius: "50%",
+                            background: "#D0CBC4",
+                            marginTop: 7,
+                            flexShrink: 0,
+                          }}
+                        />
+                        <div className="flex-1 min-w-0">
+                          <p
+                            style={{
+                              fontFamily: "Cormorant Garamond, serif",
+                              fontSize: 16,
+                              color: "#0A0A0A",
+                              lineHeight: 1.4,
+                            }}
+                          >
+                            "{entry.anchor}"
+                          </p>
+                          <p style={{ fontFamily: "Inter, sans-serif", fontSize: 10, color: "#BBB", marginTop: 3, letterSpacing: "0.04em" }}>
+                            {entry.moonPhase} · {new Date(entry.completedAt).toLocaleDateString("es-AR", { day: "numeric", month: "short" })}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </div>
+
+            </div>
+          </section>
+        )}
 
         <section>
           <div className="mb-4">

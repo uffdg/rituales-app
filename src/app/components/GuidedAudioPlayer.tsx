@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { Pause, Play, RotateCcw, SkipBack, SkipForward } from "lucide-react";
-import handpanSoundscape from "../assets/handpan-soundscape-432hz.mp3";
 import { motion } from "motion/react";
 
 interface GuidedAudioPlayerProps {
@@ -73,6 +72,10 @@ export function GuidedAudioPlayer({
     if (ambienceRef.current) {
       ambienceRef.current.volume = 0.03;
       ambienceRef.current.loop = true;
+      // Lazy-load the handpan only once, on first mount
+      import("../assets/handpan-soundscape-432hz.mp3").then((m) => {
+        if (ambienceRef.current) ambienceRef.current.src = m.default as string;
+      });
     }
   }, []);
 
@@ -345,7 +348,7 @@ export function GuidedAudioPlayer({
       </div>
 
       <audio ref={audioRef} src={src} preload="metadata" className="hidden" />
-      <audio ref={ambienceRef} src={handpanSoundscape} preload="metadata" className="hidden" />
+      <audio ref={ambienceRef} preload="none" className="hidden" />
     </div>
   );
 }

@@ -1,19 +1,24 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router";
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import { useRitual } from "../context/RitualContext";
 import { useUser } from "../context/UserContext";
-import { ELEMENTS, ENERGIES } from "../data/rituals";
+import { ELEMENTS } from "../data/rituals";
 import { UserMenu } from "../components/UserMenu";
 import { deriveCandleGuide } from "../lib/candle";
 import { getUserFacingErrorMessage } from "../lib/errors";
 import { toast } from "sonner";
-import { Bookmark, BookmarkCheck } from "lucide-react";
+import { Bookmark, BookmarkCheck, Pause, Play } from "lucide-react";
 import {
   generateRitual,
   getRitualById,
   type RitualRecord,
 } from "../lib/ritual-service";
+const TRACKS = [
+  { id: 0, label: "Handpan",    sublabel: "Tierra · 432hz",   load: () => import("../assets/handpan-soundscape-432hz.mp3").then((m) => m.default as string) },
+  { id: 1, label: "Meditación", sublabel: "Flujo · 432hz",    load: () => import("../assets/danamusic-432hz-meditation-355839.mp3").then((m) => m.default as string) },
+  { id: 2, label: "Tercer ojo", sublabel: "Profundo · 432hz", load: () => import("../assets/meditativecalmbuddha-third-eye-frequency-deep-healing-432hz-480114.mp3").then((m) => m.default as string) },
+];
 
 export function RitualDetail() {
   const navigate = useNavigate();
@@ -26,12 +31,16 @@ export function RitualDetail() {
   const [loadState, setLoadState] = useState<"idle" | "loading" | "error">("idle");
   const [publicSavedRitualId, setPublicSavedRitualId] = useState<string | null>(null);
   const [isSavingPublicRitual, setIsSavingPublicRitual] = useState(false);
+  const [showPlayer, setShowPlayer] = useState(false);
+  const [activeTrack, setActiveTrack] = useState<number | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const isPublic = id === "publico" && isViewMode && selectedPublicRitual;
   const data = isPublic ? selectedPublicRitual : null;
 
   useEffect(() => {
-    if (!id || id === "nuevo" || id === "publico") {
+    if (!id || id === "nuevo" || id === "publico" || id.startsWith("mock-") || id.startsWith("dev-")) {
       return;
     }
 
@@ -121,7 +130,6 @@ export function RitualDetail() {
       };
 
   const elementData = ELEMENTS.find((e) => e.id === displayRitual.element);
-  const energyData = ENERGIES.find((e) => e.id === displayRitual.energy);
   const ritualForAccount = loadedRitual
     ? {
         ritualId: loadedRitual.ritualId,
@@ -349,7 +357,7 @@ export function RitualDetail() {
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-        className="relative z-10 px-6 pb-32"
+        className="relative z-10 px-6 pb-44"
       >
         {/* Decorative mark */}
         <div className="flex justify-center mb-6">
@@ -614,13 +622,20 @@ export function RitualDetail() {
       </motion.div>
 
       {/* Bottom action bar */}
-      <div className="fixed z-30 bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[390px] bg-white border-t border-[rgba(0,0,0,0.06)] px-6 py-5">
+      <div className="fixed z-30 bottom-16 left-1/2 -translate-x-1/2 w-full max-w-[390px] bg-white border-t border-[rgba(0,0,0,0.06)] px-6 py-4">
         {isOwnRitualView ? (
           <div className="flex gap-2.5">
             <button
-              onClick={() => navigate("/compartir")}
+              onClick={() => setShowPlayer(true)}
               className="flex-1 py-3.5 bg-[#0A0A0A] text-white rounded-xl transition-all active:scale-[0.98] cursor-pointer"
               style={{ fontFamily: "Inter, sans-serif", fontSize: "14px" }}
+            >
+              Iniciar
+            </button>
+            <button
+              onClick={() => navigate("/compartir")}
+              className="px-4 py-3.5 border border-[rgba(0,0,0,0.12)] text-[#555] rounded-xl transition-all active:scale-[0.98] cursor-pointer"
+              style={{ fontFamily: "Inter, sans-serif", fontSize: "13px" }}
             >
               Compartir
             </button>
@@ -691,6 +706,126 @@ export function RitualDetail() {
           </div>
         )}
       </div>
+
+      {/* Audio player sheet */}
+      <AnimatePresence>
+        {showPlayer && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/40 z-40"
+              onClick={() => {
+                audioRef.current?.pause();
+                setIsPlaying(false);
+                setActiveTrack(null);
+                setShowPlayer(false);
+              }}
+            />
+            <motion.div
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ type: "spring", damping: 28, stiffness: 280 }}
+              className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[390px] bg-white rounded-t-3xl z-50 px-6 pt-5 pb-10"
+            >
+              <div className="w-10 h-1 bg-[#E0E0E0] rounded-full mx-auto mb-6" />
+
+              <p
+                style={{
+                  fontFamily: "Inter, sans-serif",
+                  fontSize: "10px",
+                  fontWeight: 500,
+                  letterSpacing: "0.14em",
+                  textTransform: "uppercase",
+                  color: "#AAA",
+                  marginBottom: "16px",
+                }}
+              >
+                Elige una pista
+              </p>
+
+              <div className="flex flex-col gap-3 mb-6">
+                {TRACKS.map((t) => {
+                  const isActive = activeTrack === t.id;
+                  const isThisPlaying = isActive && isPlaying;
+                  return (
+                    <button
+                      key={t.id}
+                      onClick={() => {
+                        if (isActive) {
+                          if (isPlaying) {
+                            audioRef.current?.pause();
+                            setIsPlaying(false);
+                          } else {
+                            audioRef.current?.play().catch(() => {});
+                            setIsPlaying(true);
+                          }
+                        } else {
+                          audioRef.current?.pause();
+                          setActiveTrack(t.id);
+                          setIsPlaying(false);
+                          t.load().then((src) => {
+                            const audio = new Audio(src);
+                            audio.loop = true;
+                            audio.volume = 0.7;
+                            audio.onended = () => setIsPlaying(false);
+                            audioRef.current = audio;
+                            audio.play().catch(() => {});
+                            setIsPlaying(true);
+                          });
+                        }
+                      }}
+                      className={`flex items-center justify-between px-4 py-4 rounded-2xl border transition-all ${
+                        isActive
+                          ? "border-[#0A0A0A] bg-[#0A0A0A] text-white"
+                          : "border-[rgba(0,0,0,0.08)] bg-[#FAFAFA] text-[#0A0A0A]"
+                      }`}
+                    >
+                      <div className="text-left">
+                        <p
+                          style={{
+                            fontFamily: "Cormorant Garamond, serif",
+                            fontSize: "18px",
+                            fontWeight: 400,
+                            lineHeight: 1.2,
+                          }}
+                        >
+                          {t.label}
+                        </p>
+                        <p
+                          style={{
+                            fontFamily: "Inter, sans-serif",
+                            fontSize: "11px",
+                            opacity: isActive ? 0.6 : 0.45,
+                            marginTop: "2px",
+                          }}
+                        >
+                          {t.sublabel}
+                        </p>
+                      </div>
+                      <div
+                        className={`flex h-10 w-10 items-center justify-center rounded-full ${
+                          isActive ? "bg-white/15" : "bg-[rgba(0,0,0,0.05)]"
+                        }`}
+                      >
+                        {isThisPlaying ? (
+                          <Pause size={16} strokeWidth={1.8} />
+                        ) : (
+                          <Play size={16} strokeWidth={1.8} />
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
     </div>
   );
 }
