@@ -171,12 +171,12 @@ export function GuidedAudioPlayer({
     <div className="rounded-[28px] border border-[rgba(0,0,0,0.08)] bg-[#FCFCFA] p-5">
       <p
         style={{
-          fontFamily: "Inter, sans-serif",
+          fontFamily: "var(--font-sans-ui)",
           fontSize: "10px",
           fontWeight: 500,
           letterSpacing: "0.12em",
           textTransform: "uppercase",
-          color: "#AAA",
+          color: "var(--ink-soft)",
           marginBottom: "6px",
         }}
       >
@@ -187,10 +187,10 @@ export function GuidedAudioPlayer({
         <div>
           <h3
             style={{
-              fontFamily: "Cormorant Garamond, serif",
+              fontFamily: "var(--font-serif-display)",
               fontSize: "24px",
               lineHeight: 1.1,
-              color: "#0A0A0A",
+              color: "var(--ink-strong)",
               marginBottom: "6px",
             }}
           >
@@ -198,9 +198,9 @@ export function GuidedAudioPlayer({
           </h3>
           <p
             style={{
-              fontFamily: "Inter, sans-serif",
+              fontFamily: "var(--font-sans-ui)",
               fontSize: "12px",
-              color: "#999",
+              color: "var(--ink-subtle)",
             }}
           >
             {disabled ? (
@@ -210,7 +210,7 @@ export function GuidedAudioPlayer({
                   {[0, 1, 2].map((i) => (
                     <motion.span
                       key={i}
-                      className="inline-block w-[3px] h-[3px] rounded-full bg-[#999]"
+                      className="inline-block w-[3px] h-[3px] rounded-full bg-[var(--ink-subtle)]"
                       animate={{ opacity: [0.2, 1, 0.2] }}
                       transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.2 }}
                     />
@@ -228,8 +228,8 @@ export function GuidedAudioPlayer({
         <button
           onClick={restart}
           disabled={!src || disabled}
-          className="shrink-0 rounded-full border border-[rgba(0,0,0,0.08)] bg-white px-4 py-2 text-[#222] disabled:opacity-40"
-          style={{ fontFamily: "Inter, sans-serif", fontSize: "12px", fontWeight: 500 }}
+          className="shrink-0 rounded-full border border-[rgba(0,0,0,0.08)] bg-white px-4 py-2 text-[var(--ink-strong)] disabled:opacity-40"
+          style={{ fontFamily: "var(--font-sans-ui)", fontSize: "12px", fontWeight: 500 }}
         >
           Reiniciar
         </button>
@@ -258,9 +258,9 @@ export function GuidedAudioPlayer({
       <div className="mb-5 flex items-center justify-between">
         <p
           style={{
-            fontFamily: "Inter, sans-serif",
+            fontFamily: "var(--font-sans-ui)",
             fontSize: "12px",
-            color: "#888",
+            color: "var(--ink-subtle)",
             fontVariantNumeric: "tabular-nums",
           }}
         >
@@ -269,16 +269,16 @@ export function GuidedAudioPlayer({
 
         <div className="mx-3 h-[3px] flex-1 overflow-hidden rounded-full bg-[rgba(0,0,0,0.06)]">
           <div
-            className="h-full rounded-full bg-[#0A0A0A] transition-[width]"
+            className="h-full rounded-full bg-[var(--ink-strong)] transition-[width]"
             style={{ width: `${progress}%` }}
           />
         </div>
 
         <p
           style={{
-            fontFamily: "Inter, sans-serif",
+            fontFamily: "var(--font-sans-ui)",
             fontSize: "12px",
-            color: "#888",
+            color: "var(--ink-subtle)",
             fontVariantNumeric: "tabular-nums",
           }}
         >
@@ -290,7 +290,7 @@ export function GuidedAudioPlayer({
         <button
           onClick={() => jumpBy(-10)}
           disabled={!src || disabled}
-          className="flex h-12 w-12 items-center justify-center rounded-full border border-[rgba(0,0,0,0.08)] bg-white text-[#111] disabled:opacity-40"
+          className="flex h-12 w-12 items-center justify-center rounded-full border border-[rgba(0,0,0,0.08)] bg-white text-[var(--ink-strong)] disabled:opacity-40"
         >
           <SkipBack size={18} strokeWidth={1.8} />
         </button>
@@ -298,7 +298,7 @@ export function GuidedAudioPlayer({
         <button
           onClick={togglePlayPause}
           disabled={disabled}
-          className="relative flex h-16 w-16 items-center justify-center rounded-full bg-[#0A0A0A] text-white"
+          className="relative flex h-16 w-16 items-center justify-center rounded-full bg-[var(--ink-strong)] text-white"
         >
           {disabled ? (
             <>
@@ -329,19 +329,19 @@ export function GuidedAudioPlayer({
         <button
           onClick={() => jumpBy(10)}
           disabled={!src || disabled}
-          className="flex h-12 w-12 items-center justify-center rounded-full border border-[rgba(0,0,0,0.08)] bg-white text-[#111] disabled:opacity-40"
+          className="flex h-12 w-12 items-center justify-center rounded-full border border-[rgba(0,0,0,0.08)] bg-white text-[var(--ink-strong)] disabled:opacity-40"
         >
           <SkipForward size={18} strokeWidth={1.8} />
         </button>
       </div>
 
-      <div className="mt-4 flex items-center justify-center gap-2 text-[#777]">
+      <div className="mt-4 flex items-center justify-center gap-2 text-[var(--ink-muted)]">
         <RotateCcw size={14} strokeWidth={1.8} />
         <button
           onClick={restart}
           disabled={!src || disabled}
           className="disabled:opacity-40"
-          style={{ fontFamily: "Inter, sans-serif", fontSize: "12px", fontWeight: 500 }}
+          style={{ fontFamily: "var(--font-sans-ui)", fontSize: "12px", fontWeight: 500 }}
         >
           Volver a empezar
         </button>

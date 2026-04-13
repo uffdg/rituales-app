@@ -17,9 +17,9 @@ export function WikiNote() {
       <div className="min-h-screen bg-white flex flex-col items-center justify-center px-6 text-center">
         <p
           style={{
-            fontFamily: "Cormorant Garamond, serif",
+            fontFamily: "var(--font-serif-display)",
             fontSize: "28px",
-            color: "#111",
+            color: "var(--ink-strong)",
             marginBottom: "8px",
           }}
         >
@@ -27,8 +27,8 @@ export function WikiNote() {
         </p>
         <button
           onClick={() => navigate("/wiki")}
-          className="px-5 py-3 rounded-xl bg-[#0A0A0A] text-white"
-          style={{ fontFamily: "Inter, sans-serif", fontSize: "14px" }}
+          className="px-5 py-3 rounded-xl bg-[var(--ink-strong)] text-white"
+          style={{ fontFamily: "var(--font-sans-ui)", fontSize: "14px" }}
         >
           Volver a la wiki
         </button>
@@ -37,7 +37,7 @@ export function WikiNote() {
   }
 
   return (
-    <div className="min-h-screen bg-[#111] overflow-x-hidden relative">
+    <div className="min-h-screen bg-[var(--ink-strong)] overflow-x-hidden relative">
       <button
         onClick={() => navigate("/wiki")}
         className="fixed top-12 left-6 z-50 flex items-center justify-center w-10 h-10 rounded-full bg-black/20 backdrop-blur-md text-white border border-white/20 transition-all hover:bg-black/40 hover:scale-105 active:scale-95"
@@ -49,7 +49,7 @@ export function WikiNote() {
         {note.image && (
           <motion.div style={{ y, opacity }} className="absolute inset-0 z-0">
             <img src={note.image} alt="" className="w-full h-full object-cover origin-bottom" />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#111] via-black/40 to-black/10" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[var(--ink-strong)] via-black/40 to-black/10" />
           </motion.div>
         )}
 
@@ -62,7 +62,7 @@ export function WikiNote() {
           >
             <p
               className="text-white uppercase tracking-[0.2em] text-[10px] font-semibold"
-              style={{ fontFamily: "Inter, sans-serif" }}
+              style={{ fontFamily: "var(--font-sans-ui)" }}
             >
               {note.eyebrow}
             </p>
@@ -73,7 +73,7 @@ export function WikiNote() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-white text-[44px] leading-[1.05] mb-6"
-            style={{ fontFamily: "Cormorant Garamond, serif" }}
+            style={{ fontFamily: "var(--font-serif-display)" }}
           >
             {note.title}
           </motion.h1>
@@ -83,7 +83,7 @@ export function WikiNote() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
             className="text-[#E0E0E0] text-[16px] leading-[1.65]"
-            style={{ fontFamily: "Inter, sans-serif" }}
+            style={{ fontFamily: "var(--font-sans-ui)" }}
           >
             {note.summary}
           </motion.p>
@@ -97,7 +97,7 @@ export function WikiNote() {
         >
           <span
             className="text-[10px] uppercase tracking-widest font-medium"
-            style={{ fontFamily: "Inter, sans-serif" }}
+            style={{ fontFamily: "var(--font-sans-ui)" }}
           >
             Scroll
           </span>
@@ -106,16 +106,16 @@ export function WikiNote() {
       </div>
 
       <div className="relative z-20 bg-white min-h-screen rounded-t-[36px] -mt-10 pt-10 pb-24 px-8 shadow-[0_-12px_40px_rgba(0,0,0,0.15)] flex flex-col max-w-3xl mx-auto border-t border-white/50">
-        <div className="w-12 h-1.5 bg-[#E5E5E5] rounded-full mx-auto mb-14" />
+        <div className="w-12 h-1.5 bg-[var(--surface-muted)] rounded-full mx-auto mb-14" />
 
         <p
-          className="text-[#111] text-[19px] leading-[1.7] mb-14 font-medium"
-          style={{ fontFamily: "Inter, sans-serif" }}
+          className="text-[var(--ink-strong)] text-[19px] leading-[1.7] mb-14 font-medium"
+          style={{ fontFamily: "var(--font-sans-ui)" }}
         >
           {note.body}
         </p>
 
-        <div className="h-[1px] w-full bg-[#F0F0F0] mb-14" />
+        <div className="h-[1px] w-full bg-[var(--surface-muted)] mb-14" />
 
         {note.sections && (
           <div className="flex flex-col gap-16">
@@ -131,13 +131,13 @@ export function WikiNote() {
                 <div className="flex items-center gap-4 mb-6">
                   <span
                     className="text-[#DDD] text-[20px] font-light"
-                    style={{ fontFamily: "Inter, sans-serif" }}
+                    style={{ fontFamily: "var(--font-sans-ui)" }}
                   >
                     {String(idx + 1).padStart(2, "0")}
                   </span>
                   <h2
-                    className="text-[#0A0A0A] text-[28px]"
-                    style={{ fontFamily: "Cormorant Garamond, serif" }}
+                    className="text-[var(--ink-strong)] text-[28px]"
+                    style={{ fontFamily: "var(--font-serif-display)" }}
                   >
                     {section.title.replace(/^\d+\.\s*/, "")}
                   </h2>
@@ -146,8 +146,8 @@ export function WikiNote() {
                 {section.paragraphs?.map((paragraph, paragraphIndex) => (
                   <p
                     key={`${section.title}-paragraph-${paragraphIndex}`}
-                    className="text-[#555] text-[16px] leading-[1.8] mb-5"
-                    style={{ fontFamily: "Inter, sans-serif" }}
+                    className="text-[var(--ink-muted)] text-[16px] leading-[1.8] mb-5"
+                    style={{ fontFamily: "var(--font-sans-ui)" }}
                   >
                     {paragraph}
                   </p>
@@ -155,7 +155,7 @@ export function WikiNote() {
 
                 {section.bullets && (
                   <div
-                    className="mt-6 bg-[#FAFAFA] p-7 border border-[#F0F0F0] shadow-sm"
+                    className="mt-6 bg-[var(--surface-softest)] p-7 border border-[var(--surface-muted)] shadow-sm"
                     style={{ borderRadius: "var(--radius-2xl, 24px)" }}
                   >
                     <ul className="flex flex-col gap-5">
@@ -172,12 +172,12 @@ export function WikiNote() {
                               <Sparkle size={18} strokeWidth={1.5} />
                             </div>
                             <span
-                              className="text-[#444] text-[15px] leading-[1.7]"
-                              style={{ fontFamily: "Inter, sans-serif" }}
+                              className="text-[var(--ink-body)] text-[15px] leading-[1.7]"
+                              style={{ fontFamily: "var(--font-sans-ui)" }}
                             >
                               {hasColon ? (
                                 <>
-                                  <strong className="text-[#111] font-semibold">
+                                  <strong className="text-[var(--ink-strong)] font-semibold">
                                     {parts[0]}:
                                   </strong>
                                   {parts.slice(1).join(":")}

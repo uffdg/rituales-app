@@ -6,7 +6,7 @@ export function Wiki() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-white flex flex-col overflow-y-auto">
+    <div className="min-h-screen bg-[var(--app-page)] flex flex-col overflow-y-auto">
       <div
         className="fixed inset-0 pointer-events-none"
         style={{
@@ -18,8 +18,8 @@ export function Wiki() {
       <div className="relative z-10 pt-14 px-6 pb-4 flex items-center justify-between">
         <button
           onClick={() => navigate("/")}
-          className="flex items-center gap-2 text-[#888] hover:text-[#0A0A0A] transition-colors"
-          style={{ fontFamily: "Inter, sans-serif", fontSize: "13px" }}
+          className="flex items-center gap-2 text-[var(--ink-muted)] hover:text-[var(--ink-strong)] transition-colors"
+          style={{ fontFamily: "var(--font-sans-ui)", fontSize: "13px" }}
         >
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
             <path d="M9 2L4 7L9 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
@@ -37,12 +37,12 @@ export function Wiki() {
         <div className="mb-8">
           <p
             style={{
-              fontFamily: "Inter, sans-serif",
+              fontFamily: "var(--font-sans-ui)",
               fontSize: "11px",
               fontWeight: 500,
               letterSpacing: "0.14em",
               textTransform: "uppercase",
-              color: "#BBB",
+              color: "var(--ink-soft)",
               marginBottom: "8px",
             }}
           >
@@ -50,10 +50,10 @@ export function Wiki() {
           </p>
           <h1
             style={{
-              fontFamily: "Cormorant Garamond, serif",
+              fontFamily: "var(--font-serif-display)",
               fontSize: "32px",
               fontWeight: 400,
-              color: "#0A0A0A",
+              color: "var(--ink-strong)",
               lineHeight: 1.15,
               marginBottom: "10px",
             }}
@@ -62,9 +62,9 @@ export function Wiki() {
           </h1>
           <p
             style={{
-              fontFamily: "Inter, sans-serif",
+              fontFamily: "var(--font-sans-ui)",
               fontSize: "13px",
-              color: "#888",
+              color: "var(--ink-muted)",
               lineHeight: 1.6,
             }}
           >
@@ -81,11 +81,11 @@ export function Wiki() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.45, delay: index * 0.05 }}
               onClick={() => navigate(`/wiki/${note.id}`)}
-              className="relative w-full text-left overflow-hidden transition-all hover:scale-[0.99] active:scale-[0.97] min-h-[200px] flex flex-col justify-end group isolate border border-[rgba(0,0,0,0.04)]"
-              style={{ borderRadius: "var(--radius-2xl, 24px)" }}
+              className="relative w-full text-left overflow-hidden transition-all hover:scale-[0.99] active:scale-[0.97] min-h-[200px] flex flex-col justify-end group isolate border"
+              style={{ borderColor: "var(--border-soft)", borderRadius: "var(--radius-card)" }}
             >
               {/* Background Image & Overlay */}
-              <div className="absolute inset-0 z-0 bg-[#F5F5F5]">
+              <div className="absolute inset-0 z-0 bg-[var(--surface-soft)]">
                 {note.image && (
                   <img
                     src={note.image}
@@ -101,7 +101,7 @@ export function Wiki() {
               <div className="relative z-10 px-6 py-6 w-full">
                 <p
                   style={{
-                    fontFamily: "Inter, sans-serif",
+                    fontFamily: "var(--font-sans-ui)",
                     fontSize: "10px",
                     fontWeight: 500,
                     letterSpacing: "0.14em",
@@ -114,7 +114,7 @@ export function Wiki() {
                 </p>
                 <h2
                   style={{
-                    fontFamily: "Cormorant Garamond, serif",
+                    fontFamily: "var(--font-serif-display)",
                     fontSize: "26px",
                     fontWeight: 400,
                     color: "#FFFFFF",
@@ -126,7 +126,7 @@ export function Wiki() {
                 </h2>
                 <p
                   style={{
-                    fontFamily: "Inter, sans-serif",
+                    fontFamily: "var(--font-sans-ui)",
                     fontSize: "13px",
                     color: "rgba(255,255,255,0.8)",
                     lineHeight: 1.6,

@@ -1,7 +1,7 @@
 import { useMemo, useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router";
-import { motion } from "motion/react";
-import { ArrowUpRight, Bookmark, CalendarDays, Compass, Sparkles, Smile, Cloud, Meh, Heart, Moon, Frown } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
+import { ArrowUpRight, CalendarDays, Compass, Sparkles, Smile, Cloud, Meh, Heart, Moon, Frown } from "lucide-react";
 import { toast } from "sonner";
 import { useRitual } from "../context/RitualContext";
 import { useUser } from "../context/UserContext";
@@ -25,8 +25,10 @@ import {
   type DailyAnchorType,
 } from "../lib/daily-anchor";
 import { saveDailyAnchorEntry } from "../lib/anchor-service";
+import { MoonPhaseIcon } from "../components/MoonPhaseIcon";
 import { TodayContextCard } from "../components/TodayContextCard";
 import { RitualRecommendationCard } from "../components/RitualRecommendationCard";
+import { RitualListCard } from "../components/RitualListCard";
 
 type ExploreRitual = (typeof EXPLORE_RITUALS)[number];
 
@@ -154,6 +156,46 @@ function setHourForDate(date: Date, hour: number) {
   return next;
 }
 
+function MoodPicker({
+  label,
+  options,
+  selected,
+  onSelect,
+  keyPrefix = "",
+}: {
+  label: string;
+  options: readonly { id: string; label: string; icon: React.ElementType }[];
+  selected: string | null;
+  onSelect: (id: string) => void;
+  keyPrefix?: string;
+}) {
+  return (
+    <div className="space-y-2.5">
+      <p className="font-sans text-[12px] font-light text-[var(--ink-muted)] tracking-[0.03em]">{label}</p>
+      <div className="flex gap-2 overflow-x-auto pb-1 -mx-5 px-5 pr-5" style={{ scrollbarWidth: "none" }}>
+        {options.map((opt) => {
+          const Icon = opt.icon;
+          const isActive = selected === opt.id;
+          return (
+            <button
+              key={keyPrefix ? `${keyPrefix}-${opt.id}` : opt.id}
+              onClick={() => onSelect(opt.id)}
+              className={`shrink-0 inline-flex items-center gap-1.5 rounded-2xl px-3 py-2 font-sans text-[12px] font-light border transition-all active:scale-[0.97] ${
+                isActive
+                  ? "bg-[var(--ink-strong)] border-[var(--ink-strong)] text-white"
+                  : "bg-white border-[var(--border-default)] text-[var(--ink-strong)]"
+              }`}
+            >
+              <Icon size={12} strokeWidth={1.5} />
+              <span>{opt.label}</span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export function Home() {
   const navigate = useNavigate();
   const { resetRitual, setViewMode, setSelectedPublicRitual } = useRitual();
@@ -161,10 +203,14 @@ export function Home() {
   const [savingRitualId, setSavingRitualId] = useState<string | null>(null);
   const [dailyAnchorVersion, setDailyAnchorVersion] = useState(0);
   const [selectedAnchorStep, setSelectedAnchorStep] = useState<DailyAnchorType | null>(null);
+  const [selectedDateOffset, setSelectedDateOffset] = useState(0); // 0=hoy, -1=ayer, etc.
   const [heroImageIndex, setHeroImageIndex] = useState(1);
   const [heroTextTheme, setHeroTextTheme] = useState<"light" | "dark">("light");
   const [localNow, setLocalNow] = useState(() => new Date());
-  const [devTestHour, setDevTestHour] = useState<number | null>(null);
+  const [devTestHour, setDevTestHour] = useState<number | null>(() => {
+    const v = localStorage.getItem("__dev_test_hour");
+    return v !== null ? Number(v) : null;
+  });
   const [weatherCondition, setWeatherCondition] = useState<WeatherCondition>("unknown");
   const [isListening, setIsListening] = useState(false);
   const [isReframing, setIsReframing] = useState(false);
@@ -183,13 +229,24 @@ export function Home() {
 
   const cosmicContext = useMemo(() => getTodayCosmicContext(localNow), [localNow]);
   const cosmicDays = useMemo(() => getCosmicSliderDays(localNow, 6), [localNow]);
+
+  const selectedDate = useMemo(() => {
+    const d = new Date(localNow);
+    d.setDate(d.getDate() + selectedDateOffset);
+    return d;
+  }, [localNow, selectedDateOffset]);
+
+  const isToday = selectedDateOffset === 0;
+  const isFuture = selectedDateOffset > 0;
+  const isPast = selectedDateOffset < 0;
+
   const dailyJourney = useMemo(
-    () => getDailyAnchorJourney(),
-    [dailyAnchorVersion],
+    () => getDailyAnchorJourney(selectedDate),
+    [dailyAnchorVersion, selectedDate],
   );
   const dailyAnchorContent = useMemo(
-    () => getDailyAnchorContent(),
-    [dailyAnchorVersion],
+    () => getDailyAnchorContent(selectedDate),
+    [dailyAnchorVersion, selectedDate],
   );
 
   const recommendation = useMemo(
@@ -226,8 +283,7 @@ export function Home() {
   const currentStep = effectiveCurrentStep;
   const isJourneyComplete = completedCount >= STEP_ORDER.length;
   const selectedStepIndex = STEP_ORDER.indexOf(selectedStep);
-  const currentStepIndex = currentStep ? STEP_ORDER.indexOf(currentStep) : completedCount;
-  const isSelectedStepBlocked = !isJourneyComplete && selectedStepIndex > completedCount;
+const isSelectedStepBlocked = !isJourneyComplete && selectedStepIndex > completedCount;
   const isSelectedStepTimeLocked =
     !isJourneyComplete &&
     nextPendingStep === selectedStep &&
@@ -350,6 +406,10 @@ export function Home() {
   }, [dailyAnchorContent]);
 
   useEffect(() => {
+    setSelectedAnchorStep(null);
+  }, [selectedDateOffset]);
+
+  useEffect(() => {
     setSelectedAnchorStep((current) => {
       if (!current) return effectiveCurrentStep ?? nextPendingStep ?? "cierre";
       return current;
@@ -357,7 +417,7 @@ export function Home() {
   }, [effectiveCurrentStep, nextPendingStep]);
 
   const persistAnchorStep = async (step: DailyAnchorType, content: DailyAnchorStepContent) => {
-    completeDailyAnchorStep(step, content);
+    completeDailyAnchorStep(step, content, selectedDate);
     if (session?.user?.id) {
       void saveDailyAnchorEntry({
         userId: session.user.id,
@@ -496,7 +556,7 @@ export function Home() {
     : undefined;
 
   return (
-    <div className="min-h-screen flex flex-col overflow-y-auto relative bg-[#1A1A1A]">
+    <div className="min-h-screen flex flex-col overflow-y-auto relative bg-[var(--ink-strong)]">
       {/* Dynamic Background Image */}
       <div className="absolute top-0 left-0 w-full h-[85vh] z-0 pointer-events-none">
         <div className="absolute inset-0 bg-black/30 z-10" />
@@ -519,6 +579,7 @@ export function Home() {
               : undefined
           }
           nextEventMeta={nextEventMeta}
+          nextEventPhase={cosmicContext.nextEvent?.perfection.label}
           momentOfDay={cosmicContext.momentOfDay as any}
           localTimeLabel={localNow.toLocaleTimeString("es-AR", { hour: "numeric", minute: "2-digit" })}
           textTheme={heroTextTheme}
@@ -526,97 +587,210 @@ export function Home() {
         />
       </div>
 
-      <div className="bg-[#FCFCFA] rounded-t-[36px] w-full flex-1 relative z-20 mt-[-32px] pt-10 pb-10" style={{ boxShadow: "0 -8px 40px rgba(0,0,0,0.12)" }}>
+      <div className="editorial-page-sheet w-full flex-1 relative z-20 mt-[-32px] pt-10 pb-10">
         
-        {/* Diario de anclas */}
-        <div className="px-6 mb-12">
-          <div className="mb-6">
-            <div className="flex items-center justify-between gap-4 mb-2">
-              <p className="font-sans text-[10px] font-medium tracking-[0.14em] uppercase text-[#9B978F]">
-                Diario de anclas
-              </p>
+        {/* Diario de intenciones */}
+        <div id="daily-anchor" className="px-5 mb-12">
+
+          {/* Header row */}
+          <div className="flex items-center justify-between mb-5">
+            <p className="editorial-eyebrow">Diario de intenciones</p>
+            <div className="flex items-center gap-2">
+              <div
+                className="rounded-full px-3 py-1 font-sans text-[11px] tabular-nums font-light"
+                style={{
+                  background: completedCount === 3 ? "var(--ink-strong)" : "var(--surface-muted)",
+                  color: completedCount === 3 ? "#fff" : "var(--ink-muted)",
+                }}
+              >
+                {isToday ? `${completedCount}/3` : isPast ? (completedCount > 0 ? `${completedCount}/3` : "—") : "—"}
+              </div>
               {isDev ? (
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-1 rounded-full border border-[rgba(0,0,0,0.04)] bg-[#F7F5F2] px-1 py-1">
-                    {[
-                      { label: "Real", value: null as number | null },
-                      { label: "09", value: 9 },
-                      { label: "14", value: 14 },
-                      { label: "19", value: 19 },
-                    ].map((option) => (
+                <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-0.5 rounded-full bg-[var(--surface-muted)] px-1 py-0.5">
+                    {([{ label: "●", value: null as number | null }, { label: "9h", value: 9 }, { label: "14h", value: 14 }, { label: "19h", value: 19 }] as const).map((opt) => (
                       <button
-                        key={option.label}
-                        onClick={() => handleSetDevTestHour(option.value)}
-                        className={`rounded-full px-2 py-1 font-sans text-[10px] font-medium tracking-[0.04em] transition-colors ${
-                          devTestHour === option.value
-                            ? "bg-[#0A0A0A] text-white"
-                            : option.value === null && devTestHour === null
-                            ? "bg-[#0A0A0A] text-white"
-                            : "text-[#999]"
+                        key={opt.label}
+                        onClick={() => handleSetDevTestHour(opt.value)}
+                        className={`rounded-full px-1.5 py-0.5 font-sans text-[9px] font-medium transition-colors ${
+                          (opt.value === null && devTestHour === null) || devTestHour === opt.value
+                            ? "bg-[var(--ink-strong)] text-white"
+                            : "text-[var(--ink-subtle)]"
                         }`}
-                      >
-                        {option.label}
-                      </button>
+                      >{opt.label}</button>
                     ))}
                   </div>
-                  <button
-                    onClick={handleResetDayForDev}
-                    className="font-sans text-[10px] font-medium uppercase tracking-[0.12em] text-[#AAA] hover:text-[#444] transition-colors"
-                  >
-                    Reset dev
-                  </button>
+                  <button onClick={handleResetDayForDev} className="font-sans text-[9px] text-[var(--ink-subtle)] hover:text-[var(--ink-body)]">↺</button>
                 </div>
               ) : null}
             </div>
-            <div className="flex items-start justify-between gap-4">
-              <h2 className="font-serif text-[32px] text-[#0A0A0A] leading-[0.92] max-w-[210px]">
-                Tu recorrido de hoy
-              </h2>
-              <div className="mt-1 shrink-0 rounded-full border border-[rgba(0,0,0,0.04)] bg-[#F7F5F2] px-3.5 py-1.5 text-[11px] text-[#999] font-sans font-medium">
-                {completedCount}/3
-              </div>
-            </div>
           </div>
 
-          <div className="mb-8">
-            <div className="grid grid-cols-3 gap-3 mb-2.5">
-              {dailyJourney.steps.map((step) => {
-                const isSelected = step.id === selectedStep;
-                const isActive = step.id === currentStep;
-                const isDone = step.status === "completed";
-                return (
-                  <button
-                    key={step.id}
-                    onClick={() => handleStepSelect(step.id)}
-                    className="text-left"
+          {/* Date navigation */}
+          {(() => {
+            const DAY_NAMES = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+            const MONTH_NAMES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+            const dayLabel = isToday
+              ? "Hoy"
+              : DAY_NAMES[selectedDate.getDay()];
+            const dateLabel = `${selectedDate.getDate()} ${MONTH_NAMES[selectedDate.getMonth()]}`;
+            return (
+              <div className="flex items-center gap-3 mb-6">
+                <button
+                  onClick={() => setSelectedDateOffset((o) => o - 1)}
+                  className="w-8 h-8 flex items-center justify-center rounded-full transition-colors hover:bg-[var(--surface-muted)] text-[var(--ink-muted)] active:scale-95"
+                >
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M10 12L6 8L10 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </button>
+                <div className="flex-1 flex justify-center">
+                  <div
+                    className="inline-flex items-center gap-2 rounded-2xl px-4 py-2"
+                    style={{ background: isToday ? "var(--ink-strong)" : "var(--surface-muted)" }}
                   >
-                    <div
-                      className={`h-[5px] rounded-full transition-colors ${
-                        isDone || isActive ? "bg-[#1F1F1F]" : "bg-[rgba(0,0,0,0.12)]"
-                      }`}
-                    />
-                    <div className="mt-3 flex items-center gap-2">
-                      <span
-                        className={`font-sans text-[8.5px] uppercase tracking-[0.18em] ${
-                          isSelected || isActive
-                            ? "text-[#111111] font-medium"
-                            : "text-[#AAA] font-medium"
-                        }`}
-                      >
-                        {step.shortLabel}
-                      </span>
-                      {(isSelected || isActive) ? (
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#111111]" />
-                      ) : null}
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
+                    <span
+                      className="font-sans text-[13px] font-light"
+                      style={{ color: isToday ? "#fff" : "var(--ink-body)" }}
+                    >
+                      {dayLabel} · {dateLabel}
+                    </span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setSelectedDateOffset((o) => Math.min(0, o + 1))}
+                  disabled={isToday}
+                  className="w-8 h-8 flex items-center justify-center rounded-full transition-colors hover:bg-[var(--surface-muted)] disabled:opacity-20 text-[var(--ink-muted)] active:scale-95"
+                >
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M6 4L10 8L6 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </button>
+              </div>
+            );
+          })()}
+
+          {/* Stepper — 3 tabs */}
+          <div className="flex gap-2 mb-7">
+            {dailyJourney.steps.map((step) => {
+              const isSelected = step.id === selectedStep;
+              const isDone = step.status === "completed";
+              const isCurrentStep = step.id === currentStep;
+              return (
+                <button
+                  key={step.id}
+                  onClick={() => handleStepSelect(step.id)}
+                  className="flex-1 flex flex-col items-center gap-1.5 transition-all"
+                >
+                  <div
+                    className="w-full h-[3px] rounded-full transition-all"
+                    style={{
+                      background: isDone
+                        ? "var(--ink-strong)"
+                        : isCurrentStep
+                        ? "rgba(10,10,10,0.25)"
+                        : "var(--surface-muted)",
+                    }}
+                  />
+                  <span
+                    className="font-sans text-[11px] transition-colors"
+                    style={{
+                      color: isSelected
+                        ? "var(--ink-strong)"
+                        : isDone
+                        ? "var(--ink-muted)"
+                        : "var(--ink-soft)",
+                      fontWeight: isSelected ? 500 : 300,
+                    }}
+                  >
+                    {isDone ? "✓ " : ""}{step.shortLabel}
+                  </span>
+                </button>
+              );
+            })}
           </div>
 
           <div className="relative">
-            {isJourneyComplete ? (
+            {isFuture ? (
+              <motion.div
+                key="future-locked"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="space-y-4 py-2"
+              >
+                <p className="font-sans text-[12px] font-light text-[var(--ink-muted)]">
+                  Este día todavía no llegó.
+                </p>
+                <h3 className="font-serif text-[28px] leading-[1.05] text-[var(--ink-strong)]" style={{ fontWeight: 400 }}>
+                  El futuro no está<br /><em style={{ fontStyle: "italic", fontWeight: 300 }}>a tu alcance aún</em>
+                </h3>
+                <p className="font-sans text-[13px] font-light leading-[1.55] text-[var(--ink-subtle)] max-w-[300px]">
+                  Hacé foco en el presente. Volvé hoy para registrar tu intención del día.
+                </p>
+                <button
+                  onClick={() => setSelectedDateOffset(0)}
+                  className="editorial-action-button editorial-action-button-primary"
+                >
+                  Volver a hoy
+                </button>
+              </motion.div>
+            ) : isPast ? (
+              <motion.div
+                key={`past-${selectedDateOffset}`}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="space-y-5"
+              >
+                {dailyJourney.completedCount === 0 ? (
+                  <div className="space-y-3 py-2">
+                    <p className="font-sans text-[12px] font-light text-[var(--ink-muted)]">
+                      Nada registrado este día.
+                    </p>
+                    <h3 className="font-serif text-[28px] leading-[1.05] text-[var(--ink-strong)]" style={{ fontWeight: 400 }}>
+                      Sin anclas<br /><em style={{ fontStyle: "italic", fontWeight: 300 }}>este día</em>
+                    </h3>
+                    <p className="font-sans text-[13px] font-light leading-[1.55] text-[var(--ink-subtle)]">
+                      No registraste intenciones para esta fecha.
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    <p className="font-sans text-[12px] font-light text-[var(--ink-muted)]">
+                      Resumen del día
+                    </p>
+                    {dailyJourney.steps.map((step) => {
+                      const content = dailyAnchorContent[step.id];
+                      if (!content) return null;
+                      return (
+                        <div key={step.id} className="editorial-panel-soft rounded-2xl p-4">
+                          <p className="editorial-eyebrow mb-3">{step.shortLabel}</p>
+                          {step.id === "inicio" && content.text ? (
+                            <p className="font-serif text-[16px] leading-[1.45] text-[var(--ink-strong)] mb-2" style={{ fontWeight: 400 }}>
+                              "{content.text}"
+                            </p>
+                          ) : null}
+                          {step.id === "momento" && content.alignment ? (
+                            <p className="font-sans text-[12px] font-light text-[var(--ink-muted)] mb-1">
+                              Alineación: <span className="font-normal text-[var(--ink-strong)]">{ALIGNMENT_OPTIONS.find((a) => a.id === content.alignment)?.label}</span>
+                            </p>
+                          ) : null}
+                          {step.id === "cierre" && content.text ? (
+                            <p className="font-serif text-[16px] leading-[1.45] text-[var(--ink-strong)] mb-2" style={{ fontWeight: 400 }}>
+                              "{content.text}"
+                            </p>
+                          ) : null}
+                          {content.feeling ? (
+                            <p className="font-sans text-[12px] font-light text-[var(--ink-muted)]">
+                              Sentimiento: <span className="font-normal text-[var(--ink-strong)]">{MOOD_OPTIONS.find((m) => m.id === content.feeling)?.label}</span>
+                            </p>
+                          ) : null}
+                        </div>
+                      );
+                    })}
+                  </>
+                )}
+              </motion.div>
+            ) : isJourneyComplete ? (
               <motion.div
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -630,7 +804,7 @@ export function Home() {
                       rx="42"
                       ry="46"
                       fill="none"
-                      stroke="#0A0A0A"
+                      stroke="var(--ink-strong)"
                       strokeWidth="0.8"
                       opacity={0.8}
                       animate={{ rotate: [0, 360] }}
@@ -643,7 +817,7 @@ export function Home() {
                       rx="46"
                       ry="42"
                       fill="none"
-                      stroke="#0A0A0A"
+                      stroke="var(--ink-strong)"
                       strokeWidth="1"
                       opacity={0.6}
                       animate={{ rotate: [360, 0] }}
@@ -656,7 +830,7 @@ export function Home() {
                       rx="45"
                       ry="45"
                       fill="none"
-                      stroke="#0A0A0A"
+                      stroke="var(--ink-strong)"
                       strokeWidth="0.7"
                       opacity={0.9}
                       animate={{ rotate: [0, 360] }}
@@ -669,7 +843,7 @@ export function Home() {
                       rx="42"
                       ry="47"
                       fill="none"
-                      stroke="#0A0A0A"
+                      stroke="var(--ink-strong)"
                       strokeWidth="0.9"
                       opacity={0.7}
                       animate={{ rotate: [360, 0] }}
@@ -682,7 +856,7 @@ export function Home() {
                       rx="47"
                       ry="44"
                       fill="none"
-                      stroke="#0A0A0A"
+                      stroke="var(--ink-strong)"
                       strokeWidth="1.1"
                       opacity={0.5}
                       animate={{ rotate: [0, -360] }}
@@ -692,46 +866,43 @@ export function Home() {
                   </svg>
                 </div>
                 <div className="text-center space-y-1.5">
-                  <h3 className="font-serif text-[24px] leading-[1.02] text-[#0A0A0A]">
+                  <h3 className="font-serif text-[24px] leading-[1.1] text-[var(--ink-strong)] text-center" style={{ fontWeight: 400 }}>
                     Día completado
                   </h3>
-                  <p className="mx-auto max-w-[280px] font-sans text-[12px] leading-[1.55] text-[#666]">
+                  <p className="mx-auto max-w-[280px] font-sans text-[12px] font-light leading-[1.55] text-[var(--ink-muted)]">
                     Registraste las tres anclas del día. Mañana este espacio vuelve a abrirse.
                   </p>
                 </div>
                 {dailyJourney.steps.map((step) => {
                   const content = dailyAnchorContent[step.id];
                   return (
-                    <div
-                      key={step.id}
-                      className="rounded-2xl border border-[rgba(0,0,0,0.06)] bg-[#F7F5F2] p-4"
-                    >
-                      <p className="font-sans text-[10px] font-medium tracking-[0.12em] uppercase text-[#AAA] mb-3">
+                    <div key={step.id} className="editorial-panel-soft rounded-2xl p-4">
+                      <p className="editorial-eyebrow mb-3">
                         {step.shortLabel}
                       </p>
                       {step.id === "inicio" && content?.text ? (
-                        <p className="font-serif text-[16px] leading-[1.45] text-[#111111] mb-3">
+                        <p className="font-serif text-[16px] leading-[1.45] text-[var(--ink-strong)] mb-3" style={{ fontWeight: 400 }}>
                           "{content.text}"
                         </p>
                       ) : null}
                       {step.id === "momento" ? (
                         <div className="space-y-2">
-                          <p className="font-sans text-[12px] leading-[1.45] text-[#666]">
+                          <p className="font-sans text-[12px] font-light leading-[1.45] text-[var(--ink-muted)]">
                             Alineación:{" "}
-                            <span className="font-semibold text-[#111111]">
+                            <span className="font-normal text-[var(--ink-strong)]">
                               {ALIGNMENT_OPTIONS.find((item) => item.id === content?.alignment)?.label ?? "Sin registrar"}
                             </span>
                           </p>
                         </div>
                       ) : null}
                       {step.id === "cierre" && content?.text ? (
-                        <p className="font-serif text-[16px] leading-[1.45] text-[#111111] mb-3">
+                        <p className="font-serif text-[16px] leading-[1.45] text-[var(--ink-strong)] mb-3" style={{ fontWeight: 400 }}>
                           "{content.text}"
                         </p>
                       ) : null}
-                      <p className="font-sans text-[12px] leading-[1.45] text-[#666]">
+                      <p className="font-sans text-[12px] font-light leading-[1.45] text-[var(--ink-muted)]">
                         Sentimiento:{" "}
-                        <span className="font-semibold text-[#111111]">
+                        <span className="font-normal text-[var(--ink-strong)]">
                           {MOOD_OPTIONS.find((item) => item.id === content?.feeling)?.label ?? "Sin registrar"}
                         </span>
                       </p>
@@ -747,14 +918,14 @@ export function Home() {
                 className="space-y-5"
               >
                 <div className="space-y-4">
-                  <p className="font-sans text-[13px] leading-[1.45] text-[#666]">
+                  <p className="font-sans text-[12px] font-light leading-[1.45] text-[var(--ink-muted)]">
                     Este momento se abre cuando terminás el anterior.
                   </p>
                   <div>
-                    <h3 className="font-serif text-[34px] leading-[0.98] text-[#0A0A0A] max-w-[300px]">
+                    <h3 className="font-serif text-[28px] leading-[1.05] text-[var(--ink-strong)] max-w-[300px]" style={{ fontWeight: 400 }}>
                       Completá {previousRequiredStep?.shortLabel ?? "el paso anterior"} primero
                     </h3>
-                    <p className="mt-3 font-sans text-[13px] leading-[1.5] text-[#999] max-w-[300px]">
+                    <p className="mt-3 font-sans text-[13px] font-light leading-[1.5] text-[var(--ink-subtle)] max-w-[300px]">
                       El recorrido sigue el orden Inicio, Momento y Cierre. Cuando guardes el paso anterior, este contenido se habilita automáticamente.
                     </p>
                   </div>
@@ -762,7 +933,7 @@ export function Home() {
 
                 <button
                   onClick={() => setSelectedAnchorStep(previousRequiredStep?.id ?? currentStep ?? "inicio")}
-                  className="mt-2 w-full rounded-2xl border border-[rgba(0,0,0,0.06)] bg-[#FAFAFA] px-6 py-4 font-sans text-[14px] font-normal text-[#444] transition-all"
+                  className="editorial-action-button editorial-action-button-secondary mt-2"
                 >
                   Ir a {previousRequiredStep?.shortLabel ?? "Inicio"}
                 </button>
@@ -775,14 +946,14 @@ export function Home() {
                 className="space-y-5"
               >
                 <div className="space-y-4">
-                  <p className="font-sans text-[13px] leading-[1.45] text-[#666]">
+                  <p className="font-sans text-[12px] font-light leading-[1.45] text-[var(--ink-muted)]">
                     Este momento aparece más tarde en el día.
                   </p>
                   <div>
-                    <h3 className="font-serif text-[34px] leading-[0.98] text-[#0A0A0A] max-w-[300px]">
+                    <h3 className="font-serif text-[18px] leading-[1.2] text-[var(--ink-strong)] max-w-[300px]" style={{ fontWeight: 400 }}>
                       {selectedStep === "momento" ? "Disponible desde las 14 h" : "Disponible desde las 19 h"}
                     </h3>
-                    <p className="mt-3 font-sans text-[13px] leading-[1.5] text-[#999] max-w-[300px]">
+                    <p className="mt-3 font-sans text-[13px] font-light leading-[1.5] text-[var(--ink-subtle)] max-w-[300px]">
                       {selectedStep === "momento"
                         ? "Tu inicio ya quedó registrado. Volvé después de las 14 h para revisar cómo viene tu día."
                         : "Tu momento ya quedó registrado. Volvé después de las 19 h para cerrar el día con perspectiva."}
@@ -792,7 +963,7 @@ export function Home() {
 
                 <button
                   onClick={() => setSelectedAnchorStep(STEP_ORDER[Math.max(0, selectedStepIndex - 1)] ?? "inicio")}
-                  className="mt-2 w-full rounded-2xl border border-[rgba(0,0,0,0.06)] bg-[#FAFAFA] px-6 py-4 font-sans text-[14px] font-normal text-[#444] transition-all"
+                  className="editorial-action-button editorial-action-button-secondary mt-2"
                 >
                   Volver a {STEP_ORDER[Math.max(0, selectedStepIndex - 1)] === "momento" ? "Momento" : "Inicio"}
                 </button>
@@ -800,210 +971,197 @@ export function Home() {
             ) : (
               <motion.div
                 key={selectedStep}
-                initial={{ opacity: 0, y: 10 }}
+                initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="space-y-5"
+                className="space-y-6"
               >
-                <div className="space-y-3">
-                  <p className="font-sans text-[13px] leading-[1.45] text-[#666]">
+                {/* Question block */}
+                <div>
+                  <p className="font-sans text-[12px] font-light leading-[1.5] text-[var(--ink-muted)] mb-2 tracking-[0.02em]">
                     {STEP_COPY[selectedStep].intro}
                   </p>
-                  <div>
-                    <h3 className="font-serif text-[34px] leading-[0.98] text-[#0A0A0A] max-w-[300px]">
-                      {STEP_COPY[selectedStep].title}
-                    </h3>
-                    <p className="mt-3 font-sans text-[13px] leading-[1.5] text-[#999] max-w-[300px]">
-                      {STEP_COPY[selectedStep].body}
-                    </p>
-                  </div>
+                  <h3 className="font-serif text-[18px] leading-[1.2] text-[var(--ink-strong)]" style={{ fontWeight: 400 }}>
+                    {STEP_COPY[selectedStep].title}
+                  </h3>
+                  <p className="mt-2 font-sans text-[13px] font-light leading-[1.55] text-[var(--ink-subtle)]">
+                    {STEP_COPY[selectedStep].body}
+                  </p>
                 </div>
 
+                {/* Inputs por paso */}
                 {selectedStep === "inicio" ? (
                   <div className="space-y-5">
                     {hasSpeechRecognition ? (
-                      <div>
+                      <div className="relative">
+                        {isListening && (
+                          <motion.span
+                            className="absolute inset-0 rounded-2xl pointer-events-none"
+                            style={{ border: "1.5px solid var(--ink-strong)", opacity: 0.15 }}
+                            animate={{ scale: [1, 1.04, 1], opacity: [0.15, 0, 0.15] }}
+                            transition={{ duration: 1.8, repeat: Infinity }}
+                          />
+                        )}
                         <button
                           onClick={handleMic}
-                          className={`w-full py-4 px-5 rounded-2xl border transition-all flex items-center justify-center gap-3 ${
+                          className={`relative w-full py-5 px-5 rounded-2xl transition-all flex items-center justify-center gap-3 ${
                             isListening
-                              ? "border-[#0A0A0A] bg-[#0A0A0A] text-white"
-                              : "border-[rgba(0,0,0,0.1)] bg-[#FAFAFA] text-[#444] hover:border-[rgba(0,0,0,0.2)]"
+                              ? "bg-[var(--ink-strong)] text-white"
+                              : "bg-[var(--surface-muted)] text-[var(--ink-body)] hover:bg-[var(--surface-soft)] active:scale-[0.98]"
                           }`}
                         >
                           {isListening ? (
                             <>
-                              <div className="flex gap-1 items-center">
-                                {[0, 1, 2].map((i) => (
+                              <div className="flex gap-[3px] items-center h-4">
+                                {[0, 1, 2, 3].map((i) => (
                                   <motion.div
                                     key={i}
-                                    className="w-1 rounded-full bg-white"
-                                    animate={{ height: ["4px", "14px", "4px"] }}
-                                    transition={{ duration: 0.6, repeat: Infinity, delay: i * 0.15 }}
+                                    className="w-[3px] rounded-full bg-white"
+                                    animate={{ height: ["5px", "16px", "5px"] }}
+                                    transition={{ duration: 0.7, repeat: Infinity, delay: i * 0.12 }}
                                   />
                                 ))}
                               </div>
-                              <span className="font-sans text-[14px]">Escuchando...</span>
+                              <span className="font-sans text-[14px] font-light">Escuchando...</span>
                             </>
                           ) : (
                             <>
-                              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                <rect x="5" y="1" width="6" height="9" rx="3" stroke="currentColor" strokeWidth="1.25" />
-                                <path d="M2 8.5C2 11.538 4.686 14 8 14C11.314 14 14 11.538 14 8.5" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" />
-                                <line x1="8" y1="14" x2="8" y2="15.5" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" />
+                              <svg width="20" height="20" viewBox="0 0 16 16" fill="none" className="shrink-0">
+                                <rect x="5" y="1" width="6" height="9" rx="3" stroke="currentColor" strokeWidth="1.3" />
+                                <path d="M2 8.5C2 11.538 4.686 14 8 14C11.314 14 14 11.538 14 8.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+                                <line x1="8" y1="14" x2="8" y2="15.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
                               </svg>
-                              <span className="font-sans text-[14px] font-light">
-                                Hablá, la app te escucha
-                              </span>
+                              <div className="text-left">
+                                <p className="font-sans text-[14px] font-light leading-none mb-0.5">Hablá, la app te escucha</p>
+                                <p className="font-sans text-[11px] font-light text-[var(--ink-muted)]">Tocá para hablar</p>
+                              </div>
                             </>
                           )}
                         </button>
                       </div>
                     ) : null}
 
-                    {isReframing ? (
-                      <div className="mt-4 p-4 rounded-2xl bg-[#FAFAFA] border border-[rgba(0,0,0,0.06)] flex items-center gap-3">
-                        <div className="flex items-center gap-3">
+                    <AnimatePresence>
+                      {isReframing && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 6 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0 }}
+                          className="flex items-center gap-3 px-1"
+                        >
                           <div className="flex gap-1">
                             {[0, 1, 2].map((i) => (
-                              <motion.div
-                                key={i}
-                                className="w-1.5 h-1.5 rounded-full bg-[#0A0A0A]"
-                                animate={{ opacity: [0.25, 1, 0.25] }}
+                              <motion.div key={i} className="w-1.5 h-1.5 rounded-full bg-[var(--ink-strong)]"
+                                animate={{ opacity: [0.2, 1, 0.2] }}
                                 transition={{ duration: 1, repeat: Infinity, delay: i * 0.2 }}
                               />
                             ))}
                           </div>
-                          <span className="font-sans text-[13px] text-[#666]">
-                            Construyendo tu intención...
-                          </span>
-                        </div>
-                      </div>
-                    ) : generatedIntention ? (
-                      <div className="mt-4 p-5 rounded-2xl bg-[#F7F5F2] border border-[rgba(0,0,0,0.06)]">
-                        <p className="font-sans text-[10px] font-medium tracking-[0.12em] uppercase text-[#AAA] mb-2">
-                          Tu intención
-                        </p>
-                        <p className="font-serif text-[18px] leading-[1.4] text-[#0A0A0A] mb-4">
-                          {generatedIntention}
-                        </p>
-                      </div>
-                    ) : null}
+                          <span className="font-sans text-[13px] text-[var(--ink-muted)]">Construyendo tu intención...</span>
+                        </motion.div>
+                      )}
+                      {!isReframing && generatedIntention && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="rounded-2xl p-5"
+                          style={{ background: "var(--ink-strong)" }}
+                        >
+                          <p className="editorial-eyebrow mb-2" style={{ color: "rgba(255,255,255,0.45)" }}>Tu intención</p>
+                          <p className="font-serif text-[14px] leading-[1.55] italic" style={{ color: "rgba(255,255,255,0.9)" }}>
+                            {generatedIntention}
+                          </p>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
 
-                    <div className="space-y-3">
-                      <h4 className="font-sans text-[13px] font-medium text-[#0A0A0A]">¿Cómo te sentís?</h4>
-                      <div className="flex gap-2.5 overflow-x-auto pb-1 hide-scrollbar">
-                        {MOOD_OPTIONS.map((mood) => (
-                          <button
-                            key={mood.id}
-                            onClick={() => setInicioFeeling(mood.id)}
-                            className={`shrink-0 inline-flex items-center gap-2 rounded-2xl border px-4 py-3 transition-colors ${
-                              inicioFeeling === mood.id
-                                ? "border-[#0A0A0A] bg-[#0A0A0A] text-white"
-                                : "border-[rgba(0,0,0,0.04)] bg-[#F3F1ED] text-[#0A0A0A] hover:bg-[#EBE9E4]"
-                            }`}
-                          >
-                            <mood.icon size={16} strokeWidth={1.8} />
-                            <span className="font-sans text-[13px] font-medium">{mood.label}</span>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
+                    <MoodPicker
+                      label="¿Cómo te sentís?"
+                      options={MOOD_OPTIONS}
+                      selected={inicioFeeling}
+                      onSelect={setInicioFeeling}
+                    />
                   </div>
                 ) : null}
 
                 {selectedStep === "momento" ? (
                   <div className="space-y-5">
-                    <div className="flex flex-wrap gap-3">
-                      {ALIGNMENT_OPTIONS.map((item) => (
-                        <button
-                          key={item.id}
-                          onClick={() => setMomentoAlignment(item.id)}
-                          className={`inline-flex min-w-[132px] items-center gap-2 rounded-2xl border px-4 py-3 transition-colors ${
-                            momentoAlignment === item.id
-                              ? "border-[#0A0A0A] bg-[#0A0A0A] text-white"
-                              : "border-[rgba(0,0,0,0.04)] bg-[#F3F1ED] text-[#0A0A0A] hover:bg-[#EBE9E4]"
-                          }`}
-                        >
-                          <item.icon size={16} strokeWidth={1.8} />
-                            <span className="font-sans text-[13px] font-medium">{item.label}</span>
-                          </button>
-                      ))}
-                    </div>
-
-                    <div className="space-y-3">
-                      <h4 className="font-sans text-[13px] font-medium text-[#0A0A0A]">¿Cómo te sentís?</h4>
-                      <div className="flex gap-2.5 overflow-x-auto pb-1 hide-scrollbar">
-                        {MOOD_OPTIONS.map((mood) => (
+                    <div>
+                      <p className="font-sans text-[12px] font-light text-[var(--ink-muted)] mb-3 tracking-[0.02em]">¿Cómo viene el día?</p>
+                      <div className="flex flex-nowrap gap-2 overflow-x-auto pb-1 -mx-5 px-5 pr-5" style={{ scrollbarWidth: "none" }}>
+                        {ALIGNMENT_OPTIONS.map((item) => (
                           <button
-                            key={`momento-${mood.id}`}
-                            onClick={() => setMomentoFeeling(mood.id)}
-                            className={`shrink-0 inline-flex items-center gap-2 rounded-2xl border px-4 py-3 transition-colors ${
-                              momentoFeeling === mood.id
-                                ? "border-[#0A0A0A] bg-[#0A0A0A] text-white"
-                                : "border-[rgba(0,0,0,0.04)] bg-[#F3F1ED] text-[#0A0A0A] hover:bg-[#EBE9E4]"
+                            key={item.id}
+                            onClick={() => setMomentoAlignment(item.id)}
+                            className={`shrink-0 inline-flex items-center gap-1.5 rounded-2xl px-3.5 py-2 font-sans text-[12px] font-light border transition-all active:scale-[0.97] ${
+                              momentoAlignment === item.id
+                                ? "bg-[var(--ink-strong)] border-[var(--ink-strong)] text-white"
+                                : "bg-white border-[var(--border-default)] text-[var(--ink-strong)]"
                             }`}
                           >
-                            <mood.icon size={16} strokeWidth={1.8} />
-                            <span className="font-sans text-[13px] font-medium">{mood.label}</span>
+                            <item.icon size={12} strokeWidth={1.5} />
+                            <span>{item.label}</span>
                           </button>
                         ))}
                       </div>
                     </div>
+                    <MoodPicker
+                      label="¿Cómo te sentís?"
+                      options={MOOD_OPTIONS}
+                      selected={momentoFeeling}
+                      onSelect={setMomentoFeeling}
+                      keyPrefix="momento"
+                    />
                   </div>
                 ) : null}
 
                 {selectedStep === "cierre" ? (
                   <div className="space-y-5">
-                    <div className="rounded-2xl border border-[rgba(0,0,0,0.06)] bg-[#F7F5F2] px-5 py-5">
+                    <div
+                      className="rounded-2xl px-5 py-4"
+                      style={{ background: "var(--surface-muted)" }}
+                    >
                       <textarea
                         value={closingReflection}
                         onChange={(event) => setClosingReflection(event.target.value)}
                         placeholder="Escribí una idea, un aprendizaje o algo que querés agradecer."
-                        className="min-h-[128px] w-full resize-none bg-transparent font-sans text-[15px] leading-[1.6] text-[#111111] outline-none placeholder:text-[#999]"
+                        className="min-h-[120px] w-full resize-none bg-transparent font-sans text-[14px] font-light leading-[1.65] text-[var(--ink-strong)] outline-none placeholder:text-[var(--ink-soft)]"
                       />
                     </div>
-
-                    <div className="space-y-3">
-                      <h4 className="font-sans text-[13px] font-medium text-[#0A0A0A]">¿Cómo te sentís?</h4>
-                      <div className="flex gap-2.5 overflow-x-auto pb-1 hide-scrollbar">
-                        {MOOD_OPTIONS.map((mood) => (
-                          <button
-                            key={`cierre-${mood.id}`}
-                            onClick={() => setCierreFeeling(mood.id)}
-                            className={`shrink-0 inline-flex items-center gap-2 rounded-2xl border px-4 py-3 transition-colors ${
-                              cierreFeeling === mood.id
-                                ? "border-[#0A0A0A] bg-[#0A0A0A] text-white"
-                                : "border-[rgba(0,0,0,0.04)] bg-[#F3F1ED] text-[#0A0A0A] hover:bg-[#EBE9E4]"
-                            }`}
-                          >
-                            <mood.icon size={16} strokeWidth={1.8} />
-                            <span className="font-sans text-[13px] font-medium">{mood.label}</span>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
+                    <MoodPicker
+                      label="¿Cómo te sentís?"
+                      options={MOOD_OPTIONS}
+                      selected={cierreFeeling}
+                      onSelect={setCierreFeeling}
+                      keyPrefix="cierre"
+                    />
                   </div>
                 ) : null}
 
-                <button
-                  onClick={() => void handlePrimaryAction()}
-                  disabled={!isJourneyComplete && selectedStep === currentStep && !canCompleteSelectedStep}
-                  className={`mt-2 w-full rounded-2xl px-6 py-4 font-sans text-[14px] font-normal transition-all ${
-                    isJourneyComplete
-                      ? "bg-[#0A0A0A] text-white hover:bg-[#1A1A1A]"
+                {/* CTA */}
+                {!session && selectedStep === currentStep && !isJourneyComplete ? (
+                  <button
+                    onClick={() => navigate("/login")}
+                    className="editorial-action-button editorial-action-button-primary"
+                  >
+                    Iniciá sesión para guardar
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => void handlePrimaryAction()}
+                    disabled={!isJourneyComplete && selectedStep === currentStep && !canCompleteSelectedStep}
+                    className={`editorial-action-button ${
+                      isJourneyComplete || (selectedStep === currentStep && canCompleteSelectedStep)
+                        ? "editorial-action-button-primary"
+                        : "editorial-action-button-secondary"
+                    }`}
+                  >
+                    {isJourneyComplete
+                      ? "Ver mi recorrido"
                       : selectedStep !== currentStep
-                      ? "border border-[rgba(0,0,0,0.06)] bg-[#FAFAFA] text-[#444]"
-                      : canCompleteSelectedStep
-                      ? "bg-[#0A0A0A] text-white hover:bg-[#1A1A1A]"
-                      : "bg-[#F0F0F0] text-[#BBB] cursor-not-allowed"
-                  }`}
-                >
-                  {isJourneyComplete
-                    ? "Ver mi recorrido"
-                    : selectedStep !== currentStep
-                    ? `Volver a ${dailyJourney.steps.find((step) => step.id === currentStep)?.shortLabel ?? "tu paso actual"}`
-                    : STEP_COPY[selectedStep].action}
-                </button>
+                      ? `Ir a ${dailyJourney.steps.find((step) => step.id === currentStep)?.shortLabel ?? "paso actual"}`
+                      : STEP_COPY[selectedStep].action}
+                  </button>
+                )}
               </motion.div>
             )}
           </div>
@@ -1011,39 +1169,37 @@ export function Home() {
 
         {/* Tu Camino en Rituales */}
         <div className="px-6 mb-12">
-          <div className="flex items-baseline justify-between mb-4">
-            <p className="font-sans text-[10px] font-medium tracking-[0.14em] uppercase text-[#999]">
-              Tu camino en Rituales
-            </p>
-            <button onClick={() => navigate("/cuenta")} className="font-sans text-[11px] text-[#0A0A0A] tracking-[0.03em] font-medium">
+          <div className="editorial-section-header">
+            <p className="editorial-eyebrow">Tu camino en Rituales</p>
+            <button onClick={() => navigate("/cuenta")} className="editorial-section-link">
               Mi continuidad →
             </button>
           </div>
 
           <div className="flex gap-2">
-             <button onClick={handleCreateRitual} className="flex-1 bg-white border border-[rgba(0,0,0,0.04)] rounded-[20px] p-4 text-left flex flex-col shadow-[0_4px_14px_rgba(0,0,0,0.02)]">
-                <div className="w-8 h-8 rounded-full bg-[#FBFBFA] border border-[rgba(0,0,0,0.03)] flex items-center justify-center mb-6">
-                   <Sparkles size={14} className="text-[#6F6A63]" />
+             <button onClick={handleCreateRitual} className="editorial-card-elevated editorial-quick-path-card text-left">
+                <div className="mb-6 flex h-8 w-8 items-center justify-center">
+                  <Sparkles size={14} className="text-[var(--ink-muted)]" />
                 </div>
-                <h4 className="font-sans text-[11px] font-semibold text-[#0A0A0A] mb-2 leading-tight">Crear un<br/>ritual</h4>
-                <p className="font-sans text-[9px] text-[#888] leading-[1.4] mb-4">Entrá directo al ritual personalizado.</p>
-                <ArrowUpRight size={12} className="text-[#8D8881] mt-auto" />
+                <h4 className="editorial-quick-path-title">Crear un<br/>ritual</h4>
+                <p className="editorial-quick-path-body">Entrá directo al ritual personalizado.</p>
+                <ArrowUpRight size={12} className="text-[var(--ink-subtle)] mt-auto" />
              </button>
-             <button onClick={handleExplore} className="flex-1 bg-white border border-[rgba(0,0,0,0.04)] rounded-[20px] p-4 text-left flex flex-col shadow-[0_4px_14px_rgba(0,0,0,0.02)]">
-                <div className="w-8 h-8 rounded-full bg-[#FBFBFA] border border-[rgba(0,0,0,0.03)] flex items-center justify-center mb-6">
-                   <Compass size={14} className="text-[#6F6A63]" />
+             <button onClick={handleExplore} className="editorial-card-elevated editorial-quick-path-card text-left">
+                <div className="mb-6 flex h-8 w-8 items-center justify-center">
+                  <Compass size={14} className="text-[var(--ink-muted)]" />
                 </div>
-                <h4 className="font-sans text-[11px] font-semibold text-[#0A0A0A] mb-2 leading-tight">Explorar<br/>rituales</h4>
-                <p className="font-sans text-[9px] text-[#888] leading-[1.4] mb-4">Recorré ideas ya armadas.</p>
-                <ArrowUpRight size={12} className="text-[#8D8881] mt-auto" />
+                <h4 className="editorial-quick-path-title">Explorar<br/>rituales</h4>
+                <p className="editorial-quick-path-body">Recorré ideas ya armadas.</p>
+                <ArrowUpRight size={12} className="text-[var(--ink-subtle)] mt-auto" />
              </button>
-             <button onClick={() => navigate("/calendario-cosmico")} className="flex-1 bg-white border border-[rgba(0,0,0,0.04)] rounded-[20px] p-4 text-left flex flex-col shadow-[0_4px_14px_rgba(0,0,0,0.02)]">
-                <div className="w-8 h-8 rounded-full bg-[#FBFBFA] border border-[rgba(0,0,0,0.03)] flex items-center justify-center mb-6">
-                   <CalendarDays size={14} className="text-[#6F6A63]" />
+             <button onClick={() => navigate("/calendario-cosmico")} className="editorial-card-elevated editorial-quick-path-card text-left">
+                <div className="mb-6 flex h-8 w-8 items-center justify-center">
+                  <CalendarDays size={14} className="text-[var(--ink-muted)]" />
                 </div>
-                <h4 className="font-sans text-[11px] font-semibold text-[#0A0A0A] mb-2 leading-tight">Abrir<br/>calendario</h4>
-                <p className="font-sans text-[9px] text-[#888] leading-[1.4] mb-4">Leé el tono simbólico de hoy.</p>
-                <ArrowUpRight size={12} className="text-[#8D8881] mt-auto" />
+                <h4 className="editorial-quick-path-title">Abrir<br/>calendario</h4>
+                <p className="editorial-quick-path-body">Leé el tono simbólico de hoy.</p>
+                <ArrowUpRight size={12} className="text-[var(--ink-subtle)] mt-auto" />
              </button>
           </div>
         </div>
@@ -1074,11 +1230,9 @@ export function Home() {
 
         {/* Cielo de la semana */}
         <div className="mb-12">
-          <div className="px-6 flex items-baseline justify-between mb-4">
-            <p className="font-sans text-[10px] font-medium tracking-[0.14em] uppercase text-[#999]">
-              Cielo de la semana
-            </p>
-            <button onClick={() => navigate("/calendario-cosmico")} className="font-sans text-[11px] text-[#0A0A0A] tracking-[0.03em] font-medium">
+          <div className="px-6 editorial-section-header">
+            <p className="editorial-eyebrow">Cielo de la semana</p>
+            <button onClick={() => navigate("/calendario-cosmico")} className="editorial-section-link">
               Ver completo →
             </button>
           </div>
@@ -1090,24 +1244,20 @@ export function Home() {
                   <button
                     key={day.dateKey}
                     onClick={() => navigate("/calendario-cosmico", { state: { selectedDate: day.dateKey } })}
-                    className={`w-[124px] shrink-0 rounded-[20px] bg-white px-4 py-4 text-left transition-all`}
-                    style={{
-                       border: isActive ? "1.5px solid #0A0A0A" : "1px solid rgba(0,0,0,0.04)",
-                       boxShadow: isActive ? "0 8px 24px rgba(0,0,0,0.06)" : "0 4px 14px rgba(0,0,0,0.02)"
-                    }}
+                    className={`editorial-day-card ${isActive ? "editorial-day-card-active" : ""}`}
                   >
                     <div className="flex items-center justify-between mb-5">
-                      <p className="font-sans text-[9px] font-semibold tracking-[0.12em] uppercase" style={{ color: isActive ? "#0A0A0A" : "#A7A29A" }}>
+                      <p className={`editorial-eyebrow ${isActive ? "text-[var(--ink-strong)]" : ""}`}>
                         {day.weekdayLabel}
                       </p>
-                      <div className="text-[#0A0A0A] bg-[#FBFBFA] w-5 h-5 rounded-full flex items-center justify-center border border-[rgba(0,0,0,0.03)]">
-                         <Compass size={11} strokeWidth={2} className="text-[#0A0A0A]" />
+                      <div className="flex h-5 w-5 items-center justify-center">
+                        <MoonPhaseIcon phase={day.moonPhase} size={14} className="scale-[0.72]" />
                       </div>
                     </div>
-                    <p className="font-serif text-[22px] text-[#0A0A0A] leading-none mb-1.5">
+                    <p className="font-serif text-[22px] text-[var(--ink-strong)] leading-none mb-1.5">
                       {day.shortLabel}
                     </p>
-                    <p className="font-sans text-[10px] text-[#727272] leading-[1.3] mb-4 opacity-90">
+                    <p className="font-sans text-[10px] text-[var(--ink-muted)] leading-[1.3] mb-4 opacity-90">
                       {day.moonPhase}
                     </p>
                   </button>
@@ -1119,11 +1269,9 @@ export function Home() {
 
         {/* Populares ahora */}
         <div className="px-6 mb-12">
-          <div className="flex items-baseline justify-between mb-4">
-            <p className="font-sans text-[10px] font-medium tracking-[0.14em] uppercase text-[#999]">
-              Populares ahora
-            </p>
-            <button onClick={handleExplore} className="font-sans text-[11px] text-[#0A0A0A] tracking-[0.03em] font-medium">
+          <div className="editorial-section-header">
+            <p className="editorial-eyebrow">Populares ahora</p>
+            <button onClick={handleExplore} className="editorial-section-link">
               Ver catálogo →
             </button>
           </div>
@@ -1139,25 +1287,18 @@ export function Home() {
                  title: ritual.aiRitual?.title || ritual.title,
                });
                return (
-                <button 
-                  key={ritual.id} 
-                  onClick={() => handleRitualCard(ritual)}
-                  className="w-full rounded-[24px] border border-[rgba(0,0,0,0.03)] bg-white px-4 py-4 flex items-center justify-between shadow-[0_4px_14px_rgba(0,0,0,0.02)] active:scale-[0.99] text-left"
-                >
-                   <div>
-                      <h4 className="font-sans text-[13px] font-semibold text-[#0A0A0A] mb-1.5">{ritual.title}</h4>
-                      <p className="font-sans text-[10px] text-[#767676]">{ritual.element} · {ritual.duration} min · Vela {candleGuide.color.toLowerCase()}</p>
-                   </div>
-                   <div 
-                     onClick={(e) => {
-                        e.stopPropagation();
-                        void handleSaveRitual(ritual);
-                     }}
-                     className={`w-9 h-9 flex items-center justify-center rounded-[12px] border ${isSaved ? "bg-[#0A0A0A] border-[#0A0A0A] text-white" : "border-[rgba(0,0,0,0.06)] bg-[#FBFBFA] text-[#0A0A0A]"}`}
-                   >
-                      <Bookmark size={14} strokeWidth={2} fill={isSaved ? "currentColor" : "none"} />
-                   </div>
-                </button>
+                <RitualListCard
+                  key={ritual.id}
+                  title={ritual.title}
+                  meta={[ritual.element, `${ritual.duration} min`, `Vela ${candleGuide.color.toLowerCase()}`]}
+                  saved={isSaved}
+                  saving={savingRitualId === ritual.id}
+                  onOpen={() => handleRitualCard(ritual)}
+                  onSave={(event) => {
+                    event.stopPropagation();
+                    void handleSaveRitual(ritual);
+                  }}
+                />
                );
              })}
           </div>
@@ -1169,28 +1310,9 @@ export function Home() {
         transition={{ duration: 0.7, delay: 0.36 }}
         className="relative z-10 pt-8 pb-12"
       >
-        <div className="px-6 flex items-baseline justify-between mb-5">
-          <p
-            style={{
-              fontFamily: "Inter, sans-serif",
-              fontSize: "11px",
-              fontWeight: 500,
-              letterSpacing: "0.14em",
-              color: "#999",
-              textTransform: "uppercase",
-            }}
-          >
-            Notas para rituales
-          </p>
-          <button
-            onClick={() => navigate("/wiki")}
-            style={{
-              fontFamily: "Inter, sans-serif",
-              fontSize: "12px",
-              color: "#0A0A0A",
-              letterSpacing: "0.03em",
-            }}
-          >
+        <div className="px-6 editorial-section-header mb-5">
+          <p className="editorial-eyebrow">Notas para rituales</p>
+          <button onClick={() => navigate("/wiki")} className="editorial-section-link">
             Ver wiki →
           </button>
         </div>
@@ -1204,15 +1326,9 @@ export function Home() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.45, delay: 0.42 + index * 0.05 }}
                 onClick={() => navigate(`/wiki/${note.id}`)}
-                className="shrink-0 w-[220px] text-left transition-all hover:opacity-80 active:scale-[0.99] flex flex-col gap-3"
+                className="editorial-note-card hover:opacity-80 active:scale-[0.99]"
               >
-                <div
-                  className="w-full aspect-[4/4] bg-[#f5f5f5] overflow-hidden relative isolate border border-[rgba(0,0,0,0.04)]"
-                  style={{
-                    borderRadius: "var(--radius-2xl, 24px)",
-                    boxShadow: "0 16px 34px rgba(15, 15, 15, 0.05)",
-                  }}
-                >
+                <div className="editorial-note-media">
                   {note.image ? (
                     <img
                       src={note.image}
@@ -1222,45 +1338,9 @@ export function Home() {
                   ) : null}
                 </div>
                 <div className="pt-1">
-                  <p
-                    style={{
-                      fontFamily: "Inter, sans-serif",
-                      fontSize: "10px",
-                      fontWeight: 500,
-                      letterSpacing: "0.14em",
-                      textTransform: "uppercase",
-                      color: "#BBB",
-                      marginBottom: "6px",
-                    }}
-                  >
-                    {note.eyebrow}
-                  </p>
-                  <h3
-                    style={{
-                      fontFamily: "Cormorant Garamond, serif",
-                      fontSize: "22px",
-                      fontWeight: 400,
-                      color: "#0A0A0A",
-                      lineHeight: 1.15,
-                      marginBottom: "8px",
-                    }}
-                  >
-                    {note.title}
-                  </h3>
-                  <p
-                    style={{
-                      fontFamily: "Inter, sans-serif",
-                      fontSize: "12px",
-                      color: "#777",
-                      lineHeight: 1.55,
-                      display: "-webkit-box",
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: "vertical",
-                      overflow: "hidden",
-                    }}
-                  >
-                    {note.summary}
-                  </p>
+                  <p className="editorial-note-eyebrow">{note.eyebrow}</p>
+                  <h3 className="editorial-note-title">{note.title}</h3>
+                  <p className="editorial-note-summary">{note.summary}</p>
                 </div>
               </motion.button>
             ))}

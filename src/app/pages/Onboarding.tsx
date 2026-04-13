@@ -135,7 +135,7 @@ export function Onboarding() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col overflow-y-auto">
+    <div className="min-h-screen bg-[var(--app-page)] flex flex-col overflow-y-auto">
       <div
         className="fixed inset-0 pointer-events-none"
         style={{
@@ -147,8 +147,8 @@ export function Onboarding() {
       <div className="relative z-10 pt-14 px-6">
         <button
           onClick={() => navigate("/")}
-          className="mt-4 flex items-center gap-2 text-[#999] hover:text-[#0A0A0A] transition-colors"
-          style={{ fontFamily: "Inter, sans-serif", fontSize: "13px" }}
+          className="mt-4 flex items-center gap-2 text-[var(--ink-subtle)] hover:text-[var(--ink-strong)] transition-colors"
+          style={{ fontFamily: "var(--font-sans-ui)", fontSize: "13px" }}
         >
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
             <path d="M9 2L4 7L9 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
@@ -165,10 +165,10 @@ export function Onboarding() {
       >
         <h1
           style={{
-            fontFamily: "Cormorant Garamond, serif",
+            fontFamily: "var(--font-serif-display)",
             fontSize: "32px",
             fontWeight: 400,
-            color: "#0A0A0A",
+            color: "var(--ink-strong)",
             lineHeight: 1.2,
             marginBottom: "6px",
           }}
@@ -178,8 +178,8 @@ export function Onboarding() {
           <em style={{ fontStyle: "italic", fontWeight: 300 }}>quieres hoy?</em>
         </h1>
         <p
-          className="text-[#999] mb-8"
-          style={{ fontFamily: "Inter, sans-serif", fontSize: "13px", fontWeight: 300 }}
+          className="mb-8 text-[var(--ink-subtle)]"
+          style={{ fontFamily: "var(--font-sans-ui)", fontSize: "13px", fontWeight: 300 }}
         >
           Elegí el punto de partida de tu intención
         </p>
@@ -195,8 +195,8 @@ export function Onboarding() {
               onClick={() => { setSelected(type.id); setReframedIntention(null); }}
               className={`text-left p-4 rounded-2xl border transition-all active:scale-[0.97] ${
                 selected === type.id
-                  ? "bg-[#0A0A0A] border-[#0A0A0A] text-white"
-                  : "bg-white border-[rgba(0,0,0,0.08)] text-[#0A0A0A] hover:border-[rgba(0,0,0,0.2)]"
+                  ? "bg-[var(--ink-strong)] border-[var(--ink-strong)] text-white"
+                  : "bg-white border-[var(--border-default)] text-[var(--ink-strong)] hover:border-[var(--border-strong)]"
               }`}
             >
               <div className={`mb-2 ${selected === type.id ? "opacity-90" : "opacity-40"}`}>
@@ -204,7 +204,7 @@ export function Onboarding() {
               </div>
               <p
                 style={{
-                  fontFamily: "Cormorant Garamond, serif",
+                  fontFamily: "var(--font-serif-display)",
                   fontSize: "16px",
                   fontWeight: 500,
                   lineHeight: 1.2,
@@ -215,7 +215,7 @@ export function Onboarding() {
               </p>
               <p
                 style={{
-                  fontFamily: "Inter, sans-serif",
+                  fontFamily: "var(--font-sans-ui)",
                   fontSize: "11px",
                   fontWeight: 300,
                   opacity: selected === type.id ? 0.7 : 0.5,
@@ -231,54 +231,51 @@ export function Onboarding() {
         {hasSpeechRecognition && (
           <div className="mb-6">
             <div className="flex items-center gap-3 mb-4">
-              <div className="flex-1 h-px bg-[rgba(0,0,0,0.08)]" />
+              <div className="flex-1 h-px bg-[var(--border-default)]" />
               <span
                 style={{
-                  fontFamily: "Inter, sans-serif",
+                  fontFamily: "var(--font-sans-ui)",
                   fontSize: "11px",
-                  color: "#BBB",
+                  color: "var(--ink-soft)",
                   letterSpacing: "0.08em",
                 }}
               >
                 o contame qué está pasando
               </span>
-              <div className="flex-1 h-px bg-[rgba(0,0,0,0.08)]" />
+              <div className="flex-1 h-px bg-[var(--border-default)]" />
             </div>
 
             <button
               onClick={handleMic}
-              className={`w-full py-4 px-5 rounded-2xl border transition-all flex items-center justify-center gap-3 ${
+              className={`relative w-full py-5 px-5 rounded-2xl transition-all flex items-center justify-center gap-3 active:scale-[0.98] ${
                 isListening
-                  ? "border-[#0A0A0A] bg-[#0A0A0A] text-white"
-                  : "border-[rgba(0,0,0,0.1)] bg-[#FAFAFA] text-[#444] hover:border-[rgba(0,0,0,0.2)]"
+                  ? "bg-[var(--ink-strong)] text-white"
+                  : "bg-[var(--surface-muted)] text-[var(--ink-body)]"
               }`}
             >
               {isListening ? (
                 <>
-                  <div className="flex gap-1 items-center">
-                    {[0, 1, 2].map((i) => (
-                      <motion.div
-                        key={i}
-                        className="w-1 rounded-full bg-white"
-                        animate={{ height: ["4px", "14px", "4px"] }}
-                        transition={{ duration: 0.6, repeat: Infinity, delay: i * 0.15 }}
+                  <div className="flex gap-[3px] items-center h-4">
+                    {[0, 1, 2, 3].map((i) => (
+                      <motion.div key={i} className="w-[3px] rounded-full bg-white"
+                        animate={{ height: ["5px", "16px", "5px"] }}
+                        transition={{ duration: 0.7, repeat: Infinity, delay: i * 0.12 }}
                       />
                     ))}
                   </div>
-                  <span style={{ fontFamily: "Inter, sans-serif", fontSize: "14px" }}>
-                    Escuchando...
-                  </span>
+                  <span className="font-sans text-[14px] font-light">Escuchando...</span>
                 </>
               ) : (
                 <>
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                    <rect x="5" y="1" width="6" height="9" rx="3" stroke="currentColor" strokeWidth="1.25" />
-                    <path d="M2 8.5C2 11.538 4.686 14 8 14C11.314 14 14 11.538 14 8.5" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" />
-                    <line x1="8" y1="14" x2="8" y2="15.5" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" />
+                  <svg width="20" height="20" viewBox="0 0 16 16" fill="none" className="shrink-0">
+                    <rect x="5" y="1" width="6" height="9" rx="3" stroke="currentColor" strokeWidth="1.3" />
+                    <path d="M2 8.5C2 11.538 4.686 14 8 14C11.314 14 14 11.538 14 8.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+                    <line x1="8" y1="14" x2="8" y2="15.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
                   </svg>
-                  <span style={{ fontFamily: "Inter, sans-serif", fontSize: "14px", fontWeight: 300 }}>
-                    Hablá, la app te escucha
-                  </span>
+                  <div className="text-left">
+                    <p className="font-sans text-[14px] font-light leading-none mb-0.5">Hablá, la app te escucha</p>
+                    <p className="font-sans text-[11px] font-light text-[var(--ink-muted)]">Tocá para hablar</p>
+                  </div>
                 </>
               )}
             </button>
@@ -290,19 +287,20 @@ export function Onboarding() {
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 8 }}
-                  className="mt-4 p-4 rounded-2xl bg-[#FAFAFA] border border-[rgba(0,0,0,0.06)] flex items-center gap-3"
+                  className="mt-4 flex items-center gap-3 rounded-2xl border p-4"
+                  style={{ background: "var(--surface-softest)", borderColor: "var(--border-soft)" }}
                 >
                   <div className="flex gap-1">
                     {[0, 1, 2].map((i) => (
                       <motion.div
                         key={i}
-                        className="w-1.5 h-1.5 rounded-full bg-[#0A0A0A]"
+                        className="w-1.5 h-1.5 rounded-full bg-[var(--ink-strong)]"
                         animate={{ opacity: [0.2, 1, 0.2] }}
                         transition={{ duration: 1, repeat: Infinity, delay: i * 0.2 }}
                       />
                     ))}
                   </div>
-                  <span style={{ fontFamily: "Inter, sans-serif", fontSize: "13px", color: "#666" }}>
+                  <span style={{ fontFamily: "var(--font-sans-ui)", fontSize: "13px", color: "var(--ink-muted)" }}>
                     Construyendo tu intención...
                   </span>
                 </motion.div>
@@ -313,13 +311,14 @@ export function Onboarding() {
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0 }}
-                  className="mt-4 p-5 rounded-2xl bg-[#F7F5F2] border border-[rgba(0,0,0,0.06)]"
+                  className="mt-4 rounded-2xl border p-5"
+                  style={{ background: "var(--surface-muted)", borderColor: "var(--border-soft)" }}
                 >
                   <p
                     style={{
-                      fontFamily: "Inter, sans-serif",
+                      fontFamily: "var(--font-sans-ui)",
                       fontSize: "10px",
-                      color: "#AAA",
+                      color: "var(--ink-subtle)",
                       letterSpacing: "0.12em",
                       textTransform: "uppercase",
                       marginBottom: "8px",
@@ -329,10 +328,10 @@ export function Onboarding() {
                   </p>
                   <p
                     style={{
-                      fontFamily: "Cormorant Garamond, serif",
+                      fontFamily: "var(--font-serif-display)",
                       fontSize: "18px",
                       fontWeight: 400,
-                      color: "#0A0A0A",
+                      color: "var(--ink-strong)",
                       lineHeight: 1.4,
                       marginBottom: "16px",
                     }}
@@ -341,9 +340,9 @@ export function Onboarding() {
                   </p>
                   <p
                     style={{
-                      fontFamily: "Inter, sans-serif",
+                      fontFamily: "var(--font-sans-ui)",
                       fontSize: "12px",
-                      color: "#999",
+                      color: "var(--ink-subtle)",
                       marginBottom: "16px",
                       lineHeight: 1.5,
                     }}
@@ -360,25 +359,15 @@ export function Onboarding() {
         <button
           onClick={handleContinue}
           disabled={!selected && !reframedIntention}
-          className={`w-full py-4 px-6 rounded-2xl transition-all active:scale-[0.98] ${
-            selected || reframedIntention
-              ? "bg-[#0A0A0A] text-white hover:bg-[#1A1A1A]"
-              : "bg-[#F0F0F0] text-[#BBB] cursor-not-allowed"
-          }`}
-          style={{
-            fontFamily: "Inter, sans-serif",
-            fontSize: "15px",
-            fontWeight: 400,
-            letterSpacing: "0.03em",
-          }}
+          className="editorial-action-button editorial-action-button-primary"
         >
           Continuar
         </button>
 
         <p
-          className="mt-5 text-center text-[#BBB]"
+          className="mt-5 text-center text-[var(--ink-soft)]"
           style={{
-            fontFamily: "Inter, sans-serif",
+            fontFamily: "var(--font-sans-ui)",
             fontSize: "11px",
             fontWeight: 300,
             lineHeight: 1.6,

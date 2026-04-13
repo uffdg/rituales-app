@@ -5,21 +5,17 @@ import { useRitual } from "../context/RitualContext";
 import { ProgressBar } from "../components/ProgressBar";
 import { ELEMENTS } from "../data/rituals";
 
-const ELEMENT_STYLES: Record<string, { gradient: string; symbol: string }> = {
+const ELEMENT_STYLES: Record<string, { symbol: string }> = {
   tierra: {
-    gradient: "radial-gradient(ellipse at 50% 80%, rgba(0,0,0,0.06) 0%, transparent 70%)",
     symbol: "▭",
   },
   agua: {
-    gradient: "radial-gradient(ellipse at 50% 50%, rgba(0,0,0,0.05) 0%, transparent 70%)",
     symbol: "〜",
   },
   fuego: {
-    gradient: "radial-gradient(ellipse at 50% 20%, rgba(0,0,0,0.07) 0%, transparent 70%)",
     symbol: "△",
   },
   aire: {
-    gradient: "radial-gradient(ellipse at 80% 50%, rgba(0,0,0,0.05) 0%, transparent 70%)",
     symbol: "≋",
   },
 };
@@ -54,9 +50,9 @@ export function StepElement() {
       >
         {/* Step label */}
         <p
-          className="mb-3 text-[#AAA]"
+          className="mb-3 text-[var(--ink-soft)]"
           style={{
-            fontFamily: "Inter, sans-serif",
+            fontFamily: "var(--font-sans-ui)",
             fontSize: "11px",
             fontWeight: 500,
             letterSpacing: "0.14em",
@@ -68,10 +64,10 @@ export function StepElement() {
 
         <h2
           style={{
-            fontFamily: "Cormorant Garamond, serif",
+            fontFamily: "var(--font-serif-display)",
             fontSize: "28px",
             fontWeight: 400,
-            color: "#0A0A0A",
+            color: "var(--ink-strong)",
             lineHeight: 1.25,
             marginBottom: "6px",
           }}
@@ -83,8 +79,8 @@ export function StepElement() {
         </h2>
 
         <p
-          className="text-[#999] mb-8"
-          style={{ fontFamily: "Inter, sans-serif", fontSize: "13px", fontWeight: 300 }}
+          className="text-[var(--ink-subtle)] mb-8"
+          style={{ fontFamily: "var(--font-sans-ui)", fontSize: "13px", fontWeight: 300 }}
         >
           Cada elemento te acompaña de una manera distinta.
         </p>
@@ -103,30 +99,18 @@ export function StepElement() {
                 onClick={() => setElement(el.id)}
                 className={`text-left rounded-2xl border overflow-hidden transition-all active:scale-[0.98] ${
                   isSelected
-                    ? "border-[#0A0A0A]"
+                    ? "border-[var(--ink-strong)]"
                     : "border-[rgba(0,0,0,0.08)] hover:border-[rgba(0,0,0,0.18)]"
                 }`}
-                style={{
-                  background: isSelected
-                    ? `linear-gradient(135deg, #0A0A0A 0%, #2A2A2A 100%)`
-                    : "white",
-                }}
+                style={{ background: isSelected ? "var(--ink-strong)" : "white" }}
               >
                 <div className="p-5 relative overflow-hidden">
-                  {/* Abstract gradient decoration */}
-                  {!isSelected && (
-                    <div
-                      className="absolute inset-0 pointer-events-none"
-                      style={{ background: style.gradient }}
-                    />
-                  )}
-
                   <div className="flex items-start justify-between relative z-10">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
                         <span
                           style={{
-                            fontFamily: "Cormorant Garamond, serif",
+                            fontFamily: "var(--font-serif-display)",
                             fontSize: "22px",
                             fontWeight: 300,
                             color: isSelected ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.2)",
@@ -137,7 +121,7 @@ export function StepElement() {
                         <div>
                           <p
                             style={{
-                              fontFamily: "Cormorant Garamond, serif",
+                              fontFamily: "var(--font-serif-display)",
                               fontSize: "20px",
                               fontWeight: 500,
                               color: isSelected ? "white" : "#0A0A0A",
@@ -148,7 +132,7 @@ export function StepElement() {
                           </p>
                           <p
                             style={{
-                              fontFamily: "Inter, sans-serif",
+                              fontFamily: "var(--font-sans-ui)",
                               fontSize: "11px",
                               fontWeight: 400,
                               letterSpacing: "0.08em",
@@ -162,7 +146,7 @@ export function StepElement() {
                       </div>
                       <p
                         style={{
-                          fontFamily: "Inter, sans-serif",
+                          fontFamily: "var(--font-sans-ui)",
                           fontSize: "13px",
                           fontWeight: 300,
                           lineHeight: 1.5,
@@ -177,7 +161,7 @@ export function StepElement() {
                     }`}>
                       {isSelected && (
                         <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                          <path d="M2 5L4 7L8 3" stroke="#0A0A0A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                          <path d="M2 5L4 7L8 3" stroke="var(--ink-strong)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
                       )}
                     </div>
@@ -192,17 +176,7 @@ export function StepElement() {
         <button
           onClick={handleNext}
           disabled={!element}
-          className={`w-full py-4 px-6 rounded-2xl transition-all active:scale-[0.98] ${
-            element
-              ? "bg-[#0A0A0A] text-white hover:bg-[#1A1A1A]"
-              : "bg-[#F0F0F0] text-[#BBB] cursor-not-allowed"
-          }`}
-          style={{
-            fontFamily: "Inter, sans-serif",
-            fontSize: "15px",
-            fontWeight: 400,
-            letterSpacing: "0.03em",
-          }}
+          className="editorial-action-button editorial-action-button-primary"
         >
           Siguiente
         </button>

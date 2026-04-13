@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { motion } from "motion/react";
-import { Bookmark, BookmarkCheck } from "lucide-react";
 import { toast } from "sonner";
 import { useRitual } from "../context/RitualContext";
 import { useUser } from "../context/UserContext";
@@ -13,6 +12,7 @@ import {
 } from "../lib/ritual-service";
 import { getUserFacingErrorMessage } from "../lib/errors";
 import { deriveCandleGuide } from "../lib/candle";
+import { RitualListCard } from "../components/RitualListCard";
 
 const FILTERS = {
   type: ["Claridad", "Amor propio", "Calma", "Enfoque", "Cerrar ciclo", "Atraer oportunidad"],
@@ -136,7 +136,7 @@ export function Explore() {
   const hasFilters = Object.values(activeFilters).some((v) => v !== "");
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen bg-[var(--app-page)] flex flex-col">
       <div
         className="fixed inset-0 pointer-events-none"
         style={{
@@ -150,8 +150,8 @@ export function Explore() {
         <div className="flex items-center justify-between mb-6">
           <button
             onClick={() => navigate("/")}
-            className="flex items-center gap-2 text-[#888] hover:text-[#0A0A0A] transition-colors"
-            style={{ fontFamily: "Inter, sans-serif", fontSize: "13px" }}
+            className="flex items-center gap-2 text-[var(--ink-muted)] hover:text-[var(--ink-strong)] transition-colors"
+            style={{ fontFamily: "var(--font-sans-ui)", fontSize: "13px" }}
           >
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
               <path d="M9 2L4 7L9 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
@@ -160,8 +160,8 @@ export function Explore() {
           </button>
           <button
             onClick={() => navigate("/onboarding")}
-            className="flex items-center gap-2 px-4 py-2 bg-[#0A0A0A] text-white rounded-full transition-all active:scale-[0.97]"
-            style={{ fontFamily: "Inter, sans-serif", fontSize: "12px" }}
+            className="flex items-center gap-2 px-4 py-2 rounded-full transition-all active:scale-[0.97]"
+            style={{ background: "var(--ink-strong)", color: "#fff", fontFamily: "var(--font-sans-ui)", fontSize: "12px" }}
           >
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
               <path d="M6 1V11M1 6H11" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
@@ -172,10 +172,10 @@ export function Explore() {
 
         <h1
           style={{
-            fontFamily: "Cormorant Garamond, serif",
+            fontFamily: "var(--font-serif-display)",
             fontSize: "30px",
             fontWeight: 400,
-            color: "#0A0A0A",
+            color: "var(--ink-strong)",
             lineHeight: 1.2,
             marginBottom: "4px",
           }}
@@ -184,10 +184,10 @@ export function Explore() {
         </h1>
         <p
           style={{
-            fontFamily: "Inter, sans-serif",
+            fontFamily: "var(--font-sans-ui)",
             fontSize: "13px",
             fontWeight: 300,
-            color: "#999",
+            color: "var(--ink-subtle)",
           }}
         >
           Rituales compartidos por la comunidad
@@ -196,7 +196,7 @@ export function Explore() {
 
       {/* Filter group tabs */}
       <div className="relative z-10 px-6">
-        <div className="flex gap-4 border-b border-[rgba(0,0,0,0.06)] pb-0 mb-3 overflow-x-auto hide-scrollbar">
+        <div className="mb-3 flex gap-4 overflow-x-auto border-b pb-0 hide-scrollbar" style={{ borderColor: "var(--border-soft)" }}>
           {(Object.keys(FILTERS) as FilterKey[]).map((group) => {
             const labels: Record<FilterKey, string> = {
               type: "Intención",
@@ -212,18 +212,18 @@ export function Explore() {
                 onClick={() => setActiveFilterGroup(group)}
                 className="relative shrink-0 pb-3 transition-colors"
                 style={{
-                  fontFamily: "Inter, sans-serif",
+                  fontFamily: "var(--font-sans-ui)",
                   fontSize: "13px",
-                  color: isActive ? "#0A0A0A" : "#BBB",
+                  color: isActive ? "var(--ink-strong)" : "var(--ink-soft)",
                   fontWeight: isActive ? 500 : 400,
                 }}
               >
                 {labels[group]}
                 {hasValue && (
-                  <span className="ml-1 w-1.5 h-1.5 rounded-full bg-[#0A0A0A] inline-block align-middle" />
+                  <span className="ml-1 inline-block h-1.5 w-1.5 rounded-full bg-[var(--ink-strong)] align-middle" />
                 )}
                 {isActive && (
-                  <div className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-[#0A0A0A] rounded-full" />
+                  <div className="absolute bottom-0 left-0 right-0 h-[1.5px] rounded-full bg-[var(--ink-strong)]" />
                 )}
               </button>
             );
@@ -240,10 +240,10 @@ export function Explore() {
                 onClick={() => toggleFilter(activeFilterGroup, f)}
                 className={`shrink-0 px-3.5 py-1.5 rounded-full border text-sm transition-all ${
                   isChipActive
-                    ? "bg-[#0A0A0A] border-[#0A0A0A] text-white"
-                    : "bg-white border-[rgba(0,0,0,0.1)] text-[#555] hover:border-[rgba(0,0,0,0.2)]"
+                    ? "bg-[var(--ink-strong)] border-[var(--ink-strong)] text-white"
+                    : "bg-white border-[var(--border-default)] text-[var(--ink-muted)] hover:border-[var(--border-strong)]"
                 }`}
-                style={{ fontFamily: "Inter, sans-serif", fontSize: "12px" }}
+                style={{ fontFamily: "var(--font-sans-ui)", fontSize: "12px" }}
               >
                 {f}
               </button>
@@ -254,8 +254,8 @@ export function Explore() {
               onClick={() =>
                 setActiveFilters({ type: "", energy: "", element: "", duration: "" })
               }
-              className="shrink-0 px-3.5 py-1.5 rounded-full border border-dashed border-[rgba(0,0,0,0.2)] text-[#888] text-sm"
-              style={{ fontFamily: "Inter, sans-serif", fontSize: "12px" }}
+              className="shrink-0 rounded-full border border-dashed px-3.5 py-1.5 text-sm text-[var(--ink-muted)]"
+              style={{ borderColor: "var(--border-strong)", fontFamily: "var(--font-sans-ui)", fontSize: "12px" }}
             >
               Limpiar
             </button>
@@ -267,9 +267,9 @@ export function Explore() {
       <div className="relative z-10 px-6 mb-3">
         <p
           style={{
-            fontFamily: "Inter, sans-serif",
+            fontFamily: "var(--font-sans-ui)",
             fontSize: "11px",
-            color: "#BBB",
+            color: "var(--ink-soft)",
             letterSpacing: "0.06em",
           }}
         >
@@ -289,10 +289,10 @@ export function Explore() {
               </div>
               <p
                 style={{
-                  fontFamily: "Cormorant Garamond, serif",
+                  fontFamily: "var(--font-serif-display)",
                   fontSize: "20px",
                   fontWeight: 400,
-                  color: "#555",
+                  color: "var(--ink-muted)",
                   marginBottom: "4px",
                 }}
               >
@@ -300,10 +300,10 @@ export function Explore() {
               </p>
               <p
                 style={{
-                  fontFamily: "Inter, sans-serif",
+                  fontFamily: "var(--font-sans-ui)",
                   fontSize: "13px",
                   fontWeight: 300,
-                  color: "#BBB",
+                  color: "var(--ink-soft)",
                 }}
               >
                 Prueba con otros filtros.
@@ -329,118 +329,25 @@ export function Explore() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: i * 0.06 }}
-                  className="w-full p-4 border border-[rgba(0,0,0,0.07)] rounded-2xl hover:border-[rgba(0,0,0,0.16)] transition-all bg-white"
                 >
-                  <div className="flex items-start justify-between gap-3">
-                    <button
-                      onClick={() => handleRitualTap(ritual)}
-                      className="flex-1 min-w-0 text-left active:scale-[0.99] transition-transform"
-                    >
-                      <p
-                        style={{
-                          fontFamily: "Cormorant Garamond, serif",
-                          fontSize: "18px",
-                          fontWeight: 400,
-                          color: "#0A0A0A",
-                          lineHeight: 1.3,
-                          marginBottom: "8px",
-                        }}
-                      >
-                        {ritual.title}
-                      </p>
-                      <p
-                        style={{
-                          fontFamily: "Inter, sans-serif",
-                          fontSize: "12px",
-                          fontWeight: 300,
-                          color: "#888",
-                          lineHeight: 1.5,
-                          marginBottom: "10px",
-                          display: "-webkit-box",
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: "vertical",
-                          overflow: "hidden",
-                        }}
-                      >
-                        {ritual.intention}
-                      </p>
-                      <div className="flex flex-wrap items-center gap-1.5">
-                        <span
-                          className="px-2.5 py-0.5 rounded-full border border-[rgba(0,0,0,0.08)] text-[#666]"
-                          style={{
-                            fontFamily: "Inter, sans-serif",
-                            fontSize: "10px",
-                            letterSpacing: "0.05em",
-                          }}
-                        >
-                          {ritual.element}
-                        </span>
-                        <span
-                          className="px-2.5 py-0.5 rounded-full border border-[rgba(0,0,0,0.08)] text-[#666]"
-                          style={{
-                            fontFamily: "Inter, sans-serif",
-                            fontSize: "10px",
-                            letterSpacing: "0.05em",
-                          }}
-                        >
-                          {ritual.intensity}
-                        </span>
-                        <span
-                          className="px-2.5 py-0.5 rounded-full border border-[rgba(0,0,0,0.08)] text-[#666]"
-                          style={{
-                            fontFamily: "Inter, sans-serif",
-                            fontSize: "10px",
-                          }}
-                        >
-                          {ritual.duration} min
-                        </span>
-                        <span
-                          className="px-2.5 py-0.5 rounded-full border border-[rgba(0,0,0,0.08)] text-[#666]"
-                          style={{
-                            fontFamily: "Inter, sans-serif",
-                            fontSize: "10px",
-                          }}
-                        >
-                          Vela {candleGuide.color}
-                        </span>
-                        <span
-                          className="text-[11px] text-[#CCC] ml-1"
-                          style={{ fontFamily: "Inter, sans-serif" }}
-                        >
-                          ♥ {ritual.likes}
-                        </span>
-                      </div>
-                    </button>
-                    <button
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        void handleSaveRitual(ritual);
-                      }}
-                      disabled={savingRitualId === ritual.id}
-                      className={`shrink-0 w-8 h-8 rounded-xl border flex items-center justify-center transition-all ${
-                        isSaved
-                          ? "border-[#0A0A0A] bg-[#0A0A0A] text-white"
-                          : "border-[rgba(0,0,0,0.08)] bg-[#F5F5F5] text-[#555]"
-                      }`}
-                      aria-label="Guardar ritual"
-                    >
-                      {isSaved ? (
-                        <BookmarkCheck
-                          size={14}
-                          strokeWidth={1.8}
-                          color="currentColor"
-                          fill="currentColor"
-                        />
-                      ) : (
-                        <Bookmark
-                          size={14}
-                          strokeWidth={1.8}
-                          color="currentColor"
-                          fill="none"
-                        />
-                      )}
-                    </button>
-                  </div>
+                  <RitualListCard
+                    title={ritual.title}
+                    description={ritual.intention}
+                    meta={[
+                      ritual.element,
+                      ritual.intensity,
+                      `${ritual.duration} min`,
+                      `Vela ${candleGuide.color}`,
+                    ]}
+                    likes={ritual.likes}
+                    saved={isSaved}
+                    saving={savingRitualId === ritual.id}
+                    onOpen={() => handleRitualTap(ritual)}
+                    onSave={(event) => {
+                      event.stopPropagation();
+                      void handleSaveRitual(ritual);
+                    }}
+                  />
                 </motion.div>
               );
             })

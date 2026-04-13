@@ -32,9 +32,9 @@ function BottomNav() {
       path: "/stories",
       active: location.pathname.startsWith("/stories"),
       icon: (active: boolean) => (
-        <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke={active ? "#0A0A0A" : "#C0BAB4"} strokeWidth={1.75}>
+        <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke={active ? "var(--ink-strong)" : "var(--ink-soft)"} strokeWidth={1.75}>
           <circle cx="12" cy="12" r="9" />
-          <circle cx="12" cy="12" r="3" fill={active ? "#0A0A0A" : "#C0BAB4"} stroke="none" />
+          <circle cx="12" cy="12" r="3" fill={active ? "var(--ink-strong)" : "var(--ink-soft)"} stroke="none" />
         </svg>
       ),
     },
@@ -43,7 +43,7 @@ function BottomNav() {
       path: "/",
       active: location.pathname === "/",
       icon: (active: boolean) => (
-        <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke={active ? "#0A0A0A" : "#C0BAB4"} strokeWidth={1.75}>
+        <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke={active ? "var(--ink-strong)" : "var(--ink-soft)"} strokeWidth={1.75}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l9-9 9 9M5 10v9a1 1 0 001 1h4v-5h4v5h4a1 1 0 001-1v-9" />
         </svg>
       ),
@@ -53,7 +53,7 @@ function BottomNav() {
       path: "/explorar",
       active: location.pathname.startsWith("/explorar"),
       icon: (active: boolean) => (
-        <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke={active ? "#0A0A0A" : "#C0BAB4"} strokeWidth={1.75}>
+        <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke={active ? "var(--ink-strong)" : "var(--ink-soft)"} strokeWidth={1.75}>
           <circle cx="11" cy="11" r="8" />
           <path strokeLinecap="round" d="M21 21l-4.35-4.35" />
         </svg>
@@ -64,7 +64,7 @@ function BottomNav() {
       path: "/onboarding",
       active: location.pathname === "/onboarding" || location.pathname.startsWith("/crear"),
       icon: (active: boolean) => (
-        <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke={active ? "#0A0A0A" : "#C0BAB4"} strokeWidth={1.75}>
+        <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke={active ? "var(--ink-strong)" : "var(--ink-soft)"} strokeWidth={1.75}>
           <circle cx="12" cy="12" r="9" />
           <path strokeLinecap="round" d="M12 8v8M8 12h8" />
         </svg>
@@ -80,16 +80,16 @@ function BottomNav() {
           style={{
             width: 28,
             height: 28,
-            background: active ? "#0A0A0A" : "#F3F1EE",
-            border: active ? "1px solid #0A0A0A" : "1px solid rgba(0,0,0,0.08)",
+            background: active ? "var(--ink-strong)" : "var(--surface-muted)",
+            border: active ? "1px solid var(--ink-strong)" : "1px solid var(--border-soft)",
           }}
         >
           <span
             style={{
-              fontFamily: "Cormorant Garamond, serif",
+              fontFamily: "var(--font-serif-display)",
               fontSize: "16px",
               fontWeight: 500,
-              color: active ? "#FFFFFF" : "#8E8881",
+              color: active ? "#FFFFFF" : "var(--ink-muted)",
               lineHeight: 1,
               letterSpacing: "0.02em",
             }}
@@ -111,7 +111,7 @@ function BottomNav() {
         transform: "translateX(-50%)",
         width: "100%",
         maxWidth: "390px",
-        borderTop: "1px solid rgba(0,0,0,0.06)",
+        borderTop: "1px solid var(--border-soft)",
         background: "white",
         zIndex: 100,
       }}
@@ -125,10 +125,10 @@ function BottomNav() {
           {tab.icon(tab.active)}
           <span
             style={{
-              fontFamily: "Inter, sans-serif",
+              fontFamily: "var(--font-sans-ui)",
               fontSize: "10px",
               fontWeight: tab.active ? 500 : 400,
-              color: tab.active ? "#0A0A0A" : "#C0BAB4",
+              color: tab.active ? "var(--ink-strong)" : "var(--ink-soft)",
               letterSpacing: "0.01em",
             }}
           >
@@ -142,10 +142,10 @@ function BottomNav() {
 
 export function Layout() {
   return (
-    <div className="min-h-screen bg-[#EEEAE6] flex items-center justify-center">
+    <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--app-shell)" }}>
       <div
         className="relative w-full max-w-[390px] min-h-[100dvh] bg-white overflow-x-hidden shadow-2xl"
-        style={{ boxShadow: "0 30px 80px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.08)" }}
+        style={{ boxShadow: "0 30px 80px rgba(15,23,42,0.14), 0 2px 8px rgba(15,23,42,0.08)" }}
       >
         <RouteTracker />
         <div className="pb-16">
@@ -157,12 +157,12 @@ export function Layout() {
         position="bottom-center"
         toastOptions={{
           style: {
-            background: "#0A0A0A",
+            background: "var(--ink-strong)",
             color: "#FFFFFF",
             border: "none",
             borderRadius: "12px",
             fontSize: "14px",
-            fontFamily: "Inter, sans-serif",
+            fontFamily: "var(--font-sans-ui)",
           },
           classNames: {
             toast: "border-0 shadow-2xl",

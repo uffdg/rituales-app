@@ -49,19 +49,19 @@ function SplashScreen() {
             </div>
 
             <svg width="36" height="36" viewBox="0 0 36 36" fill="none" className="relative z-10">
-              <circle cx="18" cy="18" r="17" stroke="#0A0A0A" strokeWidth="0.75" />
-              <circle cx="18" cy="18" r="10" stroke="#0A0A0A" strokeWidth="0.5" />
-              <circle cx="18" cy="18" r="3" fill="#0A0A0A" />
+              <circle cx="18" cy="18" r="17" stroke="var(--ink-strong)" strokeWidth="0.75" />
+              <circle cx="18" cy="18" r="10" stroke="var(--ink-strong)" strokeWidth="0.5" />
+              <circle cx="18" cy="18" r="3" fill="var(--ink-strong)" />
             </svg>
           </div>
 
           <h1
             style={{
-              fontFamily: "Cormorant Garamond, serif",
+              fontFamily: "var(--font-serif-display)",
               fontSize: "52px",
               fontWeight: 300,
               letterSpacing: "0.12em",
-              color: "#0A0A0A",
+              color: "var(--ink-strong)",
               lineHeight: 1,
               textTransform: "uppercase",
             }}
@@ -70,9 +70,9 @@ function SplashScreen() {
           </h1>
 
           <p
-            className="mt-4 text-center text-[#888]"
+            className="mt-4 text-center text-[var(--ink-subtle)]"
             style={{
-              fontFamily: "Inter, sans-serif",
+              fontFamily: "var(--font-sans-ui)",
               fontSize: "13px",
               fontWeight: 300,
               letterSpacing: "0.08em",

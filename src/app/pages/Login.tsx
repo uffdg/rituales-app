@@ -93,7 +93,7 @@ export function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col items-center justify-center px-6">
+    <div className="min-h-screen bg-[var(--app-page)] flex flex-col items-center justify-center px-6">
       <div
         className="fixed inset-0 pointer-events-none"
         style={{
@@ -115,13 +115,13 @@ export function Login() {
               width: 48,
               height: 48,
               borderRadius: "50%",
-              border: "1px solid rgba(0,0,0,0.08)",
+              border: "1px solid var(--border-default)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
             }}
           >
-            <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#0A0A0A" }} />
+            <div style={{ width: 10, height: 10, borderRadius: "50%", background: "var(--ink-strong)" }} />
           </div>
         </div>
 
@@ -130,10 +130,10 @@ export function Login() {
             <motion.div key="email" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
               <h1
                 style={{
-                  fontFamily: "Cormorant Garamond, serif",
+                  fontFamily: "var(--font-serif-display)",
                   fontSize: "32px",
                   fontWeight: 400,
-                  color: "#0A0A0A",
+                  color: "var(--ink-strong)",
                   marginBottom: "8px",
                   lineHeight: 1.2,
                   textAlign: "center",
@@ -143,10 +143,10 @@ export function Login() {
               </h1>
               <p
                 style={{
-                  fontFamily: "Inter, sans-serif",
+                  fontFamily: "var(--font-sans-ui)",
                   fontSize: "13px",
                   fontWeight: 300,
-                  color: "#AAA",
+                  color: "var(--ink-subtle)",
                   textAlign: "center",
                   marginBottom: "32px",
                 }}
@@ -161,12 +161,12 @@ export function Login() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="tu@email.com"
                   autoFocus
-                  className="w-full px-4 py-4 rounded-2xl border border-[rgba(0,0,0,0.1)] bg-[#FAFAFA] focus:outline-none focus:border-[rgba(0,0,0,0.3)]"
-                  style={{ fontFamily: "Inter, sans-serif", fontSize: "15px", fontWeight: 300, color: "#0A0A0A" }}
+                  className="w-full px-4 py-4 rounded-2xl border bg-[var(--surface-softest)] focus:outline-none"
+                  style={{ borderColor: "var(--border-default)", fontFamily: "var(--font-sans-ui)", fontSize: "15px", fontWeight: 300, color: "var(--ink-strong)" }}
                 />
 
                 {error && (
-                  <p style={{ fontFamily: "Inter, sans-serif", fontSize: "12px", color: "#B42318" }}>
+                  <p style={{ fontFamily: "var(--font-sans-ui)", fontSize: "12px", color: "#B42318" }}>
                     {error}
                   </p>
                 )}
@@ -174,8 +174,7 @@ export function Login() {
                 <button
                   type="submit"
                   disabled={loading || !email.trim()}
-                  className="w-full py-4 bg-[#0A0A0A] text-white rounded-2xl disabled:opacity-50 cursor-pointer hover:bg-[#222] transition-all active:scale-[0.98]"
-                  style={{ fontFamily: "Inter, sans-serif", fontSize: "15px", fontWeight: 400 }}
+                  className="editorial-action-button editorial-action-button-primary"
                 >
                   {loading ? "Enviando..." : "Recibir código"}
                 </button>
@@ -190,10 +189,10 @@ export function Login() {
             >
               <h1
                 style={{
-                  fontFamily: "Cormorant Garamond, serif",
+                  fontFamily: "var(--font-serif-display)",
                   fontSize: "28px",
                   fontWeight: 400,
-                  color: "#0A0A0A",
+                  color: "var(--ink-strong)",
                   marginBottom: "8px",
                   lineHeight: 1.2,
                   textAlign: "center",
@@ -203,17 +202,17 @@ export function Login() {
               </h1>
               <p
                 style={{
-                  fontFamily: "Inter, sans-serif",
+                  fontFamily: "var(--font-sans-ui)",
                   fontSize: "13px",
                   fontWeight: 300,
-                  color: "#888",
+                  color: "var(--ink-subtle)",
                   textAlign: "center",
                   marginBottom: "32px",
                   lineHeight: 1.6,
                 }}
               >
                 Enviamos un código de 6 dígitos a{" "}
-                <span style={{ color: "#555" }}>{email.trim().toLowerCase()}</span>
+                <span style={{ color: "var(--ink-muted)" }}>{email.trim().toLowerCase()}</span>
               </p>
 
               {/* Code inputs */}
@@ -229,12 +228,12 @@ export function Login() {
                     autoFocus={i === 0}
                     onChange={(e) => handleCodeChange(i, e.target.value)}
                     onKeyDown={(e) => handleKeyDown(i, e)}
-                    className="w-12 h-14 text-center rounded-xl border border-[rgba(0,0,0,0.12)] bg-[#FAFAFA] focus:outline-none focus:border-[#0A0A0A] transition-colors"
+                    className="w-12 h-14 text-center rounded-xl border border-[rgba(0,0,0,0.12)] bg-[var(--surface-softest)] focus:outline-none focus:border-[var(--ink-strong)] transition-colors"
                     style={{
-                      fontFamily: "Inter, sans-serif",
+                      fontFamily: "var(--font-sans-ui)",
                       fontSize: "22px",
                       fontWeight: 400,
-                      color: "#0A0A0A",
+                      color: "var(--ink-strong)",
                     }}
                   />
                 ))}
@@ -243,9 +242,9 @@ export function Login() {
               {verifying && (
                 <p
                   style={{
-                    fontFamily: "Inter, sans-serif",
+                    fontFamily: "var(--font-sans-ui)",
                     fontSize: "13px",
-                    color: "#AAA",
+                    color: "var(--ink-soft)",
                     textAlign: "center",
                     marginBottom: "8px",
                   }}
@@ -257,7 +256,7 @@ export function Login() {
               {error && (
                 <p
                   style={{
-                    fontFamily: "Inter, sans-serif",
+                    fontFamily: "var(--font-sans-ui)",
                     fontSize: "12px",
                     color: "#B42318",
                     textAlign: "center",
@@ -270,8 +269,8 @@ export function Login() {
 
               <button
                 onClick={() => { setStep("email"); setError(""); setCode(["", "", "", "", "", ""]); }}
-                className="w-full mt-4 py-3 text-[#888] hover:text-[#0A0A0A] transition-colors"
-                style={{ fontFamily: "Inter, sans-serif", fontSize: "13px", fontWeight: 300 }}
+                className="w-full mt-4 py-3 text-[var(--ink-subtle)] hover:text-[var(--ink-strong)] transition-colors"
+                style={{ fontFamily: "var(--font-sans-ui)", fontSize: "13px", fontWeight: 300 }}
               >
                 Cambiar email o reenviar código
               </button>
