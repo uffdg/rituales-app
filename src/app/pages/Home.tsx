@@ -950,7 +950,7 @@ const isSelectedStepBlocked = !isJourneyComplete && selectedStepIndex > complete
                     Este momento aparece más tarde en el día.
                   </p>
                   <div>
-                    <h3 className="font-serif text-[18px] leading-[1.2] text-[var(--ink-strong)] max-w-[300px]" style={{ fontWeight: 400 }}>
+                    <h3 className="font-serif text-[24px] leading-[1.2] text-[var(--ink-strong)] max-w-[300px]" style={{ fontWeight: 400 }}>
                       {selectedStep === "momento" ? "Disponible desde las 14 h" : "Disponible desde las 19 h"}
                     </h3>
                     <p className="mt-3 font-sans text-[13px] font-light leading-[1.5] text-[var(--ink-subtle)] max-w-[300px]">
