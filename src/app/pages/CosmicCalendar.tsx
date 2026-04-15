@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router";
 import { addMonths, addWeeks, format, subMonths, subWeeks } from "date-fns";
 import { es } from "date-fns/locale";
 import { MoonPhaseIcon } from "../components/MoonPhaseIcon";
+import { useUser } from "../context/UserContext";
 import {
   buildCosmicDay,
   getMonthlyCosmicDays,
@@ -14,11 +15,16 @@ import {
   type CosmicDay,
   type CosmicPerfection,
 } from "../lib/cosmic-calendar";
-import { getJournalEntries, getJournalByDate } from "../lib/practice-journal";
+import {
+  getJournalByDate,
+  getJournalEntries,
+  getJournalEntriesFromOwnRituals,
+} from "../lib/practice-journal";
 
 export function CosmicCalendar() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user, ownRituals } = useUser();
   const [view, setView] = useState<"week" | "month">("week");
   const [currentDate, setCurrentDate] = useState(new Date());
   
@@ -28,7 +34,11 @@ export function CosmicCalendar() {
   const weeklyDays = useMemo(() => getWeeklyCosmicDays(currentDate), [currentDate]);
   const monthlyDays = useMemo(() => getMonthlyCosmicDays(currentDate), [currentDate]);
 
-  const journalByDate = useMemo(() => getJournalByDate(getJournalEntries()), []);
+  const journalEntries = useMemo(
+    () => (user ? getJournalEntriesFromOwnRituals(ownRituals) : getJournalEntries()),
+    [user, ownRituals],
+  );
+  const journalByDate = useMemo(() => getJournalByDate(journalEntries), [journalEntries]);
 
   // Calcula perfecciones lunares para el rango visible (semana o mes)
   // Incluye ±2 meses de margen para no cortar fases en el borde

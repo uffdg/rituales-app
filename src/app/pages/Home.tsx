@@ -21,10 +21,11 @@ import {
   getDailyAnchorContent,
   getDailyAnchorJourney,
   resetDailyAnchorJourney,
+  syncDailyAnchorContentFromRemote,
   type DailyAnchorStepContent,
   type DailyAnchorType,
 } from "../lib/daily-anchor";
-import { saveDailyAnchorEntry } from "../lib/anchor-service";
+import { getDailyAnchorEntries, saveDailyAnchorEntry } from "../lib/anchor-service";
 import { MoonPhaseIcon } from "../components/MoonPhaseIcon";
 import { TodayContextCard } from "../components/TodayContextCard";
 import { RitualRecommendationCard } from "../components/RitualRecommendationCard";
@@ -406,6 +407,28 @@ const isSelectedStepBlocked = !isJourneyComplete && selectedStepIndex > complete
   }, [dailyAnchorContent]);
 
   useEffect(() => {
+    if (!session?.user?.id) return;
+
+    let cancelled = false;
+
+    void getDailyAnchorEntries({
+      userId: session.user.id,
+      dateKey: dailyJourney.dateKey,
+    }).then((remoteContent) => {
+      if (cancelled) return;
+
+      const didHydrate = syncDailyAnchorContentFromRemote(remoteContent, selectedDate);
+      if (didHydrate) {
+        setDailyAnchorVersion((current) => current + 1);
+      }
+    }).catch(() => {});
+
+    return () => {
+      cancelled = true;
+    };
+  }, [session?.user?.id, dailyJourney.dateKey, selectedDate]);
+
+  useEffect(() => {
     setSelectedAnchorStep(null);
   }, [selectedDateOffset]);
 
@@ -559,7 +582,6 @@ const isSelectedStepBlocked = !isJourneyComplete && selectedStepIndex > complete
     <div className="min-h-screen flex flex-col overflow-y-auto overflow-x-hidden relative bg-[var(--ink-strong)]">
       {/* Dynamic Background Image */}
       <div className="absolute top-0 left-0 w-full h-[85vh] z-0 pointer-events-none">
-        <div className="absolute inset-0 bg-black/30 z-10" />
         <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/50 to-transparent z-10" />
         <img 
           src={`/home/bg-${heroImageIndex}.jpg`}

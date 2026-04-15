@@ -92,11 +92,51 @@ function writeStorage(data: Record<string, StoredDailyAnchorState>) {
   } catch {}
 }
 
+function hasStepContent(content?: DailyAnchorStepContent) {
+  if (!content) return false;
+  return Boolean(content.text?.trim() || content.feeling || content.alignment);
+}
+
 export function resetDailyAnchorJourney(date = new Date()) {
   const dateKey = getDateKey(date);
   const all = readStorage();
   delete all[dateKey];
   writeStorage(all);
+}
+
+export function syncDailyAnchorContentFromRemote(
+  content: Partial<Record<DailyAnchorType, DailyAnchorStepContent>>,
+  date = new Date(),
+) {
+  const dateKey = getDateKey(date);
+  const remoteSteps = getOrderedCompletedSteps(
+    STEP_DEFINITIONS
+      .filter((step) => hasStepContent(content[step.id]))
+      .map((step) => step.id),
+  );
+
+  if (!remoteSteps.length) {
+    return false;
+  }
+
+  const all = readStorage();
+  const existing = all[dateKey];
+  const nextState: StoredDailyAnchorState = {
+    steps: remoteSteps,
+    content,
+    updatedAt: new Date().toISOString(),
+  };
+
+  const currentSerialized = JSON.stringify(existing ?? null);
+  const nextSerialized = JSON.stringify(nextState);
+
+  if (currentSerialized === nextSerialized) {
+    return false;
+  }
+
+  all[dateKey] = nextState;
+  writeStorage(all);
+  return true;
 }
 
 export function completeDailyAnchorStep(

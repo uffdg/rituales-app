@@ -42,3 +42,29 @@ export async function saveDailyAnchorEntry(params: {
   );
   // Errors are silently ignored — localStorage is the source of truth on the client
 }
+
+export async function getDailyAnchorEntries(params: {
+  userId: string;
+  dateKey: string;
+}): Promise<Partial<Record<DailyAnchorType, DailyAnchorStepContent>>> {
+  const { userId, dateKey } = params;
+
+  const { data, error } = await supabase
+    .from("daily_anchor_entries")
+    .select("step, text_content, feeling, alignment")
+    .eq("user_id", userId)
+    .eq("date_key", dateKey);
+
+  if (error || !data) {
+    return {};
+  }
+
+  return data.reduce<Partial<Record<DailyAnchorType, DailyAnchorStepContent>>>((acc, row: any) => {
+    acc[row.step as DailyAnchorType] = {
+      text: row.text_content ?? undefined,
+      feeling: row.feeling ?? undefined,
+      alignment: row.alignment ?? undefined,
+    };
+    return acc;
+  }, {});
+}

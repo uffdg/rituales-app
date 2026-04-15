@@ -2,7 +2,12 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import { motion } from "motion/react";
 import { Bookmark, Heart, LogOut, Sparkles } from "lucide-react";
-import { getJournalEntries, getDominantElement, getLunarStreak } from "../lib/practice-journal";
+import {
+  getDominantElement,
+  getJournalEntries,
+  getJournalEntriesFromOwnRituals,
+  getLunarStreak,
+} from "../lib/practice-journal";
 import { toast } from "sonner";
 import { useUser } from "../context/UserContext";
 import { useRitual } from "../context/RitualContext";
@@ -44,7 +49,10 @@ export function Account() {
   const [activeTab, setActiveTab] = useState<"favorites" | "own">("favorites");
   const [pendingDelete, setPendingDelete] = useState<PendingDelete | null>(null);
 
-  const journalEntries = useMemo(() => getJournalEntries(), []);
+  const journalEntries = useMemo(
+    () => (user ? getJournalEntriesFromOwnRituals(ownRituals) : getJournalEntries()),
+    [user, ownRituals],
+  );
   const dominantElement = useMemo(() => getDominantElement(journalEntries), [journalEntries]);
   const lunarStreak = useMemo(() => getLunarStreak(journalEntries), [journalEntries]);
 
