@@ -332,11 +332,11 @@ export function Onboarding() {
                   </p>
                   <p
                     style={{
-                      fontFamily: "var(--font-serif-display)",
-                      fontSize: "18px",
+                      fontFamily: "var(--font-sans-ui)",
+                      fontSize: "15px",
                       fontWeight: 400,
                       color: "var(--ink-strong)",
-                      lineHeight: 1.4,
+                      lineHeight: 1.5,
                       marginBottom: "16px",
                     }}
                   >

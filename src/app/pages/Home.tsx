@@ -1080,7 +1080,7 @@ const isSelectedStepBlocked = !isJourneyComplete && selectedStepIndex > complete
                           style={{ background: "var(--ink-strong)" }}
                         >
                           <p className="editorial-eyebrow mb-2" style={{ color: "rgba(255,255,255,0.45)" }}>Tu intención</p>
-                          <p className="font-serif text-[14px] leading-[1.55] italic" style={{ color: "rgba(255,255,255,0.9)" }}>
+                          <p className="font-sans text-[14px] font-normal leading-[1.55]" style={{ color: "rgba(255,255,255,0.9)" }}>
                             {generatedIntention}
                           </p>
                         </motion.div>
