@@ -112,6 +112,9 @@ export function Onboarding() {
     };
 
     recognition.onend = async () => {
+      recognition.onresult = null;
+      recognition.onerror = null;
+      recognition.onend = null;
       setIsListening(false);
       const transcript = transcriptRef.current.trim();
       transcriptRef.current = "";
