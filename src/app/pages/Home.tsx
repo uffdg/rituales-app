@@ -1,6 +1,8 @@
 import { useMemo, useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { AnimatePresence, motion } from "motion/react";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 import { ArrowUpRight, CalendarDays, Compass, Sparkles, Smile, Cloud, Meh, Heart, Moon, Frown } from "lucide-react";
 import { toast } from "sonner";
 import { useRitual } from "../context/RitualContext";
@@ -8,7 +10,7 @@ import { useUser } from "../context/UserContext";
 import { EXPLORE_RITUALS } from "../data/rituals";
 import { WIKI_NOTES } from "../data/wiki";
 import { track } from "../lib/analytics";
-import { getCosmicSliderDays, getTodayCosmicContext } from "../lib/cosmic-calendar";
+import { getCosmicSliderDays, getTodayCosmicContext, getNextEvent, type CosmicDay } from "../lib/cosmic-calendar";
 import {
   generateRitual,
   ritualCardToRitualData,
@@ -26,6 +28,7 @@ import {
   type DailyAnchorType,
 } from "../lib/daily-anchor";
 import { getDailyAnchorEntries, saveDailyAnchorEntry } from "../lib/anchor-service";
+import { getJournalByDate, getJournalEntries, getJournalEntriesFromOwnRituals } from "../lib/practice-journal";
 import { MoonPhaseIcon } from "../components/MoonPhaseIcon";
 import { TodayContextCard } from "../components/TodayContextCard";
 import { RitualRecommendationCard } from "../components/RitualRecommendationCard";
@@ -200,11 +203,12 @@ function MoodPicker({
 export function Home() {
   const navigate = useNavigate();
   const { resetRitual, setViewMode, setSelectedPublicRitual } = useRitual();
-  const { session, isRitualSaved, saveRitual } = useUser();
+  const { session, user, ownRituals, isRitualSaved, saveRitual } = useUser();
   const [savingRitualId, setSavingRitualId] = useState<string | null>(null);
   const [dailyAnchorVersion, setDailyAnchorVersion] = useState(0);
   const [selectedAnchorStep, setSelectedAnchorStep] = useState<DailyAnchorType | null>(null);
   const [selectedDateOffset, setSelectedDateOffset] = useState(0); // 0=hoy, -1=ayer, etc.
+  const [selectedCosmicDay, setSelectedCosmicDay] = useState<CosmicDay | null>(null);
   const [heroImageIndex, setHeroImageIndex] = useState(1);
   const [heroTextTheme, setHeroTextTheme] = useState<"light" | "dark">("light");
   const [localNow, setLocalNow] = useState(() => new Date());
@@ -257,6 +261,11 @@ export function Home() {
   const recommendationData = ritualCardToRitualData(recommendation);
   const recommendationSaved = isRitualSaved(recommendationData);
   const popularRituals = EXPLORE_RITUALS.slice(0, 2);
+  const journalEntries = useMemo(
+    () => (user ? getJournalEntriesFromOwnRituals(ownRituals) : getJournalEntries()),
+    [user, ownRituals],
+  );
+  const journalByDate = useMemo(() => getJournalByDate(journalEntries), [journalEntries]);
   const isDev = import.meta.env.DEV;
   const journeyNow = useMemo(
     () => (devTestHour === null ? localNow : setHourForDate(localNow, devTestHour)),
@@ -1260,12 +1269,12 @@ const isSelectedStepBlocked = !isJourneyComplete && selectedStepIndex > complete
           </div>
           <div className="overflow-x-auto hide-scrollbar pb-4 pl-6 pr-6 -mr-6">
             <div className="flex gap-2 w-max pr-6">
-              {cosmicDays.map((day, idx) => {
-                 const isActive = idx === 1; // mocked state corresponding to today
+              {cosmicDays.map((day) => {
+                 const isActive = day.dateKey === cosmicContext.day.dateKey;
                  return (
                   <button
                     key={day.dateKey}
-                    onClick={() => navigate("/calendario-cosmico", { state: { selectedDate: day.dateKey } })}
+                    onClick={() => setSelectedCosmicDay(day)}
                     className={`editorial-day-card ${isActive ? "editorial-day-card-active" : ""}`}
                   >
                     <div className="flex items-center justify-between mb-5">
@@ -1288,6 +1297,99 @@ const isSelectedStepBlocked = !isJourneyComplete && selectedStepIndex > complete
             </div>
           </div>
         </div>
+
+        {selectedCosmicDay ? (
+          <div className="fixed inset-0 z-40">
+            <div
+              className="absolute inset-0 bg-black/35"
+              onClick={() => setSelectedCosmicDay(null)}
+            />
+            <div className="editorial-calendar-dialog absolute left-1/2 top-1/2 w-[calc(100%-3rem)] max-w-[330px] -translate-x-1/2 -translate-y-1/2 px-5 py-5">
+              <button
+                onClick={() => setSelectedCosmicDay(null)}
+                className="editorial-icon-button absolute top-5 right-5 h-8 w-8 rounded-full text-[var(--ink-muted)]"
+              >
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                  <path d="M1 1L9 9M9 1L1 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                </svg>
+              </button>
+
+              <p className="editorial-eyebrow mb-2.5">{selectedCosmicDay.weekdayLabel}</p>
+
+              <p className="editorial-title-section !text-[26px] leading-[1.1] mb-2.5 pr-6">
+                {format(selectedCosmicDay.date, "d 'de' LLLL", { locale: es })}
+              </p>
+
+              {journalByDate.has(selectedCosmicDay.dateKey) ? (
+                <div className="editorial-calendar-soft-block mb-4">
+                  <p className="editorial-eyebrow mb-2.5">Tu práctica este día</p>
+                  {journalByDate.get(selectedCosmicDay.dateKey)!.map((entry, i) => (
+                    <div key={i} className={i > 0 ? "mt-3 pt-3 border-t border-[var(--border-soft)]" : ""}>
+                      <p className="editorial-title-card !text-[16px] !leading-[1.4]">
+                        "{entry.anchor}"
+                      </p>
+                      {entry.element ? (
+                        <p className="font-sans text-[10px] text-[var(--ink-subtle)] mt-1 capitalize tracking-[0.04em]">
+                          {entry.ritualType} · {entry.element}
+                        </p>
+                      ) : null}
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+
+              {selectedCosmicDay.perfection ? (
+                <>
+                  <p className="editorial-body-muted mb-4">
+                    {selectedCosmicDay.perfection.label}
+                  </p>
+
+                  <div className="editorial-calendar-soft-block">
+                    <p className="editorial-eyebrow mb-2">Posición exacta</p>
+                    <p className="editorial-title-card !text-[18px] !leading-[1.2] mb-1.5">
+                      {selectedCosmicDay.perfection.timeBuenosAires} hs en Buenos Aires
+                    </p>
+                    <p className="editorial-body-muted">
+                      Se perfecciona en {selectedCosmicDay.perfection.zodiacSign}.
+                    </p>
+                  </div>
+                </>
+              ) : (() => {
+                const nextEventData = getNextEvent(selectedCosmicDay.date);
+                return (
+                  <div className="editorial-calendar-soft-block mt-4">
+                    <p className="editorial-body-muted mb-4">
+                      No hay eventos particulares hoy, pero te podés preparar para el próximo evento.
+                    </p>
+                    {nextEventData ? (
+                      <>
+                        <p className="editorial-eyebrow mb-2">Próximo evento</p>
+                        <p className="editorial-title-card !text-[18px] !leading-[1.2] mb-0.5">
+                          {nextEventData.perfection.label}
+                        </p>
+                        <p className="editorial-body-muted">
+                          {format(nextEventData.date, "d 'de' LLLL", { locale: es })}
+                        </p>
+                      </>
+                    ) : null}
+
+                    <div className="mt-5 border-t border-[var(--border-soft)] pt-4 flex justify-center">
+                      <button
+                        onClick={() => {
+                          setSelectedCosmicDay(null);
+                          navigate("/wiki/las-lunas-y-su-energia");
+                        }}
+                        className="font-sans text-[12px] text-[var(--ink-strong)] font-medium underline underline-offset-[3px] hover:opacity-60 transition-opacity"
+                      >
+                        Abrir información de lunas
+                      </button>
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+          </div>
+        ) : null}
 
         {/* Populares ahora */}
         <div className="px-6 mb-12">

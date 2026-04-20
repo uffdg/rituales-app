@@ -73,7 +73,10 @@ function getOrderedCompletedSteps(steps: DailyAnchorType[]) {
 }
 
 function getDateKey(date: Date) {
-  return date.toISOString().slice(0, 10);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 }
 
 function readStorage(): Record<string, StoredDailyAnchorState> {
@@ -115,19 +118,25 @@ export function syncDailyAnchorContentFromRemote(
       .map((step) => step.id),
   );
 
-  if (!remoteSteps.length) {
-    return false;
-  }
-
   const all = readStorage();
   const existing = all[dateKey];
+  const currentSerialized = JSON.stringify(existing ?? null);
+
+  if (!remoteSteps.length) {
+    if (!existing) {
+      return false;
+    }
+
+    delete all[dateKey];
+    writeStorage(all);
+    return true;
+  }
+
   const nextState: StoredDailyAnchorState = {
     steps: remoteSteps,
     content,
     updatedAt: new Date().toISOString(),
   };
-
-  const currentSerialized = JSON.stringify(existing ?? null);
   const nextSerialized = JSON.stringify(nextState);
 
   if (currentSerialized === nextSerialized) {
