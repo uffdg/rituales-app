@@ -241,17 +241,26 @@ export function Home() {
     return d;
   }, [localNow, selectedDateOffset]);
 
+  // Stable string key — only changes when the calendar date changes, not when
+  // the 60-second localNow tick creates a new Date object for the same day.
+  const selectedDateKey = useMemo(() => {
+    const y = selectedDate.getFullYear();
+    const m = String(selectedDate.getMonth() + 1).padStart(2, "0");
+    const d = String(selectedDate.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  }, [selectedDate]);
+
   const isToday = selectedDateOffset === 0;
   const isFuture = selectedDateOffset > 0;
   const isPast = selectedDateOffset < 0;
 
   const dailyJourney = useMemo(
     () => getDailyAnchorJourney(selectedDate),
-    [dailyAnchorVersion, selectedDate],
+    [dailyAnchorVersion, selectedDateKey],
   );
   const dailyAnchorContent = useMemo(
     () => getDailyAnchorContent(selectedDate),
-    [dailyAnchorVersion, selectedDate],
+    [dailyAnchorVersion, selectedDateKey],
   );
 
   const recommendation = useMemo(
@@ -559,8 +568,12 @@ const isSelectedStepBlocked = !isJourneyComplete && selectedStepIndex > complete
     };
 
     recognition.onend = async () => {
+      recognition.onresult = null;
+      recognition.onerror = null;
+      recognition.onend = null;
       setIsListening(false);
       const transcript = transcriptRef.current.trim();
+      transcriptRef.current = "";
       if (!transcript) return;
 
       track("home_voice_anchor_used");
@@ -1098,7 +1111,7 @@ const isSelectedStepBlocked = !isJourneyComplete && selectedStepIndex > complete
                           style={{ background: "var(--ink-strong)" }}
                         >
                           <p className="editorial-eyebrow mb-2" style={{ color: "rgba(255,255,255,0.45)" }}>Tu intención</p>
-                          <p className="font-serif text-[14px] leading-[1.55] italic" style={{ color: "rgba(255,255,255,0.9)" }}>
+                          <p className="font-sans text-[14px] font-normal leading-[1.55]" style={{ color: "rgba(255,255,255,0.9)" }}>
                             {generatedIntention}
                           </p>
                         </motion.div>

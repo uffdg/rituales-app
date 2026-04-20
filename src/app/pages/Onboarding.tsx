@@ -112,8 +112,12 @@ export function Onboarding() {
     };
 
     recognition.onend = async () => {
+      recognition.onresult = null;
+      recognition.onerror = null;
+      recognition.onend = null;
       setIsListening(false);
       const transcript = transcriptRef.current.trim();
+      transcriptRef.current = "";
       if (!transcript) return;
 
       const type = detectRitualType(transcript);
@@ -328,11 +332,11 @@ export function Onboarding() {
                   </p>
                   <p
                     style={{
-                      fontFamily: "var(--font-serif-display)",
-                      fontSize: "18px",
+                      fontFamily: "var(--font-sans-ui)",
+                      fontSize: "15px",
                       fontWeight: 400,
                       color: "var(--ink-strong)",
-                      lineHeight: 1.4,
+                      lineHeight: 1.5,
                       marginBottom: "16px",
                     }}
                   >
