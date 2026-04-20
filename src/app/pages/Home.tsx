@@ -227,6 +227,7 @@ export function Home() {
   const [cierreFeeling, setCierreFeeling] = useState<string | null>(null);
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
   const transcriptRef = useRef<string>("");
+  const hasUnsavedDictationRef = useRef(false);
 
   const hasSpeechRecognition =
     typeof window !== "undefined" &&
@@ -416,7 +417,9 @@ const isSelectedStepBlocked = !isJourneyComplete && selectedStepIndex > complete
   }, []);
 
   useEffect(() => {
-    setGeneratedIntention(dailyAnchorContent.inicio?.text ?? null);
+    if (!hasUnsavedDictationRef.current) {
+      setGeneratedIntention(dailyAnchorContent.inicio?.text ?? null);
+    }
     setInicioFeeling(dailyAnchorContent.inicio?.feeling ?? null);
     setMomentoAlignment(dailyAnchorContent.momento?.alignment ?? null);
     setMomentoFeeling(dailyAnchorContent.momento?.feeling ?? null);
@@ -444,10 +447,11 @@ const isSelectedStepBlocked = !isJourneyComplete && selectedStepIndex > complete
     return () => {
       cancelled = true;
     };
-  }, [session?.user?.id, dailyJourney.dateKey, selectedDate]);
+  }, [session?.user?.id, dailyJourney.dateKey, selectedDateKey]);
 
   useEffect(() => {
     setSelectedAnchorStep(null);
+    hasUnsavedDictationRef.current = false;
   }, [selectedDateOffset]);
 
   useEffect(() => {
@@ -458,6 +462,7 @@ const isSelectedStepBlocked = !isJourneyComplete && selectedStepIndex > complete
   }, [effectiveCurrentStep, nextPendingStep]);
 
   const persistAnchorStep = async (step: DailyAnchorType, content: DailyAnchorStepContent) => {
+    if (step === "inicio") hasUnsavedDictationRef.current = false;
     completeDailyAnchorStep(step, content, selectedDate);
     if (session?.user?.id) {
       void saveDailyAnchorEntry({
@@ -576,6 +581,7 @@ const isSelectedStepBlocked = !isJourneyComplete && selectedStepIndex > complete
       transcriptRef.current = "";
       if (!transcript) return;
 
+      hasUnsavedDictationRef.current = true;
       track("home_voice_anchor_used");
 
       setIsReframing(true);
