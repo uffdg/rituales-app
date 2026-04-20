@@ -529,6 +529,7 @@ const isSelectedStepBlocked = !isJourneyComplete && selectedStepIndex > complete
     recognition.onend = async () => {
       setIsListening(false);
       const transcript = transcriptRef.current.trim();
+      transcriptRef.current = "";
       if (!transcript) return;
 
       track("home_voice_anchor_used");

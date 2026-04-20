@@ -89,6 +89,7 @@ export function StepIntention() {
     recognition.onend = async () => {
       setIsListening(false);
       const transcript = transcriptRef.current.trim();
+      transcriptRef.current = "";
       if (!transcript) return;
 
       setIntention(transcript);

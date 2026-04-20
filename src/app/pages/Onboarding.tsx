@@ -114,6 +114,7 @@ export function Onboarding() {
     recognition.onend = async () => {
       setIsListening(false);
       const transcript = transcriptRef.current.trim();
+      transcriptRef.current = "";
       if (!transcript) return;
 
       const type = detectRitualType(transcript);
