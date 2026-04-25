@@ -54,7 +54,7 @@ function hashId(id: string): number {
   return h;
 }
 
-function getImageUrl(element: string, id: string): string {
+export function getImageUrl(element: string, id: string): string {
   const pool = IMAGE_POOLS[element] ?? IMAGE_POOLS["Agua"];
   return pool[hashId(id) % pool.length];
 }

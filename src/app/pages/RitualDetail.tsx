@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from "motion/react";
 import { useRitual } from "../context/RitualContext";
 import { useUser } from "../context/UserContext";
 import { ELEMENTS } from "../data/rituals";
-import { UserMenu } from "../components/UserMenu";
 import { deriveCandleGuide } from "../lib/candle";
 import { getUserFacingErrorMessage } from "../lib/errors";
 import { toast } from "sonner";
@@ -390,18 +389,15 @@ export function RitualDetail() {
             </svg>
             {fromAccount ? "Volver" : isViewMode ? "Explorar" : "Inicio"}
           </button>
-          <div className="flex items-center gap-3">
-            {!isPublic && (
-              <button
-                onClick={() => navigate("/crear/1")}
-                className="transition-opacity active:opacity-60"
-                style={{ fontFamily: "var(--font-sans-ui)", fontSize: "13px", color: "rgba(255,255,255,0.8)" }}
-              >
-                Editar
-              </button>
-            )}
-            <UserMenu />
-          </div>
+          {!isPublic && (
+            <button
+              onClick={() => navigate("/crear/1")}
+              className="transition-opacity active:opacity-60"
+              style={{ fontFamily: "var(--font-sans-ui)", fontSize: "13px", color: "rgba(255,255,255,0.8)" }}
+            >
+              Editar
+            </button>
+          )}
         </div>
 
         {/* Title + badges at bottom of hero */}

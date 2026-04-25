@@ -127,30 +127,30 @@ function mapWeatherCodeToCondition(code: number): WeatherCondition {
   return "unknown";
 }
 
+// Maps each lunar phase to preferred ritual types (priority order)
+const MOON_PHASE_PREFS: { test: (p: string) => boolean; types: string[] }[] = [
+  { test: (p) => p.includes("nueva"),      types: ["atraer", "claridad"] },
+  { test: (p) => p.includes("creciente"),  types: ["enfoque", "atraer"] },
+  { test: (p) => p.includes("llena"),      types: ["amor", "cerrar"] },
+  { test: (p) => p.includes("menguante"),  types: ["cerrar", "calma"] },
+  { test: (p) => p.includes("eclipse"),    types: ["cerrar", "claridad"] },
+];
+
 function chooseRecommendedRitual(
   rituals: ExploreRitual[],
-  momentOfDay: string,
   moonPhase: string,
 ): ExploreRitual {
-  const normalizedMoment = momentOfDay.toLowerCase();
-  const normalizedPhase = moonPhase.toLowerCase();
+  const normalized = moonPhase.toLowerCase();
+  const prefs = MOON_PHASE_PREFS.find((p) => p.test(normalized));
 
-  const byMoment =
-    rituals.find((ritual) =>
-      ritual.title.toLowerCase().includes(normalizedMoment)
-      || ritual.intention.toLowerCase().includes(normalizedMoment),
-    ) ?? null;
+  if (prefs) {
+    for (const type of prefs.types) {
+      const match = rituals.find((r) => r.type.toLowerCase().includes(type));
+      if (match) return match;
+    }
+  }
 
-  if (byMoment) return byMoment;
-
-  const byPhase =
-    normalizedPhase.includes("llena")
-      ? rituals.find((ritual) => ritual.type.toLowerCase().includes("cerrar"))
-      : normalizedPhase.includes("nueva")
-      ? rituals.find((ritual) => ritual.type.toLowerCase().includes("atraer"))
-      : null;
-
-  return byPhase ?? rituals[0];
+  return rituals[0];
 }
 
 function setHourForDate(date: Date, hour: number) {
@@ -264,7 +264,7 @@ export function Home() {
   );
 
   const recommendation = useMemo(
-    () => chooseRecommendedRitual(EXPLORE_RITUALS, cosmicContext.momentOfDay, cosmicContext.day.moonPhase),
+    () => chooseRecommendedRitual(EXPLORE_RITUALS, cosmicContext.day.moonPhase),
     [cosmicContext],
   );
   const recommendationData = ritualCardToRitualData(recommendation);
@@ -1269,7 +1269,9 @@ const isSelectedStepBlocked = !isJourneyComplete && selectedStepIndex > complete
         {/* Ritual para hoy */}
         <div className="px-6 mb-12">
           <RitualRecommendationCard
-            eyebrow="Ritual para hoy"
+            id={recommendation.id}
+            element={recommendation.element}
+            eyebrow={`${cosmicContext.day.moonEmoji} ${cosmicContext.day.moonPhase}`}
             title={recommendation.title}
             description={recommendation.intention}
             meta={[
