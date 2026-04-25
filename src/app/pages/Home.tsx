@@ -202,7 +202,7 @@ function MoodPicker({
 export function Home() {
   const navigate = useNavigate();
   const { resetRitual, setViewMode, setSelectedPublicRitual } = useRitual();
-  const { session, user, ownRituals, isRitualSaved, saveRitual } = useUser();
+  const { session, user, ownRituals, isRitualSaved, saveRitual, savedRituals, removeSavedRitual } = useUser();
   const [savingRitualId, setSavingRitualId] = useState<string | null>(null);
   const [dailyAnchorVersion, setDailyAnchorVersion] = useState(0);
   const [selectedAnchorStep, setSelectedAnchorStep] = useState<DailyAnchorType | null>(null);
@@ -346,10 +346,20 @@ const isSelectedStepBlocked = !isJourneyComplete && selectedStepIndex > complete
     }
 
     const ritualToSaveBase = ritualCardToRitualData(ritual);
+
     if (isRitualSaved(ritualToSaveBase)) {
-      toast("Ya está guardado", {
-        description: "Lo encontrás en Favoritos dentro de tu cuenta.",
-      });
+      const savedEntry = savedRituals.find((e) => e.id === ritualToSaveBase.ritualId);
+      if (savedEntry) {
+        setSavingRitualId(ritual.id);
+        try {
+          await removeSavedRitual(savedEntry.id);
+          toast("Ritual eliminado de favoritos");
+        } catch (error) {
+          toast(getUserFacingErrorMessage(error, "No se pudo eliminar el ritual."));
+        } finally {
+          setSavingRitualId(null);
+        }
+      }
       return;
     }
 

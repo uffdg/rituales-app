@@ -25,7 +25,7 @@ type FilterKey = keyof typeof FILTERS;
 export function Explore() {
   const navigate = useNavigate();
   const { setViewMode, setSelectedPublicRitual } = useRitual();
-  const { session, isRitualSaved, saveRitual } = useUser();
+  const { session, isRitualSaved, saveRitual, savedRituals, removeSavedRitual } = useUser();
   const [communityRituals, setCommunityRituals] = useState<any[]>([]);
   const [activeFilterGroup, setActiveFilterGroup] = useState<FilterKey>("type");
   const [activeFilters, setActiveFilters] = useState<Record<FilterKey, string>>({
@@ -94,10 +94,20 @@ export function Explore() {
     }
 
     const ritualToSaveBase = ritualCardToRitualData(ritual);
+
     if (isRitualSaved(ritualToSaveBase)) {
-      toast("Ya está guardado", {
-        description: "Lo encontrás en Favoritos dentro de tu cuenta.",
-      });
+      const savedEntry = savedRituals.find((e) => e.id === ritualToSaveBase.ritualId);
+      if (savedEntry) {
+        setSavingRitualId(ritual.id);
+        try {
+          await removeSavedRitual(savedEntry.id);
+          toast("Ritual eliminado de favoritos");
+        } catch (error) {
+          toast(getUserFacingErrorMessage(error, "No se pudo eliminar el ritual."));
+        } finally {
+          setSavingRitualId(null);
+        }
+      }
       return;
     }
 

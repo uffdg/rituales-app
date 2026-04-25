@@ -2,12 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import { motion } from "motion/react";
 import { Bookmark, Heart, LogOut, Sparkles } from "lucide-react";
-import {
-  getDominantElement,
-  getJournalEntries,
-  getJournalEntriesFromOwnRituals,
-  getLunarStreak,
-} from "../lib/practice-journal";
+import { getDailyAnchorContent } from "../lib/daily-anchor";
 import { toast } from "sonner";
 import { useUser } from "../context/UserContext";
 import { useRitual } from "../context/RitualContext";
@@ -49,19 +44,7 @@ export function Account() {
   const [activeTab, setActiveTab] = useState<"favorites" | "own">("favorites");
   const [pendingDelete, setPendingDelete] = useState<PendingDelete | null>(null);
 
-  const journalEntries = useMemo(
-    () => (user ? getJournalEntriesFromOwnRituals(ownRituals) : getJournalEntries()),
-    [user, ownRituals],
-  );
-  const dominantElement = useMemo(() => getDominantElement(journalEntries), [journalEntries]);
-  const lunarStreak = useMemo(() => getLunarStreak(journalEntries), [journalEntries]);
-
-  const ELEMENT_DESCRIPTIONS: Record<string, { symbol: string; text: string }> = {
-    fuego:  { symbol: "🜂", text: "Practicás desde la acción, la transformación y el deseo." },
-    agua:   { symbol: "🜄", text: "Tu práctica nace de la intuición, la emoción y la profundidad." },
-    tierra: { symbol: "🜃", text: "Te movés desde la constancia, el cuerpo y lo concreto." },
-    aire:   { symbol: "🜁", text: "Conectás desde el pensamiento, la claridad y la visión." },
-  };
+  const todayIntention = getDailyAnchorContent().inicio?.text?.trim() || null;
 
   useEffect(() => {
     setFullNameDraft(profile?.fullName || "");
@@ -353,106 +336,65 @@ export function Account() {
           ))}
         </div>
 
-        {/* ── Tu práctica ── */}
-        {journalEntries.length > 0 && (
-          <section className="mb-8">
-            <p
-              style={{
-                fontFamily: "var(--font-sans-ui)",
-                fontSize: "10px",
-                fontWeight: 500,
-                letterSpacing: "0.14em",
-                textTransform: "uppercase",
-                color: "var(--ink-soft)",
-                marginBottom: "12px",
-              }}
-            >
-              Tu práctica
-            </p>
+        {/* ── Intención del día ── */}
+        <section className="mb-8">
+          <p
+            style={{
+              fontFamily: "var(--font-sans-ui)",
+              fontSize: "10px",
+              fontWeight: 500,
+              letterSpacing: "0.14em",
+              textTransform: "uppercase",
+              color: "var(--ink-soft)",
+              marginBottom: "12px",
+            }}
+          >
+            Intención del día
+          </p>
 
-            <div className="rounded-3xl border border-[rgba(0,0,0,0.06)] bg-[#FAFAF9] p-5 flex flex-col gap-5">
-
-              {/* Elemento dominante */}
-              {dominantElement && ELEMENT_DESCRIPTIONS[dominantElement] && (
-                <div>
-                  <p style={{ fontFamily: "var(--font-sans-ui)", fontSize: "10px", color: "var(--ink-soft)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 6 }}>
-                    Elemento dominante
-                  </p>
-                  <div className="flex items-center gap-3">
-                    <span style={{ fontSize: 22, lineHeight: 1 }}>
-                      {ELEMENT_DESCRIPTIONS[dominantElement].symbol}
-                    </span>
-                    <div>
-                      <p style={{ fontFamily: "var(--font-serif-display)", fontSize: 20, color: "var(--ink-strong)", lineHeight: 1.2, textTransform: "capitalize" }}>
-                        {dominantElement}
-                      </p>
-                      <p style={{ fontFamily: "var(--font-sans-ui)", fontSize: 12, color: "var(--ink-muted)", lineHeight: 1.5, marginTop: 2 }}>
-                        {ELEMENT_DESCRIPTIONS[dominantElement].text}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Racha lunar */}
-              {lunarStreak >= 2 && (
-                <div>
-                  <p style={{ fontFamily: "var(--font-sans-ui)", fontSize: "10px", color: "var(--ink-soft)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 6 }}>
-                    Práctica continua
-                  </p>
-                  <p style={{ fontFamily: "var(--font-serif-display)", fontSize: 20, color: "var(--ink-strong)", lineHeight: 1.2 }}>
-                    ✦ {lunarStreak} lunas en práctica continua
-                  </p>
-                  <p style={{ fontFamily: "var(--font-sans-ui)", fontSize: 12, color: "var(--ink-subtle)", marginTop: 4, lineHeight: 1.5 }}>
-                    Hiciste al menos un ritual en {lunarStreak} fases lunares consecutivas.
-                  </p>
-                </div>
-              )}
-
-              {/* Diario de anclas */}
-              <div>
-                <p style={{ fontFamily: "var(--font-sans-ui)", fontSize: "10px", color: "var(--ink-soft)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 10 }}>
-                  Tus anclas recientes
-                </p>
-                <div className="flex flex-col gap-3">
-                  {journalEntries
-                    .slice(-5)
-                    .reverse()
-                    .map((entry, i) => (
-                      <div key={i} className="flex items-start gap-3">
-                        <div
-                          style={{
-                            width: 6,
-                            height: 6,
-                            borderRadius: "50%",
-                            background: "#D0CBC4",
-                            marginTop: 7,
-                            flexShrink: 0,
-                          }}
-                        />
-                        <div className="flex-1 min-w-0">
-                          <p
-                            style={{
-                              fontFamily: "var(--font-serif-display)",
-                              fontSize: 16,
-                              color: "var(--ink-strong)",
-                              lineHeight: 1.4,
-                            }}
-                          >
-                            "{entry.anchor}"
-                          </p>
-                          <p style={{ fontFamily: "var(--font-sans-ui)", fontSize: 10, color: "var(--ink-soft)", marginTop: 3, letterSpacing: "0.04em" }}>
-                            {entry.moonPhase} · {new Date(entry.completedAt).toLocaleDateString("es-AR", { day: "numeric", month: "short" })}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                </div>
-              </div>
-
+          {todayIntention ? (
+            <div className="rounded-3xl border border-[rgba(0,0,0,0.06)] bg-[#FAFAF9] p-5">
+              <p
+                style={{
+                  fontFamily: "var(--font-serif-display)",
+                  fontSize: 20,
+                  fontWeight: 400,
+                  color: "var(--ink-strong)",
+                  lineHeight: 1.4,
+                  fontStyle: "italic",
+                }}
+              >
+                "{todayIntention}"
+              </p>
             </div>
-          </section>
-        )}
+          ) : (
+            <div className="rounded-3xl border border-dashed border-[rgba(0,0,0,0.12)] p-5 flex flex-col gap-3">
+              <p
+                style={{
+                  fontFamily: "var(--font-sans-ui)",
+                  fontSize: 13,
+                  fontWeight: 300,
+                  color: "var(--ink-soft)",
+                  lineHeight: 1.5,
+                }}
+              >
+                Todavía no registraste tu intención de hoy.
+              </p>
+              <button
+                onClick={() => navigate("/")}
+                className="self-start rounded-full px-4 py-2 transition-all active:scale-[0.97]"
+                style={{
+                  background: "var(--ink-strong)",
+                  color: "#fff",
+                  fontFamily: "var(--font-sans-ui)",
+                  fontSize: "12px",
+                }}
+              >
+                Registrar intención
+              </button>
+            </div>
+          )}
+        </section>
 
         <section>
           <div className="mb-4">

@@ -171,40 +171,52 @@ export async function updateProfile(fullName: string): Promise<UserProfileData> 
 
 export async function favoriteRitual(ritualId: string) {
   const apiBaseUrl = getApiBaseUrl();
-  if (!apiBaseUrl) {
-    throw new Error("No hay backend configurado para guardar favoritos.");
+  if (apiBaseUrl) {
+    try {
+      const response = await fetch(`${apiBaseUrl}/rituals/${ritualId}/favorite`, {
+        method: "POST",
+        headers: await getAuthHeaders(),
+      });
+      if (response.ok) return response.json();
+      throw new Error(await readUserServiceError(response, "No se pudo guardar el ritual."));
+    } catch (err) {
+      if (!(err instanceof TypeError)) throw err;
+      // network failure — fall through to direct Supabase
+    }
   }
-
-  const response = await fetch(`${apiBaseUrl}/rituals/${ritualId}/favorite`, {
-    method: "POST",
-    headers: await getAuthHeaders(),
-  });
-
-  if (!response.ok) {
-    throw new Error(await readUserServiceError(response, "No se pudo guardar el ritual."));
-  }
-
-  return response.json();
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) throw new Error("Necesitás iniciar sesión para hacer eso.");
+  const { error } = await supabase
+    .from("ritual_favorites")
+    .upsert({ ritual_id: ritualId, user_id: session.user.id }, { onConflict: "ritual_id,user_id" });
+  if (error) throw new Error("No se pudo guardar el ritual.");
+  return { ok: true, favorited: true };
 }
 
 export async function unfavoriteRitual(ritualId: string) {
   const apiBaseUrl = getApiBaseUrl();
-  if (!apiBaseUrl) {
-    throw new Error("No hay backend configurado para quitar favoritos.");
+  if (apiBaseUrl) {
+    try {
+      const response = await fetch(`${apiBaseUrl}/rituals/${ritualId}/favorite`, {
+        method: "DELETE",
+        headers: await getAuthHeaders(),
+      });
+      if (response.ok) return response.json();
+      throw new Error(await readUserServiceError(response, "No se pudo quitar el ritual."));
+    } catch (err) {
+      if (!(err instanceof TypeError)) throw err;
+      // network failure — fall through to direct Supabase
+    }
   }
-
-  const response = await fetch(`${apiBaseUrl}/rituals/${ritualId}/favorite`, {
-    method: "DELETE",
-    headers: await getAuthHeaders(),
-  });
-
-  if (!response.ok) {
-    throw new Error(
-      await readUserServiceError(response, "No se pudo quitar el ritual de guardados."),
-    );
-  }
-
-  return response.json();
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) throw new Error("Necesitás iniciar sesión para hacer eso.");
+  const { error } = await supabase
+    .from("ritual_favorites")
+    .delete()
+    .eq("ritual_id", ritualId)
+    .eq("user_id", session.user.id);
+  if (error) throw new Error("No se pudo quitar el ritual.");
+  return { ok: true, favorited: false };
 }
 
 export async function deleteOwnRitual(ritualId: string) {
