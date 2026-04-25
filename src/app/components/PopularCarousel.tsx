@@ -25,9 +25,9 @@ type Slot = { x: number; scale: number; z: number; opacity: number; blur: number
 function getSlot(offset: number): Slot {
   const abs = Math.abs(offset);
   const sign = offset > 0 ? 1 : -1;
-  if (offset === 0) return { x: 0,           scale: 1,    z: 10, opacity: 1, blur: 0 };
-  if (abs === 1)    return { x: sign * 162,   scale: 0.72, z: 5,  opacity: 1, blur: 3 };
-  return                    { x: sign * 300,  scale: 0.70, z: 1,  opacity: 0, blur: 6 };
+  if (offset === 0) return { x: 0,          scale: 1,    z: 10, opacity: 1, blur: 0 };
+  if (abs === 1)    return { x: sign * 162,  scale: 0.72, z: 5,  opacity: 1, blur: 3 };
+  return                   { x: sign * 300,  scale: 0.70, z: 1,  opacity: 0, blur: 6 };
 }
 
 export function PopularCarousel({ rituals }: { rituals: CarouselRitual[] }) {
@@ -45,7 +45,6 @@ export function PopularCarousel({ rituals }: { rituals: CarouselRitual[] }) {
   const go = (dir: 1 | -1) => {
     setActiveIdx((prev) => {
       const next = prev + dir;
-      // Stay in the middle section
       if (next < Math.floor(count * 0.5)) return next + count;
       if (next >= Math.ceil(count * 2.5)) return next - count;
       return next;
@@ -54,24 +53,20 @@ export function PopularCarousel({ rituals }: { rituals: CarouselRitual[] }) {
 
   return (
     <div className="w-full">
-      {/* Clips card overflow without cutting off the dots */}
-      <div className="relative overflow-hidden w-full" style={{ height: CARD_H }}>
-        {/* Drag surface — captures swipe gesture without physically moving */}
-        <motion.div
-          className="absolute inset-0"
-          style={{ zIndex: 20, touchAction: "pan-y" }}
-          drag="x"
-          dragConstraints={{ left: 0, right: 0 }}
-          dragElastic={0}
-          onDragEnd={(_, info) => {
-            const isSwipeLeft  = info.offset.x < -SWIPE_THRESHOLD || info.velocity.x < -500;
-            const isSwipeRight = info.offset.x >  SWIPE_THRESHOLD || info.velocity.x >  500;
-            if (isSwipeLeft)  go(1);
-            if (isSwipeRight) go(-1);
-          }}
-        />
-
-        {/* Cards — absolutely centered */}
+      {/* Drag is on the container itself — no overlay blocking the center card */}
+      <motion.div
+        className="relative overflow-hidden w-full"
+        style={{ height: CARD_H, touchAction: "pan-y" }}
+        drag="x"
+        dragConstraints={{ left: 0, right: 0 }}
+        dragElastic={0}
+        onDragEnd={(_, info) => {
+          const isSwipeLeft  = info.offset.x < -SWIPE_THRESHOLD || info.velocity.x < -500;
+          const isSwipeRight = info.offset.x >  SWIPE_THRESHOLD || info.velocity.x >  500;
+          if (isSwipeLeft)  go(1);
+          if (isSwipeRight) go(-1);
+        }}
+      >
         {items.map((ritual, i) => {
           const offset = i - activeIdx;
           if (Math.abs(offset) > 2) return null;
@@ -86,7 +81,7 @@ export function PopularCarousel({ rituals }: { rituals: CarouselRitual[] }) {
                 width: CARD_W,
                 left: "50%",
                 marginLeft: -CARD_W / 2,
-                zIndex: isCenter ? 25 : slot.z,
+                zIndex: slot.z,
                 transformOrigin: "center center",
                 pointerEvents: isCenter ? "auto" : "none",
               }}
@@ -109,7 +104,7 @@ export function PopularCarousel({ rituals }: { rituals: CarouselRitual[] }) {
             </motion.div>
           );
         })}
-      </div>
+      </motion.div>
 
       {/* Dot indicators — outside the clipping div so they never overlap */}
       <div className="flex justify-center gap-1.5 pt-3">
