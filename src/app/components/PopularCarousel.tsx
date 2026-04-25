@@ -17,7 +17,6 @@ export interface CarouselRitual {
 
 const CARD_W = 220;
 const SWIPE_THRESHOLD = 40;
-// Image height for 3:4 aspect + text area below
 const CARD_H = Math.round(CARD_W * (4 / 3)) + 72;
 
 type Slot = { x: number; scale: number; z: number; opacity: number; blur: number };
@@ -30,17 +29,36 @@ function getSlot(offset: number): Slot {
   return                   { x: sign * 300,  scale: 0.70, z: 1,  opacity: 0, blur: 6 };
 }
 
+function lerp(a: number, b: number, t: number) { return a + (b - a) * t; }
+
+function interpolateSlot(floatOffset: number): Slot {
+  const clamped = Math.max(-2, Math.min(2, floatOffset));
+  const floor = Math.floor(clamped);
+  const t = clamped - floor;
+  if (t === 0) return getSlot(floor);
+  const a = getSlot(floor);
+  const b = getSlot(floor + 1);
+  return {
+    x:       lerp(a.x,       b.x,       t),
+    scale:   lerp(a.scale,   b.scale,   t),
+    z:       Math.round(lerp(a.z,       b.z,       t)),
+    opacity: lerp(a.opacity, b.opacity, t),
+    blur:    lerp(a.blur,    b.blur,    t),
+  };
+}
+
 export function PopularCarousel({ rituals }: { rituals: CarouselRitual[] }) {
   const count = rituals.length;
 
-  // Triple the array for seamless infinite loop
   const items = useMemo(() => [
     ...rituals.map((r, i) => ({ ...r, _key: `a${i}` })),
     ...rituals.map((r, i) => ({ ...r, _key: `b${i}` })),
     ...rituals.map((r, i) => ({ ...r, _key: `c${i}` })),
   ], [rituals, count]);
 
-  const [activeIdx, setActiveIdx] = useState(count); // start at middle section
+  const [activeIdx, setActiveIdx] = useState(count);
+  const [dragPx, setDragPx] = useState(0);
+  const [dragging, setDragging] = useState(false);
 
   const go = (dir: 1 | -1) => {
     setActiveIdx((prev) => {
@@ -53,25 +71,31 @@ export function PopularCarousel({ rituals }: { rituals: CarouselRitual[] }) {
 
   return (
     <div className="w-full">
-      {/* Drag is on the container itself — no overlay blocking the center card */}
       <motion.div
         className="relative overflow-hidden w-full"
         style={{ height: CARD_H, touchAction: "pan-y" }}
         drag="x"
         dragConstraints={{ left: 0, right: 0 }}
         dragElastic={0}
+        onDragStart={() => setDragging(true)}
+        onDrag={(_, info) => setDragPx(info.offset.x)}
         onDragEnd={(_, info) => {
-          const isSwipeLeft  = info.offset.x < -SWIPE_THRESHOLD || info.velocity.x < -500;
-          const isSwipeRight = info.offset.x >  SWIPE_THRESHOLD || info.velocity.x >  500;
-          if (isSwipeLeft)  go(1);
-          if (isSwipeRight) go(-1);
+          setDragging(false);
+          setDragPx(0);
+          const isLeft  = info.offset.x < -SWIPE_THRESHOLD || info.velocity.x < -500;
+          const isRight = info.offset.x >  SWIPE_THRESHOLD || info.velocity.x >  500;
+          if (isLeft)  go(1);
+          if (isRight) go(-1);
         }}
       >
         {items.map((ritual, i) => {
           const offset = i - activeIdx;
           if (Math.abs(offset) > 2) return null;
-          const slot = getSlot(offset);
-          const isCenter = offset === 0;
+
+          // During drag: interpolate position based on how far we've swiped
+          // dragPx > 0 = dragging right = left card coming to center
+          const floatOffset = dragging ? offset + dragPx / CARD_W : offset;
+          const slot = interpolateSlot(floatOffset);
 
           return (
             <motion.div
@@ -83,10 +107,19 @@ export function PopularCarousel({ rituals }: { rituals: CarouselRitual[] }) {
                 marginLeft: -CARD_W / 2,
                 zIndex: slot.z,
                 transformOrigin: "center center",
-                pointerEvents: isCenter ? "auto" : "none",
+                pointerEvents: (!dragging && offset === 0) ? "auto" : "none",
               }}
-              animate={{ x: slot.x, scale: slot.scale, opacity: slot.opacity, filter: `blur(${slot.blur}px)` }}
-              transition={{ type: "spring", stiffness: 300, damping: 30, mass: 0.8 }}
+              animate={{
+                x: slot.x,
+                scale: slot.scale,
+                opacity: slot.opacity,
+                filter: `blur(${slot.blur}px)`,
+              }}
+              transition={
+                dragging
+                  ? { duration: 0 }
+                  : { type: "spring", stiffness: 300, damping: 30, mass: 0.8 }
+              }
             >
               <RitualGridCard
                 id={ritual.id}
@@ -106,7 +139,6 @@ export function PopularCarousel({ rituals }: { rituals: CarouselRitual[] }) {
         })}
       </motion.div>
 
-      {/* Dot indicators — outside the clipping div so they never overlap */}
       <div className="flex justify-center gap-1.5 pt-3">
         {rituals.map((_, i) => {
           const isActive = ((activeIdx % count) + count) % count === i;
