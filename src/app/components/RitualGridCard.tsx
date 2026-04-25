@@ -68,6 +68,7 @@ interface RitualGridCardProps {
   likes?: number;
   saved: boolean;
   saving?: boolean;
+  imageAspect?: string;
   onOpen: () => void;
   onSave: (event: MouseEvent<HTMLButtonElement>) => void;
 }
@@ -81,6 +82,7 @@ export function RitualGridCard({
   likes,
   saved,
   saving = false,
+  imageAspect = "1 / 1",
   onOpen,
   onSave,
 }: RitualGridCardProps) {
@@ -93,7 +95,7 @@ export function RitualGridCard({
       onClick={onOpen}
     >
       {/* Cover image */}
-      <div className="relative w-full" style={{ aspectRatio: "1 / 1" }}>
+      <div className="relative w-full" style={{ aspectRatio: imageAspect }}>
         <img
           src={imageUrl}
           alt={title}

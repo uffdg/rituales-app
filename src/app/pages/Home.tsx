@@ -17,7 +17,6 @@ import {
   reframeIntention,
 } from "../lib/ritual-service";
 import { getUserFacingErrorMessage } from "../lib/errors";
-import { deriveCandleGuide } from "../lib/candle";
 import {
   completeDailyAnchorStep,
   getDailyAnchorContent,
@@ -32,7 +31,7 @@ import { getJournalByDate, getJournalEntries, getJournalEntriesFromOwnRituals } 
 import { MoonPhaseIcon } from "../components/MoonPhaseIcon";
 import { TodayContextCard } from "../components/TodayContextCard";
 import { RitualRecommendationCard } from "../components/RitualRecommendationCard";
-import { RitualListCard } from "../components/RitualListCard";
+import { PopularCarousel, type CarouselRitual } from "../components/PopularCarousel";
 
 type ExploreRitual = (typeof EXPLORE_RITUALS)[number];
 
@@ -270,7 +269,10 @@ export function Home() {
   );
   const recommendationData = ritualCardToRitualData(recommendation);
   const recommendationSaved = isRitualSaved(recommendationData);
-  const popularRituals = EXPLORE_RITUALS.slice(0, 2);
+  const popularRituals = useMemo(
+    () => [...EXPLORE_RITUALS].sort((a, b) => b.likes - a.likes).slice(0, 6),
+    [],
+  );
   const journalEntries = useMemo(
     () => (user ? getJournalEntriesFromOwnRituals(ownRituals) : getJournalEntries()),
     [user, ownRituals],
@@ -1411,40 +1413,31 @@ const isSelectedStepBlocked = !isJourneyComplete && selectedStepIndex > complete
         ) : null}
 
         {/* Populares ahora */}
-        <div className="px-6 mb-12">
-          <div className="editorial-section-header">
+        <div className="mb-12">
+          <div className="px-6 editorial-section-header">
             <p className="editorial-eyebrow">Populares ahora</p>
             <button onClick={handleExplore} className="editorial-section-link">
               Ver catálogo →
             </button>
           </div>
 
-          <div className="flex flex-col gap-3">
-             {popularRituals.map((ritual) => {
-               const ritualData = ritualCardToRitualData(ritual);
-               const isSaved = isRitualSaved(ritualData);
-               const candleGuide = deriveCandleGuide({
-                 ritualType: ritual.type,
-                 intention: ritual.intention,
-                 energy: ritual.energy,
-                 title: ritual.aiRitual?.title || ritual.title,
-               });
-               return (
-                <RitualListCard
-                  key={ritual.id}
-                  title={ritual.title}
-                  meta={[ritual.element, `${ritual.duration} min`, `Vela ${candleGuide.color.toLowerCase()}`]}
-                  saved={isSaved}
-                  saving={savingRitualId === ritual.id}
-                  onOpen={() => handleRitualCard(ritual)}
-                  onSave={(event) => {
-                    event.stopPropagation();
-                    void handleSaveRitual(ritual);
-                  }}
-                />
-               );
-             })}
-          </div>
+          <PopularCarousel
+            rituals={popularRituals.map((ritual): CarouselRitual => {
+              const ritualData = ritualCardToRitualData(ritual);
+              return {
+                id: ritual.id,
+                title: ritual.title,
+                type: ritual.type,
+                element: ritual.element,
+                duration: ritual.duration,
+                likes: ritual.likes,
+                saved: isRitualSaved(ritualData),
+                saving: savingRitualId === ritual.id,
+                onOpen: () => handleRitualCard(ritual),
+                onSave: (e) => { e.stopPropagation(); void handleSaveRitual(ritual); },
+              };
+            })}
+          />
         </div>
 
       <motion.section
