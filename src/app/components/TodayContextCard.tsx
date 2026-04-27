@@ -103,7 +103,6 @@ export function TodayContextCard({
   const bodyColor = isLight ? "rgba(255,255,255,0.9)" : "rgba(23,25,28,0.82)";
   const chipBackground = isLight ? "rgba(17,17,17,0.24)" : "rgba(255,255,255,0.86)";
   const chipText = isLight ? "#FFFFFF" : "rgba(10,10,10,0.72)";
-  const portalIconBg = isLight ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.78)";
   const portalIconColor = isLight ? "#FFFFFF" : "rgba(10,10,10,0.62)";
 
   return (
@@ -219,16 +218,12 @@ export function TodayContextCard({
               Próximo portal
             </p>
             <div className="flex items-center justify-center gap-2 mb-1">
-              <div
-                className="flex h-8 w-8 items-center justify-center rounded-full"
-                style={{ background: portalIconBg }}
-              >
-                <MoonPhaseIcon
-                  phase={nextEventPhase ?? nextEventLabel ?? phase}
-                  size={16}
-                  darkTheme={isLight}
-                />
-              </div>
+              <MoonPhaseIcon
+                phase={nextEventPhase ?? nextEventLabel ?? phase}
+                size={16}
+                color={portalIconColor}
+                darkTheme={isLight}
+              />
               <p
                 style={{
                   fontFamily: "var(--font-sans-ui)",

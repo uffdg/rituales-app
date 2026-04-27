@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from "motion/react";
 import { useRitual } from "../context/RitualContext";
 import { useUser } from "../context/UserContext";
 import { ELEMENTS } from "../data/rituals";
-import { UserMenu } from "../components/UserMenu";
 import { deriveCandleGuide } from "../lib/candle";
 import { getUserFacingErrorMessage } from "../lib/errors";
 import { toast } from "sonner";
@@ -14,10 +13,69 @@ import {
   getRitualById,
   type RitualRecord,
 } from "../lib/ritual-service";
+const IMAGE_POOLS: Record<string, string[]> = {
+  Agua: [
+    "/images/story-water-1.jpg",
+    "/images/story-water-2.jpg",
+    "/images/story-water-3.jpg",
+    "/images/story-beach-1.jpg",
+    "/images/story-lluvia-1.jpg",
+    "/images/story-lluvia-2.jpg",
+    "/images/story-lluvia-3.jpg",
+    "/images/story-lluvia-4.jpg",
+    "/images/story-lluvia-5.jpg",
+  ],
+  Fuego: [
+    "/images/story-fire-1.jpg",
+    "/images/story-fire-2.jpg",
+    "/images/story-fire-3.jpg",
+    "/images/story-fire-4.jpg",
+    "/images/story-fire-5.jpg",
+  ],
+  Tierra: [
+    "/images/story-forest-1.jpg",
+    "/images/story-forest-2.jpg",
+    "/images/story-forest-3.jpg",
+    "/images/story-forest-4.jpg",
+    "/images/story-forest-5.jpg",
+    "/images/story-stones-1.jpg",
+    "/images/story-stones-2.jpg",
+    "/images/story-stones-3.jpg",
+    "/images/story-grass-1.jpg",
+    "/images/story-grass-2.jpg",
+    "/images/story-mountain-1.jpg",
+    "/images/story-mountain-2.jpg",
+  ],
+  Aire: [
+    "/images/story-air-1.jpg",
+    "/images/story-air-2.jpg",
+    "/images/story-air-3.jpg",
+    "/images/story-air-4.jpg",
+    "/images/story-air-5.jpg",
+    "/images/story-abastract-1.jpg",
+    "/images/story-abastract-2.jpg",
+    "/images/story-abastract-3.jpg",
+    "/images/story-abastract-4.jpg",
+    "/images/story-abastract-5.jpg",
+  ],
+};
+
+function hashStr(s: string): number {
+  let h = 0;
+  for (const c of s) h = (h * 31 + c.charCodeAt(0)) & 0x7fffffff;
+  return h;
+}
+
+function getCoverImage(element: string, id: string): string {
+  const pool = IMAGE_POOLS[element] ?? IMAGE_POOLS["Agua"];
+  return pool[hashStr(id) % pool.length];
+}
+
 const TRACKS = [
-  { id: 0, label: "Handpan",    sublabel: "Tierra · 432hz",   load: () => import("../assets/handpan-soundscape-432hz.mp3").then((m) => m.default as string) },
-  { id: 1, label: "Meditación", sublabel: "Flujo · 432hz",    load: () => import("../assets/danamusic-432hz-meditation-355839.mp3").then((m) => m.default as string) },
-  { id: 2, label: "Tercer ojo", sublabel: "Profundo · 432hz", load: () => import("../assets/meditativecalmbuddha-third-eye-frequency-deep-healing-432hz-480114.mp3").then((m) => m.default as string) },
+  { id: 0, label: "Handpan",    sublabel: "Tierra · 432hz",   load: () => Promise.resolve("https://sztefmznsleedqythllo.supabase.co/storage/v1/object/public/audio/handpan-soundscape-432hz.mp3") },
+  { id: 1, label: "Meditación", sublabel: "Flujo · 432hz",    load: () => Promise.resolve("https://sztefmznsleedqythllo.supabase.co/storage/v1/object/public/audio/danamusic-432hz-meditation-355839.mp3") },
+  { id: 2, label: "Tercer ojo", sublabel: "Profundo · 432hz", load: () => Promise.resolve("https://sztefmznsleedqythllo.supabase.co/storage/v1/object/public/audio/meditativecalmbuddha-third-eye-frequency-deep-healing-432hz-480114.mp3") },
+  { id: 3, label: "Handpan II", sublabel: "Etéreo · 432hz",   load: () => Promise.resolve("https://sztefmznsleedqythllo.supabase.co/storage/v1/object/public/audio/siarhei_korbut-handpan-soundscape-432-hz-396231.mp3") },
 ];
 
 export function RitualDetail() {
@@ -35,6 +93,10 @@ export function RitualDetail() {
   const [activeTrack, setActiveTrack] = useState<number | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const isPublic = id === "publico" && isViewMode && selectedPublicRitual;
   const data = isPublic ? selectedPublicRitual : null;
@@ -130,6 +192,11 @@ export function RitualDetail() {
       };
 
   const elementData = ELEMENTS.find((e) => e.id === displayRitual.element);
+  // element may arrive as ID ("agua") or label ("Agua") depending on source
+  const elementLabel = elementData?.label || (IMAGE_POOLS[displayRitual.element] ? displayRitual.element : "Agua");
+  // use the real ritual ID so the image matches the card that was tapped
+  const imageId = (isPublic ? data?.id : loadedRitual?.ritualId) || id || displayRitual.title || "ritual";
+  const coverImageUrl = getCoverImage(elementLabel, imageId);
   const ritualForAccount = loadedRitual
     ? {
         ritualId: loadedRitual.ritualId,
@@ -290,89 +357,100 @@ export function RitualDetail() {
     <div className="editorial-detail-shell">
       <div className="editorial-radial-wash" />
 
-      {/* Header */}
-      <div className="relative z-10 pt-14 px-6 pb-4 flex items-center justify-between">
-        <button
-          onClick={() => {
-            if (fromAccount) navigate("/cuenta");
-            else if (isViewMode) navigate("/explorar");
-            else navigate("/");
+      {/* Cover image hero */}
+      <div className="relative z-10" style={{ height: 380 }}>
+        <img
+          src={coverImageUrl}
+          alt={displayRitual.title}
+          className="absolute inset-0 w-full h-full object-cover"
+          draggable={false}
+        />
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, transparent 28%, rgba(0,0,0,0.5) 58%, rgba(0,0,0,0.92) 100%)",
           }}
-          className="editorial-detail-header-link"
-        >
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <path d="M9 2L4 7L9 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-          </svg>
-          {fromAccount ? "Volver" : isViewMode ? "Explorar" : "Inicio"}
-        </button>
-        <div className="flex items-center gap-3">
+        />
+
+        {/* Nav bar */}
+        <div className="relative pt-14 px-6 flex items-center justify-between">
+          <button
+            onClick={() => {
+              if (fromAccount) navigate("/cuenta");
+              else if (isViewMode) navigate("/explorar");
+              else navigate("/");
+            }}
+            className="flex items-center gap-2 transition-opacity active:opacity-60"
+            style={{ fontFamily: "var(--font-sans-ui)", fontSize: "13px", color: "rgba(255,255,255,0.8)" }}
+          >
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M9 2L4 7L9 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            </svg>
+            {fromAccount ? "Volver" : isViewMode ? "Explorar" : "Inicio"}
+          </button>
           {!isPublic && (
             <button
               onClick={() => navigate("/crear/1")}
-              className="editorial-detail-header-link"
+              className="transition-opacity active:opacity-60"
+              style={{ fontFamily: "var(--font-sans-ui)", fontSize: "13px", color: "rgba(255,255,255,0.8)" }}
             >
               Editar
             </button>
           )}
-          <UserMenu />
+        </div>
+
+        {/* Title + badges at bottom of hero */}
+        <div className="absolute bottom-0 left-0 right-0 px-6 pb-8">
+          <h1
+            className="text-center"
+            style={{
+              fontFamily: "var(--font-serif-display)",
+              fontSize: "28px",
+              fontWeight: 400,
+              color: "#fff",
+              lineHeight: 1.2,
+              marginBottom: "14px",
+            }}
+          >
+            {displayRitual.title}
+          </h1>
+
+          <div className="flex flex-wrap items-center justify-center gap-1.5">
+            {displayRitual.element && (
+              <span style={{ fontFamily: "var(--font-sans-ui)", fontSize: "11px", fontWeight: 400, padding: "4px 11px", borderRadius: "99px", background: "rgba(255,255,255,0.14)", color: "rgba(255,255,255,0.85)", backdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.18)" }}>
+                {elementData?.label || displayRitual.element}
+              </span>
+            )}
+            {displayRitual.energy && (
+              <span style={{ fontFamily: "var(--font-sans-ui)", fontSize: "11px", fontWeight: 400, padding: "4px 11px", borderRadius: "99px", background: "rgba(255,255,255,0.14)", color: "rgba(255,255,255,0.85)", backdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.18)" }}>
+                {ENERGY_MAP[displayRitual.energy] || displayRitual.energy}
+              </span>
+            )}
+            {displayRitual.intensity && (
+              <span style={{ fontFamily: "var(--font-sans-ui)", fontSize: "11px", fontWeight: 500, padding: "4px 11px", borderRadius: "99px", background: "rgba(255,255,255,0.88)", color: "#111" }}>
+                {INTENSITY_MAP[displayRitual.intensity] || displayRitual.intensity}
+              </span>
+            )}
+            {displayRitual.duration && (
+              <span style={{ fontFamily: "var(--font-sans-ui)", fontSize: "11px", fontWeight: 400, padding: "4px 11px", borderRadius: "99px", background: "rgba(255,255,255,0.14)", color: "rgba(255,255,255,0.85)", backdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.18)" }}>
+                {displayRitual.duration} min
+              </span>
+            )}
+            <span style={{ fontFamily: "var(--font-sans-ui)", fontSize: "11px", fontWeight: 400, padding: "4px 11px", borderRadius: "99px", background: "rgba(255,255,255,0.14)", color: "rgba(255,255,255,0.85)", backdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.18)" }}>
+              Vela {candleGuide.color}
+            </span>
+          </div>
         </div>
       </div>
 
       {/* Content */}
       <motion.div
-        initial={{ opacity: 0, y: 16 }}
+        initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-        className="relative z-10 px-6 pb-44"
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        className="relative z-10 px-6 pb-44 pt-7"
       >
-        {/* Decorative mark */}
-        <div className="flex justify-center mb-6">
-          <div className="relative">
-            <div className="w-[60px] h-[60px] rounded-full border border-[var(--border-soft)] flex items-center justify-center">
-              <div className="w-9 h-9 rounded-full border border-[var(--border-default)] flex items-center justify-center">
-                <div className="w-2 h-2 rounded-full bg-[var(--ink-strong)]" />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Title */}
-        <h1 className="font-serif text-[30px] font-normal text-[var(--ink-strong)] leading-[1.25] text-center mb-2">
-          {displayRitual.title}
-        </h1>
-
-        {/* Badges */}
-        <div className="mb-8">
-          <div className="flex flex-wrap items-center justify-center gap-2">
-            {displayRitual.element && (
-              <span className="editorial-meta-badge">
-                {elementData?.label || displayRitual.element}
-              </span>
-            )}
-            {displayRitual.energy && (
-              <span className="editorial-meta-badge">
-                {ENERGY_MAP[displayRitual.energy] || displayRitual.energy}
-              </span>
-            )}
-            {displayRitual.intensity && (
-              <span className="editorial-meta-badge editorial-meta-badge-active">
-                {INTENSITY_MAP[displayRitual.intensity] || displayRitual.intensity}
-              </span>
-            )}
-            {displayRitual.duration && (
-              <span className="editorial-meta-badge">
-                {displayRitual.duration} min
-              </span>
-            )}
-          </div>
-
-          <div className="flex justify-center mt-2">
-            <span className="editorial-meta-badge">
-              Vela {candleGuide.color}
-            </span>
-          </div>
-        </div>
-
         {/* Thin divider */}
         <div className="editorial-divider mb-7" />
 
@@ -380,7 +458,7 @@ export function RitualDetail() {
         {displayRitual.intention && (
           <div className="mb-7">
             <p className="editorial-eyebrow mb-2">Intención</p>
-            <p className="font-serif text-[18px] font-light italic text-[var(--ink-body)] leading-[1.5]">
+            <p style={{ fontFamily: "var(--font-sans-ui)", fontSize: "16px", fontWeight: 300, fontStyle: "italic", color: "var(--ink-body)", lineHeight: 1.6 }}>
               "{displayRitual.intention}"
             </p>
           </div>
@@ -414,14 +492,14 @@ export function RitualDetail() {
                 <span className="font-serif text-[14px] text-[var(--ink-soft)]">{section.symbol}</span>
                 <p className="editorial-eyebrow">{section.label}</p>
               </div>
-              <p className="font-serif text-[16px] font-light leading-[1.65] text-[var(--ink-body)]">{section.text}</p>
+              <p style={{ fontFamily: "var(--font-sans-ui)", fontSize: "14px", fontWeight: 300, lineHeight: 1.7, color: "var(--ink-body)" }}>{section.text}</p>
             </motion.div>
           ))}
 
         {/* Anchor */}
         <div className="mb-6 p-5 rounded-2xl border border-[var(--ink-strong)] bg-[var(--ink-strong)]">
           <p className="font-sans text-[10px] font-medium tracking-[0.14em] uppercase text-white/40 mb-1.5">Tu anclaje real</p>
-          <p className="font-serif text-[18px] font-light text-white leading-[1.45]">{anchorText}</p>
+          <p style={{ fontFamily: "var(--font-sans-ui)", fontSize: "16px", fontWeight: 300, color: "#fff", lineHeight: 1.5 }}>{anchorText}</p>
         </div>
 
         {/* Author */}

@@ -73,7 +73,10 @@ function getOrderedCompletedSteps(steps: DailyAnchorType[]) {
 }
 
 function getDateKey(date: Date) {
-  return date.toISOString().slice(0, 10);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 }
 
 function readStorage(): Record<string, StoredDailyAnchorState> {
@@ -92,11 +95,57 @@ function writeStorage(data: Record<string, StoredDailyAnchorState>) {
   } catch {}
 }
 
+function hasStepContent(content?: DailyAnchorStepContent) {
+  if (!content) return false;
+  return Boolean(content.text?.trim() || content.feeling || content.alignment);
+}
+
 export function resetDailyAnchorJourney(date = new Date()) {
   const dateKey = getDateKey(date);
   const all = readStorage();
   delete all[dateKey];
   writeStorage(all);
+}
+
+export function syncDailyAnchorContentFromRemote(
+  content: Partial<Record<DailyAnchorType, DailyAnchorStepContent>>,
+  date = new Date(),
+) {
+  const dateKey = getDateKey(date);
+  const remoteSteps = getOrderedCompletedSteps(
+    STEP_DEFINITIONS
+      .filter((step) => hasStepContent(content[step.id]))
+      .map((step) => step.id),
+  );
+
+  const all = readStorage();
+  const existing = all[dateKey];
+  const currentSerialized = JSON.stringify(existing ?? null);
+
+  if (!remoteSteps.length) {
+    if (!existing) {
+      return false;
+    }
+
+    delete all[dateKey];
+    writeStorage(all);
+    return true;
+  }
+
+  const nextState: StoredDailyAnchorState = {
+    steps: remoteSteps,
+    content,
+    updatedAt: new Date().toISOString(),
+  };
+  const nextSerialized = JSON.stringify(nextState);
+
+  if (currentSerialized === nextSerialized) {
+    return false;
+  }
+
+  all[dateKey] = nextState;
+  writeStorage(all);
+  return true;
 }
 
 export function completeDailyAnchorStep(

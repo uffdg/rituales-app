@@ -1,6 +1,8 @@
 import { useMemo, useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { AnimatePresence, motion } from "motion/react";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 import { ArrowUpRight, CalendarDays, Compass, Sparkles, Smile, Cloud, Meh, Heart, Moon, Frown } from "lucide-react";
 import { toast } from "sonner";
 import { useRitual } from "../context/RitualContext";
@@ -8,27 +10,28 @@ import { useUser } from "../context/UserContext";
 import { EXPLORE_RITUALS } from "../data/rituals";
 import { WIKI_NOTES } from "../data/wiki";
 import { track } from "../lib/analytics";
-import { getCosmicSliderDays, getTodayCosmicContext } from "../lib/cosmic-calendar";
+import { getCosmicSliderDays, getTodayCosmicContext, getNextEvent, type CosmicDay } from "../lib/cosmic-calendar";
 import {
   generateRitual,
   ritualCardToRitualData,
   reframeIntention,
 } from "../lib/ritual-service";
 import { getUserFacingErrorMessage } from "../lib/errors";
-import { deriveCandleGuide } from "../lib/candle";
 import {
   completeDailyAnchorStep,
   getDailyAnchorContent,
   getDailyAnchorJourney,
   resetDailyAnchorJourney,
+  syncDailyAnchorContentFromRemote,
   type DailyAnchorStepContent,
   type DailyAnchorType,
 } from "../lib/daily-anchor";
-import { saveDailyAnchorEntry } from "../lib/anchor-service";
+import { getDailyAnchorEntries, saveDailyAnchorEntry } from "../lib/anchor-service";
+import { getJournalByDate, getJournalEntries, getJournalEntriesFromOwnRituals } from "../lib/practice-journal";
 import { MoonPhaseIcon } from "../components/MoonPhaseIcon";
 import { TodayContextCard } from "../components/TodayContextCard";
 import { RitualRecommendationCard } from "../components/RitualRecommendationCard";
-import { RitualListCard } from "../components/RitualListCard";
+import { PopularCarousel, type CarouselRitual } from "../components/PopularCarousel";
 
 type ExploreRitual = (typeof EXPLORE_RITUALS)[number];
 
@@ -124,30 +127,30 @@ function mapWeatherCodeToCondition(code: number): WeatherCondition {
   return "unknown";
 }
 
+// Maps each lunar phase to preferred ritual types (priority order)
+const MOON_PHASE_PREFS: { test: (p: string) => boolean; types: string[] }[] = [
+  { test: (p) => p.includes("nueva"),      types: ["atraer", "claridad"] },
+  { test: (p) => p.includes("creciente"),  types: ["enfoque", "atraer"] },
+  { test: (p) => p.includes("llena"),      types: ["amor", "cerrar"] },
+  { test: (p) => p.includes("menguante"),  types: ["cerrar", "calma"] },
+  { test: (p) => p.includes("eclipse"),    types: ["cerrar", "claridad"] },
+];
+
 function chooseRecommendedRitual(
   rituals: ExploreRitual[],
-  momentOfDay: string,
   moonPhase: string,
 ): ExploreRitual {
-  const normalizedMoment = momentOfDay.toLowerCase();
-  const normalizedPhase = moonPhase.toLowerCase();
+  const normalized = moonPhase.toLowerCase();
+  const prefs = MOON_PHASE_PREFS.find((p) => p.test(normalized));
 
-  const byMoment =
-    rituals.find((ritual) =>
-      ritual.title.toLowerCase().includes(normalizedMoment)
-      || ritual.intention.toLowerCase().includes(normalizedMoment),
-    ) ?? null;
+  if (prefs) {
+    for (const type of prefs.types) {
+      const match = rituals.find((r) => r.type.toLowerCase().includes(type));
+      if (match) return match;
+    }
+  }
 
-  if (byMoment) return byMoment;
-
-  const byPhase =
-    normalizedPhase.includes("llena")
-      ? rituals.find((ritual) => ritual.type.toLowerCase().includes("cerrar"))
-      : normalizedPhase.includes("nueva")
-      ? rituals.find((ritual) => ritual.type.toLowerCase().includes("atraer"))
-      : null;
-
-  return byPhase ?? rituals[0];
+  return rituals[0];
 }
 
 function setHourForDate(date: Date, hour: number) {
@@ -199,11 +202,12 @@ function MoodPicker({
 export function Home() {
   const navigate = useNavigate();
   const { resetRitual, setViewMode, setSelectedPublicRitual } = useRitual();
-  const { session, isRitualSaved, saveRitual } = useUser();
+  const { session, user, ownRituals, isRitualSaved, saveRitual, savedRituals, removeSavedRitual } = useUser();
   const [savingRitualId, setSavingRitualId] = useState<string | null>(null);
   const [dailyAnchorVersion, setDailyAnchorVersion] = useState(0);
   const [selectedAnchorStep, setSelectedAnchorStep] = useState<DailyAnchorType | null>(null);
   const [selectedDateOffset, setSelectedDateOffset] = useState(0); // 0=hoy, -1=ayer, etc.
+  const [selectedCosmicDay, setSelectedCosmicDay] = useState<CosmicDay | null>(null);
   const [heroImageIndex, setHeroImageIndex] = useState(1);
   const [heroTextTheme, setHeroTextTheme] = useState<"light" | "dark">("light");
   const [localNow, setLocalNow] = useState(() => new Date());
@@ -222,6 +226,7 @@ export function Home() {
   const [cierreFeeling, setCierreFeeling] = useState<string | null>(null);
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
   const transcriptRef = useRef<string>("");
+  const hasUnsavedDictationRef = useRef(false);
 
   const hasSpeechRecognition =
     typeof window !== "undefined" &&
@@ -259,12 +264,20 @@ export function Home() {
   );
 
   const recommendation = useMemo(
-    () => chooseRecommendedRitual(EXPLORE_RITUALS, cosmicContext.momentOfDay, cosmicContext.day.moonPhase),
+    () => chooseRecommendedRitual(EXPLORE_RITUALS, cosmicContext.day.moonPhase),
     [cosmicContext],
   );
   const recommendationData = ritualCardToRitualData(recommendation);
   const recommendationSaved = isRitualSaved(recommendationData);
-  const popularRituals = EXPLORE_RITUALS.slice(0, 2);
+  const popularRituals = useMemo(
+    () => [...EXPLORE_RITUALS].sort((a, b) => b.likes - a.likes).slice(0, 6),
+    [],
+  );
+  const journalEntries = useMemo(
+    () => (user ? getJournalEntriesFromOwnRituals(ownRituals) : getJournalEntries()),
+    [user, ownRituals],
+  );
+  const journalByDate = useMemo(() => getJournalByDate(journalEntries), [journalEntries]);
   const isDev = import.meta.env.DEV;
   const journeyNow = useMemo(
     () => (devTestHour === null ? localNow : setHourForDate(localNow, devTestHour)),
@@ -333,10 +346,20 @@ const isSelectedStepBlocked = !isJourneyComplete && selectedStepIndex > complete
     }
 
     const ritualToSaveBase = ritualCardToRitualData(ritual);
+
     if (isRitualSaved(ritualToSaveBase)) {
-      toast("Ya está guardado", {
-        description: "Lo encontrás en Favoritos dentro de tu cuenta.",
-      });
+      const savedEntry = savedRituals.find((e) => e.id === ritualToSaveBase.ritualId);
+      if (savedEntry) {
+        setSavingRitualId(ritual.id);
+        try {
+          await removeSavedRitual(savedEntry.id);
+          toast("Ritual eliminado de favoritos");
+        } catch (error) {
+          toast(getUserFacingErrorMessage(error, "No se pudo eliminar el ritual."));
+        } finally {
+          setSavingRitualId(null);
+        }
+      }
       return;
     }
 
@@ -406,7 +429,9 @@ const isSelectedStepBlocked = !isJourneyComplete && selectedStepIndex > complete
   }, []);
 
   useEffect(() => {
-    setGeneratedIntention(dailyAnchorContent.inicio?.text ?? null);
+    if (!hasUnsavedDictationRef.current) {
+      setGeneratedIntention(dailyAnchorContent.inicio?.text ?? null);
+    }
     setInicioFeeling(dailyAnchorContent.inicio?.feeling ?? null);
     setMomentoAlignment(dailyAnchorContent.momento?.alignment ?? null);
     setMomentoFeeling(dailyAnchorContent.momento?.feeling ?? null);
@@ -415,7 +440,30 @@ const isSelectedStepBlocked = !isJourneyComplete && selectedStepIndex > complete
   }, [dailyAnchorContent]);
 
   useEffect(() => {
+    if (!session?.user?.id) return;
+
+    let cancelled = false;
+
+    void getDailyAnchorEntries({
+      userId: session.user.id,
+      dateKey: dailyJourney.dateKey,
+    }).then((remoteContent) => {
+      if (cancelled) return;
+
+      const didHydrate = syncDailyAnchorContentFromRemote(remoteContent, selectedDate);
+      if (didHydrate) {
+        setDailyAnchorVersion((current) => current + 1);
+      }
+    }).catch(() => {});
+
+    return () => {
+      cancelled = true;
+    };
+  }, [session?.user?.id, dailyJourney.dateKey, selectedDateKey]);
+
+  useEffect(() => {
     setSelectedAnchorStep(null);
+    hasUnsavedDictationRef.current = false;
   }, [selectedDateOffset]);
 
   useEffect(() => {
@@ -426,6 +474,7 @@ const isSelectedStepBlocked = !isJourneyComplete && selectedStepIndex > complete
   }, [effectiveCurrentStep, nextPendingStep]);
 
   const persistAnchorStep = async (step: DailyAnchorType, content: DailyAnchorStepContent) => {
+    if (step === "inicio") hasUnsavedDictationRef.current = false;
     completeDailyAnchorStep(step, content, selectedDate);
     if (session?.user?.id) {
       void saveDailyAnchorEntry({
@@ -544,6 +593,7 @@ const isSelectedStepBlocked = !isJourneyComplete && selectedStepIndex > complete
       transcriptRef.current = "";
       if (!transcript) return;
 
+      hasUnsavedDictationRef.current = true;
       track("home_voice_anchor_used");
 
       setIsReframing(true);
@@ -569,10 +619,9 @@ const isSelectedStepBlocked = !isJourneyComplete && selectedStepIndex > complete
     : undefined;
 
   return (
-    <div className="min-h-screen flex flex-col overflow-y-auto relative bg-[var(--ink-strong)]">
+    <div className="min-h-screen flex flex-col overflow-y-auto overflow-x-hidden relative bg-[var(--ink-strong)]">
       {/* Dynamic Background Image */}
       <div className="absolute top-0 left-0 w-full h-[85vh] z-0 pointer-events-none">
-        <div className="absolute inset-0 bg-black/30 z-10" />
         <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/50 to-transparent z-10" />
         <img 
           src={`/home/bg-${heroImageIndex}.jpg`}
@@ -963,7 +1012,7 @@ const isSelectedStepBlocked = !isJourneyComplete && selectedStepIndex > complete
                     Este momento aparece más tarde en el día.
                   </p>
                   <div>
-                    <h3 className="font-serif text-[18px] leading-[1.2] text-[var(--ink-strong)] max-w-[300px]" style={{ fontWeight: 400 }}>
+                    <h3 className="font-serif text-[24px] leading-[1.2] text-[var(--ink-strong)] max-w-[300px]" style={{ fontWeight: 400 }}>
                       {selectedStep === "momento" ? "Disponible desde las 14 h" : "Disponible desde las 19 h"}
                     </h3>
                     <p className="mt-3 font-sans text-[13px] font-light leading-[1.5] text-[var(--ink-subtle)] max-w-[300px]">
@@ -993,7 +1042,7 @@ const isSelectedStepBlocked = !isJourneyComplete && selectedStepIndex > complete
                   <p className="font-sans text-[12px] font-light leading-[1.5] text-[var(--ink-muted)] mb-2 tracking-[0.02em]">
                     {STEP_COPY[selectedStep].intro}
                   </p>
-                  <h3 className="font-serif text-[18px] leading-[1.2] text-[var(--ink-strong)]" style={{ fontWeight: 400 }}>
+                  <h3 className="font-serif text-[24px] leading-[1.2] text-[var(--ink-strong)]" style={{ fontWeight: 400 }}>
                     {STEP_COPY[selectedStep].title}
                   </h3>
                   <p className="mt-2 font-sans text-[13px] font-light leading-[1.55] text-[var(--ink-subtle)]">
@@ -1220,7 +1269,9 @@ const isSelectedStepBlocked = !isJourneyComplete && selectedStepIndex > complete
         {/* Ritual para hoy */}
         <div className="px-6 mb-12">
           <RitualRecommendationCard
-            eyebrow="Ritual para hoy"
+            id={recommendation.id}
+            element={recommendation.element}
+            eyebrow={`${cosmicContext.day.moonEmoji} ${cosmicContext.day.moonPhase}`}
             title={recommendation.title}
             description={recommendation.intention}
             meta={[
@@ -1251,12 +1302,12 @@ const isSelectedStepBlocked = !isJourneyComplete && selectedStepIndex > complete
           </div>
           <div className="overflow-x-auto hide-scrollbar pb-4 pl-6 pr-6 -mr-6">
             <div className="flex gap-2 w-max pr-6">
-              {cosmicDays.map((day, idx) => {
-                 const isActive = idx === 0;
+              {cosmicDays.map((day) => {
+                 const isActive = day.dateKey === cosmicContext.day.dateKey;
                  return (
                   <button
                     key={day.dateKey}
-                    onClick={() => navigate("/calendario-cosmico", { state: { selectedDate: day.dateKey } })}
+                    onClick={() => setSelectedCosmicDay(day)}
                     className={`editorial-day-card ${isActive ? "editorial-day-card-active" : ""}`}
                   >
                     <div className="flex items-center justify-between mb-5">
@@ -1280,41 +1331,125 @@ const isSelectedStepBlocked = !isJourneyComplete && selectedStepIndex > complete
           </div>
         </div>
 
+        {selectedCosmicDay ? (
+          <div className="fixed inset-0 z-40">
+            <div
+              className="absolute inset-0 bg-black/35"
+              onClick={() => setSelectedCosmicDay(null)}
+            />
+            <div className="editorial-calendar-dialog absolute left-1/2 top-1/2 w-[calc(100%-3rem)] max-w-[330px] -translate-x-1/2 -translate-y-1/2 px-5 py-5">
+              <button
+                onClick={() => setSelectedCosmicDay(null)}
+                className="editorial-icon-button absolute top-5 right-5 h-8 w-8 rounded-full text-[var(--ink-muted)]"
+              >
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                  <path d="M1 1L9 9M9 1L1 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                </svg>
+              </button>
+
+              <p className="editorial-eyebrow mb-2.5">{selectedCosmicDay.weekdayLabel}</p>
+
+              <p className="editorial-title-section !text-[26px] leading-[1.1] mb-2.5 pr-6">
+                {format(selectedCosmicDay.date, "d 'de' LLLL", { locale: es })}
+              </p>
+
+              {journalByDate.has(selectedCosmicDay.dateKey) ? (
+                <div className="editorial-calendar-soft-block mb-4">
+                  <p className="editorial-eyebrow mb-2.5">Tu práctica este día</p>
+                  {journalByDate.get(selectedCosmicDay.dateKey)!.map((entry, i) => (
+                    <div key={i} className={i > 0 ? "mt-3 pt-3 border-t border-[var(--border-soft)]" : ""}>
+                      <p className="editorial-title-card !text-[16px] !leading-[1.4]">
+                        "{entry.anchor}"
+                      </p>
+                      {entry.element ? (
+                        <p className="font-sans text-[10px] text-[var(--ink-subtle)] mt-1 capitalize tracking-[0.04em]">
+                          {entry.ritualType} · {entry.element}
+                        </p>
+                      ) : null}
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+
+              {selectedCosmicDay.perfection ? (
+                <>
+                  <p className="editorial-body-muted mb-4">
+                    {selectedCosmicDay.perfection.label}
+                  </p>
+
+                  <div className="editorial-calendar-soft-block">
+                    <p className="editorial-eyebrow mb-2">Posición exacta</p>
+                    <p className="editorial-title-card !text-[18px] !leading-[1.2] mb-1.5">
+                      {selectedCosmicDay.perfection.timeBuenosAires} hs en Buenos Aires
+                    </p>
+                    <p className="editorial-body-muted">
+                      Se perfecciona en {selectedCosmicDay.perfection.zodiacSign}.
+                    </p>
+                  </div>
+                </>
+              ) : (() => {
+                const nextEventData = getNextEvent(selectedCosmicDay.date);
+                return (
+                  <div className="editorial-calendar-soft-block mt-4">
+                    <p className="editorial-body-muted mb-4">
+                      No hay eventos particulares hoy, pero te podés preparar para el próximo evento.
+                    </p>
+                    {nextEventData ? (
+                      <>
+                        <p className="editorial-eyebrow mb-2">Próximo evento</p>
+                        <p className="editorial-title-card !text-[18px] !leading-[1.2] mb-0.5">
+                          {nextEventData.perfection.label}
+                        </p>
+                        <p className="editorial-body-muted">
+                          {format(nextEventData.date, "d 'de' LLLL", { locale: es })}
+                        </p>
+                      </>
+                    ) : null}
+
+                    <div className="mt-5 border-t border-[var(--border-soft)] pt-4 flex justify-center">
+                      <button
+                        onClick={() => {
+                          setSelectedCosmicDay(null);
+                          navigate("/wiki/las-lunas-y-su-energia");
+                        }}
+                        className="font-sans text-[12px] text-[var(--ink-strong)] font-medium underline underline-offset-[3px] hover:opacity-60 transition-opacity"
+                      >
+                        Abrir información de lunas
+                      </button>
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+          </div>
+        ) : null}
+
         {/* Populares ahora */}
-        <div className="px-6 mb-12">
-          <div className="editorial-section-header">
+        <div className="mb-12">
+          <div className="px-6 editorial-section-header">
             <p className="editorial-eyebrow">Populares ahora</p>
             <button onClick={handleExplore} className="editorial-section-link">
               Ver catálogo →
             </button>
           </div>
 
-          <div className="flex flex-col gap-3">
-             {popularRituals.map((ritual) => {
-               const ritualData = ritualCardToRitualData(ritual);
-               const isSaved = isRitualSaved(ritualData);
-               const candleGuide = deriveCandleGuide({
-                 ritualType: ritual.type,
-                 intention: ritual.intention,
-                 energy: ritual.energy,
-                 title: ritual.aiRitual?.title || ritual.title,
-               });
-               return (
-                <RitualListCard
-                  key={ritual.id}
-                  title={ritual.title}
-                  meta={[ritual.element, `${ritual.duration} min`, `Vela ${candleGuide.color.toLowerCase()}`]}
-                  saved={isSaved}
-                  saving={savingRitualId === ritual.id}
-                  onOpen={() => handleRitualCard(ritual)}
-                  onSave={(event) => {
-                    event.stopPropagation();
-                    void handleSaveRitual(ritual);
-                  }}
-                />
-               );
-             })}
-          </div>
+          <PopularCarousel
+            rituals={popularRituals.map((ritual): CarouselRitual => {
+              const ritualData = ritualCardToRitualData(ritual);
+              return {
+                id: ritual.id,
+                title: ritual.title,
+                type: ritual.type,
+                element: ritual.element,
+                duration: ritual.duration,
+                likes: ritual.likes,
+                saved: isRitualSaved(ritualData),
+                saving: savingRitualId === ritual.id,
+                onOpen: () => handleRitualCard(ritual),
+                onSave: (e) => { e.stopPropagation(); void handleSaveRitual(ritual); },
+              };
+            })}
+          />
         </div>
 
       <motion.section

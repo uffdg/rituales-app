@@ -19,6 +19,7 @@ import { track } from "../lib/analytics";
 export interface SavedRitual {
   id: string;
   savedAt: string;
+  createdAt?: string;
   ritual: RitualData;
   likesCount?: number;
 }
@@ -67,6 +68,7 @@ function toSavedRitual(ritual: RitualRecord): SavedRitual {
     savedAt: ritual.createdAt
       ? new Date(ritual.createdAt).toLocaleDateString("es-AR", { day: "numeric", month: "long" })
       : new Date().toLocaleDateString("es-AR", { day: "numeric", month: "long" }),
+    createdAt: ritual.createdAt,
     ritual: ritualRecordToRitualData(ritual),
     likesCount: ritual.likesCount || 0,
   };
@@ -88,6 +90,7 @@ function toOptimisticSavedRitual(ritual: RitualData): SavedRitual {
   return {
     id: ritual.ritualId || `local-${Date.now()}`,
     savedAt: new Date().toLocaleDateString("es-AR", { day: "numeric", month: "long" }),
+    createdAt: new Date().toISOString(),
     ritual,
     likesCount: 0,
   };

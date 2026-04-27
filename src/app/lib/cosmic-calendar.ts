@@ -284,8 +284,7 @@ export function getNextEvent(date: Date): { date: Date; perfection: CosmicPerfec
   const rangeEnd = addDays(rangeStart, 90);
   const perfections = getMoonPerfectionsForRange(rangeStart, rangeEnd);
 
-  const nextNewMoon = Object.entries(perfections)
-    .filter(([, perfection]) => perfection.label === "Luna nueva")
+  const next = Object.entries(perfections)
     .map(([dateKey, perfection]) => {
       const eventDateTime = getPerfectionDateTimeBuenosAires(dateKey, perfection.timeBuenosAires);
       return eventDateTime ? { date: eventDateTime, perfection } : null;
@@ -294,7 +293,7 @@ export function getNextEvent(date: Date): { date: Date; perfection: CosmicPerfec
     .filter((entry) => entry.date.getTime() >= date.getTime())
     .sort((a, b) => a.date.getTime() - b.date.getTime());
 
-  return nextNewMoon[0] ?? null;
+  return next[0] ?? null;
 }
 
 // Retorna cuántos días faltan entre two y from (ambas sin hora)

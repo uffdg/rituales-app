@@ -646,6 +646,101 @@ export const WIKI_NOTES: WikiNote[] = [
       },
     ],
   },
+  {
+    id: "piedras-y-cristales",
+    image: "/images/story-stones-1.jpg",
+    title: "Piedras y cristales",
+    eyebrow: "Elementos rituales",
+    summary:
+      "Cómo elegir, limpiar y usar piedras en rituales para dar cuerpo, símbolo y sostén a una intención.",
+    body:
+      "Una piedra no hace el ritual por vos, pero puede volverse un ancla concreta para sostener una intención. Su peso, su textura y su carga simbólica ayudan a traer la atención al cuerpo y a volver más habitable lo que querés trabajar.",
+    sections: [
+      {
+        title: "1. Cómo funcionan en un ritual",
+        paragraphs: [
+          "Las piedras operan en varios niveles a la vez. En lo simbólico, cada una reúne asociaciones de color, elemento, planeta o intención. En lo sensorial, su peso y su temperatura ayudan a traer presencia al cuerpo.",
+          "Por eso se usan como apoyo: no reemplazan tu práctica, pero sí pueden reforzar el foco, la regulación y la memoria del gesto ritual.",
+        ],
+      },
+      {
+        title: "2. Cómo elegir una piedra",
+        paragraphs: [
+          "No hace falta tener una colección enorme. Conviene empezar por una intención clara y elegir una piedra que acompañe ese trabajo.",
+        ],
+        bullets: [
+          "Para claridad y enfoque: amatista, fluorita o cuarzo transparente.",
+          "Para arraigo y estabilidad: obsidiana, turmalina negra o jaspe rojo.",
+          "Para calma emocional: cuarzo rosa, piedra luna o aguamarina.",
+          "Para impulso y decisión: cornalina, ojo de tigre o citrino.",
+          "Para limpieza energética: selenita, cuarzo transparente o turmalina negra.",
+        ],
+      },
+      {
+        title: "3. Por intención o por elemento",
+        paragraphs: [
+          "También podés elegir según el lenguaje del ritual que estés armando.",
+        ],
+        bullets: [
+          "Tierra: estabilidad, sostén, cuerpo, paciencia.",
+          "Agua: emoción, intuición, descanso, suavidad.",
+          "Fuego: acción, coraje, deseo, transformación.",
+          "Aire: claridad, ideas, comunicación, perspectiva.",
+        ],
+      },
+      {
+        title: "4. Limpieza y cuidado",
+        paragraphs: [
+          "Antes de usar una piedra en un ritual nuevo, conviene limpiarla. No todas responden igual al agua o a la sal, así que lo más seguro es elegir métodos suaves.",
+        ],
+        bullets: [
+          "Humo sagrado: pasarla por humo de salvia, romero, palo santo o incienso.",
+          "Luz lunar: dejarla una noche a la luna para descargar y reordenar.",
+          "Tierra: apoyarla unas horas sobre tierra limpia o una maceta.",
+          "Selenita: dejar otras piedras cerca de una selenita para limpiarlas.",
+          "Evitar agua o sal directa si no conocés bien el material.",
+        ],
+      },
+      {
+        title: "5. Cargar y programar",
+        paragraphs: [
+          "Después de limpiar, podés cargar la piedra con una intención simple. No se trata de forzarle un poder, sino de volver explícito para qué la vas a usar.",
+        ],
+        bullets: [
+          "Sostenela entre las manos unos segundos.",
+          "Nombrá tu intención en presente y en pocas palabras.",
+          "Respirá con ella hasta sentir que el gesto queda sellado.",
+          "Si querés, usala siempre para el mismo tipo de trabajo.",
+        ],
+      },
+      {
+        title: "6. Relación con la luna",
+        bullets: [
+          "Luna nueva: sembrar intención y programar una piedra.",
+          "Luna creciente: activar, impulsar y sostener procesos.",
+          "Luna llena: cargar, agradecer y amplificar presencia.",
+          "Luna menguante: limpiar, descargar y cerrar un ciclo.",
+        ],
+      },
+      {
+        title: "7. Formas simples de usarla",
+        bullets: [
+          "Tenerla en la mano durante una respiración o meditación breve.",
+          "Dejarla en el altar como soporte visible de la intención.",
+          "Llevarla encima durante el día para volver al foco.",
+          "Apoyarla sobre el cuerpo cuando el ritual pida calma o arraigo.",
+          "Usarla al cerrar el ritual para marcar integración y descanso.",
+        ],
+      },
+      {
+        title: "Para llevarte",
+        paragraphs: [
+          "La piedra no reemplaza tu presencia: la vuelve más concreta.",
+          "Elegí pocas, conocelas bien y dejá que acompañen lo que ya estás dispuesta a trabajar.",
+        ],
+      },
+    ],
+  },
 ];
 
 export function getWikiNoteById(id: string) {

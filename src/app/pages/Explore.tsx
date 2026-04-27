@@ -11,8 +11,7 @@ import {
   ritualCardToRitualData,
 } from "../lib/ritual-service";
 import { getUserFacingErrorMessage } from "../lib/errors";
-import { deriveCandleGuide } from "../lib/candle";
-import { RitualListCard } from "../components/RitualListCard";
+import { RitualGridCard } from "../components/RitualGridCard";
 
 const FILTERS = {
   type: ["Claridad", "Amor propio", "Calma", "Enfoque", "Cerrar ciclo", "Atraer oportunidad"],
@@ -26,7 +25,7 @@ type FilterKey = keyof typeof FILTERS;
 export function Explore() {
   const navigate = useNavigate();
   const { setViewMode, setSelectedPublicRitual } = useRitual();
-  const { session, isRitualSaved, saveRitual } = useUser();
+  const { session, isRitualSaved, saveRitual, savedRituals, removeSavedRitual } = useUser();
   const [communityRituals, setCommunityRituals] = useState<any[]>([]);
   const [activeFilterGroup, setActiveFilterGroup] = useState<FilterKey>("type");
   const [activeFilters, setActiveFilters] = useState<Record<FilterKey, string>>({
@@ -95,10 +94,20 @@ export function Explore() {
     }
 
     const ritualToSaveBase = ritualCardToRitualData(ritual);
+
     if (isRitualSaved(ritualToSaveBase)) {
-      toast("Ya está guardado", {
-        description: "Lo encontrás en Favoritos dentro de tu cuenta.",
-      });
+      const savedEntry = savedRituals.find((e) => e.id === ritualToSaveBase.ritualId);
+      if (savedEntry) {
+        setSavingRitualId(ritual.id);
+        try {
+          await removeSavedRitual(savedEntry.id);
+          toast("Ritual eliminado de favoritos");
+        } catch (error) {
+          toast(getUserFacingErrorMessage(error, "No se pudo eliminar el ritual."));
+        } finally {
+          setSavingRitualId(null);
+        }
+      }
       return;
     }
 
@@ -277,82 +286,70 @@ export function Explore() {
         </p>
       </div>
 
-      {/* Ritual list */}
-      <div className="relative z-10 flex-1 px-6 pb-10 overflow-y-auto">
-        <div className="flex flex-col gap-3">
-          {filteredRituals.length === 0 ? (
-            <div className="flex flex-col items-center py-16 text-center">
-              <div
-                className="mb-4 w-14 h-14 rounded-full border border-[rgba(0,0,0,0.08)] flex items-center justify-center"
-              >
-                <span style={{ fontSize: "20px", opacity: 0.3 }}>◯</span>
-              </div>
-              <p
-                style={{
-                  fontFamily: "var(--font-serif-display)",
-                  fontSize: "20px",
-                  fontWeight: 400,
-                  color: "var(--ink-muted)",
-                  marginBottom: "4px",
-                }}
-              >
-                Sin resultados
-              </p>
-              <p
-                style={{
-                  fontFamily: "var(--font-sans-ui)",
-                  fontSize: "13px",
-                  fontWeight: 300,
-                  color: "var(--ink-soft)",
-                }}
-              >
-                Prueba con otros filtros.
-              </p>
+      {/* Ritual grid */}
+      <div className="relative z-10 flex-1 px-4 pb-10 overflow-y-auto">
+        {filteredRituals.length === 0 ? (
+          <div className="flex flex-col items-center py-16 text-center">
+            <div
+              className="mb-4 w-14 h-14 rounded-full border border-[rgba(0,0,0,0.08)] flex items-center justify-center"
+            >
+              <span style={{ fontSize: "20px", opacity: 0.3 }}>◯</span>
             </div>
-          ) : (
-            filteredRituals.map((ritual, i) => {
+            <p
+              style={{
+                fontFamily: "var(--font-serif-display)",
+                fontSize: "20px",
+                fontWeight: 400,
+                color: "var(--ink-muted)",
+                marginBottom: "4px",
+              }}
+            >
+              Sin resultados
+            </p>
+            <p
+              style={{
+                fontFamily: "var(--font-sans-ui)",
+                fontSize: "13px",
+                fontWeight: 300,
+                color: "var(--ink-soft)",
+              }}
+            >
+              Prueba con otros filtros.
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-3">
+            {filteredRituals.map((ritual, i) => {
               const ritualData = ritualCardToRitualData(ritual);
               const isSaved = isRitualSaved(ritualData);
-              const candleGuide = deriveCandleGuide({
-                ritualType: ritual.typeId || ritual.type,
-                intention: ritual.intention,
-                energy: ritual.energy,
-                title: ritual.aiRitual?.title || ritual.title,
-                opening: ritual.aiRitual?.opening,
-                symbolicAction: ritual.aiRitual?.symbolicAction,
-                closing: ritual.aiRitual?.closing,
-              });
 
               return (
                 <motion.div
                   key={ritual.id}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: i * 0.06 }}
+                  transition={{ duration: 0.4, delay: i * 0.05 }}
                 >
-                  <RitualListCard
+                  <RitualGridCard
+                    id={ritual.id}
                     title={ritual.title}
-                    description={ritual.intention}
-                    meta={[
-                      ritual.element,
-                      ritual.intensity,
-                      `${ritual.duration} min`,
-                      `Vela ${candleGuide.color}`,
-                    ]}
+                    type={ritual.type}
+                    element={ritual.element}
+                    duration={ritual.duration}
                     likes={ritual.likes}
                     saved={isSaved}
                     saving={savingRitualId === ritual.id}
                     onOpen={() => handleRitualTap(ritual)}
-                    onSave={(event) => {
-                      event.stopPropagation();
+                    onSave={(e) => {
+                      e.stopPropagation();
                       void handleSaveRitual(ritual);
                     }}
                   />
                 </motion.div>
               );
-            })
-          )}
-        </div>
+            })}
+          </div>
+        )}
       </div>
     </div>
   );

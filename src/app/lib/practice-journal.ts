@@ -6,7 +6,7 @@
  * Usado por StepAnchor (escritura) y Account + CosmicCalendar (lectura).
  */
 
-import { getLunarPhaseKey } from "./cosmic-calendar";
+import { buildCosmicDay, getLunarPhaseKey } from "./cosmic-calendar";
 
 export interface JournalEntry {
   ritualId?: string;
@@ -18,6 +18,16 @@ export interface JournalEntry {
   moonPhase: string;
   lunarPhaseKey: string; // para calcular rachas
   completedAt: string; // ISO string
+}
+
+interface OwnRitualLike {
+  createdAt?: string;
+  ritual: {
+    ritualId?: string;
+    anchor?: string;
+    element?: string;
+    ritualType?: string;
+  };
 }
 
 const JOURNAL_KEY = "rituales_journal_v1";
@@ -115,4 +125,24 @@ export function getJournalByDate(entries: JournalEntry[]): Map<string, JournalEn
     map.set(dateKey, existing);
   }
   return map;
+}
+
+export function getJournalEntriesFromOwnRituals(entries: OwnRitualLike[]): JournalEntry[] {
+  return entries
+    .filter((entry) => entry.createdAt && entry.ritual.anchor)
+    .map((entry) => {
+      const completedAt = entry.createdAt as string;
+      const completedDate = new Date(completedAt);
+      const cosmicDay = buildCosmicDay(completedDate);
+      return {
+        ritualId: entry.ritual.ritualId,
+        anchor: entry.ritual.anchor || "",
+        element: entry.ritual.element || "",
+        ritualType: entry.ritual.ritualType || "",
+        moonPhase: cosmicDay.moonPhase,
+        lunarPhaseKey: getLunarPhaseKey(completedDate),
+        completedAt,
+      };
+    })
+    .sort((a, b) => a.completedAt.localeCompare(b.completedAt));
 }

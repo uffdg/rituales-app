@@ -19,6 +19,8 @@ React 18 SPA deployed on Vercel at `https://rituales-app-ruby.vercel.app`. No ba
 
 Tailwind v4 (uses `@theme inline` and `@custom-variant` syntax — not v3). shadcn/ui components live in `src/app/components/ui/`. Custom design tokens defined in `src/styles/theme.css`. App background is `#EEEAE6` with white content panel.
 
+Animations use `motion/react` (the `motion` package, v12). Import from `motion/react`, not `framer-motion`.
+
 ### Auth
 
 Supabase OTP (6-digit code) auth. `UserContext` (`src/app/context/UserContext.tsx`) wraps `supabase.auth` and exposes `{ session, user, loading, signOut }`. `AuthGuard` (`src/app/components/AuthGuard.tsx`) protects routes by redirecting to `/login` when no session.
@@ -107,11 +109,46 @@ All these pass a Supabase JWT via `Authorization: Bearer` header.
 
 ### Stories
 
-`src/app/pages/Stories.tsx` is a full-screen swipeable stories feed. Cards are generated from `EDITORIAL_CARDS` (static content) combined with dynamic cards (cosmic context, mood picker). A progressive unlock system (`getDailyEditorial`) shows more cards as days pass since first visit, tracked in `rituales_stories_first_visit_v1` localStorage key.
+`src/app/pages/Stories.tsx` is a full-screen swipeable stories feed. Cards are generated from `EDITORIAL_CARDS` (static content) combined with dynamic cards (cosmic context, mood picker). A progressive unlock system (`getDailyEditorial`) shows more cards as days pass since first visit.
+
+**All localStorage keys:**
+
+| Key | Owner | Purpose |
+|---|---|---|
+| `rituales_current` | `RitualContext` | Active ritual creation wizard state |
+| `rituales_daily_anchor_v1` | `daily-anchor.ts` | Daily anchor journey per dateKey |
+| `rituales_journal_v1` | `practice-journal.ts` | Completed ritual history |
+| `rituales_events` | `analytics.ts` | Local event buffer (max 200) |
+| `rituales_analytics_session_id` | `analytics.ts` | Session identifier |
+| `rituales_stories_first_visit_v1` | `Stories.tsx` | First visit date for progressive unlock |
+| `rituales_stories_gesture_hint_seen_v1` | `Stories.tsx` | Whether swipe hint was dismissed |
+
+### Daily Anchor
+
+A separate daily micro-practice, distinct from the ritual creation wizard. Lives on the Home page (`/`).
+
+- `src/app/lib/daily-anchor.ts` — pure client logic for a 3-step daily journey (`inicio` → `momento` → `cierre`). Steps must complete in order; state persisted under `rituales_daily_anchor_v1`. Resets automatically per day via `dateKey`.
+- `src/app/lib/anchor-service.ts` — Supabase sync layer (`daily_anchor_entries` table). `saveDailyAnchorEntry` silently ignores errors — localStorage is the source of truth. `syncDailyAnchorContentFromRemote` merges remote state into localStorage on load.
+
+### Practice Journal
+
+`src/app/lib/practice-journal.ts` — local log of completed rituals, persisted under `rituales_journal_v1` (max 200 entries). Provides:
+- `saveJournalEntry` / `getJournalEntries` — write/read entries
+- `getDominantElement` — most-used element (shown on `/cuenta`)
+- `getLunarStreak` — consecutive lunar phases with at least one ritual
+- `getJournalByDate` — date → entries map for the cosmic calendar overlay
+- `getJournalEntriesFromOwnRituals` — builds journal-compatible entries from backend ritual records
+
+Read by `Account` and `CosmicCalendar`; written by `StepAnchor`.
+
+### Candle Guide
+
+`src/app/lib/candle.ts` — `deriveCandleGuide(input)` keyword-matches ritual fields (intention, energy, ritualType, etc.) against `CANDLE_MAP` to recommend a candle color and instruction. Normalizes Spanish text including accent marks. Falls back to "Blanca" if no match.
 
 ### Static Data
 
 `src/app/data/rituals.ts` — curated public ritual records shown on `/explorar`.
+`src/app/data/curated-rituals.ts` — 6 editorial rituals (one per main intention type) used as story content and for dosified card display in Stories.
 `src/app/data/wiki.ts` — wiki entries shown on `/wiki` and `/wiki/:id`.
 
 ### Supabase Client
