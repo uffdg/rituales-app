@@ -1252,7 +1252,7 @@ const isSelectedStepBlocked = !isJourneyComplete && selectedStepIndex > complete
           <div className="overflow-x-auto hide-scrollbar pb-4 pl-6 pr-6 -mr-6">
             <div className="flex gap-2 w-max pr-6">
               {cosmicDays.map((day, idx) => {
-                 const isActive = idx === 1; // mocked state corresponding to today
+                 const isActive = idx === 0;
                  return (
                   <button
                     key={day.dateKey}
