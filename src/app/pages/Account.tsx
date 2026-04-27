@@ -4,7 +4,7 @@ import { useNavigate } from "react-router";
 import { motion } from "motion/react";
 import { LogOut, Trash2 } from "lucide-react";
 import { getDailyAnchorContent, getDailyAnchorJourney } from "../lib/daily-anchor";
-import { getJournalEntries, getDominantElement, getLunarStreak } from "../lib/practice-journal";
+import { getJournalEntries, getDominantElement, getLunarStreak, getJournalByDate } from "../lib/practice-journal";
 import { buildCosmicDay } from "../lib/cosmic-calendar";
 import { toast } from "sonner";
 import { useUser } from "../context/UserContext";
@@ -71,6 +71,20 @@ export function Account() {
   const journalEntries = useMemo(() => getJournalEntries(), []);
   const dominantElement = useMemo(() => getDominantElement(journalEntries), [journalEntries]);
   const lunarStreak = useMemo(() => getLunarStreak(journalEntries), [journalEntries]);
+  const recentActivity = useMemo(() => {
+    const days: number[] = [];
+    const byDate = getJournalByDate(journalEntries);
+    const today = new Date();
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      const key = d.toISOString().slice(0, 10);
+      days.push(byDate.get(key)?.length ?? 0);
+    }
+    return days;
+  }, [journalEntries]);
+  const weekTotal = recentActivity.reduce((a, b) => a + b, 0);
+  const isActivityToday = (recentActivity[6] ?? 0) > 0;
   const todayIntention = getDailyAnchorContent().inicio?.text?.trim() || null;
   const journey = getDailyAnchorJourney();
 
@@ -381,37 +395,84 @@ export function Account() {
             >
               Tu práctica
             </p>
-            <div className="grid grid-cols-3 gap-2.5">
+            <div className="grid grid-cols-2 gap-2.5">
               {/* Racha lunar */}
               <div
-                className="rounded-[20px] px-3.5 py-4 flex flex-col"
+                className="rounded-[20px] px-4 py-4 flex flex-col"
                 style={{
                   background: lunarStreak > 1 ? "var(--ink-strong)" : "var(--surface-softest)",
                   border: lunarStreak > 1 ? "none" : "1px solid var(--border-soft)",
+                  minHeight: "148px",
                 }}
               >
                 <span
                   style={{
-                    fontSize: "14px",
+                    fontSize: "16px",
                     lineHeight: 1,
-                    marginBottom: "10px",
-                    color: lunarStreak > 1 ? "rgba(255,255,255,0.5)" : "var(--ink-soft)",
+                    marginBottom: "auto",
+                    color: lunarStreak > 1 ? "rgba(255,255,255,0.45)" : "var(--ink-soft)",
                   }}
                 >
                   {lunarStreak > 1 ? cosmicToday.moonEmoji : "○"}
                 </span>
-                <p
-                  style={{
-                    fontFamily: "var(--font-serif-display)",
-                    fontSize: "30px",
-                    fontWeight: 400,
-                    lineHeight: 1,
-                    color: lunarStreak > 1 ? "#fff" : "var(--ink-strong)",
-                    marginBottom: "6px",
-                  }}
-                >
-                  {lunarStreak}
-                </p>
+                <div>
+                  <p
+                    style={{
+                      fontFamily: "var(--font-serif-display)",
+                      fontSize: "36px",
+                      fontWeight: 400,
+                      lineHeight: 1,
+                      color: lunarStreak > 1 ? "#fff" : "var(--ink-strong)",
+                      marginBottom: "3px",
+                    }}
+                  >
+                    {lunarStreak}
+                  </p>
+                  <p
+                    style={{
+                      fontFamily: "var(--font-sans-ui)",
+                      fontSize: "9px",
+                      fontWeight: 500,
+                      letterSpacing: "0.1em",
+                      textTransform: "uppercase",
+                      color: lunarStreak > 1 ? "rgba(255,255,255,0.38)" : "var(--ink-soft)",
+                      marginBottom: "10px",
+                    }}
+                  >
+                    racha lunar
+                  </p>
+                  <div className="flex gap-[5px]">
+                    {Array.from({ length: 6 }).map((_, i) => (
+                      <div
+                        key={i}
+                        style={{
+                          width: 5,
+                          height: 5,
+                          borderRadius: "50%",
+                          background:
+                            i < Math.min(lunarStreak, 6)
+                              ? lunarStreak > 1
+                                ? "rgba(255,255,255,0.65)"
+                                : "var(--ink-strong)"
+                              : lunarStreak > 1
+                              ? "rgba(255,255,255,0.1)"
+                              : "rgba(15,23,42,0.07)",
+                        }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Actividad reciente */}
+              <div
+                className="rounded-[20px] px-4 py-4 flex flex-col"
+                style={{
+                  background: isActivityToday ? "var(--ink-strong)" : "var(--surface-softest)",
+                  border: isActivityToday ? "none" : "1px solid var(--border-soft)",
+                  minHeight: "148px",
+                }}
+              >
                 <p
                   style={{
                     fontFamily: "var(--font-sans-ui)",
@@ -419,19 +480,64 @@ export function Account() {
                     fontWeight: 500,
                     letterSpacing: "0.1em",
                     textTransform: "uppercase",
-                    color: lunarStreak > 1 ? "rgba(255,255,255,0.4)" : "var(--ink-soft)",
-                    lineHeight: 1.4,
+                    color: isActivityToday ? "rgba(255,255,255,0.45)" : "var(--ink-soft)",
+                    marginBottom: "auto",
                   }}
                 >
-                  racha
-                  <br />
-                  lunar
+                  7 días
                 </p>
+                <div>
+                  <p
+                    style={{
+                      fontFamily: "var(--font-serif-display)",
+                      fontSize: "36px",
+                      fontWeight: 400,
+                      lineHeight: 1,
+                      color: isActivityToday ? "#fff" : "var(--ink-strong)",
+                      marginBottom: "3px",
+                    }}
+                  >
+                    {weekTotal}
+                  </p>
+                  <p
+                    style={{
+                      fontFamily: "var(--font-sans-ui)",
+                      fontSize: "9px",
+                      fontWeight: 500,
+                      letterSpacing: "0.1em",
+                      textTransform: "uppercase",
+                      color: isActivityToday ? "rgba(255,255,255,0.38)" : "var(--ink-soft)",
+                      marginBottom: "10px",
+                    }}
+                  >
+                    sesiones
+                  </p>
+                  <div className="flex items-end gap-[3px]">
+                    {recentActivity.map((count, i) => (
+                      <div
+                        key={i}
+                        style={{
+                          width: 7,
+                          height: Math.max(3, count > 0 ? Math.min(count * 8, 26) : 3),
+                          borderRadius: 2,
+                          background:
+                            count > 0
+                              ? isActivityToday
+                                ? "rgba(255,255,255,0.65)"
+                                : "var(--ink-strong)"
+                              : isActivityToday
+                              ? "rgba(255,255,255,0.1)"
+                              : "rgba(15,23,42,0.07)",
+                        }}
+                      />
+                    ))}
+                  </div>
+                </div>
               </div>
 
               {/* Elemento dominante */}
               <div
-                className="rounded-[20px] px-3.5 py-4 flex flex-col"
+                className="rounded-[20px] px-4 py-4 flex flex-col"
                 style={{
                   background: "var(--surface-softest)",
                   border: "1px solid var(--border-soft)",
@@ -439,84 +545,93 @@ export function Account() {
               >
                 <span
                   style={{
-                    fontSize: "15px",
+                    fontSize: "18px",
                     lineHeight: 1,
-                    marginBottom: "8px",
+                    marginBottom: "auto",
                     color: dominantElement ? "var(--ink-muted)" : "var(--ink-soft)",
                   }}
                 >
                   {dominantElement ? (ELEMENT_META[dominantElement]?.symbol ?? "◯") : "◯"}
                 </span>
-                <p
-                  style={{
-                    fontFamily: "var(--font-serif-display)",
-                    fontSize: dominantElement ? "17px" : "26px",
-                    fontWeight: 400,
-                    lineHeight: 1,
-                    color: dominantElement ? "var(--ink-strong)" : "var(--ink-soft)",
-                    marginBottom: "6px",
-                    fontStyle: dominantElement ? "italic" : "normal",
-                  }}
-                >
-                  {dominantElement
-                    ? (ELEMENT_META[dominantElement]?.label ?? dominantElement)
-                    : "—"}
-                </p>
-                <p
-                  style={{
-                    fontFamily: "var(--font-sans-ui)",
-                    fontSize: "9px",
-                    fontWeight: 500,
-                    letterSpacing: "0.1em",
-                    textTransform: "uppercase",
-                    color: "var(--ink-soft)",
-                    lineHeight: 1.4,
-                  }}
-                >
-                  elemento
-                  <br />
-                  dominante
-                </p>
+                <div>
+                  <p
+                    style={{
+                      fontFamily: "var(--font-serif-display)",
+                      fontSize: dominantElement ? "20px" : "28px",
+                      fontWeight: 400,
+                      lineHeight: 1,
+                      color: dominantElement ? "var(--ink-strong)" : "var(--ink-soft)",
+                      fontStyle: dominantElement ? "italic" : "normal",
+                      marginBottom: "4px",
+                    }}
+                  >
+                    {dominantElement
+                      ? (ELEMENT_META[dominantElement]?.label ?? dominantElement)
+                      : "—"}
+                  </p>
+                  <p
+                    style={{
+                      fontFamily: "var(--font-sans-ui)",
+                      fontSize: "9px",
+                      fontWeight: 500,
+                      letterSpacing: "0.1em",
+                      textTransform: "uppercase",
+                      color: "var(--ink-soft)",
+                    }}
+                  >
+                    elemento
+                    <br />
+                    dominante
+                  </p>
+                </div>
               </div>
 
-              {/* Rituales totales */}
+              {/* Total sesiones */}
               <div
-                className="rounded-[20px] px-3.5 py-4 flex flex-col"
+                className="rounded-[20px] px-4 py-4 flex flex-col"
                 style={{
                   background: "var(--surface-softest)",
                   border: "1px solid var(--border-soft)",
                 }}
               >
-                <span style={{ fontSize: "12px", lineHeight: 1, marginBottom: "10px", color: "var(--ink-soft)" }}>
+                <span
+                  style={{
+                    fontSize: "12px",
+                    lineHeight: 1,
+                    marginBottom: "auto",
+                    color: "var(--ink-soft)",
+                  }}
+                >
                   ✦
                 </span>
-                <p
-                  style={{
-                    fontFamily: "var(--font-serif-display)",
-                    fontSize: "30px",
-                    fontWeight: 400,
-                    lineHeight: 1,
-                    color: "var(--ink-strong)",
-                    marginBottom: "6px",
-                  }}
-                >
-                  {totalCount}
-                </p>
-                <p
-                  style={{
-                    fontFamily: "var(--font-sans-ui)",
-                    fontSize: "9px",
-                    fontWeight: 500,
-                    letterSpacing: "0.1em",
-                    textTransform: "uppercase",
-                    color: "var(--ink-soft)",
-                    lineHeight: 1.4,
-                  }}
-                >
-                  rituales
-                  <br />
-                  en total
-                </p>
+                <div>
+                  <p
+                    style={{
+                      fontFamily: "var(--font-serif-display)",
+                      fontSize: "36px",
+                      fontWeight: 400,
+                      lineHeight: 1,
+                      color: "var(--ink-strong)",
+                      marginBottom: "4px",
+                    }}
+                  >
+                    {journalEntries.length}
+                  </p>
+                  <p
+                    style={{
+                      fontFamily: "var(--font-sans-ui)",
+                      fontSize: "9px",
+                      fontWeight: 500,
+                      letterSpacing: "0.1em",
+                      textTransform: "uppercase",
+                      color: "var(--ink-soft)",
+                    }}
+                  >
+                    sesiones
+                    <br />
+                    totales
+                  </p>
+                </div>
               </div>
             </div>
           </section>
