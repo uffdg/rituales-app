@@ -490,3 +490,106 @@ No hace falta diseñarlo encima. Ya está.
 El product market fit de una herramienta de autoconocimiento no se mide
 con un dashboard de cortisol.
 Se mide con una persona que vuelve.
+
+---
+
+## Entradas de mayo 2026 — Sesión de estrategia y definición de producto
+
+### Mayo 2026 · El pivot al modelo de membresía
+
+El producto dejó de ser una app de meditación con features.
+Se convirtió en una membresía de contenido ritual curado organizado alrededor de dos ritmos: el ciclo lunar y el cotidiano.
+
+Por qué: los datos de retención mostraron que el contenido de Instagram generaba comportamiento real (personas que salieron a comprar velas) sin que la app fuera necesaria. El contenido es la estrella. La app es el canal.
+
+El modelo: gratuito (Instagram + email abierto) para adquirir. Membresía base (~USD 10/mes) para acompañar. Membresía premium para profundizar. Enterprise como end game, no como punto de entrada.
+
+Margen bruto unitario estimado: ~88%. Punto de equilibrio: ~80 suscriptores.
+
+---
+
+### Mayo 2026 · La decisión de priorizar el mundo esotérico
+
+Antes de ir al enterprise, el producto tiene que funcionar para la vida de las personas.
+El mundo esotérico tiene algo que el corporativo no tiene: comunidad de alta identificación, alta disposición a actuar, y un mecanismo de distribución que el corporate no tiene — el boca a boca ritualizado.
+
+El camino correcto: primero tracción en el mundo esotérico → comunidad que habla el lenguaje → algunos de esos usuarios son líderes que quieren llevarlo a sus equipos → entrada al enterprise con prueba social real.
+
+El enterprise no es el destino. Es la consecuencia.
+
+---
+
+### Mayo 2026 · Los festivales como instancia de producto
+
+Los festivales no son una campaña de marketing. Son una instancia de producto.
+Las personas que pasan por un ritual colectivo en un festival no necesitan que les vendas la membresía — ya la vivieron.
+
+Loop: producto → festival → contenido → comunidad → producto.
+
+Referencia: Gardens of Babylon como modelo de distribución cultural, no como competidor directo.
+
+Próximo paso a explorar: ¿Rituales como marca dentro de un festival existente (LATAM) o como productora de sus propios eventos?
+
+---
+
+### Mayo 2026 · El modelo 360 — una sola persona, dos contextos
+
+La persona no deja de ser esotérica cuando entra al trabajo.
+Rituales puede ser el mismo sistema operativo de intención con dos interfaces: personal y profesional.
+
+El ritual es el mismo mecanismo. El contenido y el lenguaje cambian según el contexto.
+Hay dos galerías distintas: personal (luna, elementos, ciclos) y corporativa (decisiones, equipos, performance).
+
+En el contexto corporativo: anonimato total de las acciones individuales. La empresa accede solo a insights de grandes volúmenes — datos sociológico-culturales, no vigilancia. El modelo es diferido, no en tiempo real. La persona es una sola cruzando sombreros.
+
+---
+
+### Mayo 2026 · El flujo de decisión como arquitectura no lineal
+
+El ciclo es: preparación → ejecución → cierre → seguimiento.
+Pero no es lineal — la persona puede entrar en cualquier punto.
+
+La pregunta de diseño central: ¿qué insight necesita ver el usuario en cada punto del ciclo?
+Eso define la arquitectura de navegación, no al revés.
+
+---
+
+### Mayo 2026 · La entrevista con Ginny — lo que confirmó
+
+Ginny, 42 años, Mendoza. Actriz, PM, locutora, socia de agencia, madre. Cinco sombreros simultáneos. Perimenopausia. Vive exactamente el problema que Rituales resuelve.
+
+La frase que define el producto, dicha espontáneamente al descubrir el anclaje:
+«No quede todo en el aire en algo que es muy lindo, pero a veces uno necesita como sentirlo en relación a algo muy concreto que uno está viviendo.»
+
+Lo que confirmó:
+— El anclaje concreto al final del ritual es el diferencial más poderoso. Estaba escondido. Tiene que ser más visible.
+— La voz oral es el formato correcto para el perfil: "sería más realista poder avanzar con esto que esperar a tener un momento para escribir tranquila."
+— La fase de la luna como dato utilitario concreto engancha antes que cualquier copy.
+— Las métricas emocionales en el tiempo son lo que convierte el producto de herramienta puntual a práctica sostenida: "como el Health del celular pero en relación a la inteligencia emocional."
+— El vector enterprise existe pero requiere contexto de confianza previo — no se vende directamente, se contagia.
+
+Bug crítico detectado en uso real: el flujo de confirmación de cuenta no entrega código. Si Ginny no hubiera estado acompañada, habría abandonado.
+
+---
+
+### Mayo 2026 · Los datos de tracción al 28 de abril
+
+11 usuarios activos en 28 días sin inversión en adquisición.
+Duración media de sesión: 11 minutos 56 segundos.
+4 usuarios recurrentes. El más activo: 24 días activos entre el 30 de marzo y el 29 de abril.
+17 seguidores orgánicos en Instagram en dos semanas sin búsqueda activa.
+Tráfico: Direct (7) + Organic Social (3). Sin paid.
+
+El dato más importante: usuarios que salieron a comprar velas como resultado de un ritual generado por la app. Acción física en el mundo real como proxy de valor percibido.
+
+---
+
+### Mayo 2026 · Lo que el producto es — con precisión
+
+Rituales es una herramienta de autoconocimiento.
+El ritual es el medio. Conocerse mejor para decidir y actuar con más claridad es el fin.
+
+No es una app de meditación. No es bienestar genérico. No es espiritualidad new age.
+Es infraestructura de intención — que funciona igual para una persona preparando una luna llena el domingo a la noche que preparando una decisión estratégica con su equipo el lunes a las 9.
+
+La tecnología no aparece en la experiencia del usuario. Solo la práctica. Solo la frase. Solo los diez minutos.
