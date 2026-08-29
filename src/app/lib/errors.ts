@@ -26,6 +26,14 @@ export function getUserFacingErrorMessage(
   }
 
   if (
+    normalized.includes("invalid_api_key") ||
+    normalized.includes("authentication_error") ||
+    normalized.includes("unauthorized")
+  ) {
+    return "El audio guiado no está disponible por ahora. Probá de nuevo más tarde.";
+  }
+
+  if (
     normalized.includes("schema cache") ||
     normalized.includes("pgrst205") ||
     normalized.includes("ritual_favorites")
