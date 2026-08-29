@@ -37,5 +37,15 @@ export function getUserFacingErrorMessage(
     return "Necesitás iniciar sesión para hacer eso.";
   }
 
+  if (
+    normalized.includes("failed to fetch") ||
+    normalized.includes("networkerror") ||
+    normalized.includes("load failed") ||
+    normalized.includes("err_connection_refused") ||
+    normalized.includes("err_internet_disconnected")
+  ) {
+    return "No pudimos conectarnos. Revisá tu conexión y probá de nuevo.";
+  }
+
   return message;
 }

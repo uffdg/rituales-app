@@ -7,6 +7,8 @@ interface GuidedAudioPlayerProps {
   onStart?: () => void | Promise<void>;
   disabled?: boolean;
   title?: string;
+  onPlay?: () => void;
+  onEnded?: () => void;
 }
 
 export function GuidedAudioPlayer({
@@ -14,6 +16,8 @@ export function GuidedAudioPlayer({
   onStart,
   disabled = false,
   title = "Sesion guiada",
+  onPlay,
+  onEnded,
 }: GuidedAudioPlayerProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const ambienceRef = useRef<HTMLAudioElement | null>(null);
@@ -33,6 +37,7 @@ export function GuidedAudioPlayer({
       setIsPlaying(true);
       syncAmbienceToVoice();
       ambienceRef.current?.play().catch(() => {});
+      onPlay?.();
     };
     const handleEnded = () => {
       setIsPlaying(false);
@@ -40,6 +45,7 @@ export function GuidedAudioPlayer({
       if (ambienceRef.current) {
         ambienceRef.current.currentTime = 0;
       }
+      onEnded?.();
     };
     const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
     const handleLoadedMetadata = () => setDuration(audio.duration || 0);
@@ -57,7 +63,7 @@ export function GuidedAudioPlayer({
       audio.removeEventListener("timeupdate", handleTimeUpdate);
       audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
     };
-  }, [src]);
+  }, [src, onPlay, onEnded]);
 
   useEffect(() => {
     if (src && audioRef.current) {
