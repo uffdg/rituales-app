@@ -11,6 +11,8 @@ interface GuidedAudioPlayerProps {
   onEnded?: () => void;
 }
 
+const GUIDED_AUDIO_PLAYBACK_RATE = 0.82;
+
 export function GuidedAudioPlayer({
   src,
   onStart,
@@ -28,6 +30,9 @@ export function GuidedAudioPlayer({
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
+
+    audio.playbackRate = GUIDED_AUDIO_PLAYBACK_RATE;
+    audio.preservesPitch = true;
 
     const handlePause = () => {
       setIsPlaying(false);
@@ -68,6 +73,8 @@ export function GuidedAudioPlayer({
   useEffect(() => {
     if (src && audioRef.current) {
       audioRef.current.load();
+      audioRef.current.playbackRate = GUIDED_AUDIO_PLAYBACK_RATE;
+      audioRef.current.preservesPitch = true;
       syncAmbienceToVoice();
       audioRef.current.play().catch(() => {});
       ambienceRef.current?.play().catch(() => {});
