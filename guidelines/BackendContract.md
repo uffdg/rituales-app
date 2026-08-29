@@ -104,7 +104,7 @@ Request body:
 
 ```json
 {
-  "voice": "eleven_meditation_voice",
+  "voice": "El3gkPAhMU9R5biL3rtU",
   "model": "eleven_multilingual_v2",
   "responseFormat": "mp3",
   "guidedSession": {
@@ -121,10 +121,10 @@ Response body:
 
 ```json
 {
-  "audioUrl": "https://cdn.rituales.app/audio/ritual_123.mp3",
+  "audioUrl": "https://sztefmznsleedqythllo.supabase.co/storage/v1/object/public/audio/rituals/ritual_123/audio.mp3",
   "status": "ready",
   "provider": "elevenlabs",
-  "voice": "eleven_meditation_voice",
+  "voice": "El3gkPAhMU9R5biL3rtU",
   "model": "eleven_multilingual_v2"
 }
 ```

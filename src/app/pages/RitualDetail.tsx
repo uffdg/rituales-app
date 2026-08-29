@@ -9,10 +9,14 @@ import { getUserFacingErrorMessage } from "../lib/errors";
 import { toast } from "sonner";
 import { Bookmark, BookmarkCheck, Pause, Play } from "lucide-react";
 import {
+  DEFAULT_ELEVENLABS_VOICE_ID,
   generateRitual,
   getRitualById,
+  renderGuidedAudio,
   type RitualRecord,
 } from "../lib/ritual-service";
+import { GuidedAudioPlayer } from "../components/GuidedAudioPlayer";
+import { track } from "../lib/analytics";
 const IMAGE_POOLS: Record<string, string[]> = {
   Agua: [
     "/images/story-water-1.jpg",
@@ -93,6 +97,11 @@ export function RitualDetail() {
   const [activeTrack, setActiveTrack] = useState<number | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [audioTab, setAudioTab] = useState<"guided" | "ambient">("guided");
+  const [guidedAudioUrl, setGuidedAudioUrl] = useState<string | undefined>(undefined);
+  const [guidedAudioLoading, setGuidedAudioLoading] = useState(false);
+  const [guidedAudioError, setGuidedAudioError] = useState<string | null>(null);
+  const hasTrackedRitualStartRef = useRef(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -190,6 +199,110 @@ export function RitualDetail() {
         guidedSession: ritual.guidedSession,
         guidedAudio: ritual.guidedAudio,
       };
+
+  // Read a previously cached audio_url from the persisted ritual so we never
+  // regenerate audio that the backend already rendered and stored.
+  useEffect(() => {
+    if (displayRitual.guidedAudio?.audioUrl && !guidedAudioUrl) {
+      setGuidedAudioUrl(displayRitual.guidedAudio.audioUrl);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [displayRitual.guidedAudio?.audioUrl]);
+
+  const currentRitualId = loadedRitual?.ritualId || ritual.ritualId;
+
+  const handleRequestGuidedAudio = async () => {
+    if (guidedAudioLoading || guidedAudioUrl) {
+      return;
+    }
+
+    const guidedSession = displayRitual.guidedSession;
+    const isLocalOnlyId =
+      !currentRitualId || currentRitualId.startsWith("mock-") || currentRitualId.startsWith("dev-");
+
+    if (!guidedSession || isLocalOnlyId) {
+      setGuidedAudioError(
+        "Todavía no pudimos guardar este ritual, así que no podemos generar el audio guiado. Probá de nuevo en un momento.",
+      );
+      return;
+    }
+
+    setGuidedAudioLoading(true);
+    setGuidedAudioError(null);
+
+    try {
+      const result = await renderGuidedAudio({
+        ritualId: currentRitualId,
+        guidedSession,
+        voice: displayRitual.guidedAudio?.voice || DEFAULT_ELEVENLABS_VOICE_ID,
+        model: displayRitual.guidedAudio?.model || "eleven_multilingual_v2",
+        responseFormat: "mp3",
+      });
+
+      if ("audioUrl" in result && result.audioUrl) {
+        setGuidedAudioUrl(result.audioUrl);
+        updateRitual({
+          guidedAudio: {
+            status: "ready",
+            audioUrl: result.audioUrl,
+            provider: result.provider,
+            voice: result.voice,
+            model: result.model,
+          },
+        });
+      } else if ("blob" in result && result.blob) {
+        // Local-only preview (no backend/ritualId available) — not cached,
+        // it just plays once from this tab via an object URL.
+        setGuidedAudioUrl(URL.createObjectURL(result.blob as Blob));
+      } else {
+        setGuidedAudioError("No pudimos generar el audio guiado. Probá de nuevo.");
+      }
+    } catch (error) {
+      setGuidedAudioError(
+        getUserFacingErrorMessage(error, "No pudimos generar el audio guiado. Probá de nuevo."),
+      );
+    } finally {
+      setGuidedAudioLoading(false);
+    }
+  };
+
+  const handleStartRitual = () => {
+    hasTrackedRitualStartRef.current = false;
+    setAudioTab("guided");
+    setShowPlayer(true);
+
+    if (!guidedAudioUrl) {
+      void handleRequestGuidedAudio();
+    }
+  };
+
+  const handleGuidedAudioPlay = () => {
+    if (hasTrackedRitualStartRef.current) {
+      return;
+    }
+    hasTrackedRitualStartRef.current = true;
+    track("ritual_started", {
+      ritualId: currentRitualId,
+      duration: displayRitual.duration,
+    });
+  };
+
+  const handleGuidedAudioEnded = () => {
+    track("ritual_completed", {
+      ritualId: currentRitualId,
+      duration: displayRitual.duration,
+    });
+  };
+
+  const handleAudioTabChange = (tab: "guided" | "ambient") => {
+    setAudioTab(tab);
+    if (tab === "guided") {
+      // Ambient tracks live outside React (new Audio()), so leaving that tab
+      // doesn't stop them on its own — pause explicitly.
+      audioRef.current?.pause();
+      setIsPlaying(false);
+    }
+  };
 
   const elementData = ELEMENTS.find((e) => e.id === displayRitual.element);
   // element may arrive as ID ("agua") or label ("Agua") depending on source
@@ -515,7 +628,7 @@ export function RitualDetail() {
         {isOwnRitualView ? (
           <div className="flex gap-2.5">
             <button
-              onClick={() => setShowPlayer(true)}
+              onClick={handleStartRitual}
               className="editorial-button-primary flex-1 py-3.5 transition-all active:scale-[0.98] cursor-pointer"
             >
               Iniciar
@@ -617,9 +730,44 @@ export function RitualDetail() {
             >
               <div className="editorial-sheet-handle mb-6" />
 
-              <p className="editorial-eyebrow mb-4">Elige una pista</p>
+              <p className="editorial-eyebrow mb-4">Iniciar ritual</p>
 
-              <div className="flex flex-col gap-3 mb-6">
+              <div className="editorial-segmented mb-6 inline-flex">
+                <button
+                  onClick={() => handleAudioTabChange("guided")}
+                  className={`editorial-segmented-option px-4 ${audioTab === "guided" ? "editorial-segmented-option-active" : ""}`}
+                >
+                  Guiado con voz
+                </button>
+                <button
+                  onClick={() => handleAudioTabChange("ambient")}
+                  className={`editorial-segmented-option px-4 ${audioTab === "ambient" ? "editorial-segmented-option-active" : ""}`}
+                >
+                  Solo ambiente
+                </button>
+              </div>
+
+              {audioTab === "guided" ? (
+                <div className="mb-6">
+                  <GuidedAudioPlayer
+                    title={displayRitual.title}
+                    src={guidedAudioUrl}
+                    disabled={guidedAudioLoading}
+                    onStart={handleRequestGuidedAudio}
+                    onPlay={handleGuidedAudioPlay}
+                    onEnded={handleGuidedAudioEnded}
+                  />
+                  {guidedAudioError && (
+                    <p
+                      className="mt-3 text-center"
+                      style={{ fontFamily: "var(--font-sans-ui)", fontSize: "12px", color: "var(--ink-muted)" }}
+                    >
+                      {guidedAudioError}
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <div className="flex flex-col gap-3 mb-6">
                 {TRACKS.map((t) => {
                   const isActive = activeTrack === t.id;
                   const isThisPlaying = isActive && isPlaying;
@@ -632,22 +780,38 @@ export function RitualDetail() {
                             audioRef.current?.pause();
                             setIsPlaying(false);
                           } else {
-                            audioRef.current?.play().catch(() => {});
-                            setIsPlaying(true);
+                            audioRef.current
+                              ?.play()
+                              .then(() => setIsPlaying(true))
+                              .catch((error) => {
+                                console.error("Track play error", t.id, error?.name, error?.message);
+                                toast("No se pudo reproducir el audio. Probá de nuevo.");
+                                setIsPlaying(false);
+                              });
                           }
                         } else {
                           audioRef.current?.pause();
                           setActiveTrack(t.id);
                           setIsPlaying(false);
-                          t.load().then((src) => {
-                            const audio = new Audio(src);
-                            audio.loop = true;
-                            audio.volume = 0.7;
-                            audio.onended = () => setIsPlaying(false);
-                            audioRef.current = audio;
-                            audio.play().catch(() => {});
-                            setIsPlaying(true);
-                          });
+                          t.load()
+                            .then((src) => {
+                              const audio = new Audio(src);
+                              audio.loop = true;
+                              audio.volume = 0.7;
+                              audio.onended = () => setIsPlaying(false);
+                              audio.onerror = () => {
+                                console.error("Track load error", t.id, audio.error);
+                                toast("No se pudo cargar la pista. Probá de nuevo.");
+                              };
+                              audioRef.current = audio;
+                              return audio.play();
+                            })
+                            .then(() => setIsPlaying(true))
+                            .catch((error) => {
+                              console.error("Track play error", t.id, error?.name, error?.message);
+                              toast("No se pudo reproducir el audio. Probá de nuevo.");
+                              setIsPlaying(false);
+                            });
                         }
                       }}
                       className={`editorial-option-card flex items-center justify-between ${isActive ? "editorial-option-card-active" : "editorial-card-soft"}`}
@@ -669,6 +833,7 @@ export function RitualDetail() {
                   );
                 })}
               </div>
+              )}
 
             </motion.div>
           </>

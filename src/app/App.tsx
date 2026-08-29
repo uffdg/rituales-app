@@ -90,18 +90,30 @@ function SplashScreen() {
 function AppShell() {
   const { loading } = useUser();
   const [minimumReached, setMinimumReached] = useState(false);
+  const [loadingTimedOut, setLoadingTimedOut] = useState(false);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
       setMinimumReached(true);
-    }, 4000);
+    }, 600);
 
     return () => window.clearTimeout(timer);
   }, []);
 
+  useEffect(() => {
+    if (!loading) return;
+
+    const timeout = window.setTimeout(() => {
+      console.warn("Auth session check is taking too long — showing the app anyway.");
+      setLoadingTimedOut(true);
+    }, 8000);
+
+    return () => window.clearTimeout(timeout);
+  }, [loading]);
+
   const showSplash = useMemo(
-    () => loading || !minimumReached,
-    [loading, minimumReached],
+    () => (loading && !loadingTimedOut) || !minimumReached,
+    [loading, loadingTimedOut, minimumReached],
   );
 
   return (
