@@ -202,6 +202,13 @@ Intensidad: ${input.intensity || 'suave'}`;
         },
       },
     ],
+    server: {
+      // Sin esto, Vite solo escucha en ::1 (IPv6) y 127.0.0.1 queda con
+      // ERR_CONNECTION_REFUSED — rompe el link de login por mail, que
+      // redirige a 127.0.0.1 (ver VITE_AUTH_REDIRECT_URL en .env.local).
+      host: true,
+    },
+
     resolve: {
       alias: {
         // Alias @ to the src directory

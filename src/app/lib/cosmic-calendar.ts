@@ -43,83 +43,20 @@ const KNOWN_EVENTS = [
   { dateKey: "2026-09-22", type: "equinox" as const, label: "Equinoccio de primavera", shortLabel: "Equinoccio" },
 ];
 
-const PERFECTED_POSITIONS: Record<string, CosmicPerfection> = {
-  "2026-03-14": {
-    kind: "event",
-    label: "Eclipse lunar",
-    timeBuenosAires: "03:58",
-    zodiacSign: "Virgo",
-  },
-  "2026-03-20": {
-    kind: "event",
-    label: "Equinoccio de otoño",
-    timeBuenosAires: "06:01",
-    zodiacSign: "Aries",
-  },
-  "2026-03-19": {
-    kind: "moon_phase",
-    label: "Luna nueva",
-    timeBuenosAires: "23:24",
-    zodiacSign: "Piscis",
-  },
-  "2026-03-26": {
-    kind: "moon_phase",
-    label: "Cuarto creciente",
-    timeBuenosAires: "13:47",
-    zodiacSign: "Cáncer",
-  },
-  "2026-04-02": {
-    kind: "moon_phase",
-    label: "Luna llena",
-    timeBuenosAires: "11:12",
-    zodiacSign: "Libra",
-  },
-  "2026-04-10": {
-    kind: "moon_phase",
-    label: "Cuarto menguante",
-    timeBuenosAires: "22:08",
-    zodiacSign: "Capricornio",
-  },
-  "2026-08-12": {
-    kind: "event",
-    label: "Eclipse solar",
-    timeBuenosAires: "15:41",
-    zodiacSign: "Leo",
-  },
-  "2026-09-22": {
-    kind: "event",
-    label: "Equinoccio de primavera",
-    timeBuenosAires: "09:21",
-    zodiacSign: "Libra",
-  },
-};
-
-const PHASES = [
-  { label: "Luna nueva", emoji: "●" },
-  { label: "Creciente fina", emoji: "◔" },
-  { label: "Cuarto creciente", emoji: "◑" },
-  { label: "Cuarto creciente", emoji: "◕" },
-  { label: "Luna llena", emoji: "○" },
-  { label: "Cuarto menguante", emoji: "◕" },
-  { label: "Cuarto menguante", emoji: "◐" },
-  { label: "Menguante fina", emoji: "◓" },
-];
-
-// ─── Cálculo algorítmico de fases lunares para cualquier mes ─────────────────
+// ─── Helpers astronómicos ────────────────────────────────────────────────────
 //
-// Método: en luna nueva, la Luna y el Sol están en conjunción (misma longitud
-// eclíptica). En cuarto creciente la Luna está 90° delante del Sol, en luna
-// llena 180°, en cuarto menguante 270°. Usamos eso para calcular el signo
-// zodiacal exacto de cada fase.
+// Para el signo zodiacal: en luna nueva, la Luna y el Sol están en conjunción
+// (misma longitud eclíptica); en cuarto creciente la Luna está 90° delante del
+// Sol; en luna llena 180°; en cuarto menguante 270°.
 //
-// Referencia: luna nueva 2026-03-20T02:24:00Z (equinoccio de otoño +6.5h)
-//             equinoccio 2026-03-20T09:01:00Z → Sol en 0° Aries.
+// Referencia: equinoccio 2026-03-20T09:01:00Z → Sol en 0° Aries.
 
 const LUNAR_CYCLE_MS = 29.53058867 * 24 * 60 * 60 * 1000;
-const REFERENCE_NEW_MOON_UTC_MS = new Date("2026-03-20T02:24:00Z").getTime();
-const EQUINOX_2026_UTC_MS       = new Date("2026-03-20T09:01:00Z").getTime();
+const EQUINOX_2026_UTC_MS = new Date("2026-03-20T09:01:00Z").getTime();
 const SUN_DEG_PER_MS = 360 / (365.25 * 24 * 60 * 60 * 1000);
-const BS_OFFSET_MS   = -3 * 60 * 60 * 1000; // UTC-3
+const BS_OFFSET_MS = -3 * 60 * 60 * 1000; // UTC-3
+// Ancla de luna nueva real (SHN Argentina): 18-Ene-2026 16:52 BS = 19:52 UTC.
+const REFERENCE_NEW_MOON_UTC_MS = new Date("2026-01-18T19:52:00Z").getTime();
 
 const ZODIAC_ES = [
   "Aries", "Tauro", "Géminis", "Cáncer", "Leo", "Virgo",
@@ -140,6 +77,115 @@ function getMoonLongitudeAtPhase(utcMs: number, fraction: number): number {
 function getZodiacSign(longitude: number): string {
   return ZODIAC_ES[Math.floor(longitude / 30)];
 }
+
+// ─── Datos reales de fases lunares 2026 ──────────────────────────────────────
+// Fuente: Servicio de Hidrografía Naval Argentina (SHN)
+// https://www.hidro.gov.ar/observatorio/Astronomia.asp?op=5
+// Horarios en Hora Oficial Argentina (UTC-3).
+
+type RealMoonPhaseLabel = "Luna nueva" | "Cuarto creciente" | "Luna llena" | "Cuarto menguante";
+
+const PHASE_FRACTION: Record<RealMoonPhaseLabel, number> = {
+  "Luna nueva": 0,
+  "Cuarto creciente": 0.25,
+  "Luna llena": 0.5,
+  "Cuarto menguante": 0.75,
+};
+
+const REAL_LUNAR_PHASES_2026: ReadonlyArray<{
+  dateKey: string;
+  timeBuenosAires: string;
+  label: RealMoonPhaseLabel;
+}> = [
+  { dateKey: "2026-01-03", timeBuenosAires: "07:03", label: "Luna llena" },
+  { dateKey: "2026-01-10", timeBuenosAires: "12:48", label: "Cuarto menguante" },
+  { dateKey: "2026-01-18", timeBuenosAires: "16:52", label: "Luna nueva" },
+  { dateKey: "2026-01-26", timeBuenosAires: "01:47", label: "Cuarto creciente" },
+  { dateKey: "2026-02-01", timeBuenosAires: "19:09", label: "Luna llena" },
+  { dateKey: "2026-02-09", timeBuenosAires: "09:43", label: "Cuarto menguante" },
+  { dateKey: "2026-02-17", timeBuenosAires: "09:01", label: "Luna nueva" },
+  { dateKey: "2026-02-24", timeBuenosAires: "09:27", label: "Cuarto creciente" },
+  { dateKey: "2026-03-03", timeBuenosAires: "08:38", label: "Luna llena" },
+  { dateKey: "2026-03-11", timeBuenosAires: "06:38", label: "Cuarto menguante" },
+  { dateKey: "2026-03-18", timeBuenosAires: "22:23", label: "Luna nueva" },
+  { dateKey: "2026-03-25", timeBuenosAires: "16:18", label: "Cuarto creciente" },
+  { dateKey: "2026-04-01", timeBuenosAires: "23:12", label: "Luna llena" },
+  { dateKey: "2026-04-10", timeBuenosAires: "01:51", label: "Cuarto menguante" },
+  { dateKey: "2026-04-17", timeBuenosAires: "08:52", label: "Luna nueva" },
+  { dateKey: "2026-04-23", timeBuenosAires: "23:32", label: "Cuarto creciente" },
+  { dateKey: "2026-05-01", timeBuenosAires: "14:23", label: "Luna llena" },
+  { dateKey: "2026-05-09", timeBuenosAires: "18:10", label: "Cuarto menguante" },
+  { dateKey: "2026-05-16", timeBuenosAires: "17:01", label: "Luna nueva" },
+  { dateKey: "2026-05-23", timeBuenosAires: "08:11", label: "Cuarto creciente" },
+  { dateKey: "2026-05-31", timeBuenosAires: "05:45", label: "Luna llena" },
+  { dateKey: "2026-06-08", timeBuenosAires: "07:00", label: "Cuarto menguante" },
+  { dateKey: "2026-06-14", timeBuenosAires: "23:54", label: "Luna nueva" },
+  { dateKey: "2026-06-21", timeBuenosAires: "18:55", label: "Cuarto creciente" },
+  { dateKey: "2026-06-29", timeBuenosAires: "20:56", label: "Luna llena" },
+  { dateKey: "2026-07-07", timeBuenosAires: "16:29", label: "Cuarto menguante" },
+  { dateKey: "2026-07-14", timeBuenosAires: "06:43", label: "Luna nueva" },
+  { dateKey: "2026-07-21", timeBuenosAires: "08:05", label: "Cuarto creciente" },
+  { dateKey: "2026-07-29", timeBuenosAires: "11:36", label: "Luna llena" },
+  { dateKey: "2026-08-05", timeBuenosAires: "23:21", label: "Cuarto menguante" },
+  { dateKey: "2026-08-12", timeBuenosAires: "14:37", label: "Luna nueva" },
+  { dateKey: "2026-08-19", timeBuenosAires: "23:46", label: "Cuarto creciente" },
+  { dateKey: "2026-08-28", timeBuenosAires: "01:18", label: "Luna llena" },
+  { dateKey: "2026-09-04", timeBuenosAires: "04:51", label: "Cuarto menguante" },
+  { dateKey: "2026-09-11", timeBuenosAires: "00:27", label: "Luna nueva" },
+  { dateKey: "2026-09-18", timeBuenosAires: "17:44", label: "Cuarto creciente" },
+  { dateKey: "2026-09-26", timeBuenosAires: "13:49", label: "Luna llena" },
+  { dateKey: "2026-10-03", timeBuenosAires: "10:25", label: "Cuarto menguante" },
+  { dateKey: "2026-10-10", timeBuenosAires: "12:50", label: "Luna nueva" },
+  { dateKey: "2026-10-18", timeBuenosAires: "13:12", label: "Cuarto creciente" },
+  { dateKey: "2026-10-26", timeBuenosAires: "01:12", label: "Luna llena" },
+  { dateKey: "2026-11-01", timeBuenosAires: "17:28", label: "Cuarto menguante" },
+  { dateKey: "2026-11-09", timeBuenosAires: "04:02", label: "Luna nueva" },
+  { dateKey: "2026-11-17", timeBuenosAires: "08:48", label: "Cuarto creciente" },
+  { dateKey: "2026-11-24", timeBuenosAires: "11:53", label: "Luna llena" },
+  { dateKey: "2026-12-01", timeBuenosAires: "03:08", label: "Cuarto menguante" },
+  { dateKey: "2026-12-08", timeBuenosAires: "21:52", label: "Luna nueva" },
+  { dateKey: "2026-12-17", timeBuenosAires: "02:42", label: "Cuarto creciente" },
+  { dateKey: "2026-12-23", timeBuenosAires: "22:28", label: "Luna llena" },
+  { dateKey: "2026-12-30", timeBuenosAires: "15:59", label: "Cuarto menguante" },
+];
+
+const PERFECTED_POSITIONS: Record<string, CosmicPerfection> = (() => {
+  const result: Record<string, CosmicPerfection> = {};
+
+  for (const phase of REAL_LUNAR_PHASES_2026) {
+    const [year, month, day] = phase.dateKey.split("-").map(Number);
+    const [hh, mm] = phase.timeBuenosAires.split(":").map(Number);
+    // BS = UTC-3, así que UTC = BS + 3h
+    const utcMs = Date.UTC(year, month - 1, day, hh + 3, mm);
+    const longitude = getMoonLongitudeAtPhase(utcMs, PHASE_FRACTION[phase.label]);
+    result[phase.dateKey] = {
+      kind: "moon_phase",
+      label: phase.label,
+      timeBuenosAires: phase.timeBuenosAires,
+      zodiacSign: getZodiacSign(longitude),
+    };
+  }
+
+  // Eventos especiales (eclipses, equinoccios) — pisan la fase lunar del día
+  // cuando coinciden (ej. eclipse solar = luna nueva).
+  result["2026-03-14"] = { kind: "event", label: "Eclipse lunar", timeBuenosAires: "03:58", zodiacSign: "Virgo" };
+  result["2026-03-20"] = { kind: "event", label: "Equinoccio de otoño", timeBuenosAires: "06:01", zodiacSign: "Aries" };
+  result["2026-08-12"] = { kind: "event", label: "Eclipse solar", timeBuenosAires: "15:41", zodiacSign: "Leo" };
+  result["2026-09-22"] = { kind: "event", label: "Equinoccio de primavera", timeBuenosAires: "09:21", zodiacSign: "Libra" };
+
+  return result;
+})();
+
+const PHASES = [
+  { label: "Luna nueva", emoji: "●" },
+  { label: "Creciente fina", emoji: "◔" },
+  { label: "Cuarto creciente", emoji: "◑" },
+  { label: "Cuarto creciente", emoji: "◕" },
+  { label: "Luna llena", emoji: "○" },
+  { label: "Cuarto menguante", emoji: "◕" },
+  { label: "Cuarto menguante", emoji: "◐" },
+  { label: "Menguante fina", emoji: "◓" },
+];
 
 /**
  * Genera las posiciones exactas de las 4 fases lunares para cualquier rango
@@ -165,6 +211,15 @@ export function getMoonPerfectionsForRange(
     (startMs - REFERENCE_NEW_MOON_UTC_MS) / LUNAR_CYCLE_MS,
   ) - 2;
 
+  // REAL_LUNAR_PHASES_2026 ya cubre todo 2026 con datos exactos del SHN. El
+  // cálculo algorítmico "deriva" un poco respecto a esos datos reales (la
+  // órbita lunar no es perfectamente uniforme), así que generaba una segunda
+  // entrada de fase para el día siguiente al real (duplicado). Por eso se
+  // omite la generación algorítmica dentro del rango cubierto y solo se usa
+  // para fechas fuera de 2026 (margen del calendario).
+  const REAL_COVERAGE_START = "2026-01-03";
+  const REAL_COVERAGE_END = "2026-12-30";
+
   for (let c = cycleOffset; c <= cycleOffset + 6; c++) {
     for (const phase of PHASE_DEFS) {
       const phaseUtcMs = REFERENCE_NEW_MOON_UTC_MS + (c + phase.fraction) * LUNAR_CYCLE_MS;
@@ -174,6 +229,8 @@ export function getMoonPerfectionsForRange(
       const bsasMs   = phaseUtcMs + BS_OFFSET_MS;
       const bsasDate = new Date(bsasMs);
       const dateKey  = `${bsasDate.getUTCFullYear()}-${String(bsasDate.getUTCMonth() + 1).padStart(2, "0")}-${String(bsasDate.getUTCDate()).padStart(2, "0")}`;
+      if (dateKey >= REAL_COVERAGE_START && dateKey <= REAL_COVERAGE_END) continue;
+
       const hh = String(bsasDate.getUTCHours()).padStart(2, "0");
       const mm = String(bsasDate.getUTCMinutes()).padStart(2, "0");
 
@@ -203,7 +260,7 @@ function getDateKey(date: Date) {
 }
 
 function getMoonPhaseForDate(date: Date) {
-  const knownNewMoon = new Date("2026-03-19T00:00:00-03:00");
+  const knownNewMoon = new Date("2026-01-18T16:52:00-03:00");
   const diffMs = date.getTime() - knownNewMoon.getTime();
   const lunarCycleDays = 29.53058867;
   const dayMs = 1000 * 60 * 60 * 24;
@@ -212,11 +269,27 @@ function getMoonPhaseForDate(date: Date) {
   return PHASES[index];
 }
 
+// Emoji canónico para las 4 fases principales (coincide con el primer match en PHASES)
+const MAIN_PHASE_EMOJI: Record<string, string> = {
+  "Luna nueva": "●",
+  "Cuarto creciente": "◑",
+  "Luna llena": "○",
+  "Cuarto menguante": "◕",
+};
+
 export function buildCosmicDay(date: Date): CosmicDay {
   const dateKey = getDateKey(date);
   const phase = getMoonPhaseForDate(date);
   const events = KNOWN_EVENTS.filter((event) => event.dateKey === dateKey);
   const perfection = PERFECTED_POSITIONS[dateKey];
+
+  // Si hoy es una fase exacta (dato real del SHN), prevalece sobre el cálculo
+  // algorítmico de 8 fases — así el calendario completo y los previews
+  // (slider de Home, Stories, etc.) muestran la misma fase.
+  const moonPhase = perfection?.kind === "moon_phase" ? perfection.label : phase.label;
+  const moonEmoji = perfection?.kind === "moon_phase"
+    ? (MAIN_PHASE_EMOJI[perfection.label] ?? phase.emoji)
+    : phase.emoji;
 
   return {
     dateKey,
@@ -224,8 +297,8 @@ export function buildCosmicDay(date: Date): CosmicDay {
     weekdayLabel: format(date, "EEEE", { locale: es }),
     shortLabel: format(date, "d MMM", { locale: es }),
     monthLabel: format(date, "LLLL", { locale: es }),
-    moonPhase: phase.label,
-    moonEmoji: phase.emoji,
+    moonPhase,
+    moonEmoji,
     perfection,
     events,
   };
@@ -374,7 +447,7 @@ export function getTodayCosmicContext(now: Date = new Date()): TodayCosmicContex
 // Retorna un identificador de fase para calcular rachas lunares
 // (luna nueva = 0, cuarto creciente = 1, luna llena = 2, cuarto menguante = 3)
 export function getLunarPhaseId(date: Date): number {
-  const knownNewMoon = new Date("2026-03-19T00:00:00-03:00");
+  const knownNewMoon = new Date("2026-01-18T16:52:00-03:00");
   const diffMs = date.getTime() - knownNewMoon.getTime();
   const lunarCycleDays = 29.53058867;
   const dayMs = 1000 * 60 * 60 * 24;
@@ -385,7 +458,7 @@ export function getLunarPhaseId(date: Date): number {
 
 // Retorna un string único por fase lunar (ej: "2026-fase-2") para agrupar rachas
 export function getLunarPhaseKey(date: Date): string {
-  const knownNewMoon = new Date("2026-03-19T00:00:00-03:00");
+  const knownNewMoon = new Date("2026-01-18T16:52:00-03:00");
   const diffMs = date.getTime() - knownNewMoon.getTime();
   const lunarCycleDays = 29.53058867;
   const dayMs = 1000 * 60 * 60 * 24;
