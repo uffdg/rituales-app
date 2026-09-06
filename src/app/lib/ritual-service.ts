@@ -48,6 +48,9 @@ export interface RitualRecord extends RitualGenerationResult {
   likedByViewer?: boolean;
   favoritedByViewer?: boolean;
   isPublic?: boolean;
+  audioCompletedAt?: string | null;
+  anchorConfirmedAt?: string | null;
+  reflectionText?: string | null;
 }
 
 interface BackendAudioResponse {
@@ -59,6 +62,28 @@ interface BackendAudioResponse {
 }
 
 export const DEFAULT_ELEVENLABS_VOICE_ID = "El3gkPAhMU9R5biL3rtU";
+
+const ANCHOR_FALLBACKS: Record<string, string> = {
+  claridad: "Escribí en papel la decisión en una frase y marcá el próximo paso antes de levantarte.",
+  "amor-propio": "Prepará un vaso de agua o té y tomalo sentado, sin celular, durante 10 minutos.",
+  calma: "Salí a caminar 10 minutos sin el teléfono y notá tus pies en el piso.",
+  enfoque: "Apagá notificaciones y hacé una sola tarea durante 25 minutos.",
+  "cerrar-ciclo": "Archivá o borrá una cosa concreta que te siga trayendo eso al presente.",
+  atraer: "Mandá hoy el mensaje, propuesta o pedido que venís postergando.",
+};
+
+export function getRitualAnchor(anchor?: string | null, ritualType?: string, title?: string) {
+  const cleanAnchor = anchor?.trim();
+  if (cleanAnchor) return cleanAnchor;
+
+  const normalized = (ritualType || title || "").toLowerCase();
+  if (normalized.includes("amor")) return ANCHOR_FALLBACKS["amor-propio"];
+  if (normalized.includes("calma")) return ANCHOR_FALLBACKS.calma;
+  if (normalized.includes("enfoque")) return ANCHOR_FALLBACKS.enfoque;
+  if (normalized.includes("cerrar") || normalized.includes("soltar")) return ANCHOR_FALLBACKS["cerrar-ciclo"];
+  if (normalized.includes("atraer") || normalized.includes("oportunidad")) return ANCHOR_FALLBACKS.atraer;
+  return ANCHOR_FALLBACKS.claridad;
+}
 
 function normalizeLookupValue(value: string) {
   return value
@@ -92,6 +117,13 @@ function resolveCatalogRitualId(candidate: unknown) {
 
   const trimmed = candidate.trim();
   return /^\d+$/.test(trimmed) ? undefined : trimmed;
+}
+
+function normalizeRitualRecord(record: RitualRecord): RitualRecord {
+  return {
+    ...record,
+    anchor: getRitualAnchor(record.anchor, record.ritualType, record.ritual?.title),
+  };
 }
 
 function normalizeText(text: string) {
@@ -367,7 +399,7 @@ export async function generateRitual(input: RitualData, userId?: string): Promis
     throw new Error(await readErrorMessage(response, "No se pudo generar el ritual desde el backend."));
   }
 
-  return response.json();
+  return normalizeRitualRecord(await response.json());
 }
 
 export async function renderGuidedAudio(args: {
@@ -509,10 +541,13 @@ async function getRitualFromSupabase(id: string): Promise<RitualRecord | null> {
       element: data.element,
       intensity: data.intensity,
       duration: data.duration,
-      anchor: data.anchor,
+      anchor: getRitualAnchor(data.anchor, data.ritual_type, data.ai_ritual?.title || data.title),
       createdAt: data.created_at,
       userId: data.user_id,
       isPublic: data.is_public ?? false,
+      audioCompletedAt: data.audio_completed_at ?? null,
+      anchorConfirmedAt: data.anchor_confirmed_at ?? null,
+      reflectionText: data.reflection_text ?? null,
       likesCount: 0,
       likedByViewer: false,
       favoritedByViewer: false,
@@ -554,6 +589,82 @@ export async function getRitualById(id: string): Promise<RitualRecord | null> {
   return response.json();
 }
 
+export async function updateRitualAnchor(
+  ritualId: string,
+  anchor: string,
+  guidedSession?: GuidedSessionPlan,
+): Promise<void> {
+  if (!ritualId || ritualId.startsWith("dev-") || ritualId.startsWith("mock-")) {
+    return;
+  }
+
+  const updates: { anchor: string; guided_session?: GuidedSessionPlan; audio_url?: null } = { anchor };
+  if (guidedSession) {
+    updates.guided_session = guidedSession;
+    updates.audio_url = null;
+  }
+
+  const { error } = await supabase
+    .from("rituals")
+    .update(updates)
+    .eq("id", ritualId);
+
+  if (error) {
+    throw error;
+  }
+}
+
+export async function completeRitual(
+  ritualId: string | undefined,
+  payload: {
+    audioCompleted?: boolean;
+    anchorConfirmed?: boolean;
+    reflectionText?: string;
+  },
+): Promise<RitualRecord | null> {
+  if (!ritualId || ritualId.startsWith("dev-") || ritualId.startsWith("mock-")) {
+    return null;
+  }
+
+  const apiBaseUrl = getApiBaseUrl();
+  const now = new Date().toISOString();
+
+  if (!apiBaseUrl) {
+    const updates: Record<string, unknown> = {};
+    if (payload.audioCompleted) updates.audio_completed_at = now;
+    if (payload.anchorConfirmed) updates.anchor_confirmed_at = now;
+    if (typeof payload.reflectionText === "string") {
+      updates.reflection_text = payload.reflectionText.trim() || null;
+    }
+
+    const { data, error } = await supabase
+      .from("rituals")
+      .update(updates)
+      .eq("id", ritualId)
+      .select("*")
+      .single();
+
+    if (error || !data) return null;
+    return getRitualFromSupabase(ritualId);
+  }
+
+  const authHeaders = await getAuthHeaders();
+  const response = await fetch(`${apiBaseUrl}/rituals/${ritualId}/complete`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      ...authHeaders,
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response, "No se pudo guardar el cierre del ritual."));
+  }
+
+  return normalizeRitualRecord(await response.json());
+}
+
 export async function getPublicRituals(): Promise<RitualRecord[]> {
   const apiBaseUrl = getApiBaseUrl();
 
@@ -568,7 +679,7 @@ export async function getPublicRituals(): Promise<RitualRecord[]> {
   }
 
   const data = await response.json();
-  return data.rituals || [];
+  return (data.rituals || []).map((ritual: RitualRecord) => normalizeRitualRecord(ritual));
 }
 
 export async function publishRitualToCommunity(ritualId: string, showName: boolean) {

@@ -8,9 +8,11 @@ import { ELEMENTS, ENERGIES, EXPLORE_RITUALS, RITUAL_TYPES } from "../data/ritua
 import {
   generateRitual,
   getPublicRituals,
+  getRitualAnchor,
   ritualCardToRitualData,
 } from "../lib/ritual-service";
 import { getUserFacingErrorMessage } from "../lib/errors";
+import { track } from "../lib/analytics";
 import { RitualGridCard } from "../components/RitualGridCard";
 
 const FILTERS = {
@@ -56,7 +58,7 @@ export function Explore() {
             likes: ritual.likesCount || 0,
             aiRitual: ritual.ritual,
             intention: ritual.intention || "",
-            anchor: ritual.anchor || "",
+            anchor: getRitualAnchor(ritual.anchor, ritual.ritualType, ritual.ritual.title),
             typeId: ritual.ritualType || "",
           })),
         );
@@ -67,9 +69,15 @@ export function Explore() {
   }, []);
 
   const toggleFilter = (group: FilterKey, value: string) => {
+    const nextValue = activeFilters[group] === value ? "" : value;
+    track("explore_filter_used", {
+      group,
+      value,
+      enabled: Boolean(nextValue),
+    });
     setActiveFilters((prev) => ({
       ...prev,
-      [group]: prev[group] === value ? "" : value,
+      [group]: nextValue,
     }));
   };
 
@@ -82,6 +90,11 @@ export function Explore() {
   });
 
   const handleRitualTap = (ritual: any) => {
+    track("explore_ritual_opened", {
+      ritualId: ritual.id,
+      ritualType: ritual.typeId || ritual.type,
+      source: communityRituals.some((item) => item.id === ritual.id) ? "community" : "curated",
+    });
     setSelectedPublicRitual(ritual);
     setViewMode(true);
     navigate("/ritual/publico");

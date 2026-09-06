@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Pause, Play, RotateCcw, SkipBack, SkipForward } from "lucide-react";
+import { Pause, Play, SkipBack, SkipForward } from "lucide-react";
 import { motion } from "motion/react";
 
 interface GuidedAudioPlayerProps {
@@ -343,18 +343,6 @@ export function GuidedAudioPlayer({
           className="flex h-12 w-12 items-center justify-center rounded-full border border-[rgba(0,0,0,0.08)] bg-white text-[var(--ink-strong)] disabled:opacity-40"
         >
           <SkipForward size={18} strokeWidth={1.8} />
-        </button>
-      </div>
-
-      <div className="mt-4 flex items-center justify-center gap-2 text-[var(--ink-muted)]">
-        <RotateCcw size={14} strokeWidth={1.8} />
-        <button
-          onClick={restart}
-          disabled={!src || disabled}
-          className="disabled:opacity-40"
-          style={{ fontFamily: "var(--font-sans-ui)", fontSize: "12px", fontWeight: 500 }}
-        >
-          Volver a empezar
         </button>
       </div>
 

@@ -42,14 +42,14 @@ export function Share() {
   };
 
   const handleWhatsApp = () => {
-    toast("Abriendo WhatsApp...", {
-      description: "En la app real, esto abriría WhatsApp.",
-    });
+    const text = `Te comparto este ritual: ${shareLink}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank", "noopener,noreferrer");
   };
 
   const handleInstagram = () => {
+    navigator.clipboard?.writeText(shareLink).catch(() => {});
     toast("Preparando para Instagram...", {
-      description: "En la app real, esto generaría una imagen para stories.",
+      description: "Copiamos el link para que lo pegues en tu story.",
     });
   };
 

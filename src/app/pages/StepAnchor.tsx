@@ -1,16 +1,22 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { useRitual } from "../context/RitualContext";
 import { ProgressBar } from "../components/ProgressBar";
 import { ANCHOR_SUGGESTIONS } from "../data/rituals";
 import { track } from "../lib/analytics";
+import { deriveGuidedSession, updateRitualAnchor } from "../lib/ritual-service";
 
 export function StepAnchor() {
   const navigate = useNavigate();
   const { ritual, updateRitual } = useRitual();
   const [anchor, setAnchor] = useState(ritual.anchor || "");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isSavingAnchor, setIsSavingAnchor] = useState(false);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const AI_ANCHORS: Record<string, string> = {
     claridad: "Escribir en papel las dos opciones y decidir en los próximos 30 minutos",
@@ -32,15 +38,37 @@ export function StepAnchor() {
     }, 1200);
   };
 
-  const handleFinish = () => {
-    updateRitual({ anchor });
-    track("ritual_completed", {
+  const handleFinish = async () => {
+    const trimmedAnchor = anchor.trim();
+    if (!trimmedAnchor || isSavingAnchor) return;
+
+    setIsSavingAnchor(true);
+    const ritualWithAnchor = { ...ritual, anchor: trimmedAnchor };
+    const nextGuidedSession = ritual.aiRitual?.title
+      ? deriveGuidedSession(ritualWithAnchor, ritual.aiRitual)
+      : ritual.guidedSession;
+
+    updateRitual({
+      anchor: trimmedAnchor,
+      guidedSession: nextGuidedSession,
+      guidedAudio: { status: "idle" },
+    });
+
+    const isRealId = ritual.ritualId && !ritual.ritualId.startsWith("dev-") && !ritual.ritualId.startsWith("mock-");
+    if (isRealId) {
+      try {
+        await updateRitualAnchor(ritual.ritualId, trimmedAnchor, nextGuidedSession || undefined);
+      } catch (error) {
+        console.warn("Could not persist ritual anchor", error);
+      }
+    }
+
+    track("ritual_built", {
       ritualId: ritual.ritualId,
       ritualType: ritual.ritualType,
       duration: ritual.duration,
       hasAudio: !!ritual.guidedAudio?.audioUrl,
     });
-    const isRealId = ritual.ritualId && !ritual.ritualId.startsWith("dev-") && !ritual.ritualId.startsWith("mock-");
     navigate(`/ritual/${isRealId ? ritual.ritualId : "nuevo"}`);
   };
 
@@ -143,14 +171,14 @@ export function StepAnchor() {
         {/* CTA */}
         <button
           onClick={handleFinish}
-          disabled={!anchor.trim()}
+          disabled={!anchor.trim() || isSavingAnchor}
           className={`editorial-action-button active:scale-[0.98] ${
-            anchor.trim()
+            anchor.trim() && !isSavingAnchor
               ? "editorial-action-button-primary"
               : "editorial-action-button-disabled"
           }`}
         >
-          Construir ritual
+          {isSavingAnchor ? "Guardando..." : "Construir ritual"}
         </button>
       </motion.div>
     </div>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { motion } from "motion/react";
 import { useRitual } from "../context/RitualContext";
@@ -24,6 +24,10 @@ export function StepElement() {
   const navigate = useNavigate();
   const { ritual, updateRitual } = useRitual();
   const [element, setElement] = useState(ritual.element || "");
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const handleNext = () => {
     updateRitual({ element });

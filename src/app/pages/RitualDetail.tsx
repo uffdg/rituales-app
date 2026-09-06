@@ -7,11 +7,13 @@ import { ELEMENTS } from "../data/rituals";
 import { deriveCandleGuide } from "../lib/candle";
 import { getUserFacingErrorMessage } from "../lib/errors";
 import { toast } from "sonner";
-import { Bookmark, BookmarkCheck, Pause, Play } from "lucide-react";
+import { Bookmark, BookmarkCheck, CheckCircle2, FileDown, Loader2, Pause, Play } from "lucide-react";
 import {
   DEFAULT_ELEVENLABS_VOICE_ID,
   generateRitual,
+  getRitualAnchor,
   getRitualById,
+  completeRitual,
   renderGuidedAudio,
   type RitualRecord,
 } from "../lib/ritual-service";
@@ -82,6 +84,25 @@ const TRACKS = [
   { id: 3, label: "Handpan II", sublabel: "Etéreo · 432hz",   load: () => Promise.resolve("https://sztefmznsleedqythllo.supabase.co/storage/v1/object/public/audio/siarhei_korbut-handpan-soundscape-432-hz-396231.mp3") },
 ];
 
+const GUIDED_AUDIO_GENERATION_COUNT_KEY = "rituales_guided_audio_generation_count_v1";
+
+type PricingPromptState = {
+  generationNumber: number;
+  ritualId?: string;
+  answer?: "yes" | "no";
+};
+
+function getNextGuidedAudioGenerationNumber() {
+  try {
+    const current = Number(localStorage.getItem(GUIDED_AUDIO_GENERATION_COUNT_KEY) || "0");
+    const next = Number.isFinite(current) ? current + 1 : 1;
+    localStorage.setItem(GUIDED_AUDIO_GENERATION_COUNT_KEY, String(next));
+    return next;
+  } catch {
+    return 1;
+  }
+}
+
 export function RitualDetail() {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -101,6 +122,13 @@ export function RitualDetail() {
   const [guidedAudioUrl, setGuidedAudioUrl] = useState<string | undefined>(undefined);
   const [guidedAudioLoading, setGuidedAudioLoading] = useState(false);
   const [guidedAudioError, setGuidedAudioError] = useState<string | null>(null);
+  const [pricingPrompt, setPricingPrompt] = useState<PricingPromptState | null>(null);
+  const [pricingReason, setPricingReason] = useState("");
+  const [showCompletion, setShowCompletion] = useState(false);
+  const [anchorConfirmed, setAnchorConfirmed] = useState(false);
+  const [reflectionText, setReflectionText] = useState("");
+  const [isSavingCompletion, setIsSavingCompletion] = useState(false);
+  const [completionSaved, setCompletionSaved] = useState(false);
   const hasTrackedRitualStartRef = useRef(false);
 
   useEffect(() => {
@@ -211,29 +239,14 @@ export function RitualDetail() {
 
   const currentRitualId = loadedRitual?.ritualId || ritual.ritualId;
 
-  const handleRequestGuidedAudio = async () => {
-    if (guidedAudioLoading || guidedAudioUrl) {
-      return;
-    }
-
-    const guidedSession = displayRitual.guidedSession;
-    const isLocalOnlyId =
-      !currentRitualId || currentRitualId.startsWith("mock-") || currentRitualId.startsWith("dev-");
-
-    if (!guidedSession || isLocalOnlyId) {
-      setGuidedAudioError(
-        "Todavía no pudimos guardar este ritual, así que no podemos generar el audio guiado. Probá de nuevo en un momento.",
-      );
-      return;
-    }
-
+  const renderGuidedAudioForCurrentRitual = async () => {
     setGuidedAudioLoading(true);
     setGuidedAudioError(null);
 
     try {
       const result = await renderGuidedAudio({
         ritualId: currentRitualId,
-        guidedSession,
+        guidedSession: displayRitual.guidedSession!,
         voice: displayRitual.guidedAudio?.voice || DEFAULT_ELEVENLABS_VOICE_ID,
         model: displayRitual.guidedAudio?.model || "eleven_multilingual_v2",
         responseFormat: "mp3",
@@ -266,6 +279,81 @@ export function RitualDetail() {
     }
   };
 
+  const handleRequestGuidedAudio = async () => {
+    if (guidedAudioLoading || guidedAudioUrl || pricingPrompt) {
+      return;
+    }
+
+    const guidedSession = displayRitual.guidedSession;
+    const isLocalOnlyId =
+      !currentRitualId || currentRitualId.startsWith("mock-") || currentRitualId.startsWith("dev-");
+
+    if (!guidedSession || isLocalOnlyId) {
+      setGuidedAudioError(
+        "Todavía no pudimos guardar este ritual, así que no podemos generar el audio guiado. Probá de nuevo en un momento.",
+      );
+      return;
+    }
+
+    const generationNumber = getNextGuidedAudioGenerationNumber();
+    if (generationNumber >= 2) {
+      const promptContext = { generationNumber, ritualId: currentRitualId };
+      setPricingPrompt(promptContext);
+      track("pricing_experiment_shown", {
+        ...promptContext,
+        hasCachedAudio: false,
+      });
+      return;
+    }
+
+    await renderGuidedAudioForCurrentRitual();
+  };
+
+  const handlePricingResponse = (response: "accepted" | "declined") => {
+    if (!pricingPrompt) return;
+    const answer = response === "accepted" ? "yes" : "no";
+
+    track("pricing_experiment_answered", {
+      ritualId: pricingPrompt.ritualId,
+      generationNumber: pricingPrompt.generationNumber,
+      hasCachedAudio: false,
+      answer,
+    });
+    setPricingPrompt({ ...pricingPrompt, answer });
+    setPricingReason("");
+  };
+
+  const handlePricingReasonSubmit = () => {
+    if (!pricingPrompt?.answer || pricingReason.trim().length < 3) return;
+
+    track("pricing_experiment_reason_submitted", {
+      ritualId: pricingPrompt.ritualId,
+      generationNumber: pricingPrompt.generationNumber,
+      hasCachedAudio: false,
+      answer: pricingPrompt.answer,
+      reasonLength: pricingReason.trim().length,
+    });
+    track(
+      pricingPrompt.answer === "yes"
+        ? "pricing_experiment_accepted"
+        : "pricing_experiment_declined",
+      {
+        ritualId: pricingPrompt.ritualId,
+        generationNumber: pricingPrompt.generationNumber,
+        hasCachedAudio: false,
+        reasonLength: pricingReason.trim().length,
+      },
+    );
+    track("guided_audio_generation_started", {
+      ritualId: pricingPrompt.ritualId,
+      generationNumber: pricingPrompt.generationNumber,
+      hasCachedAudio: false,
+    });
+    setPricingPrompt(null);
+    setPricingReason("");
+    void renderGuidedAudioForCurrentRitual();
+  };
+
   const handleStartRitual = () => {
     hasTrackedRitualStartRef.current = false;
     setAudioTab("guided");
@@ -292,6 +380,43 @@ export function RitualDetail() {
       ritualId: currentRitualId,
       duration: displayRitual.duration,
     });
+    setShowCompletion(true);
+    void completeRitual(currentRitualId, { audioCompleted: true }).catch(() => {});
+  };
+
+  const handlePrintRitual = () => {
+    track("ritual_pdf_requested", { ritualId: currentRitualId });
+    window.print();
+  };
+
+  const handleSaveCompletion = async () => {
+    if (!anchorConfirmed || isSavingCompletion) return;
+
+    setIsSavingCompletion(true);
+    try {
+      const completed = await completeRitual(currentRitualId, {
+        audioCompleted: true,
+        anchorConfirmed: true,
+        reflectionText,
+      });
+
+      if (completed) {
+        setLoadedRitual(completed);
+      }
+
+      setCompletionSaved(true);
+      track("ritual_closure_saved", {
+        ritualId: currentRitualId,
+        hasReflection: Boolean(reflectionText.trim()),
+      });
+      toast("Cierre guardado", {
+        description: "Tu anclaje quedó registrado.",
+      });
+    } catch (error) {
+      toast(getUserFacingErrorMessage(error, "No se pudo guardar el cierre."));
+    } finally {
+      setIsSavingCompletion(false);
+    }
   };
 
   const handleAudioTabChange = (tab: "guided" | "ambient") => {
@@ -324,7 +449,7 @@ export function RitualDetail() {
         aiRitual: loadedRitual.ritual,
         guidedSession: loadedRitual.guidedSession,
         guidedAudio: loadedRitual.guidedAudio,
-        anchor: loadedRitual.anchor || "",
+        anchor: loadedRitual.anchor || ritual.anchor || "",
       }
     : ritual;
   const publicRitualForAccount = isPublic
@@ -364,9 +489,11 @@ export function RitualDetail() {
     poder: "Poder",
     conexion: "Conexión",
   };
-  const anchorText =
-    displayRitual.anchor?.trim() ||
-    "Elegí una acción concreta y pequeña para llevar este ritual a tu vida real.";
+  const anchorText = getRitualAnchor(
+    displayRitual.anchor,
+    isPublic ? data?.type || data?.ritualType : loadedRitual?.ritualType || ritualForAccount.ritualType,
+    displayRitual.title,
+  );
   const candleGuide = deriveCandleGuide({
     ritualType: isPublic ? data?.type || "" : loadedRitual?.ritualType || ritualForAccount.ritualType,
     intention: displayRitual.intention,
@@ -611,8 +738,12 @@ export function RitualDetail() {
 
         {/* Anchor */}
         <div className="mb-6 p-5 rounded-2xl border border-[var(--ink-strong)] bg-[var(--ink-strong)]">
-          <p className="font-sans text-[10px] font-medium tracking-[0.14em] uppercase text-white/40 mb-1.5">Tu anclaje real</p>
-          <p style={{ fontFamily: "var(--font-sans-ui)", fontSize: "16px", fontWeight: 300, color: "#fff", lineHeight: 1.5 }}>{anchorText}</p>
+          <p className="font-sans text-[10px] font-medium tracking-[0.14em] uppercase text-white/40 mb-1.5">
+            Tu anclaje real
+          </p>
+          <p style={{ fontFamily: "var(--font-sans-ui)", fontSize: "16px", fontWeight: 300, color: "#fff", lineHeight: 1.5 }}>
+            {anchorText}
+          </p>
         </div>
 
         {/* Author */}
@@ -638,6 +769,13 @@ export function RitualDetail() {
               className="editorial-button-soft px-4 py-3.5 transition-all active:scale-[0.98] cursor-pointer"
             >
               Compartir
+            </button>
+            <button
+              onClick={handlePrintRitual}
+              className="editorial-button-soft h-[50px] w-[50px] transition-all active:scale-[0.98] cursor-pointer flex items-center justify-center"
+              aria-label="Descargar o imprimir ritual"
+            >
+              <FileDown size={16} strokeWidth={1.6} />
             </button>
           </div>
         ) : (
@@ -713,8 +851,9 @@ export function RitualDetail() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/40 z-40"
+              className="fixed inset-0 bg-black/40 z-[120]"
               onClick={() => {
+                if (pricingPrompt) return;
                 audioRef.current?.pause();
                 setIsPlaying(false);
                 setActiveTrack(null);
@@ -726,37 +865,258 @@ export function RitualDetail() {
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
               transition={{ type: "spring", damping: 28, stiffness: 280 }}
-              className="editorial-sheet fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[390px] z-50 px-6 pt-5 pb-10"
+              className="editorial-sheet fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[390px] z-[130] px-6 pt-5 pb-[calc(2.5rem+env(safe-area-inset-bottom))]"
             >
               <div className="editorial-sheet-handle mb-6" />
 
-              <p className="editorial-eyebrow mb-4">Iniciar ritual</p>
+              <p className="editorial-eyebrow mb-4">
+                {audioTab === "guided" ? "Iniciar ritual" : "Solo ambiente"}
+              </p>
 
-              <div className="editorial-segmented mb-6 inline-flex">
-                <button
-                  onClick={() => handleAudioTabChange("guided")}
-                  className={`editorial-segmented-option px-4 ${audioTab === "guided" ? "editorial-segmented-option-active" : ""}`}
+              {showCompletion ? (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mb-6 space-y-5"
                 >
-                  Guiado con voz
-                </button>
-                <button
-                  onClick={() => handleAudioTabChange("ambient")}
-                  className={`editorial-segmented-option px-4 ${audioTab === "ambient" ? "editorial-segmented-option-active" : ""}`}
-                >
-                  Solo ambiente
-                </button>
-              </div>
+                  <div className="text-center">
+                    <CheckCircle2 size={34} strokeWidth={1.4} className="mx-auto mb-3 text-[var(--ink-strong)]" />
+                    <p className="editorial-eyebrow mb-2">Ritual completado</p>
+                    <h3
+                      className="mx-auto max-w-[280px]"
+                      style={{
+                        fontFamily: "var(--font-serif-display)",
+                        fontSize: "25px",
+                        fontWeight: 400,
+                        lineHeight: 1.12,
+                        color: "var(--ink-strong)",
+                      }}
+                    >
+                      Que no quede solo en la escucha.
+                    </h3>
+                    <p className="editorial-body-muted mt-3">
+                      Llevá una acción pequeña a la vida real.
+                    </p>
+                  </div>
 
-              {audioTab === "guided" ? (
+                  <div className="rounded-2xl bg-[var(--ink-strong)] p-4">
+                    <p className="font-sans text-[9px] font-medium tracking-[0.14em] uppercase text-white/40 mb-2">
+                      Tu anclaje real
+                    </p>
+                    <p className="font-sans text-[14px] font-light leading-[1.55] text-white">
+                      {anchorText}
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setAnchorConfirmed((current) => !current)}
+                    className={`flex w-full items-center gap-3 rounded-2xl border px-4 py-3 text-left transition-all ${
+                      anchorConfirmed
+                        ? "border-[var(--ink-strong)] bg-[var(--ink-strong)] text-white"
+                        : "border-[var(--border-default)] bg-white text-[var(--ink-strong)]"
+                    }`}
+                  >
+                    <span
+                      className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border ${
+                        anchorConfirmed ? "border-white bg-white text-[var(--ink-strong)]" : "border-[var(--border-strong)]"
+                      }`}
+                    >
+                      {anchorConfirmed ? <CheckCircle2 size={14} strokeWidth={2} /> : null}
+                    </span>
+                    <span className="font-sans text-[13px] font-medium">
+                      Confirmé mi anclaje
+                    </span>
+                  </button>
+
+                  <div>
+                    <label className="editorial-field-label mb-2 block">
+                      ¿Qué te dejó este ritual?
+                    </label>
+                    <textarea
+                      value={reflectionText}
+                      onChange={(event) => setReflectionText(event.target.value)}
+                      rows={4}
+                      className="editorial-textarea"
+                      placeholder="Una idea, una sensación o algo que quieras recordar."
+                    />
+                  </div>
+
+                  <button
+                    onClick={handleSaveCompletion}
+                    disabled={!anchorConfirmed || isSavingCompletion || completionSaved}
+                    className={`editorial-action-button ${
+                      anchorConfirmed && !completionSaved
+                        ? "editorial-action-button-primary"
+                        : "editorial-action-button-disabled"
+                    }`}
+                  >
+                    {isSavingCompletion ? (
+                      <span className="inline-flex items-center justify-center gap-2">
+                        <Loader2 size={14} strokeWidth={1.8} className="animate-spin" />
+                        Guardando cierre
+                      </span>
+                    ) : completionSaved ? (
+                      "Cierre guardado"
+                    ) : (
+                      "Guardar cierre"
+                    )}
+                  </button>
+                </motion.div>
+              ) : audioTab === "guided" ? (
                 <div className="mb-6">
-                  <GuidedAudioPlayer
-                    title={displayRitual.title}
-                    src={guidedAudioUrl}
-                    disabled={guidedAudioLoading}
-                    onStart={handleRequestGuidedAudio}
-                    onPlay={handleGuidedAudioPlay}
-                    onEnded={handleGuidedAudioEnded}
-                  />
+                  <AnimatePresence>
+                    {pricingPrompt && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 6 }}
+                        className="mb-5 rounded-2xl border border-[var(--border-soft)] bg-[var(--surface-softest)] p-4"
+                      >
+                        {!pricingPrompt.answer ? (
+                          <>
+                            <p className="editorial-eyebrow mb-2">Voz guiada</p>
+                            <h3
+                              className="mb-3"
+                              style={{
+                                fontFamily: "var(--font-serif-display)",
+                                fontSize: "22px",
+                                fontWeight: 400,
+                                lineHeight: 1.15,
+                                color: "var(--ink-strong)",
+                              }}
+                            >
+                              ¿Te haría sentido pagar por esta voz?
+                            </h3>
+                            <div className="mb-3 rounded-2xl border border-[var(--border-soft)] bg-white px-4 py-3">
+                              <div className="flex items-baseline justify-center gap-1.5">
+                                <span
+                                  style={{
+                                    fontFamily: "var(--font-serif-display)",
+                                    fontSize: "34px",
+                                    fontWeight: 400,
+                                    lineHeight: 1,
+                                    color: "var(--ink-strong)",
+                                  }}
+                                >
+                                  USD 10
+                                </span>
+                                <span
+                                  style={{
+                                    fontFamily: "var(--font-sans-ui)",
+                                    fontSize: "12px",
+                                    fontWeight: 400,
+                                    color: "var(--ink-subtle)",
+                                  }}
+                                >
+                                  / mes
+                                </span>
+                              </div>
+                            </div>
+                            <p
+                              className="mb-4"
+                              style={{
+                                fontFamily: "var(--font-sans-ui)",
+                                fontSize: "13px",
+                                fontWeight: 300,
+                                lineHeight: 1.55,
+                                color: "var(--ink-subtle)",
+                              }}
+                            >
+                              La primera voz guiada queda disponible. Para sostener nuevas voces,
+                              estamos probando una membresía mensual.
+                            </p>
+                            <div className="grid grid-cols-2 gap-2">
+                              <button
+                                onClick={() => handlePricingResponse("accepted")}
+                                className="rounded-full bg-[var(--ink-strong)] px-4 py-3 text-white"
+                                style={{ fontFamily: "var(--font-sans-ui)", fontSize: "13px", fontWeight: 500 }}
+                              >
+                                Sí
+                              </button>
+                              <button
+                                onClick={() => handlePricingResponse("declined")}
+                                className="rounded-full border border-[var(--border-default)] bg-white px-4 py-3 text-[var(--ink-strong)]"
+                                style={{ fontFamily: "var(--font-sans-ui)", fontSize: "13px", fontWeight: 500 }}
+                              >
+                                No por ahora
+                              </button>
+                            </div>
+                            <p
+                              className="mt-3 text-center"
+                              style={{ fontFamily: "var(--font-sans-ui)", fontSize: "11px", fontWeight: 300, color: "var(--ink-muted)" }}
+                            >
+                              Tu ritual sigue después de responder.
+                            </p>
+                          </>
+                        ) : (
+                          <>
+                            <p className="editorial-eyebrow mb-2">Una pregunta más</p>
+                            <h3
+                              className="mb-2"
+                              style={{
+                                fontFamily: "var(--font-serif-display)",
+                                fontSize: "22px",
+                                fontWeight: 400,
+                                lineHeight: 1.15,
+                                color: "var(--ink-strong)",
+                              }}
+                            >
+                              {pricingPrompt.answer === "yes"
+                                ? "¿Por qué te haría sentido?"
+                                : "¿Por qué no por ahora?"}
+                            </h3>
+                            <p
+                              className="mb-3"
+                              style={{
+                                fontFamily: "var(--font-sans-ui)",
+                                fontSize: "12px",
+                                fontWeight: 300,
+                                color: "var(--ink-subtle)",
+                              }}
+                            >
+                              Respuesta: {pricingPrompt.answer === "yes" ? "Sí" : "No por ahora"}
+                            </p>
+                            <label className="editorial-field-label mb-2 block">
+                              Tu razón
+                            </label>
+                            <textarea
+                              value={pricingReason}
+                              onChange={(event) => setPricingReason(event.target.value)}
+                              rows={4}
+                              className="editorial-textarea mb-3"
+                              placeholder={
+                                pricingPrompt.answer === "yes"
+                                  ? "Contanos qué valor tendría para vos."
+                                  : "Contanos qué faltaría para que te hiciera sentido."
+                              }
+                            />
+                            <button
+                              onClick={handlePricingReasonSubmit}
+                              disabled={pricingReason.trim().length < 3}
+                              className={`editorial-action-button ${
+                                pricingReason.trim().length >= 3
+                                  ? "editorial-action-button-primary"
+                                  : "editorial-action-button-disabled"
+                              }`}
+                            >
+                              Preparar la voz
+                            </button>
+                          </>
+                        )}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                  {!pricingPrompt && (
+                    <GuidedAudioPlayer
+                      title={displayRitual.title}
+                      src={guidedAudioUrl}
+                      disabled={guidedAudioLoading}
+                      onStart={handleRequestGuidedAudio}
+                      onPlay={handleGuidedAudioPlay}
+                      onEnded={handleGuidedAudioEnded}
+                    />
+                  )}
                   {guidedAudioError && (
                     <p
                       className="mt-3 text-center"
@@ -764,6 +1124,15 @@ export function RitualDetail() {
                     >
                       {guidedAudioError}
                     </p>
+                  )}
+                  {!pricingPrompt && (
+                    <button
+                      onClick={() => handleAudioTabChange("ambient")}
+                      className="mx-auto mt-5 block text-[var(--ink-subtle)] hover:text-[var(--ink-strong)] transition-colors"
+                      style={{ fontFamily: "var(--font-sans-ui)", fontSize: "13px", fontWeight: 300 }}
+                    >
+                      Prefiero solo música de fondo
+                    </button>
                   )}
                 </div>
               ) : (
@@ -832,6 +1201,13 @@ export function RitualDetail() {
                     </button>
                   );
                 })}
+                  <button
+                    onClick={() => handleAudioTabChange("guided")}
+                    className="mt-2 text-[var(--ink-subtle)] hover:text-[var(--ink-strong)] transition-colors"
+                    style={{ fontFamily: "var(--font-sans-ui)", fontSize: "13px", fontWeight: 300 }}
+                  >
+                    Volver a voz guiada
+                  </button>
               </div>
               )}
 

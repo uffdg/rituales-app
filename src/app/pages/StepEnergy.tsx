@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { motion } from "motion/react";
 import { useRitual } from "../context/RitualContext";
@@ -18,6 +18,10 @@ export function StepEnergy() {
   const [energy, setEnergy] = useState(ritual.energy || "");
   const [duration, setDuration] = useState(ritual.duration || 10);
   const [intensity, setIntensity] = useState(ritual.intensity || "");
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const handleNext = () => {
     updateRitual({ energy, duration, intensity });

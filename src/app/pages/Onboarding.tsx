@@ -46,6 +46,7 @@ export function Onboarding() {
   const { updateRitual, resetRitual } = useRitual();
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     resetRitual();
   }, []);
   const [selected, setSelected] = useState("");

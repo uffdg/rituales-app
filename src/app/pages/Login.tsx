@@ -10,7 +10,7 @@ const OTP_RESEND_COOLDOWN_SECONDS = 60;
 export function Login() {
   const [email, setEmail] = useState("");
   const [code, setCode] = useState(["", "", "", "", "", ""]);
-  const [step, setStep] = useState<"email" | "link" | "code">("email");
+  const [step, setStep] = useState<"email" | "code">("email");
   const [loading, setLoading] = useState(false);
   const [verifying, setVerifying] = useState(false);
   const [error, setError] = useState("");
@@ -46,6 +46,12 @@ export function Login() {
     return () => window.clearInterval(timer);
   }, [resendAvailableAt]);
 
+  useEffect(() => {
+    if (step === "code") {
+      window.setTimeout(() => inputRefs.current[0]?.focus(), 0);
+    }
+  }, [step]);
+
   const sendOtp = async (source: "initial" | "resend") => {
     if (!email.trim()) return;
 
@@ -73,7 +79,7 @@ export function Login() {
     }
 
     setResendAvailableAt(Date.now() + OTP_RESEND_COOLDOWN_SECONDS * 1000);
-    setStep("link");
+    setStep("code");
   };
 
   const handleSend = (e: React.FormEvent) => {
@@ -224,65 +230,6 @@ export function Login() {
                   {loading ? "Enviando..." : "Recibir código"}
                 </button>
               </form>
-            </motion.div>
-          ) : step === "link" ? (
-            <motion.div key="link" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-              <h1
-                style={{
-                  fontFamily: "var(--font-serif-display)",
-                  fontSize: "28px",
-                  fontWeight: 400,
-                  color: "var(--ink-strong)",
-                  marginBottom: "8px",
-                  lineHeight: 1.2,
-                  textAlign: "center",
-                }}
-              >
-                Revisá tu email
-              </h1>
-              <p
-                style={{
-                  fontFamily: "var(--font-sans-ui)",
-                  fontSize: "13px",
-                  fontWeight: 300,
-                  color: "var(--ink-subtle)",
-                  textAlign: "center",
-                  marginBottom: "32px",
-                  lineHeight: 1.6,
-                }}
-              >
-                Te mandamos un link a{" "}
-                <span style={{ color: "var(--ink-muted)" }}>{email.trim().toLowerCase()}</span>.
-                Tocalo para entrar. Si no lo ves en unos minutos, revisá spam o promociones.
-              </p>
-
-              <button
-                onClick={() => { setStep("code"); setError(""); }}
-                className="editorial-action-button editorial-action-button-primary"
-              >
-                Ingresar el código en cambio
-              </button>
-
-              <button
-                onClick={handleResend}
-                disabled={loading || cooldownRemaining > 0}
-                className="w-full mt-4 py-3 text-[var(--ink-subtle)] hover:text-[var(--ink-strong)] disabled:opacity-50 disabled:hover:text-[var(--ink-subtle)] transition-colors"
-                style={{ fontFamily: "var(--font-sans-ui)", fontSize: "13px", fontWeight: 300 }}
-              >
-                {loading
-                  ? "Reenviando..."
-                  : cooldownRemaining > 0
-                    ? `Reenviar en ${cooldownRemaining}s`
-                    : "Reenviar email"}
-              </button>
-
-              <button
-                onClick={() => { setStep("email"); setError(""); }}
-                className="w-full mt-4 py-3 text-[var(--ink-subtle)] hover:text-[var(--ink-strong)] transition-colors"
-                style={{ fontFamily: "var(--font-sans-ui)", fontSize: "13px", fontWeight: 300 }}
-              >
-                Cambiar email
-              </button>
             </motion.div>
           ) : (
             <motion.div

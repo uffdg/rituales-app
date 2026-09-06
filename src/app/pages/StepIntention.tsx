@@ -46,6 +46,7 @@ export function StepIntention() {
     !!(( window as any).SpeechRecognition || (window as any).webkitSpeechRecognition);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     return () => {
       recognitionRef.current?.stop();
     };

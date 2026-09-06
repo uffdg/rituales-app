@@ -1,5 +1,5 @@
 import type { RitualData } from "../context/RitualContext";
-import type { RitualRecord } from "./ritual-service";
+import { getRitualAnchor, type RitualRecord } from "./ritual-service";
 import { getUserFacingErrorMessage } from "./errors";
 import { supabase } from "./supabase";
 
@@ -79,7 +79,7 @@ function mapRitualRow(row: any): RitualRecord {
     element: row.element,
     intensity: row.intensity,
     duration: row.duration,
-    anchor: row.anchor,
+    anchor: getRitualAnchor(row.anchor, row.ritual_type, row.ai_ritual?.title || row.title),
     createdAt: row.created_at,
     userId: row.user_id,
     isPublic: row.is_public ?? false,

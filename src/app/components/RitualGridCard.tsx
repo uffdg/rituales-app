@@ -1,5 +1,5 @@
 import type { MouseEvent } from "react";
-import { Bookmark, BookmarkCheck } from "lucide-react";
+import { Bookmark, BookmarkCheck, Loader2 } from "lucide-react";
 
 const IMAGE_POOLS: Record<string, string[]> = {
   Agua: [
@@ -68,6 +68,7 @@ interface RitualGridCardProps {
   likes?: number;
   saved: boolean;
   saving?: boolean;
+  showSaveButton?: boolean;
   imageAspect?: string;
   onOpen: () => void;
   onSave: (event: MouseEvent<HTMLButtonElement>) => void;
@@ -82,6 +83,7 @@ export function RitualGridCard({
   likes,
   saved,
   saving = false,
+  showSaveButton = true,
   imageAspect = "1 / 1",
   onOpen,
   onSave,
@@ -129,26 +131,30 @@ export function RitualGridCard({
         </div>
 
         {/* Save button top-right */}
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            onSave(e);
-          }}
-          disabled={saving}
-          className="absolute top-2 right-2 h-7 w-7 rounded-full flex items-center justify-center transition-all active:scale-90"
-          style={{
-            background: saved ? "rgba(255,255,255,0.95)" : "rgba(0,0,0,0.32)",
-            backdropFilter: "blur(8px)",
-          }}
-          aria-label="Guardar ritual"
-        >
-          {saved ? (
-            <BookmarkCheck size={13} strokeWidth={2} color="var(--ink-strong)" fill="var(--ink-strong)" />
-          ) : (
-            <Bookmark size={13} strokeWidth={1.8} color="rgba(255,255,255,0.9)" fill="none" />
-          )}
-        </button>
+        {showSaveButton && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onSave(e);
+            }}
+            disabled={saving}
+            className="absolute top-2 right-2 h-7 w-7 rounded-full flex items-center justify-center transition-all active:scale-90"
+            style={{
+              background: saved ? "rgba(255,255,255,0.95)" : "rgba(0,0,0,0.32)",
+              backdropFilter: "blur(8px)",
+            }}
+            aria-label="Guardar ritual"
+          >
+            {saving ? (
+              <Loader2 size={13} strokeWidth={1.8} className="animate-spin" color={saved ? "var(--ink-strong)" : "rgba(255,255,255,0.9)"} />
+            ) : saved ? (
+              <BookmarkCheck size={13} strokeWidth={2} color="var(--ink-strong)" fill="var(--ink-strong)" />
+            ) : (
+              <Bookmark size={13} strokeWidth={1.8} color="rgba(255,255,255,0.9)" fill="none" />
+            )}
+          </button>
+        )}
 
         {/* Likes bottom-right */}
         {typeof likes === "number" && (

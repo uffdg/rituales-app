@@ -179,11 +179,15 @@ export function CosmicCalendar() {
                       <p style={{ fontFamily: "var(--font-sans-ui)", fontSize: "10px", color: dayColor, textTransform: "uppercase", letterSpacing: "0.1em", fontWeight: 500 }}>
                         {day.weekdayLabel}
                       </p>
-                      {isToday(day.date) && (
+                      {isToday(day.date) ? (
                         <span className={`text-[9px] px-2.5 py-1 rounded-[6px] ${tagBg} font-sans align-middle uppercase tracking-widest leading-none`}>
                           Hoy
                         </span>
-                      )}
+                      ) : day.perfection ? (
+                        <span className={`text-[8px] px-2 py-1 rounded-[6px] ${tagBg} font-sans align-middle uppercase tracking-widest leading-none`}>
+                          Evento
+                        </span>
+                      ) : null}
                     </div>
 
                     <div className="flex items-center justify-between mb-auto text-current">

@@ -2,9 +2,15 @@ import type { MouseEvent } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import { motion } from "motion/react";
-import { LogOut, Trash2 } from "lucide-react";
+import { Bookmark, BookmarkCheck, Loader2, LogOut, MoreHorizontal, Share2, Trash2 } from "lucide-react";
 import { getDailyAnchorContent, getDailyAnchorJourney } from "../lib/daily-anchor";
-import { getJournalEntries, getDominantElement, getLunarStreak, getJournalByDate } from "../lib/practice-journal";
+import {
+  getJournalEntries,
+  getJournalEntriesFromOwnRituals,
+  getDominantElement,
+  getLunarStreak,
+  getJournalByDate,
+} from "../lib/practice-journal";
 import { buildCosmicDay } from "../lib/cosmic-calendar";
 import { toast } from "sonner";
 import { useUser } from "../context/UserContext";
@@ -21,6 +27,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "../components/ui/alert-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "../components/ui/dropdown-menu";
 
 const ELEMENT_META: Record<string, { symbol: string; label: string }> = {
   fuego:  { symbol: "🜂", label: "Fuego" },
@@ -37,9 +50,39 @@ const ELEMENT_FILTERS = [
 ];
 
 const STEP_LABELS = ["Inicio", "Momento", "Cierre"];
+const PROFILE_PREFS_KEY = "rituales_profile_preferences_v1";
+
+const PROFILE_PREF_GROUPS = [
+  {
+    key: "tone",
+    label: "Tono",
+    options: ["Directo", "Suave", "Profundo"],
+  },
+  {
+    key: "time",
+    label: "Momento",
+    options: ["Mañana", "Tarde", "Noche"],
+  },
+  {
+    key: "focus",
+    label: "Foco",
+    options: ["Claridad", "Calma", "Cerrar ciclo"],
+  },
+] as const;
 
 type SourceFilter = "all" | "saved" | "own";
 type PendingDelete = { id: string; mode: "favorites" | "own" };
+type ProfilePrefKey = (typeof PROFILE_PREF_GROUPS)[number]["key"];
+type ProfilePrefs = Record<ProfilePrefKey, string>;
+
+function readProfilePrefs(): ProfilePrefs {
+  const fallback = { tone: "Directo", time: "Mañana", focus: "Claridad" };
+  try {
+    return { ...fallback, ...JSON.parse(localStorage.getItem(PROFILE_PREFS_KEY) || "{}") };
+  } catch {
+    return fallback;
+  }
+}
 
 export function Account() {
   const navigate = useNavigate();
@@ -59,6 +102,7 @@ export function Account() {
   const [fullNameDraft, setFullNameDraft] = useState("");
   const [isSavingName, setIsSavingName] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<PendingDelete | null>(null);
+  const [profilePrefs, setProfilePrefs] = useState<ProfilePrefs>(readProfilePrefs);
 
   // Gallery filters
   const [sourceFilter, setSourceFilter] = useState<SourceFilter>("all");
@@ -68,7 +112,10 @@ export function Account() {
   // Dashboard data
   const now = useMemo(() => new Date(), []);
   const cosmicToday = useMemo(() => buildCosmicDay(now), [now]);
-  const journalEntries = useMemo(() => getJournalEntries(), []);
+  const journalEntries = useMemo(
+    () => (user ? getJournalEntriesFromOwnRituals(ownRituals) : getJournalEntries()),
+    [user, ownRituals],
+  );
   const dominantElement = useMemo(() => getDominantElement(journalEntries), [journalEntries]);
   const lunarStreak = useMemo(() => getLunarStreak(journalEntries), [journalEntries]);
   const recentActivity = useMemo(() => {
@@ -129,6 +176,14 @@ export function Account() {
     setFullNameDraft(profile?.fullName || "");
   }, [profile?.fullName]);
 
+  useEffect(() => {
+    localStorage.setItem(PROFILE_PREFS_KEY, JSON.stringify(profilePrefs));
+  }, [profilePrefs]);
+
+  const setProfilePref = (key: ProfilePrefKey, value: string) => {
+    setProfilePrefs((current) => ({ ...current, [key]: value }));
+  };
+
   const handleSaveName = async () => {
     setIsSavingName(true);
     try {
@@ -148,11 +203,14 @@ export function Account() {
     navigate(`/ritual/${entry.ritual.ritualId || "nuevo"}`, { state: { fromAccount: true } });
   };
 
-  const handleToggleSave = async (
-    entry: (typeof savedRituals)[number],
-    event: MouseEvent<HTMLButtonElement>,
-  ) => {
-    event.stopPropagation();
+  const shareRitual = (entry: (typeof savedRituals)[number]) => {
+    updateRitual(entry.ritual);
+    setSelectedPublicRitual(null);
+    setViewMode(false);
+    navigate("/compartir");
+  };
+
+  const toggleSaveRitual = async (entry: (typeof savedRituals)[number]) => {
     const ritualId = entry.ritual?.ritualId;
     if (!ritualId || savingRitualId) return;
     setSavingRitualId(ritualId);
@@ -170,6 +228,14 @@ export function Account() {
     } finally {
       setSavingRitualId(null);
     }
+  };
+
+  const handleToggleSave = (
+    entry: (typeof savedRituals)[number],
+    event: MouseEvent<HTMLButtonElement>,
+  ) => {
+    event.stopPropagation();
+    void toggleSaveRitual(entry);
   };
 
   const handleConfirmDelete = async () => {
@@ -878,27 +944,79 @@ export function Account() {
                         duration={entry.ritual?.duration ?? 10}
                         saved={saved}
                         saving={saving}
+                        showSaveButton={!isOwn}
                         imageAspect="4/5"
                         onOpen={() => openRitual(entry)}
                         onSave={(event) => handleToggleSave(entry, event)}
                       />
-                      {/* Delete button — own rituals only */}
+                      {/* Context menu — own rituals only */}
                       {isOwn && (
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setPendingDelete({ id: entry.id, mode: "own" });
-                          }}
-                          className="absolute bottom-[52px] left-2 h-7 w-7 rounded-full flex items-center justify-center transition-all active:scale-90"
-                          style={{
-                            background: "rgba(0,0,0,0.32)",
-                            backdropFilter: "blur(8px)",
-                          }}
-                          aria-label="Borrar ritual"
-                        >
-                          <Trash2 size={12} strokeWidth={1.8} color="rgba(255,255,255,0.8)" />
-                        </button>
+                        <div className="absolute top-2 right-2">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <button
+                                type="button"
+                                onClick={(event) => event.stopPropagation()}
+                                className="h-7 w-7 rounded-full flex items-center justify-center transition-all active:scale-90"
+                                style={{
+                                  background: "rgba(0,0,0,0.32)",
+                                  backdropFilter: "blur(8px)",
+                                }}
+                                aria-label="Más acciones"
+                              >
+                                <MoreHorizontal size={14} strokeWidth={1.8} color="rgba(255,255,255,0.88)" />
+                              </button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent
+                              align="end"
+                              sideOffset={8}
+                              onClick={(event) => event.stopPropagation()}
+                              className="z-[140] min-w-[148px] rounded-xl border-[var(--border-soft)] bg-white p-1.5 shadow-lg"
+                            >
+                              <DropdownMenuItem
+                                onClick={(event) => {
+                                  event.stopPropagation();
+                                  if (!saved && !saving) void toggleSaveRitual(entry);
+                                }}
+                                disabled={saved || saving}
+                                className="cursor-pointer rounded-lg px-3 py-2.5"
+                                style={{ fontFamily: "var(--font-sans-ui)", fontSize: "13px", color: "var(--ink-strong)" }}
+                              >
+                                {saving ? (
+                                  <Loader2 size={14} strokeWidth={1.8} className="animate-spin" />
+                                ) : saved ? (
+                                  <BookmarkCheck size={14} strokeWidth={1.8} />
+                                ) : (
+                                  <Bookmark size={14} strokeWidth={1.8} />
+                                )}
+                                {saving ? "Guardando" : saved ? "Guardado" : "Guardar"}
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={(event) => {
+                                  event.stopPropagation();
+                                  shareRitual(entry);
+                                }}
+                                className="cursor-pointer rounded-lg px-3 py-2.5"
+                                style={{ fontFamily: "var(--font-sans-ui)", fontSize: "13px", color: "var(--ink-strong)" }}
+                              >
+                                <Share2 size={14} strokeWidth={1.8} />
+                                Compartir
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator className="my-1 bg-[var(--border-soft)]" />
+                              <DropdownMenuItem
+                                onClick={(event) => {
+                                  event.stopPropagation();
+                                  setPendingDelete({ id: entry.id, mode: "own" });
+                                }}
+                                className="cursor-pointer rounded-lg px-3 py-2.5 focus:bg-red-50"
+                                style={{ fontFamily: "var(--font-sans-ui)", fontSize: "13px", color: "#B42318" }}
+                              >
+                                <Trash2 size={14} strokeWidth={1.8} color="#B42318" />
+                                Eliminar
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
                       )}
                     </div>
                   );
@@ -985,6 +1103,41 @@ export function Account() {
               >
                 Guardar
               </button>
+            </div>
+
+            <div className="mt-6 border-t border-[var(--border-soft)] pt-5">
+              <p className="editorial-eyebrow mb-2">Cómo querés que te acompañe la app</p>
+              <p className="editorial-body-muted mb-4">
+                Esto ayuda a ordenar futuras recomendaciones. Podés cambiarlo cuando quieras.
+              </p>
+              <div className="space-y-4">
+                {PROFILE_PREF_GROUPS.map((group) => (
+                  <div key={group.key}>
+                    <p className="font-sans text-[11px] font-medium text-[var(--ink-muted)] mb-2">
+                      {group.label}
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {group.options.map((option) => {
+                        const isActive = profilePrefs[group.key] === option;
+                        return (
+                          <button
+                            key={option}
+                            type="button"
+                            onClick={() => setProfilePref(group.key, option)}
+                            className={`rounded-full border px-3 py-2 font-sans text-[12px] transition-all active:scale-[0.97] ${
+                              isActive
+                                ? "border-[var(--ink-strong)] bg-[var(--ink-strong)] text-white"
+                                : "border-[var(--border-default)] bg-white text-[var(--ink-muted)]"
+                            }`}
+                          >
+                            {option}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
