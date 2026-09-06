@@ -29,6 +29,113 @@ const RITUAL_VERSIONS = [
   },
 ];
 
+interface RitualIngredient {
+  name: string;
+  quantity: string;
+  note: string;
+}
+
+const INGREDIENT_PATTERNS: Array<{
+  name: string;
+  quantity: string;
+  note: string;
+  matches: string[];
+}> = [
+  { name: "Papel", quantity: "1 hoja", note: "Para escribir o representar la intención.", matches: ["papel", "hoja"] },
+  { name: "Lapicera", quantity: "1", note: "Para nombrar la intención con tus palabras.", matches: ["escribe", "escribi", "escribí", "anota", "anotá", "frase"] },
+  { name: "Agua", quantity: "1 vaso", note: "Para limpiar, beber o acompañar el gesto.", matches: ["agua", "vaso", "bebe", "bebé", "beber"] },
+  { name: "Cuenco", quantity: "1", note: "Para contener agua, sal, hierbas o el papel.", matches: ["cuenco", "recipiente", "bowl"] },
+  { name: "Plato pequeño", quantity: "1", note: "Para apoyar la vela o dejar el objeto del ritual.", matches: ["plato", "apoya", "apoyá", "deja", "dejá", "mesa"] },
+  { name: "Sal", quantity: "1 pizca", note: "Para marcar limpieza, protección o límite.", matches: ["sal", "limpia", "limpiá", "limpieza", "proteccion", "protección"] },
+  { name: "Piedra", quantity: "1", note: "Para usar como ancla física de la intención.", matches: ["piedra", "objeto", "ancla"] },
+  { name: "Hoja seca", quantity: "1", note: "Para simbolizar lo que querés soltar o mover.", matches: ["hoja seca", "hoja", "naturaleza"] },
+  { name: "Aceite", quantity: "Unas gotas", note: "Para preparar la vela o cargar el gesto.", matches: ["aceite", "ungir", "untá", "unta"] },
+  { name: "Romero", quantity: "1 ramita", note: "Hierba de limpieza, foco y protección.", matches: ["romero"] },
+  { name: "Lavanda", quantity: "1 ramita", note: "Hierba de calma, suavidad y descanso.", matches: ["lavanda"] },
+  { name: "Laurel", quantity: "1 hoja", note: "Hierba de claridad, pedido y dirección.", matches: ["laurel"] },
+  { name: "Canela", quantity: "1 pizca", note: "Para intención de impulso, abundancia o calor.", matches: ["canela"] },
+  { name: "Hilo o cinta", quantity: "1 tramo", note: "Para atar, cerrar o sellar una intención.", matches: ["hilo", "cinta", "ata", "atá", "nudo"] },
+];
+
+function normalizeIngredientText(value: string) {
+  return value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+function addUniqueIngredient(items: RitualIngredient[], item: RitualIngredient) {
+  if (items.some((existing) => existing.name === item.name)) return;
+  items.push(item);
+}
+
+function deriveRitualIngredients(input: {
+  ritualType?: string;
+  intention?: string;
+  energy?: string;
+  element?: string;
+  opening?: string;
+  symbolicAction?: string;
+  closing?: string;
+  candleGuide?: ReturnType<typeof deriveCandleGuide> | null;
+}) {
+  const haystack = normalizeIngredientText(
+    [
+      input.ritualType,
+      input.intention,
+      input.energy,
+      input.element,
+      input.opening,
+      input.symbolicAction,
+      input.closing,
+    ].filter(Boolean).join(" "),
+  );
+
+  const ingredients: RitualIngredient[] = [];
+
+  if (input.candleGuide) {
+    addUniqueIngredient(ingredients, {
+      name: `Vela ${input.candleGuide.color.toLowerCase()}`,
+      quantity: "1",
+      note: input.candleGuide.meaning,
+    });
+    addUniqueIngredient(ingredients, {
+      name: "Fósforos o encendedor",
+      quantity: "1",
+      note: "Para prender la vela al inicio.",
+    });
+  }
+
+  INGREDIENT_PATTERNS.forEach((item) => {
+    if (item.matches.some((match) => haystack.includes(normalizeIngredientText(match)))) {
+      addUniqueIngredient(ingredients, {
+        name: item.name,
+        quantity: item.quantity,
+        note: item.note,
+      });
+    }
+  });
+
+  if (ingredients.length < 4) {
+    const element = normalizeIngredientText(input.element || "");
+    if (element.includes("agua")) {
+      addUniqueIngredient(ingredients, { name: "Agua", quantity: "1 vaso", note: "Para acompañar el ritual desde lo sensible." });
+      addUniqueIngredient(ingredients, { name: "Cuenco", quantity: "1", note: "Para contener el agua durante la práctica." });
+    } else if (element.includes("tierra")) {
+      addUniqueIngredient(ingredients, { name: "Piedra", quantity: "1", note: "Para dar peso y cuerpo a la intención." });
+      addUniqueIngredient(ingredients, { name: "Plato pequeño", quantity: "1", note: "Para dejar apoyado el ancla del ritual." });
+    } else if (element.includes("aire")) {
+      addUniqueIngredient(ingredients, { name: "Papel", quantity: "1 hoja", note: "Para escribir algo breve y dejarlo moverse." });
+      addUniqueIngredient(ingredients, { name: "Lapicera", quantity: "1", note: "Para nombrar la intención." });
+    } else {
+      addUniqueIngredient(ingredients, { name: "Papel", quantity: "1 hoja", note: "Para escribir la intención." });
+      addUniqueIngredient(ingredients, { name: "Plato pequeño", quantity: "1", note: "Para ordenar los elementos antes de empezar." });
+    }
+  }
+
+  return ingredients.slice(0, 7);
+}
+
 export function StepRitual() {
   const navigate = useNavigate();
   const { ritual, updateRitual } = useRitual();
@@ -36,7 +143,6 @@ export function StepRitual() {
   const [currentRitual, setCurrentRitual] = useState(ritual.aiRitual?.title ? ritual.aiRitual : null);
   const [guidedSession, setGuidedSession] = useState(ritual.guidedSession || null);
   const [showVersions, setShowVersions] = useState(false);
-  const [editingBlock, setEditingBlock] = useState<string | null>(null);
   const [generateError, setGenerateError] = useState("");
   const [editedTexts, setEditedTexts] = useState({
     title: "",
@@ -44,6 +150,10 @@ export function StepRitual() {
     symbolicAction: "",
     closing: "",
   });
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const handleGenerateRitual = async () => {
     setIsGenerating(true);
@@ -126,11 +236,6 @@ export function StepRitual() {
     navigate("/crear/5");
   };
 
-  const blocks = [
-    { key: "opening", label: "Apertura", icon: "◯" },
-    { key: "symbolicAction", label: "Acción simbólica", icon: "◎" },
-    { key: "closing", label: "Acción de cierre", icon: "·" },
-  ];
   const finalTexts = editedTexts.title ? editedTexts : currentRitual;
   const candleGuide = finalTexts
     ? deriveCandleGuide({
@@ -143,6 +248,18 @@ export function StepRitual() {
         closing: finalTexts.closing,
       })
     : null;
+  const ritualIngredients = finalTexts
+    ? deriveRitualIngredients({
+        ritualType: ritual.ritualType,
+        intention: ritual.intention,
+        energy: ritual.energy,
+        element: ritual.element,
+        opening: finalTexts.opening,
+        symbolicAction: finalTexts.symbolicAction,
+        closing: finalTexts.closing,
+        candleGuide,
+      })
+    : [];
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
@@ -168,7 +285,7 @@ export function StepRitual() {
             textTransform: "uppercase",
           }}
         >
-          Paso 4 — Tu ritual
+          Paso 4 — Ingredientes del ritual
         </p>
 
         {/* Loading state */}
@@ -258,168 +375,101 @@ export function StepRitual() {
                   fontWeight: 400,
                   color: "var(--ink-strong)",
                   lineHeight: 1.3,
-                  marginBottom: "20px",
+                  marginBottom: "18px",
                 }}
               >
                 {currentRitual.title}
               </h2>
 
-              {/* Ritual blocks */}
-              <div className="flex flex-col gap-3 mb-5">
-                {blocks.map((block) => {
-                  const text =
-                    (editedTexts as Record<string, string>)[block.key] ||
-                    (currentRitual as Record<string, string>)[block.key] ||
-                    "";
-                  const isEditing = editingBlock === block.key;
-                  return (
+              {/* Recipe ingredients */}
+              <div className="mb-5">
+                <div className="mb-3 flex items-end justify-between gap-3">
+                  <div>
+                    <p
+                      style={{
+                        fontFamily: "var(--font-sans-ui)",
+                        fontSize: "10px",
+                        fontWeight: 500,
+                        letterSpacing: "0.12em",
+                        textTransform: "uppercase",
+                        color: "var(--ink-soft)",
+                        marginBottom: "6px",
+                      }}
+                    >
+                      Vas a necesitar
+                    </p>
+                    <p
+                      style={{
+                        fontFamily: "var(--font-sans-ui)",
+                        fontSize: "13px",
+                        fontWeight: 300,
+                        lineHeight: 1.5,
+                        color: "var(--ink-muted)",
+                      }}
+                    >
+                      Juntá estos elementos. Después armamos el ritual completo con ellos.
+                    </p>
+                  </div>
+                  <span
+                    className="shrink-0 rounded-full border border-[rgba(0,0,0,0.08)] px-2.5 py-1"
+                    style={{
+                      fontFamily: "var(--font-sans-ui)",
+                      fontSize: "11px",
+                      color: "var(--ink-soft)",
+                    }}
+                  >
+                    {ritualIngredients.length}
+                  </span>
+                </div>
+
+                <div className="overflow-hidden rounded-2xl border border-[rgba(0,0,0,0.07)]">
+                  {ritualIngredients.map((item, index) => (
                     <motion.div
-                      key={block.key}
-                      className="rounded-2xl border border-[rgba(0,0,0,0.07)] overflow-hidden"
+                      key={`${item.name}-${index}`}
+                      className={`grid grid-cols-[74px_1fr] gap-3 px-4 py-3 ${
+                        index > 0 ? "border-t border-[rgba(0,0,0,0.06)]" : ""
+                      }`}
                       layout
                     >
-                      <div className="px-4 pt-4 pb-3">
-                        <div className="flex items-center gap-2 mb-2">
-                          <span
-                            style={{
-                              fontFamily: "var(--font-serif-display)",
-                              fontSize: "14px",
-                              color: "var(--ink-soft)",
-                            }}
-                          >
-                            {block.icon}
-                          </span>
-                          <p
-                            style={{
-                              fontFamily: "var(--font-sans-ui)",
-                              fontSize: "10px",
-                              fontWeight: 500,
-                              letterSpacing: "0.12em",
-                              textTransform: "uppercase",
-                              color: "var(--ink-soft)",
-                            }}
-                          >
-                            {block.label}
-                          </p>
-                        </div>
-                        {isEditing ? (
-                          <textarea
-                            autoFocus
-                            value={text}
-                            onChange={(e) =>
-                              setEditedTexts((prev) => ({
-                                ...prev,
-                                [block.key]: e.target.value,
-                              }) as typeof prev)
-                            }
-                            className="w-full border-none bg-transparent focus:outline-none resize-none"
-                            rows={4}
-                            style={{
-                              fontFamily: "var(--font-serif-display)",
-                              fontSize: "16px",
-                              fontWeight: 300,
-                              lineHeight: 1.6,
-                              color: "var(--ink-strong)",
-                            }}
-                          />
-                        ) : (
-                          <p
-                            style={{
-                              fontFamily: "var(--font-serif-display)",
-                              fontSize: "16px",
-                              fontWeight: 300,
-                              lineHeight: 1.6,
-                              color: "var(--ink-strong)",
-                            }}
-                          >
-                            {text}
-                          </p>
-                        )}
-                      </div>
-                      <div className="px-4 pb-3 flex gap-2">
-                        <button
-                          onClick={() =>
-                            setEditingBlock(isEditing ? null : block.key)
-                          }
-                          className="text-[11px] text-[var(--ink-soft)] hover:text-[var(--ink-muted)] transition-colors"
-                          style={{ fontFamily: "var(--font-sans-ui)", letterSpacing: "0.04em" }}
-                        >
-                          {isEditing ? "Guardar" : "Editar"}
-                        </button>
-                      </div>
-                    </motion.div>
-                  );
-                })}
-
-                {candleGuide ? (
-                  <motion.div
-                    className="rounded-2xl border border-[rgba(0,0,0,0.07)] overflow-hidden"
-                    layout
-                  >
-                    <div className="px-4 pt-4 pb-3">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span
-                          style={{
-                            fontFamily: "var(--font-serif-display)",
-                            fontSize: "14px",
-                            color: "var(--ink-soft)",
-                          }}
-                        >
-                          ✦
-                        </span>
-                        <p
-                          style={{
-                            fontFamily: "var(--font-sans-ui)",
-                            fontSize: "10px",
-                            fontWeight: 500,
-                            letterSpacing: "0.12em",
-                            textTransform: "uppercase",
-                            color: "var(--ink-soft)",
-                          }}
-                        >
-                          Vela para iniciar
-                        </p>
-                      </div>
-
-                      <p
-                        style={{
-                          fontFamily: "var(--font-serif-display)",
-                          fontSize: "22px",
-                          fontWeight: 400,
-                          lineHeight: 1.35,
-                          color: "var(--ink-strong)",
-                          marginBottom: "8px",
-                        }}
-                      >
-                        Vela {candleGuide.color}
-                      </p>
-
                       <p
                         style={{
                           fontFamily: "var(--font-sans-ui)",
-                          fontSize: "11px",
-                          color: "#9A9A9A",
-                          marginBottom: "12px",
-                          letterSpacing: "0.04em",
+                          fontSize: "12px",
+                          fontWeight: 500,
+                          color: "var(--ink-muted)",
+                          lineHeight: 1.4,
                         }}
                       >
-                        {candleGuide.meaning}
+                        {item.quantity}
                       </p>
-
-                      <p
-                        style={{
-                          fontFamily: "var(--font-serif-display)",
-                          fontSize: "16px",
-                          fontWeight: 300,
-                          lineHeight: 1.6,
-                          color: "var(--ink-strong)",
-                        }}
-                      >
-                        {candleGuide.instruction}
-                      </p>
-                    </div>
-                  </motion.div>
-                ) : null}
+                      <div>
+                        <p
+                          style={{
+                            fontFamily: "var(--font-sans-ui)",
+                            fontSize: "14px",
+                            fontWeight: 500,
+                            color: "var(--ink-strong)",
+                            lineHeight: 1.35,
+                            marginBottom: "2px",
+                          }}
+                        >
+                          {item.name}
+                        </p>
+                        <p
+                          style={{
+                            fontFamily: "var(--font-sans-ui)",
+                            fontSize: "12px",
+                            fontWeight: 300,
+                            color: "var(--ink-muted)",
+                            lineHeight: 1.45,
+                          }}
+                        >
+                          {item.note}
+                        </p>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
               </div>
 
               {/* AI action buttons */}

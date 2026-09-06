@@ -15,6 +15,7 @@ import {
 } from "../lib/user-service";
 import type { RitualRecord } from "../lib/ritual-service";
 import { track } from "../lib/analytics";
+import { syncDailyCardDraftOnLogin } from "../lib/daily-card-service";
 
 export interface SavedRitual {
   id: string;
@@ -155,6 +156,9 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         track("login", {
           userId: session.user.id,
         });
+        void Promise.allSettled([
+          syncDailyCardDraftOnLogin(session.user.id),
+        ]);
       }
 
       if (event === "SIGNED_OUT") {

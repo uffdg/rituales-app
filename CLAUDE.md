@@ -117,11 +117,14 @@ All these pass a Supabase JWT via `Authorization: Bearer` header.
 |---|---|---|
 | `rituales_current` | `RitualContext` | Active ritual creation wizard state |
 | `rituales_daily_anchor_v1` | `daily-anchor.ts` | Daily anchor journey per dateKey |
+| `rituales_daily_card_draft_v1` | `daily-card-service.ts` | Anonymous daily card draft per dateKey, synced on login |
 | `rituales_journal_v1` | `practice-journal.ts` | Completed ritual history |
 | `rituales_events` | `analytics.ts` | Local event buffer (max 200) |
 | `rituales_analytics_session_id` | `analytics.ts` | Session identifier |
 | `rituales_stories_first_visit_v1` | `Stories.tsx` | First visit date for progressive unlock |
 | `rituales_stories_gesture_hint_seen_v1` | `Stories.tsx` | Whether swipe hint was dismissed |
+
+Session storage key: `rituales_daily_card_session_seen_v1` (`Home.tsx`) marks whether today's daily card was already seen in this tab, so reopened-card analytics can distinguish reloads from new sessions.
 
 ### Daily Anchor
 
@@ -129,6 +132,8 @@ A separate daily micro-practice, distinct from the ritual creation wizard. Lives
 
 - `src/app/lib/daily-anchor.ts` — pure client logic for a 3-step daily journey (`inicio` → `momento` → `cierre`). Steps must complete in order; state persisted under `rituales_daily_anchor_v1`. Resets automatically per day via `dateKey`.
 - `src/app/lib/anchor-service.ts` — Supabase sync layer (`daily_anchor_entries` table). `saveDailyAnchorEntry` silently ignores errors — localStorage is the source of truth. `syncDailyAnchorContentFromRemote` merges remote state into localStorage on load.
+- `src/app/lib/daily-card-service.ts` — backend-first persistence for the `Inicio` card (`GET/POST/PATCH /me/daily-card`). Anonymous users write `rituales_daily_card_draft_v1`; `UserContext` syncs today's draft on `SIGNED_IN`.
+- `Inicio` is no longer just local-first: choosing a card creates the immutable daily card server-side when authenticated, while `Momento` and `Cierre` continue to use `daily_anchor_entries` plus localStorage.
 
 ### Practice Journal
 

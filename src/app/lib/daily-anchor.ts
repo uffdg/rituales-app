@@ -176,6 +176,15 @@ export function getDailyAnchorContent(
   return readStorage()[dateKey]?.content ?? {};
 }
 
+export function hasCompletedInicioBefore(date = new Date()) {
+  const currentDateKey = getDateKey(date);
+  const all = readStorage();
+
+  return Object.entries(all).some(([dateKey, state]) => (
+    dateKey !== currentDateKey && getOrderedCompletedSteps(state.steps ?? []).includes("inicio")
+  ));
+}
+
 export function getDailyAnchorJourney(date = new Date()): DailyAnchorJourney {
   const dateKey = getDateKey(date);
   const storedSteps = getOrderedCompletedSteps(readStorage()[dateKey]?.steps ?? []);

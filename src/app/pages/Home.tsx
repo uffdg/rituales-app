@@ -21,12 +21,20 @@ import {
   completeDailyAnchorStep,
   getDailyAnchorContent,
   getDailyAnchorJourney,
+  hasCompletedInicioBefore,
   resetDailyAnchorJourney,
   syncDailyAnchorContentFromRemote,
   type DailyAnchorStepContent,
   type DailyAnchorType,
 } from "../lib/daily-anchor";
 import { getDailyAnchorEntries, saveDailyAnchorEntry } from "../lib/anchor-service";
+import {
+  createDailyCard,
+  getDailyCard,
+  getLocalDailyCardDraft,
+  saveLocalDailyCardDraft,
+  updateDailyCardFeeling,
+} from "../lib/daily-card-service";
 import { getJournalByDate, getJournalEntries, getJournalEntriesFromOwnRituals } from "../lib/practice-journal";
 import { MoonPhaseIcon } from "../components/MoonPhaseIcon";
 import { TodayContextCard } from "../components/TodayContextCard";
@@ -60,6 +68,7 @@ function createSpeechRecognition(): SpeechRecognitionInstance | null {
 }
 
 type WeatherCondition = "clear" | "cloudy" | "rain" | "storm" | "fog" | "unknown";
+type DailyCardStatus = "empty" | "deck" | "revealing" | "revealed" | "error";
 
 const STEP_ORDER: DailyAnchorType[] = ["inicio", "momento", "cierre"];
 const HERO_TEXT_THEMES: Record<number, "light" | "dark"> = {
@@ -101,7 +110,7 @@ const STEP_COPY: Record<
   inicio: {
     intro: "Nombrá lo esencial de hoy.",
     title: "Contame sobre tu día",
-    body: "Decilo en voz alta y armamos tu intención.",
+    body: "Con lo que digas armamos la carta de tu intención. Volvés a ella a la tarde en Momento y a la noche en Cierre.",
     action: "Guardar inicio",
   },
   momento: {
@@ -157,6 +166,18 @@ function setHourForDate(date: Date, hour: number) {
   const next = new Date(date);
   next.setHours(hour, 0, 0, 0);
   return next;
+}
+
+function countWords(text: string) {
+  return text.trim().split(/\s+/).filter(Boolean).length;
+}
+
+function getShortErrorMessage(error: unknown) {
+  return error instanceof Error ? error.message.slice(0, 120) : "Error desconocido";
+}
+
+function prefersReducedMotion() {
+  return window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
 }
 
 function MoodPicker({
@@ -219,6 +240,9 @@ export function Home() {
   const [isListening, setIsListening] = useState(false);
   const [isReframing, setIsReframing] = useState(false);
   const [generatedIntention, setGeneratedIntention] = useState<string | null>(null);
+  const [dailyCardStatus, setDailyCardStatus] = useState<DailyCardStatus>("empty");
+  const [dailyCardError, setDailyCardError] = useState("");
+  const [failedTranscript, setFailedTranscript] = useState("");
   const [inicioFeeling, setInicioFeeling] = useState<string | null>(null);
   const [momentoAlignment, setMomentoAlignment] = useState<string | null>(null);
   const [momentoFeeling, setMomentoFeeling] = useState<string | null>(null);
@@ -227,6 +251,10 @@ export function Home() {
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
   const transcriptRef = useRef<string>("");
   const hasUnsavedDictationRef = useRef(false);
+  const reframeAttemptRef = useRef(0);
+  const hadReframeRetryRef = useRef(false);
+  const deckShownAtRef = useRef<number | null>(null);
+  const revealCompletedAtRef = useRef<number | null>(null);
 
   const hasSpeechRecognition =
     typeof window !== "undefined" &&
@@ -260,6 +288,10 @@ export function Home() {
   );
   const dailyAnchorContent = useMemo(
     () => getDailyAnchorContent(selectedDate),
+    [dailyAnchorVersion, selectedDateKey],
+  );
+  const hasPreviousInicio = useMemo(
+    () => hasCompletedInicioBefore(selectedDate),
     [dailyAnchorVersion, selectedDateKey],
   );
 
@@ -316,7 +348,7 @@ const isSelectedStepBlocked = !isJourneyComplete && selectedStepIndex > complete
     : null;
   const canCompleteSelectedStep =
     selectedStep === "inicio"
-      ? Boolean(generatedIntention && inicioFeeling)
+      ? Boolean(generatedIntention && inicioFeeling && dailyCardStatus === "revealed")
       : selectedStep === "momento"
       ? Boolean(momentoAlignment && momentoFeeling)
       : Boolean(closingReflection.trim() && cierreFeeling);
@@ -326,6 +358,14 @@ const isSelectedStepBlocked = !isJourneyComplete && selectedStepIndex > complete
     setViewMode(false);
     track("home_create_ritual_tapped", { source: "quick_path" });
     navigate("/onboarding");
+  };
+
+  const handlePrimaryCreateRitual = () => {
+    resetRitual();
+    setViewMode(false);
+    setSelectedPublicRitual(null);
+    track("home_create_ritual_tapped", { source: "primary_home" });
+    navigate("/crear/1");
   };
 
   const handleExplore = () => {
@@ -430,14 +470,78 @@ const isSelectedStepBlocked = !isJourneyComplete && selectedStepIndex > complete
 
   useEffect(() => {
     if (!hasUnsavedDictationRef.current) {
-      setGeneratedIntention(dailyAnchorContent.inicio?.text ?? null);
+      const storedInicioText = dailyAnchorContent.inicio?.text ?? null;
+      if (storedInicioText) {
+        setGeneratedIntention(storedInicioText);
+        setDailyCardStatus("revealed");
+        revealCompletedAtRef.current = Date.now();
+      } else if (dailyCardStatus === "empty" || dailyCardStatus === "error") {
+        setGeneratedIntention(null);
+      }
     }
-    setInicioFeeling(dailyAnchorContent.inicio?.feeling ?? null);
+    if (dailyAnchorContent.inicio || dailyCardStatus === "empty" || dailyCardStatus === "error") {
+      setInicioFeeling(dailyAnchorContent.inicio?.feeling ?? null);
+    }
     setMomentoAlignment(dailyAnchorContent.momento?.alignment ?? null);
     setMomentoFeeling(dailyAnchorContent.momento?.feeling ?? null);
     setClosingReflection(dailyAnchorContent.cierre?.text ?? "");
     setCierreFeeling(dailyAnchorContent.cierre?.feeling ?? null);
-  }, [dailyAnchorContent]);
+  }, [dailyAnchorContent, dailyCardStatus]);
+
+  useEffect(() => {
+    if (isPast || isFuture) return;
+
+    let cancelled = false;
+
+    const hydrateCard = async () => {
+      hasUnsavedDictationRef.current = false;
+      setDailyCardError("");
+
+      if (session?.user?.id) {
+        try {
+          const card = await getDailyCard(selectedDateKey);
+          if (cancelled) return;
+
+          if (card) {
+            setGeneratedIntention(card.intentionText);
+            setInicioFeeling(card.feeling ?? null);
+            setDailyCardStatus("revealed");
+            revealCompletedAtRef.current = Date.now();
+
+            const sessionKey = "rituales_daily_card_session_seen_v1";
+            const seenDateKey = sessionStorage.getItem(sessionKey);
+            track("home_daily_card_reopened_revealed", {
+              sessionType: seenDateKey === selectedDateKey ? "reload" : "new_session",
+            });
+            sessionStorage.setItem(sessionKey, selectedDateKey);
+            return;
+          }
+        } catch {
+          if (cancelled) return;
+        }
+      }
+
+      const draft = getLocalDailyCardDraft(selectedDateKey);
+      if (draft?.intentionText) {
+        setGeneratedIntention(draft.intentionText);
+        setInicioFeeling(draft.feeling ?? null);
+        setDailyCardStatus("revealed");
+        revealCompletedAtRef.current = Date.now();
+        return;
+      }
+
+      setGeneratedIntention(null);
+      setInicioFeeling(null);
+      setDailyCardStatus("empty");
+      revealCompletedAtRef.current = null;
+    };
+
+    void hydrateCard();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [session?.user?.id, selectedDateKey, isPast, isFuture]);
 
   useEffect(() => {
     if (!session?.user?.id) return;
@@ -464,6 +568,13 @@ const isSelectedStepBlocked = !isJourneyComplete && selectedStepIndex > complete
   useEffect(() => {
     setSelectedAnchorStep(null);
     hasUnsavedDictationRef.current = false;
+    setDailyCardStatus("empty");
+    setDailyCardError("");
+    setFailedTranscript("");
+    reframeAttemptRef.current = 0;
+    hadReframeRetryRef.current = false;
+    deckShownAtRef.current = null;
+    revealCompletedAtRef.current = null;
   }, [selectedDateOffset]);
 
   useEffect(() => {
@@ -524,6 +635,12 @@ const isSelectedStepBlocked = !isJourneyComplete && selectedStepIndex > complete
     };
 
     await persistAnchorStep(selectedStep, content[selectedStep]);
+    if (selectedStep === "inicio") {
+      track("home_daily_card_inicio_saved", {
+        dateKey: dailyJourney.dateKey,
+        hadReframeRetry: hadReframeRetryRef.current,
+      });
+    }
     const nextStep = STEP_ORDER[STEP_ORDER.indexOf(selectedStep) + 1] ?? selectedStep;
     setSelectedAnchorStep(nextStep);
 
@@ -539,6 +656,9 @@ const isSelectedStepBlocked = !isJourneyComplete && selectedStepIndex > complete
     resetDailyAnchorJourney();
     setGeneratedIntention(null);
     setInicioFeeling(null);
+    setDailyCardStatus("empty");
+    setDailyCardError("");
+    setFailedTranscript("");
     setMomentoAlignment(null);
     setMomentoFeeling(null);
     setClosingReflection("");
@@ -552,6 +672,121 @@ const isSelectedStepBlocked = !isJourneyComplete && selectedStepIndex > complete
 
   const handleSetDevTestHour = (hour: number | null) => {
     setDevTestHour(hour);
+  };
+
+  const showDeckForIntention = (intentionText: string) => {
+    setGeneratedIntention(intentionText);
+    setDailyCardStatus("deck");
+    setDailyCardError("");
+    deckShownAtRef.current = Date.now();
+    track("home_daily_card_deck_shown", {
+      dateKey: selectedDateKey,
+      isFirstEver: !hasPreviousInicio,
+    });
+  };
+
+  const runReframe = async (transcript: string, attempt: number) => {
+    const startedAt = Date.now();
+    setIsReframing(true);
+    setDailyCardStatus("empty");
+    setDailyCardError("");
+
+    try {
+      const reframed = await reframeIntention(transcript);
+      const intentionText = reframed || transcript;
+      track("home_daily_card_reframe_resolved", {
+        outcome: "success",
+        durationMs: Date.now() - startedAt,
+        attempt,
+        usedFallbackText: !reframed,
+        wordCount: countWords(intentionText),
+      });
+      showDeckForIntention(intentionText);
+    } catch (error) {
+      setFailedTranscript(transcript);
+      setDailyCardStatus("error");
+      setDailyCardError("No pudimos armar tu carta. Tu texto quedó guardado — probá de nuevo.");
+      track("home_daily_card_reframe_resolved", {
+        outcome: "error",
+        durationMs: Date.now() - startedAt,
+        attempt,
+        errorMessage: getShortErrorMessage(error),
+      });
+    } finally {
+      setIsReframing(false);
+    }
+  };
+
+  const handleReframeRetry = () => {
+    if (!failedTranscript.trim()) return;
+    reframeAttemptRef.current += 1;
+    hadReframeRetryRef.current = true;
+    void runReframe(failedTranscript, reframeAttemptRef.current);
+  };
+
+  const revealChosenCard = () => {
+    const reducedMotion = prefersReducedMotion();
+    const delay = reducedMotion ? 80 : 950;
+
+    window.setTimeout(() => {
+      setDailyCardStatus("revealed");
+      revealCompletedAtRef.current = Date.now();
+      track("home_daily_card_reveal_completed", { reducedMotion });
+    }, delay);
+  };
+
+  const handleDailyCardChoose = async (position: number) => {
+    if (!generatedIntention || dailyCardStatus !== "deck") return;
+
+    track("home_daily_card_card_chosen", {
+      position,
+      msSinceDeckShown: deckShownAtRef.current ? Date.now() - deckShownAtRef.current : null,
+    });
+
+    setDailyCardStatus("revealing");
+
+    if (session?.user?.id) {
+      try {
+        const result = await createDailyCard({
+          dateKey: selectedDateKey,
+          intentionText: generatedIntention,
+        });
+        setGeneratedIntention(result.card.intentionText);
+        setInicioFeeling(result.card.feeling ?? null);
+      } catch (error) {
+        setDailyCardStatus("deck");
+        setDailyCardError(getUserFacingErrorMessage(error, "No se pudo guardar tu carta. Probá de nuevo."));
+        return;
+      }
+    } else {
+      saveLocalDailyCardDraft(selectedDateKey, {
+        intentionText: generatedIntention,
+        feeling: inicioFeeling,
+        synced: false,
+      });
+    }
+
+    revealChosenCard();
+  };
+
+  const handleInicioFeelingSelect = (feeling: string) => {
+    setInicioFeeling(feeling);
+    track("home_daily_card_feeling_selected", {
+      feeling,
+      msSinceRevealCompleted: revealCompletedAtRef.current ? Date.now() - revealCompletedAtRef.current : null,
+    });
+
+    if (!generatedIntention || dailyCardStatus !== "revealed") return;
+
+    if (session?.user?.id) {
+      void updateDailyCardFeeling({ dateKey: selectedDateKey, feeling }).catch(() => {});
+    } else {
+      saveLocalDailyCardDraft(selectedDateKey, {
+        intentionText: generatedIntention,
+        feeling,
+        synced: false,
+      });
+    }
   };
 
   const handleMic = async () => {
@@ -594,15 +829,14 @@ const isSelectedStepBlocked = !isJourneyComplete && selectedStepIndex > complete
       if (!transcript) return;
 
       hasUnsavedDictationRef.current = true;
-      track("home_voice_anchor_used");
+      reframeAttemptRef.current = 1;
+      hadReframeRetryRef.current = false;
+      track("home_voice_anchor_used", {
+        wordCount: countWords(transcript),
+        isFirstEver: !hasPreviousInicio,
+      });
 
-      setIsReframing(true);
-      try {
-        const reframed = await reframeIntention(transcript);
-        setGeneratedIntention(reframed || transcript);
-      } finally {
-        setIsReframing(false);
-      }
+      void runReframe(transcript, reframeAttemptRef.current);
     };
 
     recognitionRef.current = recognition;
@@ -621,7 +855,7 @@ const isSelectedStepBlocked = !isJourneyComplete && selectedStepIndex > complete
   return (
     <div className="min-h-screen flex flex-col overflow-y-auto overflow-x-hidden relative bg-[var(--ink-strong)]">
       {/* Dynamic Background Image */}
-      <div className="absolute top-0 left-0 w-full h-[85vh] z-0 pointer-events-none">
+      <div className="absolute top-0 left-0 w-full h-[100svh] z-0 pointer-events-none">
         <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/50 to-transparent z-10" />
         <img 
           src={`/home/bg-${heroImageIndex}.jpg`}
@@ -630,7 +864,7 @@ const isSelectedStepBlocked = !isJourneyComplete && selectedStepIndex > complete
         />
       </div>
 
-      <div className="w-full flex-none min-h-[85vh] flex flex-col pt-[50px] pb-14 px-6 relative z-10">
+      <div className="w-full flex-none h-[100svh] flex flex-col pt-[50px] pb-24 px-6 relative z-10">
         <TodayContextCard
           phase={cosmicContext.day.moonPhase}
           phrase={cosmicContext.lunarPhrase}
@@ -646,11 +880,11 @@ const isSelectedStepBlocked = !isJourneyComplete && selectedStepIndex > complete
           localTimeLabel={localNow.toLocaleTimeString("es-AR", { hour: "numeric", minute: "2-digit" })}
           textTheme={heroTextTheme}
           weatherCondition={weatherCondition}
+          onCreateRitual={handlePrimaryCreateRitual}
         />
       </div>
 
       <div className="editorial-page-sheet w-full flex-1 relative z-20 mt-[-32px] pt-10 pb-10">
-        
         {/* Diario de intenciones */}
         <div id="daily-anchor" className="px-5 mb-12">
 
@@ -1121,27 +1355,147 @@ const isSelectedStepBlocked = !isJourneyComplete && selectedStepIndex > complete
                           <span className="font-sans text-[13px] text-[var(--ink-muted)]">Construyendo tu intención...</span>
                         </motion.div>
                       )}
-                      {!isReframing && generatedIntention && (
+                      {!isReframing && dailyCardStatus === "error" && (
                         <motion.div
                           initial={{ opacity: 0, y: 8 }}
                           animate={{ opacity: 1, y: 0 }}
-                          className="rounded-2xl p-5"
-                          style={{ background: "var(--ink-strong)" }}
+                          exit={{ opacity: 0 }}
+                          className="rounded-2xl p-4"
+                          style={{ background: "var(--surface-muted)" }}
                         >
-                          <p className="editorial-eyebrow mb-2" style={{ color: "rgba(255,255,255,0.45)" }}>Tu intención</p>
-                          <p className="font-sans text-[14px] font-normal leading-[1.55]" style={{ color: "rgba(255,255,255,0.9)" }}>
-                            {generatedIntention}
+                          <p className="font-sans text-[13px] font-light leading-[1.55] text-[var(--ink-muted)] mb-3">
+                            {dailyCardError}
                           </p>
+                          <button
+                            onClick={handleReframeRetry}
+                            className="editorial-action-button editorial-action-button-secondary"
+                          >
+                            Reintentar
+                          </button>
+                        </motion.div>
+                      )}
+                      {!isReframing && generatedIntention && dailyCardStatus === "deck" && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0 }}
+                          className="space-y-3"
+                        >
+                          <p className="font-sans text-[12px] font-light text-[var(--ink-muted)]">
+                            Revela la intención que armamos con lo que contaste.
+                          </p>
+                          <div className="grid grid-cols-3 gap-2.5">
+                            {[1, 2, 3].map((position) => (
+                              <motion.button
+                                key={position}
+                                type="button"
+                                whileTap={{ scale: 0.97 }}
+                                onClick={() => void handleDailyCardChoose(position)}
+                                className="relative aspect-[0.72] overflow-hidden rounded-[18px] text-left"
+                                style={{
+                                  background: "linear-gradient(145deg, #f8f9fa 0%, #eceeef 100%)",
+                                  border: "1px solid var(--border-soft)",
+                                }}
+                              >
+                                <motion.div
+                                  className="absolute inset-3 rounded-[14px]"
+                                  style={{ border: "1px solid rgba(15,23,42,0.08)" }}
+                                  animate={{ scale: [1, 0.985, 1] }}
+                                  transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut", delay: position * 0.12 }}
+                                />
+                                <div className="absolute inset-0 flex flex-col justify-between p-3">
+                                  <span className="font-sans text-[10px] font-medium text-[var(--ink-soft)]">
+                                    Carta de hoy
+                                  </span>
+                                  <span className="font-serif text-[18px] leading-none text-[var(--ink-strong)]">
+                                    {position}
+                                  </span>
+                                </div>
+                              </motion.button>
+                            ))}
+                          </div>
+                        </motion.div>
+                      )}
+                      {!isReframing && generatedIntention && dailyCardStatus === "revealing" && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 8, rotateY: -10 }}
+                          animate={{ opacity: 1, y: 0, rotateY: 0 }}
+                          exit={{ opacity: 0 }}
+                          className="relative w-full overflow-hidden rounded-[24px] p-5"
+                          style={{
+                            minHeight: 188,
+                            background: "var(--ink-strong)",
+                            border: "1px solid var(--ink-strong)",
+                            transformStyle: "preserve-3d",
+                          }}
+                        >
+                          <div className="relative z-10 flex min-h-[148px] flex-col justify-between">
+                            <p className="editorial-eyebrow mb-3" style={{ color: "rgba(255,255,255,0.45)" }}>
+                              Carta de hoy
+                            </p>
+                            <div className="flex gap-1">
+                              {[0, 1, 2].map((i) => (
+                                <motion.div
+                                  key={i}
+                                  className="h-1.5 w-1.5 rounded-full bg-white"
+                                  animate={{ opacity: [0.2, 1, 0.2] }}
+                                  transition={{ duration: 0.9, repeat: Infinity, delay: i * 0.18 }}
+                                />
+                              ))}
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                      {!isReframing && generatedIntention && dailyCardStatus === "revealed" && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0 }}
+                          className="relative w-full overflow-hidden rounded-[24px] p-5 text-left"
+                          style={{
+                            minHeight: 188,
+                            background: "var(--ink-strong)",
+                            border: "1px solid var(--ink-strong)",
+                          }}
+                        >
+                          <div className="relative z-10 flex min-h-[148px] flex-col justify-between">
+                            <div>
+                              <p className="editorial-eyebrow mb-3" style={{ color: "rgba(255,255,255,0.45)" }}>
+                                Carta de hoy
+                              </p>
+                              <p className="font-serif text-[22px] font-normal leading-[1.28] text-white">
+                                "{generatedIntention}"
+                              </p>
+                            </div>
+                            <span className="font-sans text-[11px] font-light text-white/45">
+                              Guardala cuando te haga sentido.
+                            </span>
+                          </div>
                         </motion.div>
                       )}
                     </AnimatePresence>
 
-                    <MoodPicker
-                      label="¿Cómo te sentís?"
-                      options={MOOD_OPTIONS}
-                      selected={inicioFeeling}
-                      onSelect={setInicioFeeling}
-                    />
+                    {dailyCardError && dailyCardStatus === "deck" ? (
+                      <p className="font-sans text-[12px] font-light text-[var(--ink-muted)]">
+                        {dailyCardError}
+                      </p>
+                    ) : null}
+
+                    {dailyCardStatus === "revealed" ? (
+                      <>
+                        {!hasPreviousInicio ? (
+                          <p className="font-sans text-[12px] font-light leading-[1.5] text-[var(--ink-muted)]">
+                            Esta es tu primera carta diaria. Volvés a ella más tarde para ver cómo se movió en tu día.
+                          </p>
+                        ) : null}
+                        <MoodPicker
+                          label="¿Cómo te sentís?"
+                          options={MOOD_OPTIONS}
+                          selected={inicioFeeling}
+                          onSelect={handleInicioFeelingSelect}
+                        />
+                      </>
+                    ) : null}
                   </div>
                 ) : null}
 
@@ -1200,30 +1554,21 @@ const isSelectedStepBlocked = !isJourneyComplete && selectedStepIndex > complete
                 ) : null}
 
                 {/* CTA */}
-                {!session && selectedStep === currentStep && !isJourneyComplete ? (
-                  <button
-                    onClick={() => navigate("/login")}
-                    className="editorial-action-button editorial-action-button-primary"
-                  >
-                    Iniciá sesión para guardar
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => void handlePrimaryAction()}
-                    disabled={!isJourneyComplete && selectedStep === currentStep && !canCompleteSelectedStep}
-                    className={`editorial-action-button ${
-                      isJourneyComplete || (selectedStep === currentStep && canCompleteSelectedStep)
-                        ? "editorial-action-button-primary"
-                        : "editorial-action-button-secondary"
-                    }`}
-                  >
-                    {isJourneyComplete
-                      ? "Ver mi recorrido"
-                      : selectedStep !== currentStep
-                      ? `Ir a ${dailyJourney.steps.find((step) => step.id === currentStep)?.shortLabel ?? "paso actual"}`
-                      : STEP_COPY[selectedStep].action}
-                  </button>
-                )}
+                <button
+                  onClick={() => void handlePrimaryAction()}
+                  disabled={!isJourneyComplete && selectedStep === currentStep && !canCompleteSelectedStep}
+                  className={`editorial-action-button ${
+                    isJourneyComplete || (selectedStep === currentStep && canCompleteSelectedStep)
+                      ? "editorial-action-button-primary"
+                      : "editorial-action-button-secondary"
+                  }`}
+                >
+                  {isJourneyComplete
+                    ? "Ver mi recorrido"
+                    : selectedStep !== currentStep
+                    ? `Ir a ${dailyJourney.steps.find((step) => step.id === currentStep)?.shortLabel ?? "paso actual"}`
+                    : STEP_COPY[selectedStep].action}
+                </button>
               </motion.div>
             )}
           </div>

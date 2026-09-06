@@ -161,6 +161,109 @@ Response body:
 }
 ```
 
+## GET `/me/daily-card`
+
+Returns the current user's daily intention card for a client-provided date.
+Requires `Authorization: Bearer <supabase_jwt>`.
+
+Query:
+
+```text
+date=2026-09-05
+```
+
+Response body when a card exists:
+
+```json
+{
+  "card": {
+    "dateKey": "2026-09-05",
+    "intentionText": "Hoy puedo ordenar una cosa a la vez.",
+    "feeling": "tranquilo",
+    "createdAt": "2026-09-05T12:10:00.000Z"
+  }
+}
+```
+
+Response body when no card exists:
+
+```json
+{
+  "card": null
+}
+```
+
+## POST `/me/daily-card`
+
+Creates the current user's daily intention card. This endpoint is get-or-create:
+if a card already exists for `(user, dateKey)`, it returns the existing card and
+does not overwrite `intentionText` or `feeling`.
+
+Request body:
+
+```json
+{
+  "dateKey": "2026-09-05",
+  "intentionText": "Hoy puedo ordenar una cosa a la vez.",
+  "feeling": null
+}
+```
+
+Created response:
+
+```json
+{
+  "card": {
+    "dateKey": "2026-09-05",
+    "intentionText": "Hoy puedo ordenar una cosa a la vez.",
+    "feeling": null,
+    "createdAt": "2026-09-05T12:10:00.000Z"
+  },
+  "created": true
+}
+```
+
+Existing-card response:
+
+```json
+{
+  "card": {
+    "dateKey": "2026-09-05",
+    "intentionText": "La intención original se mantiene.",
+    "feeling": "tranquilo",
+    "createdAt": "2026-09-05T12:10:00.000Z"
+  },
+  "created": false
+}
+```
+
+## PATCH `/me/daily-card`
+
+Updates only the `feeling` for an existing daily intention card. `intentionText`
+is immutable after creation.
+
+Request body:
+
+```json
+{
+  "dateKey": "2026-09-05",
+  "feeling": "tranquilo"
+}
+```
+
+Response body:
+
+```json
+{
+  "card": {
+    "dateKey": "2026-09-05",
+    "intentionText": "Hoy puedo ordenar una cosa a la vez.",
+    "feeling": "tranquilo",
+    "createdAt": "2026-09-05T12:10:00.000Z"
+  }
+}
+```
+
 ## Notes
 
 - The frontend is already prepared to fall back to local mocks when `VITE_RITUALES_API_BASE_URL` is missing.

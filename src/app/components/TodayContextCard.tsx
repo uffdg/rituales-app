@@ -1,4 +1,5 @@
 import {
+  ArrowUpRight,
   CloudRain,
   CloudSun,
   MoonStar,
@@ -21,6 +22,7 @@ interface TodayContextCardProps {
   nextEventLabel?: string;
   nextEventMeta?: string;
   nextEventPhase?: string;
+  onCreateRitual?: () => void;
 }
 
 function getSkyMood(momentOfDay: MomentOfDay, weatherCondition: WeatherCondition = "unknown") {
@@ -94,34 +96,147 @@ export function TodayContextCard({
   nextEventLabel,
   nextEventMeta,
   nextEventPhase,
+  onCreateRitual,
 }: TodayContextCardProps) {
   const mood = getSkyMood(momentOfDay, weatherCondition);
   const MoodIcon = mood.icon;
   const isLight = textTheme === "light";
-  const labelColor = isLight ? "rgba(255,255,255,0.72)" : "rgba(10,10,10,0.46)";
+  const labelColor = isLight ? "rgba(255,255,255,0.68)" : "rgba(10,10,10,0.48)";
   const titleColor = isLight ? "#FFFFFF" : "var(--ink-strong)";
-  const bodyColor = isLight ? "rgba(255,255,255,0.9)" : "rgba(23,25,28,0.82)";
-  const chipBackground = isLight ? "rgba(17,17,17,0.24)" : "rgba(255,255,255,0.86)";
-  const chipText = isLight ? "#FFFFFF" : "rgba(10,10,10,0.72)";
-  const portalIconColor = isLight ? "#FFFFFF" : "rgba(10,10,10,0.62)";
+  const bodyColor = isLight ? "rgba(255,255,255,0.86)" : "rgba(23,25,28,0.78)";
+  const chipBackground = isLight ? "rgba(17,17,17,0.25)" : "rgba(255,255,255,0.68)";
+  const chipText = isLight ? "#FFFFFF" : "rgba(10,10,10,0.74)";
+  const wheelBorder = isLight ? "rgba(255,255,255,0.28)" : "rgba(10,10,10,0.16)";
+  const wheelSoftBorder = isLight ? "rgba(255,255,255,0.16)" : "rgba(10,10,10,0.09)";
+  const wheelLine = isLight ? "rgba(255,255,255,0.78)" : "rgba(10,10,10,0.46)";
+  const phaseBg = isLight ? "rgba(255,255,255,0.18)" : "rgba(255,255,255,0.72)";
+  const phaseCurrentBg = isLight ? "rgba(255,255,255,0.92)" : "rgba(10,10,10,0.88)";
+  const wheelSize = 327;
+  const wheelOffsetRight = 196;
+  const moonPhaseRadius = 147;
+  const wheelTop = "17%";
+  const moonPhases = [
+    "Luna nueva",
+    "Creciente",
+    "Cuarto creciente",
+    "Gibosa creciente",
+    "Luna llena",
+    "Gibosa menguante",
+    "Cuarto menguante",
+    "Menguante",
+  ];
 
   return (
-    <div
-      className="flex flex-col h-full w-full"
-    >
-      <div className="mb-auto flex items-center justify-between gap-3">
+    <div className="relative -mx-6 flex h-full w-[calc(100%+48px)] flex-col overflow-hidden px-6">
+      <div
+        className="pointer-events-none absolute rounded-full border"
+        style={{
+          top: wheelTop,
+          right: `-${wheelOffsetRight}px`,
+          width: `${wheelSize}px`,
+          height: `${wheelSize}px`,
+          borderColor: wheelBorder,
+        }}
+      >
+        <div className="absolute inset-[18px] rounded-full border" style={{ borderColor: wheelSoftBorder }} />
+        <div className="absolute inset-[48px] rounded-full border border-dashed" style={{ borderColor: wheelSoftBorder }} />
+        <div
+          className="absolute h-px -translate-y-1/2"
+          style={{
+            left: "28px",
+            top: "50%",
+            width: `${wheelSize / 2 - 28}px`,
+            background: wheelLine,
+          }}
+        />
+        <div
+          className="absolute h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full"
+          style={{ left: "28px", top: "50%", background: isLight ? "#fff" : "#111" }}
+        />
+        {moonPhases.map((moonPhase, index) => {
+          const angle = -118 + index * 34;
+          const radius = moonPhaseRadius;
+          const x = Math.cos((angle * Math.PI) / 180) * radius;
+          const y = Math.sin((angle * Math.PI) / 180) * radius;
+          const normalizedPhase = phase.toLowerCase();
+          const normalizedMoonPhase = moonPhase.toLowerCase();
+          const isCurrent =
+            normalizedPhase === normalizedMoonPhase ||
+            (normalizedMoonPhase !== "creciente" &&
+              normalizedMoonPhase !== "menguante" &&
+              normalizedPhase.includes(normalizedMoonPhase));
+
+          return (
+            <div
+              key={moonPhase}
+              className="absolute flex h-7 w-7 items-center justify-center rounded-full"
+              style={{
+                left: `calc(50% + ${x}px - 14px)`,
+                top: `calc(50% + ${y}px - 14px)`,
+                background: isCurrent ? phaseCurrentBg : phaseBg,
+                backdropFilter: "blur(8px)",
+              }}
+            >
+              <MoonPhaseIcon phase={moonPhase} size={18} darkTheme={isLight ? !isCurrent : isCurrent} />
+            </div>
+          );
+        })}
+      </div>
+
+      <div
+        className="pointer-events-none absolute z-10 flex -translate-y-1/2 items-center gap-2"
+        style={{
+          left: "66px",
+          top: `calc(${wheelTop} + ${wheelSize / 2}px)`,
+        }}
+      >
+        <MoonPhaseIcon phase={phase} size={18} darkTheme={isLight} />
+        <div className="flex min-w-0 flex-col items-start gap-1">
+          <span
+            className="rounded-full px-4 py-2"
+            style={{
+              background: chipBackground,
+              backdropFilter: "blur(12px)",
+              fontFamily: "var(--font-sans-ui)",
+              fontSize: "13px",
+              fontWeight: 600,
+              color: chipText,
+            }}
+          >
+            {phase}
+          </span>
+          {nextEventLabel ? (
+            <span
+              style={{
+                fontFamily: "var(--font-sans-ui)",
+                fontSize: "12px",
+                fontWeight: 300,
+                color: chipText,
+                opacity: 0.82,
+                paddingLeft: "16px",
+                lineHeight: 1.2,
+                textAlign: "left",
+                textShadow: isLight ? "0 1px 8px rgba(0,0,0,0.18)" : "0 1px 8px rgba(255,255,255,0.18)",
+              }}
+            >
+              {nextEventMeta || nextEventLabel}
+            </span>
+          ) : null}
+        </div>
+      </div>
+
+      <div className="relative z-10 flex items-start justify-between gap-3 pt-1">
         <div>
           <p
             style={{
-              fontFamily: "var(--font-sans-ui)",
-              fontSize: "10px",
-              fontWeight: 600,
-              letterSpacing: "0.16em",
-              textTransform: "uppercase",
+              fontFamily: "var(--font-serif-display)",
+              fontSize: "32px",
+              fontWeight: 400,
+              letterSpacing: "0",
               color: labelColor,
             }}
           >
-            Tu cielo hoy
+            Rituales
           </p>
         </div>
 
@@ -147,43 +262,29 @@ export function TodayContextCard({
         </div>
       </div>
 
-      <div className="flex-1 flex flex-col items-center justify-center text-center mt-12 mb-12">
-        <div className="mb-4">
-          <MoonPhaseIcon phase={phase} size={28} />
-        </div>
+      <div className="relative z-10 mt-auto pb-6">
         <p
           style={{
             fontFamily: "var(--font-sans-ui)",
             fontSize: "10px",
             fontWeight: 600,
             textTransform: "uppercase",
-            letterSpacing: "0.2em",
+            letterSpacing: "0.18em",
             color: labelColor,
-            marginBottom: "6px",
+            marginBottom: "10px",
           }}
         >
-          Fase
+          Tu cielo hoy
         </p>
-        <p
-          style={{
-            fontFamily: "var(--font-sans-ui)",
-            fontSize: "14px",
-            color: bodyColor,
-            marginBottom: "20px"
-          }}
-        >
-          {phase}
-        </p>
-
         <h3
           style={{
             fontFamily: "var(--font-serif-display)",
-            fontSize: "50px",
-            lineHeight: 0.98,
+            fontSize: "54px",
+            lineHeight: 0.94,
             color: titleColor,
-            marginBottom: "20px",
+            marginBottom: "14px",
             fontStyle: "italic",
-            maxWidth: "320px",
+            maxWidth: "330px",
           }}
         >
           {phrase}
@@ -194,78 +295,26 @@ export function TodayContextCard({
             fontSize: "13px",
             color: bodyColor,
             lineHeight: 1.6,
-            maxWidth: "300px",
+            maxWidth: "292px",
+            marginBottom: "22px",
           }}
         >
           {subphrase}
         </p>
-      </div>
 
-      <div className="mt-auto flex flex-col items-center text-center gap-6">
-        {nextEventLabel ? (
-          <div>
-            <p
-              style={{
-                fontFamily: "var(--font-sans-ui)",
-                fontSize: "10px",
-                fontWeight: 600,
-                letterSpacing: "0.14em",
-                textTransform: "uppercase",
-                color: labelColor,
-                marginBottom: "6px",
-              }}
-            >
-              Próximo portal
-            </p>
-            <div className="flex items-center justify-center gap-2 mb-1">
-              <MoonPhaseIcon
-                phase={nextEventPhase ?? nextEventLabel ?? phase}
-                size={16}
-                color={portalIconColor}
-                darkTheme={isLight}
-              />
-              <p
-                style={{
-                  fontFamily: "var(--font-sans-ui)",
-                  fontSize: "14px",
-                  color: titleColor,
-                  fontWeight: 500
-                }}
-              >
-                {nextEventLabel}
-              </p>
-            </div>
-            {nextEventMeta ? (
-              <p
-                style={{
-                  fontFamily: "var(--font-sans-ui)",
-                  fontSize: "11px",
-                  color: labelColor,
-                }}
-              >
-                {nextEventMeta}
-              </p>
-            ) : null}
-          </div>
-        ) : null}
-
-        <div className="flex flex-col items-center gap-2 mt-4 opacity-80">
-          <p
-            style={{
-              fontFamily: "var(--font-sans-ui)",
-              fontSize: "9px",
-              fontWeight: 600,
-              letterSpacing: "0.14em",
-              textTransform: "uppercase",
-              color: isLight ? "#FFFFFF" : "var(--ink-body)",
-            }}
-          >
-            Scroll
-          </p>
-          <svg width="12" height="7" viewBox="0 0 12 7" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M1 1L6 6L11 1" stroke={isLight ? "#FFFFFF" : "var(--ink-body)"} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </div>
+        <button
+          type="button"
+          onClick={onCreateRitual}
+          className="flex h-[58px] w-full items-center justify-center gap-2 rounded-none bg-black text-white transition-transform active:scale-[0.99]"
+          style={{
+            fontFamily: "var(--font-sans-ui)",
+            fontSize: "14px",
+            fontWeight: 600,
+          }}
+        >
+          Crear un ritual
+          <ArrowUpRight size={16} strokeWidth={1.8} />
+        </button>
       </div>
     </div>
   );
