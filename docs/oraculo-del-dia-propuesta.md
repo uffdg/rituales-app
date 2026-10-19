@@ -36,33 +36,33 @@ llevar durante el día.
 
 ## 2. Oráculo del día
 
-**Para qué:** la persona saca una carta y recibe un mensaje de oráculo, sin
-escribir nada.
+**Para qué:** la persona saca una carta y recibe un arcano con una mirada
+sobre el día y un consejo, sin escribir nada.
 
 - Mazo boca abajo → "Sacar una carta" → abanico de 3 → elige una → gira y se
   revela. Con `prefers-reduced-motion`, fundido simple.
-- La carta trae: nombre (p. ej. **La Pausa**), una ilustración lineal animada
-  de su símbolo, el mensaje, un "Gesto de hoy" concreto y la fase lunar.
-- Todo el texto es del **mazo curado** de 32 cartas
-  (`rituales-backend/src/lib/oracle-deck.js`), escrito por el equipo. No
-  usa IA. La fase lunar triplica el peso de las cartas afines y se evitan las
-  de los últimos 7 días.
+- El mazo son los **22 arcanos mayores del Rider-Waite**, al derecho
+  (`rituales-backend/src/lib/oracle-deck.js`). Cada carta muestra: número
+  romano, nombre, tres palabras clave, **La mirada** (lo que el arcano
+  produce, una forma de ver el día) y **El consejo**. Texto escrito por el
+  equipo, sin IA. Se evitan los arcanos de los últimos 7 días.
 - Una por día; al volver se ve la misma ya revelada.
 - Sin sesión: el mazo se ve y tocarlo lleva a `/login`.
 
 ## Ilustraciones
 
-Líneas finas animadas, en el mismo lenguaje que las elipses de
-"Día completado":
+Línea fina dorada (#c9a66b) sobre carbón (#141312), marco en arco y motivos
+celestes, siguiendo la referencia visual del equipo:
 
+- Cada arcano tiene su dibujo con el símbolo central de la carta original (la
+  balanza de La Justicia, el farol de El Ermitaño, la torre con el rayo…),
+  en `src/app/components/arcana/ArcanaArt.tsx`.
+- Al revelar, los trazos se dibujan solos y después las estrellas titilan.
+- Dorso: arco dorado con órbitas que giran.
 - Intención: un cuenco abierto con una estrella que flota; se acelera
   mientras se dicta o se escribe la intención.
-- Dorso de las cartas: órbitas que giran en sentidos opuestos y un punto que
-  respira.
-- Frente de la carta: el símbolo de la carta se dibuja en grande, con una
-  luna que flota y el horizonte. Usa el ícono lineal de cada símbolo; se
-  pueden reemplazar por ilustraciones a medida de a una.
 - Con `prefers-reduced-motion` todo queda quieto.
+- En desarrollo, `/dev/arcanos` muestra los 22 dibujos juntos.
 
 ## Qué se elimina
 
@@ -84,10 +84,12 @@ Líneas finas animadas, en el mismo lenguaje que las elipses de
   y saca una carta.
 - Los dos `POST` son idempotentes: si ya hay fila ese día, la devuelven con
   `created: false`.
+- Si la base falla al leer o guardar, la persona igual recibe su intención o
+  su arcano (`persisted: false`) y el error queda en el log.
 
 **Frontend (`rituales-app`)**
-- Componentes `DailyIntention` y `OracleCard`, servicio `daily-service.ts`,
-  estilos de animación en `src/styles/oracle.css`.
+- Componentes `DailyIntention`, `OracleCard` y `arcana/ArcanaArt`, servicio
+  `daily-service.ts`, estilos de animación en `src/styles/oracle.css`.
 - Analytics: `intention_voice_used`, `intention_written`, `intention_error`,
   `intention_reopened`, `intention_ritual_started`,
   `intention_login_prompted`; `oracle_deck_opened`, `oracle_card_revealed`,

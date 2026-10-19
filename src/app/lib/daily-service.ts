@@ -9,15 +9,17 @@ export interface DailyIntention {
   createdAt?: string;
 }
 
-// Carta del Oráculo del día. El contenido viene del mazo curado del backend.
+// Arcano del Oráculo del día (uno de los 22 mayores del Rider-Waite). El
+// contenido viene del mazo del backend; la ilustración, de ArcanaArt.
 export interface DailyOracleCard {
   dateKey: string;
   cardId: string;
+  number: string;
   name: string;
-  symbol: string;
-  message: string;
-  gesture: string;
-  createdAt?: string;
+  keywords: string[];
+  mirada: string;
+  consejo: string;
+  createdAt?: string | null;
 }
 
 const API_BASE = import.meta.env.VITE_RITUALES_API_BASE_URL?.replace(/\/$/, "") || "";
@@ -94,7 +96,7 @@ export function getDailyIntention(dateKey: string) {
 // Si ya había una intención para esa fecha, el backend la devuelve con
 // `created: false` en vez de escribir otra.
 export function createDailyIntention(params: { dateKey: string; inputText: string }) {
-  return postDaily<{ intention: DailyIntention; created: boolean }>(
+  return postDaily<{ intention: DailyIntention; created: boolean; persisted?: boolean }>(
     "daily-intention",
     params,
     "No pudimos escribir tu intención. Probá de nuevo.",
@@ -106,8 +108,9 @@ export function getDailyOracleCard(dateKey: string) {
 }
 
 // Si ya había sacado carta ese día, el backend devuelve la misma.
-export function drawDailyOracleCard(params: { dateKey: string; moonPhase: string }) {
-  return postDaily<{ card: DailyOracleCard; created: boolean }>(
+// `persisted: false` = se mostró pero no se pudo guardar.
+export function drawDailyOracleCard(params: { dateKey: string }) {
+  return postDaily<{ card: DailyOracleCard; created: boolean; persisted?: boolean }>(
     "daily-oracle",
     params,
     "No pudimos sacar tu carta. Probá de nuevo.",

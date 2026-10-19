@@ -17,6 +17,7 @@ import { Wiki } from "./pages/Wiki";
 import { WikiNote } from "./pages/WikiNote";
 import { Stories } from "./pages/Stories";
 import { AuthGuard } from "./components/AuthGuard";
+import { ArcanaGallery } from "./pages/dev/ArcanaGallery";
 
 const guard = (Component: React.ComponentType) => () => (
   <AuthGuard><Component /></AuthGuard>
@@ -24,6 +25,8 @@ const guard = (Component: React.ComponentType) => () => (
 
 export const router = createBrowserRouter([
   { path: "/login", Component: Login },
+  // Solo en desarrollo: galería para revisar las ilustraciones de los arcanos.
+  ...(import.meta.env.DEV ? [{ path: "/dev/arcanos", Component: ArcanaGallery }] : []),
   {
     path: "/",
     Component: Layout,
