@@ -46,6 +46,24 @@ async function getAuthHeaders() {
   };
 }
 
+// Supabase a veces tarda varios segundos en validar la sesión; pasado este
+// tiempo se corta el pedido para ofrecer reintentar en vez de esperar sin fin.
+const REQUEST_TIMEOUT_MS = 25000;
+const SLOW_CONNECTION_MESSAGE = "La conexión está tardando demasiado. Probá de nuevo.";
+
+async function fetchWithTimeout(url: string, init: RequestInit) {
+  const controller = new AbortController();
+  const timer = window.setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  try {
+    return await fetch(url, { ...init, signal: controller.signal });
+  } catch (error) {
+    if (controller.signal.aborted) throw new Error(SLOW_CONNECTION_MESSAGE);
+    throw error;
+  } finally {
+    window.clearTimeout(timer);
+  }
+}
+
 async function readError(response: Response, fallback: string) {
   try {
     const parsed = await response.json();
@@ -58,7 +76,7 @@ async function readError(response: Response, fallback: string) {
 async function getDaily<T>(path: string, key: string, dateKey: string, fallback: string): Promise<T | null> {
   if (!API_BASE) return null;
 
-  const response = await fetch(`${API_BASE}/me/${path}?date=${encodeURIComponent(dateKey)}`, {
+  const response = await fetchWithTimeout(`${API_BASE}/me/${path}?date=${encodeURIComponent(dateKey)}`, {
     headers: await getAuthHeaders(),
   });
 
@@ -76,7 +94,7 @@ async function postDaily<T>(path: string, body: Record<string, string>, fallback
     throw new Error("Falta configurar la API de Rituales.");
   }
 
-  const response = await fetch(`${API_BASE}/me/${path}`, {
+  const response = await fetchWithTimeout(`${API_BASE}/me/${path}`, {
     method: "POST",
     headers: await getAuthHeaders(),
     body: JSON.stringify(body),

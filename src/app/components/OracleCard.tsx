@@ -9,6 +9,9 @@ import { ArcanaArt, ArcanaBack, ARCANA_GOLD, ARCANA_INK } from "./arcana/ArcanaA
 // dependa de cuánto tarde la API.
 const MIN_DRAW_MS = 900;
 const POSITIONS = [0, 1, 2] as const;
+// Si el pedido tarda más que esto, se avisa que va lento en vez de parecer
+// colgado (Supabase a veces tarda varios segundos en validar la sesión).
+const SLOW_HINT_MS = 4000;
 const CARD_TEXT = "#f3ede2";
 
 type Phase = "loading" | "deck" | "spread" | "drawing" | "revealed";
@@ -102,6 +105,7 @@ export function OracleCard({
   const [chosenPosition, setChosenPosition] = useState<number | null>(null);
   const [justRevealed, setJustRevealed] = useState(false);
   const [error, setError] = useState("");
+  const [isSlow, setIsSlow] = useState(false);
   const spreadAtRef = useRef<number | null>(null);
   const reducedMotion = typeof window !== "undefined" && prefersReducedMotion();
 
@@ -154,6 +158,8 @@ export function OracleCard({
     if (phase !== "spread") return;
     setChosenPosition(position);
     setPhase("drawing");
+    setIsSlow(false);
+    const slowTimer = window.setTimeout(() => setIsSlow(true), SLOW_HINT_MS);
     const msToChoose = spreadAtRef.current ? Date.now() - spreadAtRef.current : null;
 
     try {
@@ -178,6 +184,9 @@ export function OracleCard({
       track("oracle_draw_error", {
         message: drawError instanceof Error ? drawError.message.slice(0, 120) : "unknown",
       });
+    } finally {
+      window.clearTimeout(slowTimer);
+      setIsSlow(false);
     }
   };
 
@@ -261,7 +270,11 @@ export function OracleCard({
             className="space-y-5"
           >
             <p className="text-center font-sans text-[13px] font-light text-[var(--ink-muted)]">
-              {phase === "drawing" ? "Dando vuelta tu carta…" : "Elegí la que te llame."}
+              {phase !== "drawing"
+                ? "Elegí la que te llame."
+                : isSlow
+                ? "Está tardando un poco más de lo normal…"
+                : "Dando vuelta tu carta…"}
             </p>
             <div className="flex h-[250px] items-center justify-center gap-3">
               {POSITIONS.map((i) => {

@@ -5,6 +5,10 @@ import { track } from "../lib/analytics";
 import { getUserFacingErrorMessage } from "../lib/errors";
 import { createDailyIntention, getDailyIntention, type DailyIntention as Intention } from "../lib/daily-service";
 
+// Si escribir la intención tarda más que esto, se avisa que va lento en vez de
+// parecer colgado (Supabase a veces tarda varios segundos en validar la sesión).
+const SLOW_HINT_MS = 6000;
+
 // "input" incluye la vista sin sesión; "writing" es mientras el backend escribe.
 type Phase = "loading" | "input" | "writing" | "done";
 
@@ -75,6 +79,7 @@ export function DailyIntention({
   const [inputText, setInputText] = useState("");
   const [isListening, setIsListening] = useState(false);
   const [error, setError] = useState("");
+  const [isSlow, setIsSlow] = useState(false);
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
   const hasSpeechRecognition =
     typeof window !== "undefined" &&
@@ -161,6 +166,8 @@ export function DailyIntention({
     recognitionRef.current?.stop();
     setError("");
     setPhase("writing");
+    setIsSlow(false);
+    const slowTimer = window.setTimeout(() => setIsSlow(true), SLOW_HINT_MS);
     const startedAt = Date.now();
 
     try {
@@ -179,6 +186,9 @@ export function DailyIntention({
       track("intention_error", {
         message: writeError instanceof Error ? writeError.message.slice(0, 120) : "unknown",
       });
+    } finally {
+      window.clearTimeout(slowTimer);
+      setIsSlow(false);
     }
   };
 
@@ -289,6 +299,8 @@ export function DailyIntention({
             >
               {!isLoggedIn
                 ? "Ingresá para escribir tu intención"
+                : isWriting && isSlow
+                ? "Está tardando un poco más de lo normal…"
                 : isWriting
                 ? "Escribiendo tu intención…"
                 : error
