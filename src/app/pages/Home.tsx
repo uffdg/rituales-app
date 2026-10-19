@@ -16,9 +16,10 @@ import {
   ritualCardToRitualData,
 } from "../lib/ritual-service";
 import { getUserFacingErrorMessage } from "../lib/errors";
-import { getTodayDateKey, type DailyCard } from "../lib/daily-card-service";
+import { getTodayDateKey } from "../lib/daily-service";
 import { getJournalByDate, getJournalEntries, getJournalEntriesFromOwnRituals } from "../lib/practice-journal";
 import { MoonPhaseIcon } from "../components/MoonPhaseIcon";
+import { DailyIntention } from "../components/DailyIntention";
 import { OracleCard } from "../components/OracleCard";
 import { TodayContextCard } from "../components/TodayContextCard";
 import { RitualRecommendationCard } from "../components/RitualRecommendationCard";
@@ -121,12 +122,12 @@ export function Home() {
     navigate("/crear/1");
   };
 
-  const handleCreateRitualFromCard = (card: DailyCard) => {
+  const handleCreateRitualFromIntention = (intentionText: string) => {
     resetRitual();
-    updateRitual({ intention: card.intentionText });
+    updateRitual({ intention: intentionText });
     setViewMode(false);
     setSelectedPublicRitual(null);
-    track("home_create_ritual_tapped", { source: "daily_oracle" });
+    track("home_create_ritual_tapped", { source: "daily_intention" });
     navigate("/crear/1");
   };
 
@@ -271,6 +272,16 @@ export function Home() {
       </div>
 
       <div className="editorial-page-sheet w-full flex-1 relative z-20 mt-[-32px] pt-10 pb-10">
+        {/* Intención del día */}
+        <div id="daily-intention" className="px-5 mb-12">
+          <DailyIntention
+            dateKey={todayDateKey}
+            isLoggedIn={Boolean(session)}
+            onLogin={() => navigate("/login")}
+            onCreateRitual={handleCreateRitualFromIntention}
+          />
+        </div>
+
         {/* Oráculo del día */}
         <div id="daily-oracle" className="px-5 mb-12">
           <OracleCard
@@ -278,7 +289,6 @@ export function Home() {
             moonPhase={cosmicContext.day.moonPhase}
             isLoggedIn={Boolean(session)}
             onLogin={() => navigate("/login")}
-            onCreateRitual={handleCreateRitualFromCard}
           />
         </div>
 
