@@ -3,7 +3,6 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import { motion } from "motion/react";
 import { Bookmark, BookmarkCheck, Loader2, LogOut, MoreHorizontal, Share2, Trash2 } from "lucide-react";
-import { getDailyAnchorContent, getDailyAnchorJourney } from "../lib/daily-anchor";
 import {
   getJournalEntries,
   getJournalEntriesFromOwnRituals,
@@ -49,7 +48,6 @@ const ELEMENT_FILTERS = [
   { id: "aire",   symbol: "≋",  label: "Aire" },
 ];
 
-const STEP_LABELS = ["Inicio", "Momento", "Cierre"];
 const PROFILE_PREFS_KEY = "rituales_profile_preferences_v1";
 
 const PROFILE_PREF_GROUPS = [
@@ -132,8 +130,6 @@ export function Account() {
   }, [journalEntries]);
   const weekTotal = recentActivity.reduce((a, b) => a + b, 0);
   const isActivityToday = (recentActivity[6] ?? 0) > 0;
-  const todayIntention = getDailyAnchorContent().inicio?.text?.trim() || null;
-  const journey = getDailyAnchorJourney();
 
   const dateLabel = useMemo(() => {
     const raw = now.toLocaleDateString("es-AR", {
@@ -337,114 +333,6 @@ export function Account() {
               )}
             </h1>
           </div>
-
-          {/* ── Intención del día ── */}
-          <section className="mb-6">
-            {todayIntention ? (
-              <div className="rounded-[24px] p-5" style={{ background: "var(--ink-strong)" }}>
-                <p
-                  style={{
-                    fontFamily: "var(--font-sans-ui)",
-                    fontSize: "9px",
-                    fontWeight: 500,
-                    letterSpacing: "0.16em",
-                    textTransform: "uppercase",
-                    color: "rgba(255,255,255,0.38)",
-                    marginBottom: "12px",
-                  }}
-                >
-                  Intención de hoy
-                </p>
-                <p
-                  style={{
-                    fontFamily: "var(--font-serif-display)",
-                    fontSize: "22px",
-                    fontWeight: 400,
-                    fontStyle: "italic",
-                    color: "#fff",
-                    lineHeight: 1.35,
-                    marginBottom: "20px",
-                  }}
-                >
-                  "{todayIntention}"
-                </p>
-                <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: "14px" }}>
-                  <p
-                    style={{
-                      fontFamily: "var(--font-sans-ui)",
-                      fontSize: "9px",
-                      letterSpacing: "0.12em",
-                      textTransform: "uppercase",
-                      color: "rgba(255,255,255,0.3)",
-                      marginBottom: "10px",
-                    }}
-                  >
-                    Recorrido de hoy
-                  </p>
-                  <div className="flex gap-2">
-                    {STEP_LABELS.map((label, i) => (
-                      <div key={label} className="flex-1 flex flex-col gap-1.5">
-                        <div
-                          style={{
-                            height: "3px",
-                            borderRadius: "99px",
-                            background:
-                              i < journey.completedCount
-                                ? "rgba(255,255,255,0.82)"
-                                : "rgba(255,255,255,0.12)",
-                          }}
-                        />
-                        <span
-                          style={{
-                            fontFamily: "var(--font-sans-ui)",
-                            fontSize: "9px",
-                            color:
-                              i < journey.completedCount
-                                ? "rgba(255,255,255,0.55)"
-                                : "rgba(255,255,255,0.22)",
-                          }}
-                        >
-                          {label}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div
-                className="rounded-[24px] p-5"
-                style={{ border: "1px dashed rgba(15,23,42,0.14)" }}
-              >
-                <p
-                  style={{
-                    fontFamily: "var(--font-serif-display)",
-                    fontSize: "19px",
-                    fontWeight: 400,
-                    color: "var(--ink-muted)",
-                    lineHeight: 1.4,
-                    marginBottom: "14px",
-                  }}
-                >
-                  Todavía no registraste
-                  <br />
-                  tu intención de hoy.
-                </p>
-                <button
-                  onClick={() => navigate("/")}
-                  className="rounded-full px-4 py-2.5 transition-all active:scale-[0.97]"
-                  style={{
-                    background: "var(--ink-strong)",
-                    color: "#fff",
-                    fontFamily: "var(--font-sans-ui)",
-                    fontSize: "12px",
-                  }}
-                >
-                  Registrar inicio
-                </button>
-              </div>
-            )}
-          </section>
 
           {/* ── Tu práctica — insight tiles ── */}
           <section className="mb-6">
