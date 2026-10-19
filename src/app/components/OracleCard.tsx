@@ -92,7 +92,66 @@ function wait(ms: number) {
   return new Promise((resolve) => window.setTimeout(resolve, ms));
 }
 
-function CardBack({ className = "", children }: { className?: string; children?: React.ReactNode }) {
+// Dorso de las cartas: órbitas que giran en sentidos opuestos y un punto que
+// respira (mismo lenguaje que las elipses de "Día completado").
+function OrbitMark({ size }: { size: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 100 100"
+      fill="none"
+      stroke="rgba(255,255,255,0.6)"
+      aria-hidden="true"
+    >
+      <ellipse className="oracle-spin" cx="50" cy="50" rx="42" ry="28" strokeWidth="0.9" />
+      <ellipse className="oracle-spin-rev" cx="50" cy="50" rx="28" ry="42" strokeWidth="0.9" />
+      <circle className="oracle-spin oracle-spin-slow" cx="50" cy="50" r="46" strokeWidth="0.7" strokeDasharray="2 5" />
+      <circle className="oracle-pulse" cx="50" cy="50" r="3" fill="rgba(255,255,255,0.85)" stroke="none" />
+    </svg>
+  );
+}
+
+// Encabezado del paso "¿Qué deseás hoy?": un cuenco abierto con una estrella
+// que flota sobre él. `active` la acelera mientras se dicta.
+function WishIllustration({ active }: { active: boolean }) {
+  return (
+    <svg
+      width="104"
+      height="80"
+      viewBox="0 0 104 80"
+      fill="none"
+      stroke="var(--ink-strong)"
+      strokeWidth="1.1"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      className={active ? "oracle-active" : undefined}
+    >
+      <path d="M8 58 H96" stroke="rgba(10,10,10,0.25)" />
+      <path d="M18 58 Q52 84 86 58" />
+      <path className="oracle-draw" pathLength={1} d="M52 62 C46 50 58 42 52 32" />
+      <g className="oracle-float">
+        <path d="M52 8 L54.5 17.5 L64 20 L54.5 22.5 L52 32 L49.5 22.5 L40 20 L49.5 17.5 Z" />
+        <ellipse className="oracle-spin" cx="52" cy="20" rx="20" ry="7" stroke="rgba(10,10,10,0.35)" strokeWidth="0.8" />
+      </g>
+      <g className="oracle-pulse">
+        <path d="M30 10 v4 M28 12 h4" />
+        <path d="M78 30 v4 M76 32 h4" />
+      </g>
+    </svg>
+  );
+}
+
+function CardBack({
+  className = "",
+  orbitSize = 76,
+  children,
+}: {
+  className?: string;
+  orbitSize?: number;
+  children?: React.ReactNode;
+}) {
   return (
     <div
       className={`relative overflow-hidden rounded-[22px] ${className}`}
@@ -100,14 +159,49 @@ function CardBack({ className = "", children }: { className?: string; children?:
     >
       <div className="absolute inset-2.5 rounded-[16px]" style={{ border: "1px solid rgba(255,255,255,0.12)" }} />
       <div className="absolute inset-0 flex items-center justify-center">
-        <div
-          className="flex h-10 w-10 items-center justify-center rounded-full"
-          style={{ border: "1px solid rgba(255,255,255,0.22)" }}
-        >
-          <Sparkles size={14} strokeWidth={1.3} className="text-white/60" />
-        </div>
+        <OrbitMark size={orbitSize} />
       </div>
       {children}
+    </div>
+  );
+}
+
+// Ilustración del frente: el símbolo de la carta dibujándose en grande, con una
+// luna que flota y la línea del horizonte.
+function CardIllustration({ Icon }: { Icon: React.ElementType }) {
+  return (
+    <div className="relative mt-5 h-[96px]" aria-hidden="true">
+      <svg
+        className="absolute inset-0 h-full w-full"
+        viewBox="0 0 300 96"
+        preserveAspectRatio="none"
+        fill="none"
+        stroke="rgba(255,255,255,0.18)"
+        strokeWidth="1"
+      >
+        <path d="M0 94 H300" vectorEffect="non-scaling-stroke" />
+      </svg>
+      <svg
+        className="oracle-float absolute right-1 top-1"
+        width="40"
+        height="40"
+        viewBox="0 0 40 40"
+        fill="none"
+        stroke="rgba(255,255,255,0.8)"
+        strokeWidth="1.1"
+        strokeLinejoin="round"
+      >
+        <path d="M14 6 a16 16 0 1 0 18 22 a12 12 0 1 1 -18 -22 z" />
+      </svg>
+      <svg className="oracle-pulse absolute left-[44%] top-3" width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="1" strokeLinecap="round">
+        <path d="M5 1 v8 M1 5 h8" />
+      </svg>
+      <Icon
+        size={76}
+        strokeWidth={1.1}
+        absoluteStrokeWidth
+        className="oracle-draw-icon absolute bottom-2 left-0 text-white/85"
+      />
     </div>
   );
 }
@@ -122,20 +216,14 @@ function CardFront({ card, moonPhase }: { card: DailyCard; moonPhase: string }) 
     >
       <div className="absolute inset-2.5 rounded-[16px] pointer-events-none" style={{ border: "1px solid rgba(255,255,255,0.1)" }} />
       <div className="relative flex min-h-[292px] flex-col">
-        <div className="flex items-center justify-between">
-          <p className="editorial-eyebrow" style={{ color: "rgba(255,255,255,0.45)" }}>
-            Tu carta de hoy
-          </p>
-          <div
-            className="flex h-9 w-9 items-center justify-center rounded-full"
-            style={{ border: "1px solid rgba(255,255,255,0.22)" }}
-          >
-            <Icon size={15} strokeWidth={1.3} className="text-white/80" />
-          </div>
-        </div>
+        <p className="editorial-eyebrow" style={{ color: "rgba(255,255,255,0.6)" }}>
+          Tu carta de hoy
+        </p>
+
+        <CardIllustration Icon={Icon} />
 
         {card.name ? (
-          <h3 className="mt-6 font-serif text-[30px] leading-[1.05] text-white" style={{ fontWeight: 400 }}>
+          <h3 className="mt-4 font-serif text-[30px] leading-[1.05] text-white" style={{ fontWeight: 400 }}>
             {card.name}
           </h3>
         ) : null}
@@ -342,6 +430,7 @@ export function OracleCard({
             exit={{ opacity: 0 }}
             className="space-y-5"
           >
+            <WishIllustration active={isListening} />
             <div>
               <h3 className="font-serif text-[26px] leading-[1.15] text-[var(--ink-strong)]" style={{ fontWeight: 400 }}>
                 ¿Qué deseás hoy?
@@ -445,7 +534,7 @@ export function OracleCard({
                   animate={{ rotate: (i - 1) * 4, x: (i - 1) * 6, y: i * -3 }}
                   whileHover={reducedMotion ? undefined : { rotate: (i - 1) * 7, x: (i - 1) * 12 }}
                 >
-                  <CardBack className="h-full w-full shadow-[0_8px_24px_rgba(10,10,10,0.18)]" />
+                  <CardBack orbitSize={116} className="h-full w-full shadow-[0_8px_24px_rgba(10,10,10,0.18)]" />
                 </motion.div>
               ))}
             </button>
@@ -508,6 +597,12 @@ export function OracleCard({
                 );
               })}
             </div>
+            <p
+              className="text-center font-serif text-[17px] leading-[1.45] text-[var(--ink-muted)]"
+              style={{ fontWeight: 400, fontStyle: "italic" }}
+            >
+              «{inputText.trim()}»
+            </p>
           </motion.div>
         ) : null}
 

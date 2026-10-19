@@ -1,6 +1,7 @@
 @import './fonts.css';
 @import './tailwind.css';
 @import './theme.css';
+@import './oracle.css';
 
 /* Hide scrollbar utility */
 .hide-scrollbar {
