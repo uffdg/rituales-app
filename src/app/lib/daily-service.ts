@@ -111,14 +111,37 @@ export function getDailyIntention(dateKey: string) {
   return getDaily<DailyIntention>("daily-intention", "intention", dateKey, "No se pudo cargar tu intención de hoy.");
 }
 
-// Si ya había una intención para esa fecha, el backend la devuelve con
-// `created: false` en vez de escribir otra.
+// Cada pedido escribe una intención nueva: se puede volver a pedir en el día y
+// todas quedan en el registro.
 export function createDailyIntention(params: { dateKey: string; inputText: string }) {
-  return postDaily<{ intention: DailyIntention; created: boolean; persisted?: boolean }>(
+  return postDaily<{ intention: DailyIntention; persisted: boolean }>(
     "daily-intention",
     params,
     "No pudimos escribir tu intención. Probá de nuevo.",
   );
+}
+
+// Un día del registro: todas las intenciones que pidió y la carta, si sacó.
+export interface DailyRecord {
+  dateKey: string;
+  intentions: DailyIntention[];
+  card: DailyOracleCard | null;
+}
+
+export async function getDailyRecords(from: string, to: string): Promise<DailyRecord[]> {
+  if (!API_BASE) return [];
+
+  const params = new URLSearchParams({ from, to });
+  const response = await fetchWithTimeout(`${API_BASE}/me/daily-records?${params.toString()}`, {
+    headers: await getAuthHeaders(),
+  });
+
+  if (!response.ok) {
+    throw new Error(await readError(response, "No se pudo cargar tu registro."));
+  }
+
+  const data = await response.json();
+  return data.days ?? [];
 }
 
 export function getDailyOracleCard(dateKey: string) {

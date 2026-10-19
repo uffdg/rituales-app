@@ -30,8 +30,10 @@ llevar durante el día.
   "Llevate esta intención durante el resto del día. Pensala y releela."
 - "Hacer un ritual con esta intención" abre la creación de ritual con la
   intención precargada.
-- Una por día. Al volver a abrir la app ese día se ve la misma. Si algo
-  falla, se vuelve al campo con el texto intacto.
+- **Se puede volver a pedir** ("Pedir otra intención"): vuelve al campo con
+  lo que había escrito, para ajustarlo o pedir otra versión. Todas quedan
+  guardadas; Home muestra la última del día. Si algo falla, se vuelve al
+  campo con el texto intacto.
 - Sin sesión: se ve la pregunta y el botón lleva a `/login`.
 
 ## 2. Oráculo del día
@@ -46,8 +48,17 @@ sobre el día y un consejo, sin escribir nada.
   romano, nombre, tres palabras clave, **La mirada** (lo que el arcano
   produce, una forma de ver el día) y **El consejo**. Texto escrito por el
   equipo, sin IA. Se evitan los arcanos de los últimos 7 días.
-- Una por día; al volver se ve la misma ya revelada.
+- **Una por día** (no se puede volver a sacar); al volver se ve la misma ya
+  revelada.
 - Sin sesión: el mazo se ve y tocarlo lleva a `/login`.
+
+## 3. Registro diario en el perfil
+
+- En `/cuenta`, arriba de todo: un calendario mensual. Cada día marca con un
+  punto si pidió intenciones y con un rombo dorado si sacó su arcano.
+- Al tocar un día se ven el arcano (dibujo, nombre, consejo) y todas las
+  intenciones de ese día, con la hora y lo que deseaba.
+- Desde Home, "Tu registro →" lleva directo ahí (`/cuenta#registro`).
 
 ## Ilustraciones
 
@@ -75,20 +86,23 @@ celestes, siguiendo la referencia visual del equipo:
 ## Cambios técnicos
 
 **Backend (`rituales-backend`)**
-- Tablas `daily_intentions` (`input_text`, `intention_text`) y
-  `daily_oracle_cards` (`card_id`), una fila por persona por día cada una,
-  con RLS. Reemplazan a `daily_intention_cards`, que nunca llegó a crearse.
+- Tablas `daily_intentions` (`input_text`, `intention_text`; varias por
+  día) y `daily_oracle_cards` (`card_id`; una por día), con RLS. Reemplazan a `daily_intention_cards`, que nunca llegó a crearse.
 - `GET/POST /api/me/daily-intention`: el `POST` recibe `dateKey` e
   `inputText` y escribe la intención con `reframeIntention`.
 - `GET/POST /api/me/daily-oracle`: el `POST` recibe `dateKey` y `moonPhase`
   y saca una carta.
-- Los dos `POST` son idempotentes: si ya hay fila ese día, la devuelven con
-  `created: false`.
+- `POST /daily-intention` guarda una intención nueva en cada pedido.
+  `POST /daily-oracle` es idempotente: si ya sacó carta ese día, devuelve la
+  misma con `created: false`.
+- `GET /api/me/daily-records?from=&to=` devuelve los días del rango (máx. 62)
+  con sus intenciones y su carta, para el calendario.
 - Si la base falla al leer o guardar, la persona igual recibe su intención o
   su arcano (`persisted: false`) y el error queda en el log.
 
 **Frontend (`rituales-app`)**
-- Componentes `DailyIntention`, `OracleCard` y `arcana/ArcanaArt`, servicio
+- Componentes `DailyIntention`, `OracleCard`, `DailyRecordsCalendar` y
+  `arcana/ArcanaArt`, servicio
   `daily-service.ts`, estilos de animación en `src/styles/oracle.css`.
 - Analytics: `intention_voice_used`, `intention_written`, `intention_error`,
   `intention_reopened`, `intention_ritual_started`,
@@ -97,6 +111,6 @@ celestes, siguiendo la referencia visual del equipo:
 
 ## Pendiente
 
-- `reframeIntention` tiene un límite de 80 tokens de salida y con deseos a
-  veces escribe más de dos frases y se corta. No se tocó porque el prompt ya
-  estaba definido; conviene revisarlo.
+- `reframeIntention` cortaba frases por el límite de 80 tokens. Se subió a
+  220 y, si igual se pasa, se recorta en la última frase completa. El texto
+  del prompt no se tocó.

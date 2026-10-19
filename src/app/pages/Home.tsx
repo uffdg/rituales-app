@@ -279,6 +279,7 @@ export function Home() {
             isLoggedIn={Boolean(session)}
             onLogin={() => navigate("/login")}
             onCreateRitual={handleCreateRitualFromIntention}
+            onOpenRecords={() => navigate("/cuenta#registro")}
           />
         </div>
 

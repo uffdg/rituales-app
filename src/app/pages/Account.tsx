@@ -16,6 +16,7 @@ import { useUser } from "../context/UserContext";
 import { useRitual } from "../context/RitualContext";
 import { RitualGridCard } from "../components/RitualGridCard";
 import { getUserFacingErrorMessage } from "../lib/errors";
+import { DailyRecordsCalendar } from "../components/DailyRecordsCalendar";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -333,6 +334,9 @@ export function Account() {
               )}
             </h1>
           </div>
+
+          {/* ── Registro diario: intenciones y arcanos ── */}
+          <DailyRecordsCalendar />
 
           {/* ── Tu práctica — insight tiles ── */}
           <section className="mb-6">

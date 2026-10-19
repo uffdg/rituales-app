@@ -67,11 +67,13 @@ export function DailyIntention({
   isLoggedIn,
   onLogin,
   onCreateRitual,
+  onOpenRecords,
 }: {
   dateKey: string;
   isLoggedIn: boolean;
   onLogin: () => void;
   onCreateRitual: (intentionText: string) => void;
+  onOpenRecords: () => void;
 }) {
   const [phase, setPhase] = useState<Phase>("loading");
   const [intention, setIntention] = useState<Intention | null>(null);
@@ -178,7 +180,8 @@ export function DailyIntention({
       track("intention_written", {
         durationMs: Date.now() - startedAt,
         wordCount: text.split(/\s+/).length,
-        created: result.created,
+        isRetry: Boolean(intention),
+        persisted: result.persisted,
       });
     } catch (writeError) {
       setError(getUserFacingErrorMessage(writeError, "No pudimos escribir tu intención. Probá de nuevo."));
@@ -190,6 +193,17 @@ export function DailyIntention({
       window.clearTimeout(slowTimer);
       setIsSlow(false);
     }
+  };
+
+  // La intención se puede volver a pedir: vuelve al campo con lo que había
+  // escrito, para ajustarlo o pedir otra versión tal cual.
+  const handleAskAgain = () => {
+    if (!intention) return;
+    setInputText(intention.inputText);
+    setError("");
+    setJustWritten(false);
+    setPhase("input");
+    track("intention_ask_again");
   };
 
   const handleCreateRitual = () => {
@@ -204,8 +218,14 @@ export function DailyIntention({
     <div>
       <div className="mb-5 flex items-baseline justify-between">
         <p className="editorial-eyebrow">Intención del día</p>
-        {phase === "done" ? (
-          <p className="font-sans text-[11px] font-light text-[var(--ink-muted)]">Mañana escribís una nueva</p>
+        {isLoggedIn ? (
+          <button
+            type="button"
+            onClick={onOpenRecords}
+            className="font-sans text-[11px] font-light text-[var(--ink-muted)] underline-offset-2 hover:underline"
+          >
+            Tu registro →
+          </button>
         ) : null}
       </div>
 
@@ -324,7 +344,7 @@ export function DailyIntention({
               <p className="editorial-eyebrow mt-3" style={{ color: "var(--ink-muted)" }}>
                 Tu intención de hoy
               </p>
-              <p className="mt-3 font-serif text-[24px] leading-[1.3] text-[var(--ink-strong)]" style={{ fontWeight: 400 }}>
+              <p className="mt-3 whitespace-pre-line font-serif text-[24px] leading-[1.3] text-[var(--ink-strong)]" style={{ fontWeight: 400 }}>
                 {intention.intentionText}
               </p>
               <p className="mt-4 font-sans text-[12px] font-light leading-[1.5] text-[var(--ink-muted)]">
@@ -348,6 +368,14 @@ export function DailyIntention({
             >
               Hacer un ritual con esta intención
               <ArrowUpRight size={13} strokeWidth={1.5} />
+            </button>
+
+            <button
+              type="button"
+              onClick={handleAskAgain}
+              className="mx-auto block min-h-[44px] px-4 font-sans text-[13px] font-light text-[var(--ink-muted)] underline underline-offset-4"
+            >
+              Pedir otra intención
             </button>
           </motion.div>
         ) : null}
