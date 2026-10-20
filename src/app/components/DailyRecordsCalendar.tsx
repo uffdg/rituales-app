@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation } from "react-router";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { getDailyRecords, getTodayDateKey, type DailyRecord } from "../lib/daily-service";
-import { ArcanaArt, ARCANA_GOLD } from "./arcana/ArcanaArt";
+import { ArcanaArt } from "./arcana/ArcanaArt";
 
 const WEEKDAYS = ["L", "M", "M", "J", "V", "S", "D"];
 
@@ -85,7 +85,7 @@ export function DailyRecordsCalendar() {
   return (
     <section id="registro" ref={sectionRef} className="mb-8 scroll-mt-6">
       <div className="mb-3 flex items-center justify-between">
-        <p className="editorial-eyebrow" style={{ color: "var(--ink-muted)" }}>
+        <p className="editorial-eyebrow">
           Tu registro diario
         </p>
         <div className="flex items-center gap-1">
@@ -93,11 +93,11 @@ export function DailyRecordsCalendar() {
             type="button"
             onClick={() => changeMonth(-1)}
             aria-label="Mes anterior"
-            className="flex h-11 w-11 items-center justify-center rounded-full text-[var(--ink-muted)] hover:bg-[var(--surface-muted)]"
+            className="editorial-icon-button"
           >
             <ChevronLeft size={16} strokeWidth={1.5} />
           </button>
-          <span className="min-w-[124px] text-center font-sans text-[13px] font-light text-[var(--ink-strong)]">
+          <span className="min-w-[124px] text-center font-sans text-body text-ink-strong">
             {monthLabel(month)}
           </span>
           <button
@@ -105,17 +105,17 @@ export function DailyRecordsCalendar() {
             onClick={() => changeMonth(1)}
             disabled={isCurrentMonth}
             aria-label="Mes siguiente"
-            className="flex h-11 w-11 items-center justify-center rounded-full text-[var(--ink-muted)] hover:bg-[var(--surface-muted)] disabled:opacity-30"
+            className="editorial-icon-button disabled:opacity-30"
           >
             <ChevronRight size={16} strokeWidth={1.5} />
           </button>
         </div>
       </div>
 
-      <div className="rounded-[24px] bg-white p-4" style={{ border: "1px solid var(--border-soft)" }}>
+      <div className="editorial-card editorial-card--flat p-4">
         <div className="grid grid-cols-7 gap-1 text-center">
           {WEEKDAYS.map((day, i) => (
-            <span key={i} className="pb-1 font-sans text-[11px] font-medium text-[var(--ink-muted)]">
+            <span key={i} className="pb-1 font-sans text-caption font-medium text-ink-muted">
               {day}
             </span>
           ))}
@@ -135,12 +135,12 @@ export function DailyRecordsCalendar() {
                 onClick={() => setSelectedKey(dateKey)}
                 aria-pressed={isSelected}
                 aria-label={`${dayLabel(dateKey)}${hasIntention ? ", con intención" : ""}${hasCard ? ", con arcano" : ""}`}
-                className={`flex h-11 flex-col items-center justify-center rounded-xl font-sans text-[13px] transition-colors disabled:opacity-30 ${
+                className={`flex h-11 flex-col items-center justify-center rounded-sm font-sans text-body transition-colors disabled:opacity-30 ${
                   isSelected
                     ? "bg-[var(--ink-strong)] text-white"
                     : isToday
-                    ? "text-[var(--ink-strong)] ring-1 ring-[var(--ink-strong)]"
-                    : "text-[var(--ink-body)] hover:bg-[var(--surface-muted)]"
+                    ? "text-ink-strong ring-1 ring-ink-strong"
+                    : "text-ink-body hover:bg-surface-muted"
                 }`}
               >
                 <span className="leading-none">{Number(dateKey.slice(8))}</span>
@@ -149,7 +149,7 @@ export function DailyRecordsCalendar() {
                     <span className={`h-1.5 w-1.5 rounded-full ${isSelected ? "bg-white" : "bg-[var(--ink-strong)]"}`} />
                   ) : null}
                   {hasCard ? (
-                    <span className="h-1.5 w-1.5 rotate-45" style={{ background: ARCANA_GOLD }} />
+                    <span className="h-1.5 w-1.5 rotate-45 bg-oracle-gold" />
                   ) : null}
                 </span>
               </button>
@@ -157,27 +157,27 @@ export function DailyRecordsCalendar() {
           })}
         </div>
 
-        <div className="mt-3 flex items-center justify-center gap-4 font-sans text-[11px] font-light text-[var(--ink-muted)]">
+        <div className="mt-3 flex items-center justify-center gap-4 font-sans text-caption text-ink-muted">
           <span className="flex items-center gap-1.5">
             <span className="h-1.5 w-1.5 rounded-full bg-[var(--ink-strong)]" aria-hidden="true" /> Intención
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="h-1.5 w-1.5 rotate-45" style={{ background: ARCANA_GOLD }} aria-hidden="true" /> Arcano
+            <span className="h-1.5 w-1.5 rotate-45 bg-oracle-gold" aria-hidden="true" /> Arcano
           </span>
         </div>
       </div>
 
-      <div className="mt-4 rounded-[24px] bg-[var(--surface-soft)] p-5">
-        <p className="font-sans text-[13px] font-medium text-[var(--ink-strong)]">{dayLabel(selectedKey)}</p>
+      <div className="editorial-card editorial-card--soft mt-4 p-5">
+        <p className="font-sans text-body font-medium text-ink-strong">{dayLabel(selectedKey)}</p>
 
         {status === "loading" ? (
-          <p className="mt-3 font-sans text-[13px] font-light text-[var(--ink-muted)]">Cargando…</p>
+          <div className="editorial-skeleton mt-3 h-16" aria-label="Cargando" />
         ) : status === "error" ? (
-          <p className="mt-3 font-sans text-[13px] font-light text-[var(--ink-muted)]">
+          <p className="editorial-error mt-3" role="alert">
             No pudimos cargar tu registro. Probá de nuevo en un momento.
           </p>
         ) : !selected ? (
-          <p className="mt-3 font-sans text-[13px] font-light text-[var(--ink-muted)]">No hay registros este día.</p>
+          <p className="mt-3 font-sans text-body text-ink-muted">No hay registros este día.</p>
         ) : (
           <div className="mt-4 space-y-5">
             {selected.card ? (
@@ -186,13 +186,13 @@ export function DailyRecordsCalendar() {
                   <ArcanaArt id={selected.card.cardId} width={56} />
                 </div>
                 <div>
-                  <p className="editorial-eyebrow" style={{ color: "var(--ink-muted)" }}>
+                  <p className="editorial-eyebrow">
                     Arcano · {selected.card.number}
                   </p>
-                  <p className="mt-1 font-serif text-[20px] leading-[1.2] text-[var(--ink-strong)]" style={{ fontWeight: 400 }}>
+                  <p className="mt-1 font-serif text-title-3 text-ink-strong">
                     {selected.card.name}
                   </p>
-                  <p className="mt-2 font-sans text-[13px] font-light leading-[1.5] text-[var(--ink-body)]">
+                  <p className="mt-2 font-sans text-body text-ink-body">
                     {selected.card.consejo}
                   </p>
                 </div>
@@ -201,16 +201,16 @@ export function DailyRecordsCalendar() {
 
             {selected.intentions.length ? (
               <div>
-                <p className="editorial-eyebrow" style={{ color: "var(--ink-muted)" }}>
+                <p className="editorial-eyebrow">
                   {selected.intentions.length === 1 ? "Intención" : `Intenciones (${selected.intentions.length})`}
                 </p>
                 <ul className="mt-2 space-y-4">
                   {selected.intentions.map((intention, i) => (
                     <li key={`${intention.createdAt ?? i}`}>
-                      <p className="whitespace-pre-line font-serif text-[17px] leading-[1.4] text-[var(--ink-strong)]" style={{ fontWeight: 400 }}>
+                      <p className="whitespace-pre-line font-sans text-title-4 text-ink-strong">
                         {intention.intentionText}
                       </p>
-                      <p className="mt-1 font-sans text-[12px] font-light text-[var(--ink-muted)]">
+                      <p className="mt-1 font-sans text-body text-ink-muted">
                         {timeLabel(intention.createdAt) ? `${timeLabel(intention.createdAt)} · ` : ""}
                         Deseabas: «{intention.inputText}»
                       </p>

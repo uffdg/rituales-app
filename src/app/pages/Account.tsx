@@ -17,6 +17,7 @@ import { useRitual } from "../context/RitualContext";
 import { RitualGridCard } from "../components/RitualGridCard";
 import { getUserFacingErrorMessage } from "../lib/errors";
 import { DailyRecordsCalendar } from "../components/DailyRecordsCalendar";
+import { BackLink } from "../components/BackLink";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -96,7 +97,7 @@ export function Account() {
     updateProfileName,
     signOut,
   } = useUser();
-  const { updateRitual, setSelectedPublicRitual, setViewMode } = useRitual();
+  const { updateRitual, resetRitual, setSelectedPublicRitual, setViewMode } = useRitual();
 
   const [fullNameDraft, setFullNameDraft] = useState("");
   const [isSavingName, setIsSavingName] = useState(false);
@@ -262,7 +263,7 @@ export function Account() {
   const totalCount = allEntries.length;
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: "var(--app-page)" }}>
+    <div className="min-h-screen flex flex-col bg-surface-page">
       <div
         className="fixed inset-0 pointer-events-none"
         style={{
@@ -272,23 +273,14 @@ export function Account() {
       />
 
       {/* ── Top nav ── */}
-      <div className="relative z-10 pt-14 px-6 pb-4 flex items-center justify-between">
+      <div className="relative z-10 pt-12 px-6 pb-2 flex items-center justify-between">
+        <BackLink />
         <button
-          onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-[var(--ink-muted)] hover:text-[var(--ink-strong)] transition-colors"
-          style={{ fontFamily: "var(--font-sans-ui)", fontSize: "13px" }}
-        >
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <path d="M9 2L4 7L9 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-          </svg>
-          Volver
-        </button>
-        <button
+          type="button"
           onClick={async () => { await signOut(); navigate("/"); }}
-          className="flex items-center gap-1.5 text-[var(--ink-subtle)] hover:text-[var(--ink-strong)] transition-colors"
-          style={{ fontFamily: "var(--font-sans-ui)", fontSize: "12px" }}
+          className="editorial-back-link"
         >
-          <LogOut size={12} strokeWidth={1.5} />
+          <LogOut size={14} strokeWidth={1.5} aria-hidden="true" />
           Salir
         </button>
       </div>
@@ -301,33 +293,14 @@ export function Account() {
       >
         <div className="px-6">
           {/* ── Hero ── */}
-          <div className="mb-7">
-            <p
-              style={{
-                fontFamily: "var(--font-sans-ui)",
-                fontSize: "10px",
-                fontWeight: 500,
-                letterSpacing: "0.14em",
-                textTransform: "uppercase",
-                color: "var(--ink-subtle)",
-                marginBottom: "8px",
-              }}
-            >
+          <div className="mb-8">
+            <p className="editorial-eyebrow mb-2">
               {dateLabel} · {cosmicToday.moonEmoji} {cosmicToday.moonPhase}
             </p>
-            <h1
-              style={{
-                fontFamily: "var(--font-serif-display)",
-                fontSize: "34px",
-                fontWeight: 400,
-                color: "var(--ink-strong)",
-                lineHeight: 1.1,
-              }}
-            >
+            <h1 className="font-serif text-title-1 text-ink-strong">
               {profile?.fullName ? (
                 <>
-                  <em style={{ fontStyle: "italic", fontWeight: 300 }}>Hola,</em>{" "}
-                  {profile.fullName}
+                  <em className="italic font-light">Hola,</em> {profile.fullName}
                 </>
               ) : (
                 "Tu práctica"
@@ -339,82 +312,42 @@ export function Account() {
           <DailyRecordsCalendar />
 
           {/* ── Tu práctica — insight tiles ── */}
-          <section className="mb-6">
-            <p
-              style={{
-                fontFamily: "var(--font-sans-ui)",
-                fontSize: "10px",
-                fontWeight: 500,
-                letterSpacing: "0.14em",
-                textTransform: "uppercase",
-                color: "var(--ink-subtle)",
-                marginBottom: "12px",
-              }}
-            >
-              Tu práctica
-            </p>
-            <div className="grid grid-cols-2 gap-2.5">
+          <section className="mb-8">
+            <p className="editorial-eyebrow mb-3">Tu práctica</p>
+            <div className="grid grid-cols-2 gap-3">
               {/* Racha lunar */}
               <div
-                className="rounded-[20px] px-4 py-4 flex flex-col"
-                style={{
-                  background: lunarStreak > 1 ? "var(--ink-strong)" : "var(--surface-softest)",
-                  border: lunarStreak > 1 ? "none" : "1px solid var(--border-soft)",
-                  minHeight: "148px",
-                }}
+                className={`flex min-h-[148px] flex-col rounded-card p-4 ${
+                  lunarStreak > 1 ? "bg-surface-inverse" : "border border-line-soft bg-surface-soft"
+                }`}
               >
                 <span
-                  style={{
-                    fontSize: "16px",
-                    lineHeight: 1,
-                    marginBottom: "auto",
-                    color: lunarStreak > 1 ? "rgba(255,255,255,0.45)" : "var(--ink-subtle)",
-                  }}
+                  className={`mb-auto text-body-lg leading-none ${lunarStreak > 1 ? "text-on-ink-subtle" : "text-ink-subtle"}`}
+                  aria-hidden="true"
                 >
                   {lunarStreak > 1 ? cosmicToday.moonEmoji : "○"}
                 </span>
                 <div>
-                  <p
-                    style={{
-                      fontFamily: "var(--font-serif-display)",
-                      fontSize: "36px",
-                      fontWeight: 400,
-                      lineHeight: 1,
-                      color: lunarStreak > 1 ? "#fff" : "var(--ink-strong)",
-                      marginBottom: "3px",
-                    }}
-                  >
+                  <p className={`mb-1 font-serif text-title-1 leading-none ${lunarStreak > 1 ? "text-on-ink-strong" : "text-ink-strong"}`}>
                     {lunarStreak}
                   </p>
-                  <p
-                    style={{
-                      fontFamily: "var(--font-sans-ui)",
-                      fontSize: "9px",
-                      fontWeight: 500,
-                      letterSpacing: "0.1em",
-                      textTransform: "uppercase",
-                      color: lunarStreak > 1 ? "rgba(255,255,255,0.38)" : "var(--ink-subtle)",
-                      marginBottom: "10px",
-                    }}
-                  >
+                  <p className={`editorial-eyebrow mb-2.5 ${lunarStreak > 1 ? "editorial-eyebrow--on-dark" : ""}`}>
                     racha lunar
                   </p>
-                  <div className="flex gap-[5px]">
+                  <div className="flex gap-[5px]" aria-hidden="true">
                     {Array.from({ length: 6 }).map((_, i) => (
                       <div
                         key={i}
+                        className="h-[5px] w-[5px] rounded-full"
                         style={{
-                          width: 5,
-                          height: 5,
-                          borderRadius: "50%",
                           background:
                             i < Math.min(lunarStreak, 6)
                               ? lunarStreak > 1
-                                ? "rgba(255,255,255,0.65)"
+                                ? "var(--on-ink-muted)"
                                 : "var(--ink-strong)"
                               : lunarStreak > 1
-                              ? "rgba(255,255,255,0.1)"
-                              : "rgba(15,23,42,0.07)",
+                              ? "rgba(255,255,255,0.12)"
+                              : "var(--line-default)",
                         }}
                       />
                     ))}
@@ -424,68 +357,35 @@ export function Account() {
 
               {/* Actividad reciente */}
               <div
-                className="rounded-[20px] px-4 py-4 flex flex-col"
-                style={{
-                  background: isActivityToday ? "var(--ink-strong)" : "var(--surface-softest)",
-                  border: isActivityToday ? "none" : "1px solid var(--border-soft)",
-                  minHeight: "148px",
-                }}
+                className={`flex min-h-[148px] flex-col rounded-card p-4 ${
+                  isActivityToday ? "bg-surface-inverse" : "border border-line-soft bg-surface-soft"
+                }`}
               >
-                <p
-                  style={{
-                    fontFamily: "var(--font-sans-ui)",
-                    fontSize: "9px",
-                    fontWeight: 500,
-                    letterSpacing: "0.1em",
-                    textTransform: "uppercase",
-                    color: isActivityToday ? "rgba(255,255,255,0.45)" : "var(--ink-subtle)",
-                    marginBottom: "auto",
-                  }}
-                >
+                <p className={`editorial-eyebrow mb-auto ${isActivityToday ? "editorial-eyebrow--on-dark" : ""}`}>
                   7 días
                 </p>
                 <div>
-                  <p
-                    style={{
-                      fontFamily: "var(--font-serif-display)",
-                      fontSize: "36px",
-                      fontWeight: 400,
-                      lineHeight: 1,
-                      color: isActivityToday ? "#fff" : "var(--ink-strong)",
-                      marginBottom: "3px",
-                    }}
-                  >
+                  <p className={`mb-1 font-serif text-title-1 leading-none ${isActivityToday ? "text-on-ink-strong" : "text-ink-strong"}`}>
                     {weekTotal}
                   </p>
-                  <p
-                    style={{
-                      fontFamily: "var(--font-sans-ui)",
-                      fontSize: "9px",
-                      fontWeight: 500,
-                      letterSpacing: "0.1em",
-                      textTransform: "uppercase",
-                      color: isActivityToday ? "rgba(255,255,255,0.38)" : "var(--ink-subtle)",
-                      marginBottom: "10px",
-                    }}
-                  >
+                  <p className={`editorial-eyebrow mb-2.5 ${isActivityToday ? "editorial-eyebrow--on-dark" : ""}`}>
                     sesiones
                   </p>
-                  <div className="flex items-end gap-[3px]">
+                  <div className="flex items-end gap-[3px]" aria-hidden="true">
                     {recentActivity.map((count, i) => (
                       <div
                         key={i}
+                        className="w-[7px] rounded-[2px]"
                         style={{
-                          width: 7,
                           height: Math.max(3, count > 0 ? Math.min(count * 8, 26) : 3),
-                          borderRadius: 2,
                           background:
                             count > 0
                               ? isActivityToday
-                                ? "rgba(255,255,255,0.65)"
+                                ? "var(--on-ink-muted)"
                                 : "var(--ink-strong)"
                               : isActivityToday
-                              ? "rgba(255,255,255,0.1)"
-                              : "rgba(15,23,42,0.07)",
+                              ? "rgba(255,255,255,0.12)"
+                              : "var(--line-default)",
                         }}
                       />
                     ))}
@@ -494,49 +394,24 @@ export function Account() {
               </div>
 
               {/* Elemento dominante */}
-              <div
-                className="rounded-[20px] px-4 py-4 flex flex-col"
-                style={{
-                  background: "var(--surface-softest)",
-                  border: "1px solid var(--border-soft)",
-                }}
-              >
+              <div className="flex flex-col rounded-card border border-line-soft bg-surface-soft p-4">
                 <span
-                  style={{
-                    fontSize: "18px",
-                    lineHeight: 1,
-                    marginBottom: "auto",
-                    color: dominantElement ? "var(--ink-muted)" : "var(--ink-subtle)",
-                  }}
+                  className={`mb-auto text-body-lg leading-none ${dominantElement ? "text-ink-muted" : "text-ink-subtle"}`}
+                  aria-hidden="true"
                 >
                   {dominantElement ? (ELEMENT_META[dominantElement]?.symbol ?? "◯") : "◯"}
                 </span>
                 <div>
                   <p
-                    style={{
-                      fontFamily: "var(--font-serif-display)",
-                      fontSize: dominantElement ? "20px" : "28px",
-                      fontWeight: 400,
-                      lineHeight: 1,
-                      color: dominantElement ? "var(--ink-strong)" : "var(--ink-subtle)",
-                      fontStyle: dominantElement ? "italic" : "normal",
-                      marginBottom: "4px",
-                    }}
+                    className={`mb-1 font-serif leading-none ${
+                      dominantElement ? "text-title-3 italic text-ink-strong" : "text-title-2 text-ink-subtle"
+                    }`}
                   >
                     {dominantElement
                       ? (ELEMENT_META[dominantElement]?.label ?? dominantElement)
                       : "—"}
                   </p>
-                  <p
-                    style={{
-                      fontFamily: "var(--font-sans-ui)",
-                      fontSize: "9px",
-                      fontWeight: 500,
-                      letterSpacing: "0.1em",
-                      textTransform: "uppercase",
-                      color: "var(--ink-subtle)",
-                    }}
-                  >
+                  <p className="editorial-eyebrow">
                     elemento
                     <br />
                     dominante
@@ -545,46 +420,15 @@ export function Account() {
               </div>
 
               {/* Total sesiones */}
-              <div
-                className="rounded-[20px] px-4 py-4 flex flex-col"
-                style={{
-                  background: "var(--surface-softest)",
-                  border: "1px solid var(--border-soft)",
-                }}
-              >
-                <span
-                  style={{
-                    fontSize: "12px",
-                    lineHeight: 1,
-                    marginBottom: "auto",
-                    color: "var(--ink-subtle)",
-                  }}
-                >
+              <div className="flex flex-col rounded-card border border-line-soft bg-surface-soft p-4">
+                <span className="mb-auto text-caption leading-none text-ink-decor" aria-hidden="true">
                   ✦
                 </span>
                 <div>
-                  <p
-                    style={{
-                      fontFamily: "var(--font-serif-display)",
-                      fontSize: "36px",
-                      fontWeight: 400,
-                      lineHeight: 1,
-                      color: "var(--ink-strong)",
-                      marginBottom: "4px",
-                    }}
-                  >
+                  <p className="mb-1 font-serif text-title-1 leading-none text-ink-strong">
                     {journalEntries.length}
                   </p>
-                  <p
-                    style={{
-                      fontFamily: "var(--font-sans-ui)",
-                      fontSize: "9px",
-                      fontWeight: 500,
-                      letterSpacing: "0.1em",
-                      textTransform: "uppercase",
-                      color: "var(--ink-subtle)",
-                    }}
-                  >
+                  <p className="editorial-eyebrow">
                     sesiones
                     <br />
                     totales
@@ -597,59 +441,18 @@ export function Account() {
           {/* ── Anclas recientes ── */}
           {journalEntries.length > 0 && (
             <section className="mb-8">
-              <p
-                style={{
-                  fontFamily: "var(--font-sans-ui)",
-                  fontSize: "10px",
-                  fontWeight: 500,
-                  letterSpacing: "0.14em",
-                  textTransform: "uppercase",
-                  color: "var(--ink-subtle)",
-                  marginBottom: "12px",
-                }}
-              >
-                Anclas recientes
-              </p>
-              <div
-                className="rounded-[24px] border p-5 flex flex-col gap-4"
-                style={{ borderColor: "var(--border-soft)", background: "#FAFAF9" }}
-              >
+              <p className="editorial-eyebrow mb-3">Anclas recientes</p>
+              <div className="editorial-card editorial-card--soft flex flex-col gap-4 p-5">
                 {journalEntries
                   .slice(-5)
                   .reverse()
                   .map((entry, i) => (
                     <div key={i} className="flex items-start gap-3">
-                      <div
-                        style={{
-                          width: 5,
-                          height: 5,
-                          borderRadius: "50%",
-                          background: "var(--border-strong)",
-                          marginTop: 8,
-                          flexShrink: 0,
-                        }}
-                      />
+                      <div className="mt-2 h-[5px] w-[5px] shrink-0 rounded-full bg-line-strong" aria-hidden="true" />
                       <div className="flex-1 min-w-0">
-                        <p
-                          style={{
-                            fontFamily: "var(--font-serif-display)",
-                            fontSize: "16px",
-                            fontWeight: 400,
-                            color: "var(--ink-strong)",
-                            lineHeight: 1.4,
-                          }}
-                        >
-                          "{entry.anchor}"
-                        </p>
-                        <p
-                          style={{
-                            fontFamily: "var(--font-sans-ui)",
-                            fontSize: "10px",
-                            color: "var(--ink-subtle)",
-                            marginTop: "3px",
-                            letterSpacing: "0.04em",
-                          }}
-                        >
+                        {/* Cita chica: sans (la serif es solo para titulares). */}
+                        <p className="font-sans text-title-4 text-ink-strong">"{entry.anchor}"</p>
+                        <p className="mt-1 font-sans text-caption text-ink-muted">
                           {entry.moonPhase} ·{" "}
                           {new Date(entry.completedAt).toLocaleDateString("es-AR", {
                             day: "numeric",
@@ -666,41 +469,17 @@ export function Account() {
 
         {/* ── Galería de rituales ── */}
         <section className="mb-8">
-          <div className="px-6 mb-4 flex items-baseline justify-between">
-            <p
-              style={{
-                fontFamily: "var(--font-sans-ui)",
-                fontSize: "10px",
-                fontWeight: 500,
-                letterSpacing: "0.14em",
-                textTransform: "uppercase",
-                color: "var(--ink-subtle)",
-              }}
-            >
-              Tus rituales
-            </p>
+          <div className="px-6 editorial-section-header">
+            <p className="editorial-eyebrow">Tus rituales</p>
             {totalCount > 0 && (
-              <span
-                style={{
-                  fontFamily: "var(--font-sans-ui)",
-                  fontSize: "11px",
-                  color: "var(--ink-subtle)",
-                }}
-              >
+              <span className="font-sans text-caption text-ink-muted">
                 {displayEntries.length} de {totalCount}
               </span>
             )}
           </div>
 
-          {/* Source filter — bleed */}
-          <div
-            className="flex gap-2 mb-3 overflow-x-auto"
-            style={{
-              paddingLeft: "24px",
-              paddingRight: "24px",
-              scrollbarWidth: "none",
-            }}
-          >
+          {/* Filtros: origen y elemento */}
+          <div className="hide-scrollbar mb-3 flex gap-2 overflow-x-auto px-6">
             {(
               [
                 { id: "all",   label: "Todos" },
@@ -710,70 +489,33 @@ export function Account() {
             ).map((f) => (
               <button
                 key={f.id}
+                type="button"
                 onClick={() => setSourceFilter(f.id)}
-                className="flex-shrink-0 transition-colors active:scale-[0.97]"
-                style={{
-                  fontFamily: "var(--font-sans-ui)",
-                  fontSize: "12px",
-                  fontWeight: 500,
-                  padding: "7px 16px",
-                  borderRadius: "99px",
-                  background:
-                    sourceFilter === f.id ? "var(--ink-strong)" : "var(--surface-softest)",
-                  color: sourceFilter === f.id ? "#fff" : "var(--ink-muted)",
-                  border:
-                    sourceFilter === f.id
-                      ? "1px solid var(--ink-strong)"
-                      : "1px solid var(--border-soft)",
-                }}
+                aria-pressed={sourceFilter === f.id}
+                className="editorial-chip shrink-0 px-4"
               >
                 {f.label}
               </button>
             ))}
           </div>
-
-          {/* Element filter — bleed */}
-          <div
-            className="flex gap-2 mb-5 overflow-x-auto"
-            style={{
-              paddingLeft: "24px",
-              paddingRight: "24px",
-              scrollbarWidth: "none",
-            }}
-          >
+          <div className="hide-scrollbar mb-5 flex gap-2 overflow-x-auto px-6">
             <button
+              type="button"
               onClick={() => setElementFilter(null)}
-              className="flex-shrink-0 transition-colors"
-              style={{
-                fontFamily: "var(--font-sans-ui)",
-                fontSize: "11px",
-                padding: "5px 14px",
-                borderRadius: "99px",
-                background: !elementFilter ? "rgba(15,23,42,0.08)" : "transparent",
-                color: !elementFilter ? "var(--ink-strong)" : "var(--ink-subtle)",
-                border: "1px solid var(--border-soft)",
-              }}
+              aria-pressed={!elementFilter}
+              className="editorial-chip-outline shrink-0"
             >
-              Todos
+              Todos los elementos
             </button>
             {ELEMENT_FILTERS.map((f) => (
               <button
                 key={f.id}
+                type="button"
                 onClick={() => setElementFilter(elementFilter === f.id ? null : f.id)}
-                className="flex-shrink-0 transition-colors"
-                style={{
-                  fontFamily: "var(--font-sans-ui)",
-                  fontSize: "11px",
-                  padding: "5px 14px",
-                  borderRadius: "99px",
-                  background:
-                    elementFilter === f.id ? "rgba(15,23,42,0.08)" : "transparent",
-                  color:
-                    elementFilter === f.id ? "var(--ink-strong)" : "var(--ink-subtle)",
-                  border: "1px solid var(--border-soft)",
-                }}
+                aria-pressed={elementFilter === f.id}
+                className={`editorial-chip-outline shrink-0 ${elementFilter === f.id ? "editorial-chip-outline-active" : ""}`}
               >
-                {f.symbol} {f.label}
+                <span aria-hidden="true">{f.symbol}</span> {f.label}
               </button>
             ))}
           </div>
@@ -781,38 +523,43 @@ export function Account() {
           {/* Grid */}
           <div className="px-6">
             {displayEntries.length === 0 ? (
-              <div
-                className="rounded-[24px] border px-5 py-10 text-center"
-                style={{ borderColor: "var(--border-soft)", background: "var(--surface-softest)" }}
-              >
-                <p
-                  style={{
-                    fontFamily: "var(--font-serif-display)",
-                    fontSize: "20px",
-                    color: "var(--ink-muted)",
-                    marginBottom: "6px",
-                  }}
-                >
+              <div className="editorial-card editorial-card--soft px-5 py-10 text-center">
+                <p className="mb-1.5 font-serif text-title-3 text-ink-strong">
                   {sourceFilter === "saved"
                     ? "Todavía no guardaste rituales"
                     : sourceFilter === "own"
                     ? "Todavía no creaste rituales"
                     : "No hay rituales con ese filtro"}
                 </p>
-                <p
-                  style={{
-                    fontFamily: "var(--font-sans-ui)",
-                    fontSize: "12px",
-                    color: "var(--ink-subtle)",
-                    lineHeight: 1.6,
-                  }}
-                >
+                <p className="mx-auto mb-5 max-w-[280px] font-sans text-body text-ink-muted">
                   {elementFilter
                     ? `Probá otro elemento o quitá el filtro.`
                     : sourceFilter === "saved"
                     ? "Cuando toques guardar, van a aparecer acá."
                     : "Tus rituales creados van a quedar acá."}
                 </p>
+                {/* Estado vacío: siempre con una acción (spec 03). */}
+                {elementFilter ? (
+                  <button type="button" onClick={() => setElementFilter(null)} className="editorial-button editorial-button--secondary">
+                    Quitar el filtro
+                  </button>
+                ) : sourceFilter === "saved" ? (
+                  <button type="button" onClick={() => navigate("/explorar")} className="editorial-button editorial-button--secondary">
+                    Explorar rituales
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      resetRitual();
+                      setViewMode(false);
+                      navigate("/crear/1");
+                    }}
+                    className="editorial-button editorial-button--secondary"
+                  >
+                    Crear un ritual
+                  </button>
+                )}
               </div>
             ) : (
               <div className="grid grid-cols-2 gap-3">
@@ -843,27 +590,29 @@ export function Account() {
                       />
                       {/* Context menu — own rituals only */}
                       {isOwn && (
-                        <div className="absolute top-2 right-2">
+                        <div className="absolute top-0 right-0">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <button
                                 type="button"
                                 onClick={(event) => event.stopPropagation()}
-                                className="h-7 w-7 rounded-full flex items-center justify-center transition-all active:scale-90"
-                                style={{
-                                  background: "rgba(0,0,0,0.32)",
-                                  backdropFilter: "blur(8px)",
-                                }}
+                                className="group flex h-11 w-11 items-center justify-center"
                                 aria-label="Más acciones"
                               >
-                                <MoreHorizontal size={14} strokeWidth={1.8} color="rgba(255,255,255,0.88)" />
+                                {/* Círculo visible de 28; área táctil de 44. */}
+                                <span
+                                  className="flex h-7 w-7 items-center justify-center rounded-full transition-transform group-active:scale-90"
+                                  style={{ background: "rgba(0,0,0,0.32)", backdropFilter: "blur(8px)" }}
+                                >
+                                  <MoreHorizontal size={14} strokeWidth={1.8} color="rgba(255,255,255,0.88)" />
+                                </span>
                               </button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent
                               align="end"
-                              sideOffset={8}
+                              sideOffset={4}
                               onClick={(event) => event.stopPropagation()}
-                              className="z-[140] min-w-[148px] rounded-xl border-[var(--border-soft)] bg-white p-1.5 shadow-lg"
+                              className="z-[140] min-w-[160px] rounded-sm border-line-soft bg-surface-base p-1.5 shadow-[var(--shadow-lifted)]"
                             >
                               <DropdownMenuItem
                                 onClick={(event) => {
@@ -871,8 +620,7 @@ export function Account() {
                                   if (!saved && !saving) void toggleSaveRitual(entry);
                                 }}
                                 disabled={saved || saving}
-                                className="cursor-pointer rounded-lg px-3 py-2.5"
-                                style={{ fontFamily: "var(--font-sans-ui)", fontSize: "13px", color: "var(--ink-strong)" }}
+                                className="cursor-pointer rounded-xs px-3 py-2.5 font-sans text-body text-ink-strong"
                               >
                                 {saving ? (
                                   <Loader2 size={14} strokeWidth={1.8} className="animate-spin" />
@@ -888,22 +636,20 @@ export function Account() {
                                   event.stopPropagation();
                                   shareRitual(entry);
                                 }}
-                                className="cursor-pointer rounded-lg px-3 py-2.5"
-                                style={{ fontFamily: "var(--font-sans-ui)", fontSize: "13px", color: "var(--ink-strong)" }}
+                                className="cursor-pointer rounded-xs px-3 py-2.5 font-sans text-body text-ink-strong"
                               >
                                 <Share2 size={14} strokeWidth={1.8} />
                                 Compartir
                               </DropdownMenuItem>
-                              <DropdownMenuSeparator className="my-1 bg-[var(--border-soft)]" />
+                              <DropdownMenuSeparator className="my-1 bg-line-soft" />
                               <DropdownMenuItem
                                 onClick={(event) => {
                                   event.stopPropagation();
                                   setPendingDelete({ id: entry.id, mode: "own" });
                                 }}
-                                className="cursor-pointer rounded-lg px-3 py-2.5 focus:bg-red-50"
-                                style={{ fontFamily: "var(--font-sans-ui)", fontSize: "13px", color: "#B42318" }}
+                                className="cursor-pointer rounded-xs px-3 py-2.5 font-sans text-body text-danger focus:bg-danger-surface focus:text-danger"
                               >
-                                <Trash2 size={14} strokeWidth={1.8} color="#B42318" />
+                                <Trash2 size={14} strokeWidth={1.8} color="var(--danger)" />
                                 Eliminar
                               </DropdownMenuItem>
                             </DropdownMenuContent>
@@ -920,90 +666,43 @@ export function Account() {
 
         {/* ── Tu cuenta ── */}
         <div className="px-6">
-          <div style={{ height: "1px", background: "var(--border-soft)", marginBottom: "24px" }} />
-          <p
-            style={{
-              fontFamily: "var(--font-sans-ui)",
-              fontSize: "10px",
-              fontWeight: 500,
-              letterSpacing: "0.14em",
-              textTransform: "uppercase",
-              color: "var(--ink-subtle)",
-              marginBottom: "14px",
-            }}
-          >
-            Tu cuenta
-          </p>
-          <div
-            className="rounded-[24px] border bg-white p-5"
-            style={{ borderColor: "var(--border-soft)" }}
-          >
-            <p
-              style={{
-                fontFamily: "var(--font-sans-ui)",
-                fontSize: "10px",
-                fontWeight: 500,
-                letterSpacing: "0.12em",
-                textTransform: "uppercase",
-                color: "var(--ink-subtle)",
-                marginBottom: "4px",
-              }}
-            >
-              Email
-            </p>
-            <p
-              style={{
-                fontFamily: "var(--font-sans-ui)",
-                fontSize: "13px",
-                color: "var(--ink-muted)",
-                marginBottom: "18px",
-              }}
-            >
-              {user?.email || ""}
-            </p>
+          <div className="mb-6 h-px bg-line-soft" />
+          <p className="editorial-eyebrow mb-3">Tu cuenta</p>
+          <div className="editorial-card editorial-card--flat p-5">
+            <p className="editorial-field-label mb-1">Email</p>
+            <p className="mb-5 font-sans text-body text-ink-muted">{user?.email || ""}</p>
 
-            <label
-              style={{
-                display: "block",
-                fontFamily: "var(--font-sans-ui)",
-                fontSize: "10px",
-                fontWeight: 500,
-                letterSpacing: "0.12em",
-                textTransform: "uppercase",
-                color: "var(--ink-subtle)",
-                marginBottom: "6px",
-              }}
-            >
-              Nombre
-            </label>
-            <div className="flex flex-col gap-3">
+            <div className="editorial-field">
+              <label htmlFor="account-name" className="editorial-field-label">
+                Nombre
+              </label>
               <input
+                id="account-name"
                 value={fullNameDraft}
                 onChange={(event) => setFullNameDraft(event.target.value)}
                 placeholder="Cómo querés aparecer"
-                aria-label="Tu nombre"
                 className="editorial-input"
               />
               <button
+                type="button"
                 onClick={handleSaveName}
                 disabled={isSavingName}
-                className="self-end editorial-button-primary px-6 py-3"
+                aria-busy={isSavingName}
+                className="editorial-button editorial-button--primary self-end"
               >
                 Guardar
               </button>
             </div>
 
-            <div className="mt-6 border-t border-[var(--border-soft)] pt-5">
+            <div className="mt-6 border-t border-line-soft pt-5">
               <p className="editorial-eyebrow mb-2">Cómo querés que te acompañe la app</p>
-              <p className="editorial-body-muted mb-4">
+              <p className="mb-4 font-sans text-body text-ink-muted">
                 Esto ayuda a ordenar futuras recomendaciones. Podés cambiarlo cuando quieras.
               </p>
               <div className="space-y-4">
                 {PROFILE_PREF_GROUPS.map((group) => (
-                  <div key={group.key}>
-                    <p className="font-sans text-[11px] font-medium text-[var(--ink-muted)] mb-2">
-                      {group.label}
-                    </p>
+                  <div key={group.key} role="group" aria-label={group.label}>
+                    <p className="editorial-field-label mb-2">{group.label}</p>
                     <div className="flex flex-wrap gap-2">
                       {group.options.map((option) => {
                         const isActive = profilePrefs[group.key] === option;
@@ -1012,11 +711,8 @@ export function Account() {
                             key={option}
                             type="button"
                             onClick={() => setProfilePref(group.key, option)}
-                            className={`rounded-full border px-3 py-2 font-sans text-[12px] transition-all active:scale-[0.97] ${
-                              isActive
-                                ? "border-[var(--ink-strong)] bg-[var(--ink-strong)] text-white"
-                                : "border-[var(--border-default)] bg-white text-[var(--ink-muted)]"
-                            }`}
+                            aria-pressed={isActive}
+                            className="editorial-chip px-3.5"
                           >
                             {option}
                           </button>
@@ -1035,54 +731,26 @@ export function Account() {
         open={Boolean(pendingDelete)}
         onOpenChange={(open) => !open && setPendingDelete(null)}
       >
-        <AlertDialogContent className="max-w-[calc(100%-2.5rem)] rounded-[28px] border border-[rgba(0,0,0,0.08)] bg-white px-6 py-6 shadow-[0_20px_60px_rgba(0,0,0,0.12)] sm:max-w-[420px]">
+        <AlertDialogContent className="max-w-[calc(100%-2.5rem)] rounded-panel border border-line-soft bg-surface-base px-6 py-6 shadow-[var(--shadow-lifted)] sm:max-w-[420px]">
           <AlertDialogHeader className="text-left">
-            <p
-              style={{
-                fontFamily: "var(--font-sans-ui)",
-                fontSize: "10px",
-                fontWeight: 500,
-                letterSpacing: "0.14em",
-                textTransform: "uppercase",
-                color: "var(--ink-subtle)",
-              }}
-            >
-              Confirmar acción
-            </p>
-            <AlertDialogTitle
-              style={{
-                fontFamily: "var(--font-serif-display)",
-                fontSize: "30px",
-                fontWeight: 400,
-                color: "var(--ink-strong)",
-                lineHeight: 1.1,
-              }}
-            >
+            <p className="editorial-eyebrow">Confirmar acción</p>
+            <AlertDialogTitle className="font-serif text-title-2 font-normal text-ink-strong">
               Borrar ritual
             </AlertDialogTitle>
-            <AlertDialogDescription
-              style={{
-                fontFamily: "var(--font-sans-ui)",
-                fontSize: "14px",
-                color: "var(--ink-muted)",
-                lineHeight: 1.6,
-              }}
-            >
+            <AlertDialogDescription className="font-sans text-body-lg text-ink-muted">
               Este ritual se va a borrar de forma permanente. Este cambio no se puede deshacer.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="mt-2 gap-2 sm:justify-end">
-            <AlertDialogCancel
-              className="rounded-[20px] border-[rgba(0,0,0,0.08)] px-5 py-3 text-[var(--ink-muted)]"
-              style={{ fontFamily: "var(--font-sans-ui)", fontSize: "13px" }}
-            >
+            <AlertDialogCancel className="editorial-button editorial-button--secondary">
               Cancelar
             </AlertDialogCancel>
+            {/* Acción irreversible: peligro sólido (spec 03). */}
             <AlertDialogAction
               onClick={handleConfirmDelete}
-              className="editorial-button-primary px-5 py-3"
+              className="editorial-button editorial-button--danger-solid"
             >
-              Confirmar
+              Sí, borrar
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
