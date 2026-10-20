@@ -37,7 +37,7 @@
           <tr class="stage-row"><td><b>2 · Componentes base</b></td><td>Clases del sistema, foco visible, <code>BackLink</code>, campos y toasts.</td><td><span class="pass">Hecha</span></td><td><code>89be7b7</code></td></tr>
           <tr class="stage-row"><td><b>3 · Imágenes</b></td><td>Fotos a WebP, <code>loading</code>, <code>alt</code>, velo en texto sobre foto.</td><td><span class="pass">Hecha</span></td><td><code>bd7c4e2</code></td></tr>
           <tr class="stage-row"><td><b>4 · Pantallas</b></td><td>Las 7 pantallas, de a una. Hechas: Home, Cuenta, Detalle de ritual, Pasos de creación, Compartir/Explorar/Wiki, Login/Onboarding, Stories/calendario/navegación.</td><td><span class="pass">Hecha · 7 de 7</span></td><td><code>1e75108</code> Home · <code>1d73b47</code> Cuenta · <code>af25e66</code> Detalle · <code>2ba79aa</code> Pasos · <code>5f6171e</code> Compartir/Explorar/Wiki · <code>c0038d6</code> Login/Onboarding · <code>d702068</code> Stories/calendario</td></tr>
-          <tr class="stage-row"><td><b>5 · Limpieza</b></td><td>Clases y nombres viejos, shadcn sin uso, archivos sin uso, <code>.dark</code>.</td><td><span class="warn">Siguiente</span></td><td>—</td></tr>
+          <tr class="stage-row"><td><b>5 · Limpieza</b></td><td>Clases y nombres viejos, shadcn sin uso, archivos sin uso, <code>.dark</code>, voseo en el contenido.</td><td><span class="pass">Hecha</span></td><td><code>120ee7f</code></td></tr>
         </tbody>
       </table></div>
       <div class="callout callout--rule"><strong>Decisiones tomadas para avanzar</strong>Se aplicaron las recomendaciones de las decisiones 1 a 8 (<a href="04-validacion.html#decisiones">spec 04</a>): fondo frío, botones en 400, botón de Home igual al resto, chips de 13 px, borrar shadcn sin uso, prefijo <code>editorial-</code>, calendario cósmico aparte y sin modo oscuro. Las que borran archivos se ejecutan recién en la etapa 5.</div>
@@ -186,6 +186,23 @@
       </div>
 
       <div class="callout"><strong>Encontrado al pasar (no es del design system)</strong>El frontend pide <code>GET /api/rituals/public</code> y el backend responde 404: esa ruta no existe. También quedan textos de rituales en tú (“Siéntate”, “Toma”) en vez de vos; se corrigen en la limpieza.</div>
+
+      <h2 id="etapa-5">Etapa 5 · Limpieza</h2>
+      <div class="grid-3">
+        <div class="panel" style="margin:0"><p class="type-display" style="margin:0;color:var(--success)">−7.900</p><p class="type-body muted" style="margin:4px 0 0">líneas borradas</p></div>
+        <div class="panel" style="margin:0"><p class="type-display" style="margin:0;color:var(--success)">58 → 12</p><p class="type-body muted" style="margin:4px 0 0">dependencias de la app</p></div>
+        <div class="panel" style="margin:0"><p class="type-display" style="margin:0;color:var(--ink-strong)">0</p><p class="type-body muted" style="margin:4px 0 0">cambios visibles en las pantallas públicas</p></div>
+      </div>
+      <ul class="type-body-lg" style="padding-left:20px;max-width:760px">
+        <li><b>shadcn:</b> se borraron 46 de los 48 archivos de <code>components/ui/</code> y las 46 dependencias que solo usaban ellos (MUI, Radix, recharts, react-slick…). Quedan dos, <code>alert-dialog</code> y <code>dropdown-menu</code>, que usa Cuenta: ahora son envoltorios cortos de Radix con los estilos del sistema adentro, así la pantalla ya no los pisa con clases.</li>
+        <li><b>Tokens:</b> afuera las variables de color de shadcn, <code>.dark</code> y la variante oscura, y los nombres anteriores (<code>--app-page</code>, <code>--border-*</code>, <code>--surface-softest</code>), reemplazados por <code>--surface-*</code> y <code>--line-*</code> donde quedaban.</li>
+        <li><b>Clases:</b> se borraron las 22 clases viejas que ya no usaba ninguna pantalla (<code>editorial-action-button</code>, <code>editorial-button-primary</code>, <code>editorial-step-tab</code>, <code>editorial-meta-badge</code>…). Se conservan las variantes del sistema que todavía no tienen uso pero están especificadas (<code>editorial-notice</code>, <code>editorial-button--danger</code>, <code>editorial-card--compact</code>).</li>
+        <li><b>Lavado radial:</b> los 8 degradados escritos a mano en cada pantalla pasan a <code>.editorial-radial-wash</code> (un solo valor, 70 × 45 %).</li>
+        <li><b>Archivos:</b> 13 imágenes sin uso (8 fotos y 5 lunas en PNG) y el peso 600 de Cormorant, que no usaba nada. La <a href="galeria.html">galería</a> se regeneró.</li>
+        <li><b>Voseo:</b> los rituales de ejemplo y las plantillas de respaldo del paso de ritual estaban en tú (“Siéntate”, “Toma”, “Cierra”); ahora en vos, como lo que genera el backend (“Sentate”, “Hacé tres respiraciones”, “Cerrá”).</li>
+      </ul>
+      <div class="callout"><strong>Queda para después (no es limpieza)</strong>Algunos rituales de ejemplo usan femenino (“anclada”, “descalza”, “preparada”), mientras el backend escribe sin género gramatical. Y el texto de la Wiki “Este espacio queda preparado…” sigue siendo un texto provisorio.</div>
+      <p class="muted">Verificado: build y tipos (solo los dos errores previos en <code>StepAnchor</code> y <code>Stories</code>); capturas de las pantallas públicas comparadas píxel a píxel con las de la etapa 4: Login idéntica, Explorar y Wiki sin diferencias más allá de la barra de navegación (cambio de la etapa 4) y la compresión de las fotos. El diálogo de borrar y el menú de Cuenta requieren login y no se capturaron.</p>
 
       <h2 id="comparacion">Antes y después</h2>
       <p class="muted">Pantallas públicas en 390 px, mismas condiciones (se puede scrollear cada captura). Las capturas se regeneran con <code>tools/capture-screens.cjs</code>.</p>
