@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router";
+import { BackLink } from "../components/BackLink";
 import { motion } from "motion/react";
 import { WIKI_NOTES } from "../data/wiki";
 
@@ -6,7 +7,7 @@ export function Wiki() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-[var(--app-page)] flex flex-col overflow-y-auto">
+    <div className="min-h-screen bg-surface-page flex flex-col overflow-y-auto">
       <div
         className="fixed inset-0 pointer-events-none"
         style={{
@@ -15,17 +16,8 @@ export function Wiki() {
         }}
       />
 
-      <div className="relative z-10 pt-14 px-6 pb-4 flex items-center justify-between">
-        <button
-          onClick={() => navigate("/")}
-          className="flex items-center gap-2 text-[var(--ink-muted)] hover:text-[var(--ink-strong)] transition-colors"
-          style={{ fontFamily: "var(--font-sans-ui)", fontSize: "13px" }}
-        >
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <path d="M9 2L4 7L9 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-          </svg>
-          Inicio
-        </button>
+      <div className="relative z-10 pt-12 px-6 pb-2 flex items-center justify-between">
+        <BackLink to="/" label="Inicio" />
       </div>
 
       <motion.div
@@ -35,39 +27,9 @@ export function Wiki() {
         className="relative z-10 px-6 pb-12"
       >
         <div className="mb-8">
-          <p
-            style={{
-              fontFamily: "var(--font-sans-ui)",
-              fontSize: "11px",
-              fontWeight: 500,
-              letterSpacing: "0.14em",
-              textTransform: "uppercase",
-              color: "var(--ink-subtle)",
-              marginBottom: "8px",
-            }}
-          >
-            Wiki ritual
-          </p>
-          <h1
-            style={{
-              fontFamily: "var(--font-serif-display)",
-              fontSize: "32px",
-              fontWeight: 400,
-              color: "var(--ink-strong)",
-              lineHeight: 1.15,
-              marginBottom: "10px",
-            }}
-          >
-            Biblioteca de notas y prácticas
-          </h1>
-          <p
-            style={{
-              fontFamily: "var(--font-sans-ui)",
-              fontSize: "13px",
-              color: "var(--ink-muted)",
-              lineHeight: 1.6,
-            }}
-          >
+          <p className="editorial-eyebrow mb-2">Wiki ritual</p>
+          <h1 className="mb-2.5 font-serif text-title-1 text-ink-strong">Biblioteca de notas y prácticas</h1>
+          <p className="font-sans text-body text-ink-muted">
             Este espacio queda preparado para sumar la información extensa sobre rituales, velas,
             preparación y prácticas compartidas.
           </p>
@@ -81,11 +43,11 @@ export function Wiki() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.45, delay: index * 0.05 }}
               onClick={() => navigate(`/wiki/${note.id}`)}
-              className="relative w-full text-left overflow-hidden transition-all hover:scale-[0.99] active:scale-[0.97] min-h-[200px] flex flex-col justify-end group isolate border"
-              style={{ borderColor: "var(--border-soft)", borderRadius: "var(--radius-card)" }}
+              type="button"
+              className="group relative isolate flex min-h-[200px] w-full flex-col justify-end overflow-hidden rounded-card border border-line-soft text-left transition-all hover:scale-[0.99] active:scale-[0.98]"
             >
               {/* Background Image & Overlay */}
-              <div className="absolute inset-0 z-0 bg-[var(--surface-soft)]">
+              <div className="absolute inset-0 z-0 bg-surface-soft">
                 {note.image && (
                   <img
                     src={note.image}
@@ -96,44 +58,16 @@ export function Wiki() {
                   />
                 )}
                 {/* Subtle gradient for text legibility ONLY at the very bottom */}
-                <div className="absolute inset-0 bg-gradient-to-t from-[rgba(0,0,0,0.7)] via-[rgba(0,0,0,0.1)] to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/15 to-transparent" />
               </div>
 
               {/* Text Content */}
               <div className="relative z-10 px-6 py-6 w-full">
-                <p
-                  style={{
-                    fontFamily: "var(--font-sans-ui)",
-                    fontSize: "10px",
-                    fontWeight: 500,
-                    letterSpacing: "0.14em",
-                    textTransform: "uppercase",
-                    color: "rgba(255,255,255,0.7)",
-                    marginBottom: "8px",
-                  }}
-                >
+                <p className="editorial-eyebrow mb-2" style={{ color: "rgba(255,255,255,0.82)" }}>
                   {note.eyebrow}
                 </p>
-                <h2
-                  style={{
-                    fontFamily: "var(--font-serif-display)",
-                    fontSize: "26px",
-                    fontWeight: 400,
-                    color: "#FFFFFF",
-                    lineHeight: 1.15,
-                    marginBottom: "8px",
-                  }}
-                >
-                  {note.title}
-                </h2>
-                <p
-                  style={{
-                    fontFamily: "var(--font-sans-ui)",
-                    fontSize: "13px",
-                    color: "rgba(255,255,255,0.8)",
-                    lineHeight: 1.6,
-                  }}
-                >
+                <h2 className="mb-2 font-serif text-title-2 text-on-ink-strong">{note.title}</h2>
+                <p className="font-sans text-body" style={{ color: "rgba(255,255,255,0.86)" }}>
                   {note.summary}
                 </p>
               </div>

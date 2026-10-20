@@ -116,8 +116,9 @@ export function RitualGridCard({
         />
 
         {/* Type label top-left */}
-        <div className="absolute top-2.5 left-3">
-          <span className="editorial-eyebrow" style={{ color: "rgba(255,255,255,0.92)" }}>
+        <div className="absolute top-2.5 left-3 right-11">
+          {/* Termina en "…" antes del botón de guardar */}
+          <span className="editorial-eyebrow block truncate" style={{ color: "rgba(255,255,255,0.92)" }}>
             {type}
           </span>
         </div>
@@ -167,7 +168,7 @@ export function RitualGridCard({
       {/* Text area */}
       <div className="px-3 pt-2.5 pb-3 flex flex-col gap-0.5">
         {/* Serif solo para titulares de 20 px o más: el título chico va en sans. */}
-        <p className="line-clamp-2 font-sans text-label font-medium leading-[1.3] text-ink-strong">
+        <p className="line-clamp-2 font-sans text-body font-medium leading-[1.35] text-ink-strong">
           {title}
         </p>
         <p className="font-sans text-caption text-ink-muted">

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
+import { BackLink } from "../components/BackLink";
 import { motion } from "motion/react";
 import { toast } from "sonner";
 import { useRitual } from "../context/RitualContext";
@@ -77,7 +78,7 @@ export function Share() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col overflow-y-auto">
+    <div className="min-h-screen bg-surface-page flex flex-col overflow-y-auto">
       {/* Gradient */}
       <div
         className="fixed inset-0 pointer-events-none"
@@ -88,17 +89,8 @@ export function Share() {
       />
 
       {/* Header */}
-      <div className="relative z-10 pt-14 px-6 pb-4 flex items-center justify-between">
-        <button
-          onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-[var(--ink-subtle)] hover:text-[var(--ink-strong)] transition-colors"
-          style={{ fontFamily: "var(--font-sans-ui)", fontSize: "13px" }}
-        >
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <path d="M9 2L4 7L9 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-          </svg>
-          Volver
-        </button>
+      <div className="relative z-10 pt-12 px-6 pb-2 flex items-center justify-between">
+        <BackLink />
         <UserMenu />
       </div>
 
@@ -110,227 +102,81 @@ export function Share() {
       >
         {/* Title */}
         <div className="mb-8">
-          <p
-            style={{
-              fontFamily: "var(--font-sans-ui)",
-              fontSize: "11px",
-              fontWeight: 500,
-              letterSpacing: "0.14em",
-              textTransform: "uppercase",
-              color: "var(--ink-subtle)",
-              marginBottom: "8px",
-            }}
-          >
-            Compartir ritual
-          </p>
-          <h1
-            style={{
-              fontFamily: "var(--font-serif-display)",
-              fontSize: "30px",
-              fontWeight: 400,
-              color: "var(--ink-strong)",
-              lineHeight: 1.25,
-            }}
-          >
+          <p className="editorial-eyebrow mb-2">Compartir ritual</p>
+          <h1 className="font-serif text-title-1 text-ink-strong">
             Tu ritual ya está listo
             <br />
-            <em style={{ fontStyle: "italic", fontWeight: 300 }}>para compartir.</em>
+            <em className="italic font-light">para compartir.</em>
           </h1>
         </div>
 
-        {/* Preview card */}
+        {/* Preview card: así lo ve quien recibe el link */}
         <div
-          className="mb-8 p-5 rounded-2xl overflow-hidden relative"
-          style={{
-            background: "linear-gradient(145deg, #0A0A0A 0%, #2A2A2A 100%)",
-          }}
+          className="relative mb-8 overflow-hidden rounded-card p-5"
+          style={{ background: "linear-gradient(145deg, #0A0A0A 0%, #2A2A2A 100%)" }}
         >
-          {/* Abstract decoration */}
-          <div
-            className="absolute pointer-events-none"
-            style={{
-              width: 200,
-              height: 200,
-              borderRadius: "50%",
-              border: "1px solid rgba(255,255,255,0.06)",
-              top: -60,
-              right: -60,
-            }}
-          />
-          <div
-            className="absolute pointer-events-none"
-            style={{
-              width: 120,
-              height: 120,
-              borderRadius: "50%",
-              border: "1px solid rgba(255,255,255,0.04)",
-              top: -20,
-              right: -20,
-            }}
-          />
+          <div className="pointer-events-none absolute -right-[60px] -top-[60px] h-[200px] w-[200px] rounded-full border border-white/[0.06]" aria-hidden="true" />
+          <div className="pointer-events-none absolute -right-5 -top-5 h-[120px] w-[120px] rounded-full border border-white/[0.04]" aria-hidden="true" />
 
           <div className="relative z-10">
-            <p
-              style={{
-                fontFamily: "var(--font-sans-ui)",
-                fontSize: "9px",
-                fontWeight: 500,
-                letterSpacing: "0.18em",
-                textTransform: "uppercase",
-                color: "rgba(255,255,255,0.35)",
-                marginBottom: "10px",
-              }}
-            >
-              Rituales
-            </p>
-            <p
-              style={{
-                fontFamily: "var(--font-serif-display)",
-                fontSize: "20px",
-                fontWeight: 400,
-                color: "white",
-                lineHeight: 1.3,
-                marginBottom: "12px",
-              }}
-            >
+            <p className="editorial-eyebrow editorial-eyebrow--on-dark mb-2.5">Rituales</p>
+            <p className="mb-3 font-serif text-title-3 text-on-ink-strong">
               {ritual.aiRitual?.title || "Mi ritual personal"}
             </p>
 
-            <div className="flex flex-wrap gap-1.5 mb-4">
+            <div className="mb-4 flex flex-wrap gap-1.5">
               {ritual.element && (
-                <span
-                  className="px-2.5 py-0.5 rounded-full"
-                  style={{
-                    border: "1px solid rgba(255,255,255,0.15)",
-                    fontFamily: "var(--font-sans-ui)",
-                    fontSize: "10px",
-                    color: "rgba(255,255,255,0.55)",
-                    letterSpacing: "0.05em",
-                  }}
-                >
+                <span className="rounded-full border border-white/15 px-2.5 py-0.5 font-sans text-caption text-on-ink-muted">
                   {ritual.element.charAt(0).toUpperCase() + ritual.element.slice(1)}
                 </span>
               )}
               {ritual.duration && (
-                <span
-                  className="px-2.5 py-0.5 rounded-full"
-                  style={{
-                    border: "1px solid rgba(255,255,255,0.15)",
-                    fontFamily: "var(--font-sans-ui)",
-                    fontSize: "10px",
-                    color: "rgba(255,255,255,0.55)",
-                    letterSpacing: "0.05em",
-                  }}
-                >
+                <span className="rounded-full border border-white/15 px-2.5 py-0.5 font-sans text-caption text-on-ink-muted">
                   {ritual.duration} min
                 </span>
               )}
-              <span
-                className="px-2.5 py-0.5 rounded-full"
-                style={{
-                  border: "1px solid rgba(255,255,255,0.15)",
-                  fontFamily: "var(--font-sans-ui)",
-                  fontSize: "10px",
-                  color: "rgba(255,255,255,0.55)",
-                  letterSpacing: "0.05em",
-                }}
-              >
+              <span className="rounded-full border border-white/15 px-2.5 py-0.5 font-sans text-caption text-on-ink-muted">
                 Vela {candleGuide.color}
               </span>
             </div>
 
-            <div
-              className="h-[1px]"
-              style={{ background: "rgba(255,255,255,0.08)", marginBottom: "12px" }}
-            />
+            <div className="mb-3 h-px bg-white/10" />
 
-            <p
-              style={{
-                fontFamily: "var(--font-sans-ui)",
-                fontSize: "11px",
-                color: showName ? "rgba(255,255,255,0.5)" : "rgba(255,255,255,0.2)",
-                fontWeight: 300,
-                letterSpacing: "0.03em",
-              }}
-            >
-              {showName ? "Compartido por ti" : "Compartido de forma anónima"}
+            <p className="font-sans text-caption text-on-ink-subtle">
+              {showName ? "Compartido por vos" : "Compartido de forma anónima"}
             </p>
           </div>
         </div>
 
         {/* Link copy */}
-        <div className="mb-5">
-          <p
-            style={{
-              fontFamily: "var(--font-sans-ui)",
-              fontSize: "11px",
-              fontWeight: 500,
-              letterSpacing: "0.1em",
-              textTransform: "uppercase",
-              color: "var(--ink-subtle)",
-              marginBottom: "8px",
-            }}
-          >
-            Link del ritual
-          </p>
+        <div className="mb-6">
+          <p className="editorial-eyebrow mb-2">Link del ritual</p>
           <div className="flex gap-2">
-            <div
-              className="flex-1 px-4 py-3 rounded-xl bg-[var(--surface-softest)] flex items-center"
-              style={{
-                fontFamily: "var(--font-sans-ui)",
-                fontSize: "13px",
-                color: "var(--ink-muted)",
-                overflow: "hidden",
-              }}
-            >
+            <div className="flex min-h-[44px] flex-1 items-center overflow-hidden rounded-sm bg-surface-muted px-4 font-sans text-body text-ink-muted">
               <span className="truncate">{shareLink}</span>
             </div>
-            <button
-              onClick={handleCopy}
-              className={`px-4 py-3 rounded-xl font-medium transition-all text-sm active:scale-[0.95] ${
-                copied
-                  ? "bg-[var(--ink-strong)] text-white"
-                  : "bg-[var(--ink-strong)] text-white hover:bg-[var(--ink-strong)]"
-              }`}
-              style={{ fontFamily: "var(--font-sans-ui)", minWidth: "64px" }}
-            >
-              {copied ? "✓" : "Copiar"}
+            <button type="button" onClick={handleCopy} className="editorial-button editorial-button--primary min-w-[88px] px-4">
+              {copied ? "Copiado" : "Copiar"}
             </button>
           </div>
+          <p className="sr-only" role="status" aria-live="polite">
+            {copied ? "Link copiado" : ""}
+          </p>
         </div>
 
         {/* Share channels */}
         <div className="mb-7">
-          <p
-            style={{
-              fontFamily: "var(--font-sans-ui)",
-              fontSize: "11px",
-              fontWeight: 500,
-              letterSpacing: "0.1em",
-              textTransform: "uppercase",
-              color: "var(--ink-subtle)",
-              marginBottom: "10px",
-            }}
-          >
-            Compartir directo
-          </p>
+          <p className="editorial-eyebrow mb-2.5">Compartir directo</p>
           <div className="flex gap-3">
-            <button
-              onClick={handleWhatsApp}
-              className="flex-1 flex items-center justify-center gap-2.5 py-3.5 rounded-xl border border-[rgba(0,0,0,0.1)] text-[var(--ink-strong)] hover:border-[rgba(0,0,0,0.2)] hover:bg-[var(--surface-softest)] transition-all active:scale-[0.97]"
-              style={{ fontFamily: "var(--font-sans-ui)", fontSize: "13px" }}
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="#25D366">
+            <button type="button" onClick={handleWhatsApp} className="editorial-button editorial-button--secondary min-h-[52px] flex-1">
+              {/* Colores de marca de terceros: excepción documentada (spec 02) */}
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="#25D366" aria-hidden="true">
                 <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
               </svg>
               WhatsApp
             </button>
-            <button
-              onClick={handleInstagram}
-              className="flex-1 flex items-center justify-center gap-2.5 py-3.5 rounded-xl border border-[rgba(0,0,0,0.1)] text-[var(--ink-strong)] hover:border-[rgba(0,0,0,0.2)] hover:bg-[var(--surface-softest)] transition-all active:scale-[0.97]"
-              style={{ fontFamily: "var(--font-sans-ui)", fontSize: "13px" }}
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="url(#ig)" strokeWidth="1.5">
+            <button type="button" onClick={handleInstagram} className="editorial-button editorial-button--secondary min-h-[52px] flex-1">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="url(#ig)" strokeWidth="1.5" aria-hidden="true">
                 <defs>
                   <linearGradient id="ig" x1="0" y1="0" x2="1" y2="1">
                     <stop offset="0%" stopColor="#f09433" />
@@ -350,70 +196,27 @@ export function Share() {
         </div>
 
         {/* Privacy note */}
-        <div className="p-4 rounded-xl bg-[#F8F8F8] mb-6">
-          <p
-            style={{
-              fontFamily: "var(--font-sans-ui)",
-              fontSize: "12px",
-              fontWeight: 300,
-              color: "var(--ink-subtle)",
-              lineHeight: 1.6,
-            }}
-          >
-            Compartís una versión legible y hermosa de tu ritual. Puedes desactivar tus datos personales antes de compartir.
+        <div className="editorial-card editorial-card--soft mb-6 p-4">
+          <p className="font-sans text-body text-ink-muted">
+            Compartís una versión legible y hermosa de tu ritual. Podés ocultar tu nombre antes de compartir.
           </p>
         </div>
 
-        <div className="p-4 rounded-2xl border border-[rgba(0,0,0,0.07)] bg-white mb-6">
-          <p
-            style={{
-              fontFamily: "var(--font-sans-ui)",
-              fontSize: "11px",
-              fontWeight: 500,
-              letterSpacing: "0.1em",
-              textTransform: "uppercase",
-              color: "var(--ink-subtle)",
-              marginBottom: "8px",
-            }}
-          >
-            Comunidad
-          </p>
-          <p
-            style={{
-              fontFamily: "var(--font-serif-display)",
-              fontSize: "24px",
-              fontWeight: 400,
-              color: "var(--ink-strong)",
-              lineHeight: 1.15,
-              marginBottom: "8px",
-            }}
-          >
-            También podés dejarlo público en la app
-          </p>
-          <p
-            style={{
-              fontFamily: "var(--font-sans-ui)",
-              fontSize: "13px",
-              fontWeight: 300,
-              color: "var(--ink-subtle)",
-              lineHeight: 1.6,
-              marginBottom: "14px",
-            }}
-          >
+        <div className="editorial-card editorial-card--flat mb-6 p-4">
+          <p className="editorial-eyebrow mb-2">Comunidad</p>
+          <p className="mb-2 font-serif text-title-3 text-ink-strong">También podés dejarlo público en la app</p>
+          <p className="mb-4 font-sans text-body text-ink-muted">
             Si lo publicás, otras personas lo van a poder descubrir en Explorar.
           </p>
           <button
+            type="button"
             onClick={handlePublishToCommunity}
             disabled={isPublishing || isPublished}
-            className={`w-full py-3.5 rounded-xl transition-all active:scale-[0.98] ${
-              isPublished
-                ? "bg-[var(--surface-softest)] text-[var(--ink-strong)] border border-[rgba(0,0,0,0.08)]"
-                : "bg-[var(--ink-strong)] text-white"
-            }`}
-            style={{ fontFamily: "var(--font-sans-ui)", fontSize: "14px" }}
+            aria-busy={isPublishing}
+            className={`editorial-button editorial-button--lg ${isPublished ? "editorial-button--secondary" : "editorial-button--primary"}`}
           >
             {isPublishing
-              ? "Publicando..."
+              ? "Publicando…"
               : isPublished
                 ? "Ya está publicado"
                 : "Publicar en comunidad"}
@@ -421,37 +224,25 @@ export function Share() {
         </div>
 
         {/* Name toggle */}
-        <div className="flex items-center justify-between p-4 rounded-2xl border border-[rgba(0,0,0,0.07)]">
+        <div className="editorial-card editorial-card--flat flex items-center justify-between gap-4 p-4">
           <div>
-            <p
-              style={{
-                fontFamily: "var(--font-sans-ui)",
-                fontSize: "14px",
-                fontWeight: 400,
-                color: "var(--ink-strong)",
-              }}
-            >
-              Mostrar mi nombre
-            </p>
-            <p
-              style={{
-                fontFamily: "var(--font-sans-ui)",
-                fontSize: "12px",
-                fontWeight: 300,
-                color: "var(--ink-subtle)",
-              }}
-            >
-              {showName ? "Visible para quien reciba el link" : "Compartirás de forma anónima"}
+            <p id="share-name-label" className="font-sans text-label text-ink-strong">Mostrar mi nombre</p>
+            <p className="mt-0.5 font-sans text-body text-ink-muted">
+              {showName ? "Visible para quien reciba el link" : "Vas a compartir de forma anónima"}
             </p>
           </div>
           <button
+            type="button"
+            role="switch"
+            aria-checked={showName}
+            aria-labelledby="share-name-label"
             onClick={() => setShowName(!showName)}
-            className={`relative w-12 h-6 rounded-full transition-all duration-300 ${
-              showName ? "bg-[var(--ink-strong)]" : "bg-[var(--ink-subtle)]"
+            className={`relative h-6 w-12 shrink-0 rounded-full transition-all duration-300 ${
+              showName ? "bg-ink-strong" : "bg-ink-subtle"
             }`}
           >
             <div
-              className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-all duration-300 ${
+              className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-all duration-300 ${
                 showName ? "left-6" : "left-0.5"
               }`}
             />
@@ -460,13 +251,9 @@ export function Share() {
 
         {/* Done button */}
         <button
+          type="button"
           onClick={() => navigate("/")}
-          className="w-full mt-6 py-4 px-6 border border-[rgba(0,0,0,0.12)] text-[var(--ink-strong)] rounded-2xl transition-all active:scale-[0.98] hover:border-[rgba(0,0,0,0.25)]"
-          style={{
-            fontFamily: "var(--font-sans-ui)",
-            fontSize: "15px",
-            fontWeight: 400,
-          }}
+          className="editorial-button editorial-button--secondary editorial-button--lg mt-6"
         >
           Volver al inicio
         </button>

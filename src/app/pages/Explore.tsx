@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
+import { BackLink } from "../components/BackLink";
 import { motion } from "motion/react";
 import { toast } from "sonner";
 import { useRitual } from "../context/RitualContext";
@@ -158,7 +159,7 @@ export function Explore() {
   const hasFilters = Object.values(activeFilters).some((v) => v !== "");
 
   return (
-    <div className="min-h-screen bg-[var(--app-page)] flex flex-col">
+    <div className="min-h-screen bg-surface-page flex flex-col">
       <div
         className="fixed inset-0 pointer-events-none"
         style={{
@@ -168,57 +169,28 @@ export function Explore() {
       />
 
       {/* Header */}
-      <div className="relative z-10 pt-14 px-6 pb-4">
-        <div className="flex items-center justify-between mb-6">
+      <div className="relative z-10 pt-12 px-6 pb-4">
+        <div className="mb-5 flex items-center justify-between">
+          <BackLink to="/" label="Inicio" />
           <button
-            onClick={() => navigate("/")}
-            className="flex items-center gap-2 text-[var(--ink-muted)] hover:text-[var(--ink-strong)] transition-colors"
-            style={{ fontFamily: "var(--font-sans-ui)", fontSize: "13px" }}
-          >
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <path d="M9 2L4 7L9 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-            </svg>
-            Inicio
-          </button>
-          <button
+            type="button"
             onClick={() => navigate("/onboarding")}
-            className="flex items-center gap-2 px-4 py-2 rounded-full transition-all active:scale-[0.97]"
-            style={{ background: "var(--ink-strong)", color: "#fff", fontFamily: "var(--font-sans-ui)", fontSize: "12px" }}
+            className="editorial-pill-button editorial-pill-button-active"
           >
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-              <path d="M6 1V11M1 6H11" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+              <path d="M6 1V11M1 6H11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
             </svg>
             Crear
           </button>
         </div>
 
-        <h1
-          style={{
-            fontFamily: "var(--font-serif-display)",
-            fontSize: "30px",
-            fontWeight: 400,
-            color: "var(--ink-strong)",
-            lineHeight: 1.2,
-            marginBottom: "4px",
-          }}
-        >
-          Explorar
-        </h1>
-        <p
-          style={{
-            fontFamily: "var(--font-sans-ui)",
-            fontSize: "13px",
-            fontWeight: 300,
-            color: "var(--ink-subtle)",
-          }}
-        >
-          Rituales compartidos por la comunidad
-        </p>
+        <h1 className="mb-1 font-serif text-title-1 text-ink-strong">Explorar</h1>
+        <p className="font-sans text-body text-ink-muted">Rituales compartidos por la comunidad</p>
       </div>
 
       {/* Filter group tabs */}
       <div className="relative z-10 px-6">
-        <div className="mb-3 flex gap-4 overflow-x-auto border-b pb-0 hide-scrollbar" style={{ borderColor: "var(--border-soft)" }}>
+        <div className="mb-3 flex gap-4 overflow-x-auto border-b border-line-soft hide-scrollbar" role="tablist" aria-label="Filtrar por">
           {(Object.keys(FILTERS) as FilterKey[]).map((group) => {
             const labels: Record<FilterKey, string> = {
               type: "Intención",
@@ -231,21 +203,20 @@ export function Explore() {
             return (
               <button
                 key={group}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
                 onClick={() => setActiveFilterGroup(group)}
-                className="relative shrink-0 pb-3 transition-colors"
-                style={{
-                  fontFamily: "var(--font-sans-ui)",
-                  fontSize: "13px",
-                  color: isActive ? "var(--ink-strong)" : "var(--ink-subtle)",
-                  fontWeight: isActive ? 500 : 400,
-                }}
+                className={`relative min-h-[44px] shrink-0 pb-3 pt-2 font-sans text-body transition-colors ${
+                  isActive ? "font-medium text-ink-strong" : "text-ink-muted hover:text-ink-strong"
+                }`}
               >
                 {labels[group]}
                 {hasValue && (
-                  <span className="ml-1 inline-block h-1.5 w-1.5 rounded-full bg-[var(--ink-strong)] align-middle" />
+                  <span className="ml-1 inline-block h-1.5 w-1.5 rounded-full bg-ink-strong align-middle" aria-label="con filtro" />
                 )}
                 {isActive && (
-                  <div className="absolute bottom-0 left-0 right-0 h-[1.5px] rounded-full bg-[var(--ink-strong)]" />
+                  <div className="absolute bottom-0 left-0 right-0 h-[1.5px] rounded-full bg-ink-strong" />
                 )}
               </button>
             );
@@ -259,13 +230,10 @@ export function Explore() {
             return (
               <button
                 key={f}
+                type="button"
                 onClick={() => toggleFilter(activeFilterGroup, f)}
-                className={`shrink-0 px-3.5 py-1.5 rounded-full border text-sm transition-all ${
-                  isChipActive
-                    ? "bg-[var(--ink-strong)] border-[var(--ink-strong)] text-white"
-                    : "bg-white border-[var(--border-default)] text-[var(--ink-muted)] hover:border-[var(--border-strong)]"
-                }`}
-                style={{ fontFamily: "var(--font-sans-ui)", fontSize: "12px" }}
+                aria-pressed={isChipActive}
+                className={`editorial-chip-outline shrink-0 ${isChipActive ? "editorial-chip-outline-active" : ""}`}
               >
                 {f}
               </button>
@@ -273,11 +241,11 @@ export function Explore() {
           })}
           {hasFilters && (
             <button
+              type="button"
               onClick={() =>
                 setActiveFilters({ type: "", energy: "", element: "", duration: "" })
               }
-              className="shrink-0 rounded-full border border-dashed px-3.5 py-1.5 text-sm text-[var(--ink-muted)]"
-              style={{ borderColor: "var(--border-strong)", fontFamily: "var(--font-sans-ui)", fontSize: "12px" }}
+              className="editorial-chip-outline shrink-0 border-dashed"
             >
               Limpiar
             </button>
@@ -287,48 +255,27 @@ export function Explore() {
 
       {/* Results count */}
       <div className="relative z-10 px-6 mb-3">
-        <p
-          style={{
-            fontFamily: "var(--font-sans-ui)",
-            fontSize: "11px",
-            color: "var(--ink-subtle)",
-            letterSpacing: "0.06em",
-          }}
-        >
+        <p className="font-sans text-caption text-ink-muted" role="status">
           {filteredRituals.length} rituales
         </p>
       </div>
 
       {/* Ritual grid */}
-      <div className="relative z-10 flex-1 px-4 pb-10 overflow-y-auto">
+      <div className="relative z-10 flex-1 px-6 pb-10 overflow-y-auto">
         {filteredRituals.length === 0 ? (
           <div className="flex flex-col items-center py-16 text-center">
-            <div
-              className="mb-4 w-14 h-14 rounded-full border border-[rgba(0,0,0,0.08)] flex items-center justify-center"
-            >
-              <span style={{ fontSize: "20px", opacity: 0.3 }}>◯</span>
+            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full border border-line-default" aria-hidden="true">
+              <span className="text-title-3 text-ink-decor">◯</span>
             </div>
-            <p
-              style={{
-                fontFamily: "var(--font-serif-display)",
-                fontSize: "20px",
-                fontWeight: 400,
-                color: "var(--ink-muted)",
-                marginBottom: "4px",
-              }}
+            <p className="mb-1 font-serif text-title-3 text-ink-strong">Sin resultados</p>
+            <p className="mb-5 font-sans text-body text-ink-muted">Probá con otros filtros.</p>
+            <button
+              type="button"
+              onClick={() => setActiveFilters({ type: "", energy: "", element: "", duration: "" })}
+              className="editorial-button editorial-button--secondary"
             >
-              Sin resultados
-            </p>
-            <p
-              style={{
-                fontFamily: "var(--font-sans-ui)",
-                fontSize: "13px",
-                fontWeight: 300,
-                color: "var(--ink-subtle)",
-              }}
-            >
-              Prueba con otros filtros.
-            </p>
+              Limpiar filtros
+            </button>
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-3">
