@@ -54,7 +54,7 @@ export function StepElement() {
       >
         {/* Step label */}
         <p
-          className="mb-3 text-[var(--ink-soft)]"
+          className="mb-3 text-[var(--ink-subtle)]"
           style={{
             fontFamily: "var(--font-sans-ui)",
             fontSize: "11px",

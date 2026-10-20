@@ -32,9 +32,9 @@ function BottomNav() {
       path: "/stories",
       active: location.pathname.startsWith("/stories"),
       icon: (active: boolean) => (
-        <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke={active ? "var(--ink-strong)" : "var(--ink-soft)"} strokeWidth={1.75}>
+        <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke={active ? "var(--ink-strong)" : "var(--ink-subtle)"} strokeWidth={1.75}>
           <circle cx="12" cy="12" r="9" />
-          <circle cx="12" cy="12" r="3" fill={active ? "var(--ink-strong)" : "var(--ink-soft)"} stroke="none" />
+          <circle cx="12" cy="12" r="3" fill={active ? "var(--ink-strong)" : "var(--ink-subtle)"} stroke="none" />
         </svg>
       ),
     },
@@ -43,7 +43,7 @@ function BottomNav() {
       path: "/",
       active: location.pathname === "/",
       icon: (active: boolean) => (
-        <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke={active ? "var(--ink-strong)" : "var(--ink-soft)"} strokeWidth={1.75}>
+        <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke={active ? "var(--ink-strong)" : "var(--ink-subtle)"} strokeWidth={1.75}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l9-9 9 9M5 10v9a1 1 0 001 1h4v-5h4v5h4a1 1 0 001-1v-9" />
         </svg>
       ),
@@ -53,7 +53,7 @@ function BottomNav() {
       path: "/explorar",
       active: location.pathname.startsWith("/explorar"),
       icon: (active: boolean) => (
-        <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke={active ? "var(--ink-strong)" : "var(--ink-soft)"} strokeWidth={1.75}>
+        <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke={active ? "var(--ink-strong)" : "var(--ink-subtle)"} strokeWidth={1.75}>
           <circle cx="11" cy="11" r="8" />
           <path strokeLinecap="round" d="M21 21l-4.35-4.35" />
         </svg>
@@ -64,7 +64,7 @@ function BottomNav() {
       path: "/onboarding",
       active: location.pathname === "/onboarding" || location.pathname.startsWith("/crear"),
       icon: (active: boolean) => (
-        <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke={active ? "var(--ink-strong)" : "var(--ink-soft)"} strokeWidth={1.75}>
+        <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke={active ? "var(--ink-strong)" : "var(--ink-subtle)"} strokeWidth={1.75}>
           <circle cx="12" cy="12" r="9" />
           <path strokeLinecap="round" d="M12 8v8M8 12h8" />
         </svg>
@@ -128,7 +128,7 @@ function BottomNav() {
               fontFamily: "var(--font-sans-ui)",
               fontSize: "10px",
               fontWeight: tab.active ? 500 : 400,
-              color: tab.active ? "var(--ink-strong)" : "var(--ink-soft)",
+              color: tab.active ? "var(--ink-strong)" : "var(--ink-subtle)",
               letterSpacing: "0.01em",
             }}
           >

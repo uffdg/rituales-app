@@ -187,7 +187,7 @@ export function GuidedAudioPlayer({
           fontWeight: 500,
           letterSpacing: "0.12em",
           textTransform: "uppercase",
-          color: "var(--ink-soft)",
+          color: "var(--ink-subtle)",
           marginBottom: "6px",
         }}
       >

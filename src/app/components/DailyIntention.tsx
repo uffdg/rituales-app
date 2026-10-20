@@ -272,7 +272,7 @@ export function DailyIntention({
                 maxLength={1000}
                 placeholder="Ej.: terminar la entrega sin perder la calma"
                 aria-label="Qué deseás hoy"
-                className="min-h-[88px] w-full resize-none bg-transparent font-sans text-[15px] font-light leading-[1.6] text-[var(--ink-strong)] outline-none placeholder:text-[var(--ink-soft)] disabled:opacity-60"
+                className="min-h-[88px] w-full resize-none bg-transparent font-sans text-[15px] font-light leading-[1.6] text-[var(--ink-strong)] outline-none placeholder:text-[var(--ink-subtle)] disabled:opacity-60"
               />
               {hasSpeechRecognition && isLoggedIn ? (
                 <button

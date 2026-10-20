@@ -233,7 +233,7 @@ export function CosmicCalendar() {
                     fontSize: "10px",
                     letterSpacing: "0.1em",
                     textTransform: "uppercase",
-                    color: "var(--ink-soft)",
+                    color: "var(--ink-subtle)",
                   }}
                 >
                   {weekday}
@@ -285,7 +285,7 @@ export function CosmicCalendar() {
                           <span className="w-full truncate" style={{ fontFamily: "var(--font-sans-ui)", fontSize: "7px", color: "var(--ink-subtle)" }}>
                             {day.perfection.zodiacSign}
                           </span>
-                          <span className="w-full truncate" style={{ fontFamily: "var(--font-sans-ui)", fontSize: "7px", color: "var(--ink-soft)" }}>
+                          <span className="w-full truncate" style={{ fontFamily: "var(--font-sans-ui)", fontSize: "7px", color: "var(--ink-subtle)" }}>
                             {day.perfection.timeBuenosAires}
                           </span>
                         </>

@@ -309,7 +309,7 @@ export function Account() {
                 fontWeight: 500,
                 letterSpacing: "0.14em",
                 textTransform: "uppercase",
-                color: "var(--ink-soft)",
+                color: "var(--ink-subtle)",
                 marginBottom: "8px",
               }}
             >
@@ -347,7 +347,7 @@ export function Account() {
                 fontWeight: 500,
                 letterSpacing: "0.14em",
                 textTransform: "uppercase",
-                color: "var(--ink-soft)",
+                color: "var(--ink-subtle)",
                 marginBottom: "12px",
               }}
             >
@@ -368,7 +368,7 @@ export function Account() {
                     fontSize: "16px",
                     lineHeight: 1,
                     marginBottom: "auto",
-                    color: lunarStreak > 1 ? "rgba(255,255,255,0.45)" : "var(--ink-soft)",
+                    color: lunarStreak > 1 ? "rgba(255,255,255,0.45)" : "var(--ink-subtle)",
                   }}
                 >
                   {lunarStreak > 1 ? cosmicToday.moonEmoji : "○"}
@@ -393,7 +393,7 @@ export function Account() {
                       fontWeight: 500,
                       letterSpacing: "0.1em",
                       textTransform: "uppercase",
-                      color: lunarStreak > 1 ? "rgba(255,255,255,0.38)" : "var(--ink-soft)",
+                      color: lunarStreak > 1 ? "rgba(255,255,255,0.38)" : "var(--ink-subtle)",
                       marginBottom: "10px",
                     }}
                   >
@@ -438,7 +438,7 @@ export function Account() {
                     fontWeight: 500,
                     letterSpacing: "0.1em",
                     textTransform: "uppercase",
-                    color: isActivityToday ? "rgba(255,255,255,0.45)" : "var(--ink-soft)",
+                    color: isActivityToday ? "rgba(255,255,255,0.45)" : "var(--ink-subtle)",
                     marginBottom: "auto",
                   }}
                 >
@@ -464,7 +464,7 @@ export function Account() {
                       fontWeight: 500,
                       letterSpacing: "0.1em",
                       textTransform: "uppercase",
-                      color: isActivityToday ? "rgba(255,255,255,0.38)" : "var(--ink-soft)",
+                      color: isActivityToday ? "rgba(255,255,255,0.38)" : "var(--ink-subtle)",
                       marginBottom: "10px",
                     }}
                   >
@@ -506,7 +506,7 @@ export function Account() {
                     fontSize: "18px",
                     lineHeight: 1,
                     marginBottom: "auto",
-                    color: dominantElement ? "var(--ink-muted)" : "var(--ink-soft)",
+                    color: dominantElement ? "var(--ink-muted)" : "var(--ink-subtle)",
                   }}
                 >
                   {dominantElement ? (ELEMENT_META[dominantElement]?.symbol ?? "◯") : "◯"}
@@ -518,7 +518,7 @@ export function Account() {
                       fontSize: dominantElement ? "20px" : "28px",
                       fontWeight: 400,
                       lineHeight: 1,
-                      color: dominantElement ? "var(--ink-strong)" : "var(--ink-soft)",
+                      color: dominantElement ? "var(--ink-strong)" : "var(--ink-subtle)",
                       fontStyle: dominantElement ? "italic" : "normal",
                       marginBottom: "4px",
                     }}
@@ -534,7 +534,7 @@ export function Account() {
                       fontWeight: 500,
                       letterSpacing: "0.1em",
                       textTransform: "uppercase",
-                      color: "var(--ink-soft)",
+                      color: "var(--ink-subtle)",
                     }}
                   >
                     elemento
@@ -557,7 +557,7 @@ export function Account() {
                     fontSize: "12px",
                     lineHeight: 1,
                     marginBottom: "auto",
-                    color: "var(--ink-soft)",
+                    color: "var(--ink-subtle)",
                   }}
                 >
                   ✦
@@ -582,7 +582,7 @@ export function Account() {
                       fontWeight: 500,
                       letterSpacing: "0.1em",
                       textTransform: "uppercase",
-                      color: "var(--ink-soft)",
+                      color: "var(--ink-subtle)",
                     }}
                   >
                     sesiones
@@ -604,7 +604,7 @@ export function Account() {
                   fontWeight: 500,
                   letterSpacing: "0.14em",
                   textTransform: "uppercase",
-                  color: "var(--ink-soft)",
+                  color: "var(--ink-subtle)",
                   marginBottom: "12px",
                 }}
               >
@@ -645,7 +645,7 @@ export function Account() {
                           style={{
                             fontFamily: "var(--font-sans-ui)",
                             fontSize: "10px",
-                            color: "var(--ink-soft)",
+                            color: "var(--ink-subtle)",
                             marginTop: "3px",
                             letterSpacing: "0.04em",
                           }}
@@ -674,7 +674,7 @@ export function Account() {
                 fontWeight: 500,
                 letterSpacing: "0.14em",
                 textTransform: "uppercase",
-                color: "var(--ink-soft)",
+                color: "var(--ink-subtle)",
               }}
             >
               Tus rituales
@@ -684,7 +684,7 @@ export function Account() {
                 style={{
                   fontFamily: "var(--font-sans-ui)",
                   fontSize: "11px",
-                  color: "var(--ink-soft)",
+                  color: "var(--ink-subtle)",
                 }}
               >
                 {displayEntries.length} de {totalCount}
@@ -750,7 +750,7 @@ export function Account() {
                 padding: "5px 14px",
                 borderRadius: "99px",
                 background: !elementFilter ? "rgba(15,23,42,0.08)" : "transparent",
-                color: !elementFilter ? "var(--ink-strong)" : "var(--ink-soft)",
+                color: !elementFilter ? "var(--ink-strong)" : "var(--ink-subtle)",
                 border: "1px solid var(--border-soft)",
               }}
             >
@@ -769,7 +769,7 @@ export function Account() {
                   background:
                     elementFilter === f.id ? "rgba(15,23,42,0.08)" : "transparent",
                   color:
-                    elementFilter === f.id ? "var(--ink-strong)" : "var(--ink-soft)",
+                    elementFilter === f.id ? "var(--ink-strong)" : "var(--ink-subtle)",
                   border: "1px solid var(--border-soft)",
                 }}
               >
@@ -928,7 +928,7 @@ export function Account() {
               fontWeight: 500,
               letterSpacing: "0.14em",
               textTransform: "uppercase",
-              color: "var(--ink-soft)",
+              color: "var(--ink-subtle)",
               marginBottom: "14px",
             }}
           >
@@ -945,7 +945,7 @@ export function Account() {
                 fontWeight: 500,
                 letterSpacing: "0.12em",
                 textTransform: "uppercase",
-                color: "var(--ink-soft)",
+                color: "var(--ink-subtle)",
                 marginBottom: "4px",
               }}
             >
@@ -970,7 +970,7 @@ export function Account() {
                 fontWeight: 500,
                 letterSpacing: "0.12em",
                 textTransform: "uppercase",
-                color: "var(--ink-soft)",
+                color: "var(--ink-subtle)",
                 marginBottom: "6px",
               }}
             >
@@ -1048,7 +1048,7 @@ export function Account() {
                 fontWeight: 500,
                 letterSpacing: "0.14em",
                 textTransform: "uppercase",
-                color: "var(--ink-soft)",
+                color: "var(--ink-subtle)",
               }}
             >
               Confirmar acción

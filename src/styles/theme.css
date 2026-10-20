@@ -4,29 +4,31 @@
   --font-size: 16px;
   --font-sans-ui: "Inter", sans-serif;
   --font-serif-display: "Cormorant Garamond", serif;
-  --background: #ffffff;
-  --foreground: oklch(0.145 0 0);
-  --card: #ffffff;
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: #030213;
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.95 0.0058 264.53);
-  --secondary-foreground: #030213;
-  --muted: #ececf0;
-  --muted-foreground: #717182;
-  --accent: #e9ebef;
-  --accent-foreground: #030213;
-  --destructive: #d4183d;
-  --destructive-foreground: #ffffff;
-  --border: rgba(0, 0, 0, 0.1);
+  /* Variables de shadcn (components/ui): apuntan a los tokens editoriales de
+     abajo para que el diálogo y el menú hablen el mismo idioma que la app. */
+  --background: var(--surface-base);
+  --foreground: var(--ink-body);
+  --card: var(--surface-base);
+  --card-foreground: var(--ink-body);
+  --popover: var(--surface-base);
+  --popover-foreground: var(--ink-body);
+  --primary: var(--ink-strong);
+  --primary-foreground: var(--on-ink-strong);
+  --secondary: var(--surface-muted);
+  --secondary-foreground: var(--ink-strong);
+  --muted: var(--surface-muted);
+  --muted-foreground: var(--ink-muted);
+  --accent: var(--surface-muted);
+  --accent-foreground: var(--ink-strong);
+  --destructive: var(--danger);
+  --destructive-foreground: var(--on-ink-strong);
+  --border: var(--line-default);
   --input: transparent;
-  --input-background: #f3f3f5;
+  --input-background: var(--surface-muted);
   --switch-background: #cbced4;
   --font-weight-medium: 500;
   --font-weight-normal: 400;
-  --ring: oklch(0.708 0 0);
+  --ring: var(--ink-strong);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
@@ -41,24 +43,65 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
-  --app-shell: #eef0f3;
-  --app-page: #fbfcfd;
-  --surface-muted: #eceeef;
-  --surface-soft: #f5f7f8;
-  --surface-softest: #f8f9fa;
+  /* ── Design system v1 (docs/design-system/02-fundamentos.html) ── */
+
+  /* Texto sobre claro */
   --ink-strong: #0a0a0a;
   --ink-body: #17191c;
   --ink-muted: #5e646d;
-  --ink-subtle: #9ca3ad;
-  --ink-soft: #b4bac2;
-  --border-soft: rgba(15, 23, 42, 0.06);
-  --border-default: rgba(15, 23, 42, 0.1);
-  --border-strong: rgba(15, 23, 42, 0.18);
-  --shadow-soft: 0 10px 30px rgba(15, 23, 42, 0.05);
-  --shadow-lifted: 0 18px 42px rgba(15, 23, 42, 0.09);
-  --radius-chip: 999px;
-  --radius-card: 24px;
-  --radius-panel: 32px;
+  --ink-subtle: #6b727c;   /* 4,9:1 — antes #9ca3ad (2,5:1) */
+  --ink-decor: #b4bac2;    /* solo adornos y divisores, nunca texto */
+
+  /* Texto sobre oscuro o foto */
+  --on-ink-strong: #ffffff;
+  --on-ink-muted: rgba(255, 255, 255, 0.72);
+  --on-ink-subtle: rgba(255, 255, 255, 0.56);
+
+  /* Superficies */
+  --surface-shell: #eef0f3;
+  --surface-page: #fbfcfd;
+  --surface-base: #ffffff;
+  --surface-soft: #f8f9fa;
+  --surface-muted: #eceeef;
+  --surface-inverse: #0a0a0a;
+  --scrim: rgba(0, 0, 0, 0.35);
+
+  /* Líneas */
+  --line-soft: rgba(15, 23, 42, 0.06);
+  --line-default: rgba(15, 23, 42, 0.10);
+  --line-strong: rgba(15, 23, 42, 0.18);
+
+  /* Feedback */
+  --danger: #b42318;
+  --danger-surface: #fef3f2;
+  --success: #1e6b47;
+  --success-surface: #ecf6f0;
+
+  /* Oráculo: solo dentro de las piezas del oráculo */
+  --oracle-ink: #141312;
+  --oracle-gold: #c9a66b;
+  --oracle-paper: #f3ede2;
+  --oracle-paper-muted: rgba(243, 237, 226, 0.6);
+  --oracle-line: rgba(201, 166, 107, 0.25);
+  --oracle-glow: rgba(201, 166, 107, 0.45);
+
+  /* Espaciado y foco */
+  --space-gutter: 24px;
+  --focus-ring: 2px solid var(--ink-strong);
+  --focus-offset: 2px;
+
+  /* Movimiento */
+  --duration-state: 160ms;
+  --duration-enter: 500ms;
+  --duration-reveal: 800ms;
+
+  /* Nombres anteriores: se quitan al terminar la migración de pantallas. */
+  --app-shell: var(--surface-shell);
+  --app-page: var(--surface-page);
+  --surface-softest: var(--surface-soft);
+  --border-soft: var(--line-soft);
+  --border-default: var(--line-default);
+  --border-strong: var(--line-strong);
 }
 
 .dark {
@@ -98,6 +141,35 @@
   --sidebar-ring: oklch(0.439 0 0);
 }
 
+/* Escalas del design system: Tailwind crea la variable y la clase
+   (text-title-2, rounded-card, shadow-soft, ease-editorial…). */
+@theme {
+  --text-display: 48px;  --text-display--line-height: 1;
+  --text-title-1: 32px;  --text-title-1--line-height: 1.1;
+  --text-title-2: 26px;  --text-title-2--line-height: 1.15;
+  --text-title-3: 20px;  --text-title-3--line-height: 1.25;
+  --text-title-4: 17px;  --text-title-4--line-height: 1.45;
+  --text-body-lg: 15px;  --text-body-lg--line-height: 1.6;
+  --text-label: 14px;    --text-label--line-height: 1.2;
+  --text-body: 13px;     --text-body--line-height: 1.55;
+  --text-caption: 11px;  --text-caption--line-height: 1.45;
+  --text-eyebrow: 10px;  --text-eyebrow--line-height: 1.2;
+  --tracking-eyebrow: 0.14em;
+
+  --radius-xs: 6px;
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-card: 24px;
+  --radius-panel: 32px;
+  --radius-chip: 999px;
+
+  --shadow-soft: 0 10px 30px rgba(15, 23, 42, 0.05);
+  --shadow-lifted: 0 20px 60px rgba(15, 23, 42, 0.12);
+  --shadow-shell: 0 0 0 1px rgba(15, 23, 42, 0.04), 0 30px 80px rgba(15, 23, 42, 0.10);
+
+  --ease-editorial: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 @theme inline {
   /* Font families — single source of truth.
      Para cambiar la serif de toda la app: editar --font-serif-display en :root */
@@ -131,8 +203,6 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
   --color-sidebar: var(--sidebar);
@@ -143,6 +213,33 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+
+  --color-ink-strong: var(--ink-strong);
+  --color-ink-body: var(--ink-body);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-subtle: var(--ink-subtle);
+  --color-ink-decor: var(--ink-decor);
+  --color-on-ink-strong: var(--on-ink-strong);
+  --color-on-ink-muted: var(--on-ink-muted);
+  --color-on-ink-subtle: var(--on-ink-subtle);
+  --color-surface-shell: var(--surface-shell);
+  --color-surface-page: var(--surface-page);
+  --color-surface-base: var(--surface-base);
+  --color-surface-soft: var(--surface-soft);
+  --color-surface-muted: var(--surface-muted);
+  --color-surface-inverse: var(--surface-inverse);
+  --color-scrim: var(--scrim);
+  --color-line-soft: var(--line-soft);
+  --color-line-default: var(--line-default);
+  --color-line-strong: var(--line-strong);
+  --color-danger: var(--danger);
+  --color-danger-surface: var(--danger-surface);
+  --color-success: var(--success);
+  --color-success-surface: var(--success-surface);
+  --color-oracle-ink: var(--oracle-ink);
+  --color-oracle-gold: var(--oracle-gold);
+  --color-oracle-paper: var(--oracle-paper);
+  --color-oracle-paper-muted: var(--oracle-paper-muted);
 }
 
 @layer base {
@@ -164,6 +261,17 @@
 
   html {
     font-size: var(--font-size);
+  }
+
+  /* Reducir movimiento, para toda la app (las animaciones de motion lo
+     respetan por MotionConfig en App.tsx). */
+  @media (prefers-reduced-motion: reduce) {
+    *, ::before, ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 
   h1 {
@@ -557,7 +665,7 @@
     font-weight: 500;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: var(--ink-soft);
+    color: var(--ink-subtle);
     margin-bottom: 6px;
   }
 

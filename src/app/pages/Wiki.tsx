@@ -42,7 +42,7 @@ export function Wiki() {
               fontWeight: 500,
               letterSpacing: "0.14em",
               textTransform: "uppercase",
-              color: "var(--ink-soft)",
+              color: "var(--ink-subtle)",
               marginBottom: "8px",
             }}
           >

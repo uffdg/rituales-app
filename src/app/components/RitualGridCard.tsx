@@ -190,7 +190,7 @@ export function RitualGridCard({
             fontFamily: "var(--font-sans-ui)",
             fontSize: "10px",
             fontWeight: 300,
-            color: "var(--ink-soft)",
+            color: "var(--ink-subtle)",
           }}
         >
           {element} · {duration} min

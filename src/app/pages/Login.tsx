@@ -296,7 +296,7 @@ export function Login() {
                   style={{
                     fontFamily: "var(--font-sans-ui)",
                     fontSize: "13px",
-                    color: "var(--ink-soft)",
+                    color: "var(--ink-subtle)",
                     textAlign: "center",
                     marginBottom: "8px",
                   }}

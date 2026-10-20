@@ -729,7 +729,7 @@ export function RitualDetail() {
               className="editorial-card-soft mb-5 p-5 rounded-2xl"
             >
               <div className="flex items-center gap-2 mb-3">
-                <span className="font-serif text-[14px] text-[var(--ink-soft)]">{section.symbol}</span>
+                <span className="font-serif text-[14px] text-[var(--ink-decor)]" aria-hidden="true">{section.symbol}</span>
                 <p className="editorial-eyebrow">{section.label}</p>
               </div>
               <p style={{ fontFamily: "var(--font-sans-ui)", fontSize: "14px", fontWeight: 300, lineHeight: 1.7, color: "var(--ink-body)" }}>{section.text}</p>

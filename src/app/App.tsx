@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, MotionConfig, motion } from "motion/react";
 import { RouterProvider } from "react-router";
 import { Analytics } from "@vercel/analytics/react";
 import { router } from "./routes.tsx";
@@ -117,11 +117,13 @@ function AppShell() {
   );
 
   return (
-    <>
+    // reducedMotion="user": si la persona pidió reducir movimiento, motion
+    // apaga las animaciones de transformación en toda la app.
+    <MotionConfig reducedMotion="user">
       <RouterProvider router={router} />
       <AnimatePresence>{showSplash ? <SplashScreen /> : null}</AnimatePresence>
       <Analytics />
-    </>
+    </MotionConfig>
   );
 }
 

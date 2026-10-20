@@ -236,7 +236,7 @@ export function Explore() {
                 style={{
                   fontFamily: "var(--font-sans-ui)",
                   fontSize: "13px",
-                  color: isActive ? "var(--ink-strong)" : "var(--ink-soft)",
+                  color: isActive ? "var(--ink-strong)" : "var(--ink-subtle)",
                   fontWeight: isActive ? 500 : 400,
                 }}
               >
@@ -291,7 +291,7 @@ export function Explore() {
           style={{
             fontFamily: "var(--font-sans-ui)",
             fontSize: "11px",
-            color: "var(--ink-soft)",
+            color: "var(--ink-subtle)",
             letterSpacing: "0.06em",
           }}
         >
@@ -324,7 +324,7 @@ export function Explore() {
                 fontFamily: "var(--font-sans-ui)",
                 fontSize: "13px",
                 fontWeight: 300,
-                color: "var(--ink-soft)",
+                color: "var(--ink-subtle)",
               }}
             >
               Prueba con otros filtros.

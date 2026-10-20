@@ -93,7 +93,7 @@ export function RitualRecommendationCard({
             fontFamily: "var(--font-sans-ui)",
             fontSize: "13px",
             fontWeight: 300,
-            color: "var(--ink-soft)",
+            color: "var(--ink-subtle)",
             lineHeight: 1.55,
             marginBottom: "14px",
           }}

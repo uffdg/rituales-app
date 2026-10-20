@@ -276,7 +276,7 @@ export function StepRitual() {
       <div className="flex-1 px-6 pb-10 overflow-y-auto relative z-10">
         {/* Step label */}
         <p
-          className="mb-3 text-[var(--ink-soft)]"
+          className="mb-3 text-[var(--ink-subtle)]"
           style={{
             fontFamily: "var(--font-sans-ui)",
             fontSize: "11px",
@@ -333,7 +333,7 @@ export function StepRitual() {
                 style={{
                   fontFamily: "var(--font-sans-ui)",
                   fontSize: "12px",
-                  color: "var(--ink-soft)",
+                  color: "var(--ink-subtle)",
                   fontWeight: 300,
                 }}
               >
@@ -392,7 +392,7 @@ export function StepRitual() {
                         fontWeight: 500,
                         letterSpacing: "0.12em",
                         textTransform: "uppercase",
-                        color: "var(--ink-soft)",
+                        color: "var(--ink-subtle)",
                         marginBottom: "6px",
                       }}
                     >
@@ -415,7 +415,7 @@ export function StepRitual() {
                     style={{
                       fontFamily: "var(--font-sans-ui)",
                       fontSize: "11px",
-                      color: "var(--ink-soft)",
+                      color: "var(--ink-subtle)",
                     }}
                   >
                     {ritualIngredients.length}

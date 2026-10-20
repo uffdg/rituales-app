@@ -241,7 +241,7 @@ export function Onboarding() {
                 style={{
                   fontFamily: "var(--font-sans-ui)",
                   fontSize: "11px",
-                  color: "var(--ink-soft)",
+                  color: "var(--ink-subtle)",
                   letterSpacing: "0.08em",
                 }}
               >
@@ -370,7 +370,7 @@ export function Onboarding() {
         </button>
 
         <p
-          className="mt-5 text-center text-[var(--ink-soft)]"
+          className="mt-5 text-center text-[var(--ink-subtle)]"
           style={{
             fontFamily: "var(--font-sans-ui)",
             fontSize: "11px",

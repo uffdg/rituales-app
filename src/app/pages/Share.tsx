@@ -117,7 +117,7 @@ export function Share() {
               fontWeight: 500,
               letterSpacing: "0.14em",
               textTransform: "uppercase",
-              color: "var(--ink-soft)",
+              color: "var(--ink-subtle)",
               marginBottom: "8px",
             }}
           >
@@ -267,7 +267,7 @@ export function Share() {
               fontWeight: 500,
               letterSpacing: "0.1em",
               textTransform: "uppercase",
-              color: "var(--ink-soft)",
+              color: "var(--ink-subtle)",
               marginBottom: "8px",
             }}
           >
@@ -308,7 +308,7 @@ export function Share() {
               fontWeight: 500,
               letterSpacing: "0.1em",
               textTransform: "uppercase",
-              color: "var(--ink-soft)",
+              color: "var(--ink-subtle)",
               marginBottom: "10px",
             }}
           >
@@ -372,7 +372,7 @@ export function Share() {
               fontWeight: 500,
               letterSpacing: "0.1em",
               textTransform: "uppercase",
-              color: "var(--ink-soft)",
+              color: "var(--ink-subtle)",
               marginBottom: "8px",
             }}
           >
@@ -438,7 +438,7 @@ export function Share() {
                 fontFamily: "var(--font-sans-ui)",
                 fontSize: "12px",
                 fontWeight: 300,
-                color: "var(--ink-soft)",
+                color: "var(--ink-subtle)",
               }}
             >
               {showName ? "Visible para quien reciba el link" : "Compartirás de forma anónima"}
@@ -447,7 +447,7 @@ export function Share() {
           <button
             onClick={() => setShowName(!showName)}
             className={`relative w-12 h-6 rounded-full transition-all duration-300 ${
-              showName ? "bg-[var(--ink-strong)]" : "bg-[var(--ink-soft)]"
+              showName ? "bg-[var(--ink-strong)]" : "bg-[var(--ink-subtle)]"
             }`}
           >
             <div
