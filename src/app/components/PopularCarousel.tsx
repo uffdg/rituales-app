@@ -149,7 +149,7 @@ export function PopularCarousel({ rituals }: { rituals: CarouselRitual[] }) {
               style={{
                 width: isActive ? 16 : 5,
                 height: 5,
-                background: isActive ? "var(--ink-strong)" : "var(--border-default)",
+                background: isActive ? "var(--ink-strong)" : "var(--line-default)",
               }}
             />
           );

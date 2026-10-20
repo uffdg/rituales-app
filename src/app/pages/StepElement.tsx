@@ -36,13 +36,7 @@ export function StepElement() {
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
-      <div
-        className="fixed inset-0 pointer-events-none"
-        style={{
-          background:
-            "radial-gradient(ellipse 60% 40% at 50% 0%, rgba(0,0,0,0.04) 0%, transparent 60%)",
-        }}
-      />
+      <div className="editorial-radial-wash" aria-hidden="true" />
 
       <ProgressBar step={3} onBack={() => navigate("/crear/2")} />
 

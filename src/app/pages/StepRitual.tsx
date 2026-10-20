@@ -11,21 +11,21 @@ import { getUserFacingErrorMessage } from "../lib/errors";
 const RITUAL_VERSIONS = [
   {
     title: "Ritual de presencia plena",
-    opening: "Cierra los ojos. Toma tres respiraciones profundas, soltando con cada exhalación lo que no necesitas ahora. Cuando sientas tu cuerpo un poco más suave, estás segura para comenzar.",
-    symbolicAction: "Llena un vaso con agua limpia. Sosténlo entre tus manos. Observa el agua — sin agitación, transparente, receptiva. Bebe lentamente en tres sorbos, como si bebieras claridad.",
-    closing: "Cierra los ojos una vez más. Di en silencio: \"Gracias por lo que ya está tomando forma\". Quédate así 30 segundos. Eso fue suficiente.",
+    opening: "Cerrá los ojos. Hacé tres respiraciones profundas, soltando con cada exhalación lo que no necesitás ahora. Cuando sientas tu cuerpo un poco más suave, estás segura para comenzar.",
+    symbolicAction: "Llená un vaso con agua limpia. Sostenelo entre tus manos. Observá el agua — sin agitación, transparente, receptiva. Tomala lentamente en tres sorbos, como si tomaras claridad.",
+    closing: "Cerrá los ojos una vez más. Decí en silencio: \"Gracias por lo que ya está tomando forma\". Quedate así 30 segundos. Eso fue suficiente.",
   },
   {
     title: "Ritual de soltura y apertura",
-    opening: "Párate con los pies bien apoyados en el suelo. Respira hondo. Imagina que con cada exhalación, te sientes más liviana.",
-    symbolicAction: "Escribe en papel lo que quieres dejar ir o lo que quieres recibir. Una sola frase, sin editar. Luego dóblalo y guárdalo en un lugar que veas.",
-    closing: "Lee lo que escribiste en voz baja. Di: \"Confío en el proceso\". Dobla el papel. Ya terminó. Ya empezó.",
+    opening: "Parate con los pies bien apoyados en el suelo. Respirá hondo. Imaginá que con cada exhalación te sentís más liviana.",
+    symbolicAction: "Escribí en papel lo que querés dejar ir o lo que querés recibir. Una sola frase, sin editar. Después doblalo y guardalo en un lugar que veas.",
+    closing: "Leé en voz baja lo que escribiste. Decí: \"Confío en el proceso\". Doblá el papel. Ya terminó. Ya empezó.",
   },
   {
     title: "Ritual de conexión simple",
-    opening: "Siéntate cómoda. Coloca una mano en tu corazón. Siente tu latido durante unos segundos. Estás aquí.",
-    symbolicAction: "Toma algo de la naturaleza — una hoja, una piedra, agua, sal — y sostenlo. Piensa en tu intención como si ya estuviera cumplida. Visualízala concreta, específica.",
-    closing: "Deja el objeto en tu mesa o escritorio. Cada vez que lo veas hoy, recuerda tu intención. Di: \"Ya está en movimiento\".",
+    opening: "Sentate cómoda. Apoyá una mano en tu corazón. Sentí tu latido durante unos segundos. Estás acá.",
+    symbolicAction: "Tomá algo de la naturaleza — una hoja, una piedra, agua, sal — y sostenelo. Pensá en tu intención como si ya estuviera cumplida. Visualizala concreta, específica.",
+    closing: "Dejá el objeto en tu mesa o escritorio. Cada vez que lo veas hoy, recordá tu intención. Decí: \"Ya está en movimiento\".",
   },
 ];
 
@@ -195,9 +195,9 @@ export function StepRitual() {
     setTimeout(() => {
       const simple = {
         title: "Ritual breve de intención",
-        opening: "Cierra los ojos. Respira profundo tres veces.",
-        symbolicAction: "Toma un vaso de agua. Bébelo lentamente pensando en lo que quieres.",
-        closing: "Di en voz baja: \"Confío en mi proceso\". Abre los ojos.",
+        opening: "Cerrá los ojos. Respirá profundo tres veces.",
+        symbolicAction: "Tomá un vaso de agua despacio, pensando en lo que querés.",
+        closing: "Decí en voz baja: \"Confío en mi proceso\". Abrí los ojos.",
       };
       setCurrentRitual(simple);
       setEditedTexts(simple);
@@ -263,13 +263,7 @@ export function StepRitual() {
 
   return (
     <div className="min-h-screen bg-surface-page flex flex-col">
-      <div
-        className="fixed inset-0 pointer-events-none"
-        style={{
-          background:
-            "radial-gradient(ellipse 60% 40% at 50% 0%, rgba(0,0,0,0.04) 0%, transparent 60%)",
-        }}
-      />
+      <div className="editorial-radial-wash" aria-hidden="true" />
 
       <ProgressBar step={4} onBack={() => navigate("/crear/3")} />
 

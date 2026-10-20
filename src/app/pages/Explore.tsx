@@ -160,13 +160,7 @@ export function Explore() {
 
   return (
     <div className="min-h-screen bg-surface-page flex flex-col">
-      <div
-        className="fixed inset-0 pointer-events-none"
-        style={{
-          background:
-            "radial-gradient(ellipse 70% 40% at 50% 0%, rgba(0,0,0,0.04) 0%, transparent 55%)",
-        }}
-      />
+      <div className="editorial-radial-wash" aria-hidden="true" />
 
       {/* Header */}
       <div className="relative z-10 pt-12 px-6 pb-4">

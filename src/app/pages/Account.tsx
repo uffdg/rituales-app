@@ -264,13 +264,7 @@ export function Account() {
 
   return (
     <div className="min-h-screen flex flex-col bg-surface-page">
-      <div
-        className="fixed inset-0 pointer-events-none"
-        style={{
-          background:
-            "radial-gradient(ellipse 70% 45% at 50% 0%, rgba(0,0,0,0.04) 0%, transparent 60%)",
-        }}
-      />
+      <div className="editorial-radial-wash" aria-hidden="true" />
 
       {/* ── Top nav ── */}
       <div className="relative z-10 pt-12 px-6 pb-2 flex items-center justify-between">
@@ -610,9 +604,7 @@ export function Account() {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent
                               align="end"
-                              sideOffset={4}
                               onClick={(event) => event.stopPropagation()}
-                              className="z-[140] min-w-[160px] rounded-sm border-line-soft bg-surface-base p-1.5 shadow-[var(--shadow-lifted)]"
                             >
                               <DropdownMenuItem
                                 onClick={(event) => {
@@ -620,7 +612,6 @@ export function Account() {
                                   if (!saved && !saving) void toggleSaveRitual(entry);
                                 }}
                                 disabled={saved || saving}
-                                className="cursor-pointer rounded-xs px-3 py-2.5 font-sans text-body text-ink-strong"
                               >
                                 {saving ? (
                                   <Loader2 size={14} strokeWidth={1.8} className="animate-spin" />
@@ -636,18 +627,17 @@ export function Account() {
                                   event.stopPropagation();
                                   shareRitual(entry);
                                 }}
-                                className="cursor-pointer rounded-xs px-3 py-2.5 font-sans text-body text-ink-strong"
                               >
                                 <Share2 size={14} strokeWidth={1.8} />
                                 Compartir
                               </DropdownMenuItem>
-                              <DropdownMenuSeparator className="my-1 bg-line-soft" />
+                              <DropdownMenuSeparator />
                               <DropdownMenuItem
                                 onClick={(event) => {
                                   event.stopPropagation();
                                   setPendingDelete({ id: entry.id, mode: "own" });
                                 }}
-                                className="cursor-pointer rounded-xs px-3 py-2.5 font-sans text-body text-danger focus:bg-danger-surface focus:text-danger"
+                                variant="danger"
                               >
                                 <Trash2 size={14} strokeWidth={1.8} color="var(--danger)" />
                                 Eliminar
@@ -731,25 +721,21 @@ export function Account() {
         open={Boolean(pendingDelete)}
         onOpenChange={(open) => !open && setPendingDelete(null)}
       >
-        <AlertDialogContent className="max-w-[calc(100%-2.5rem)] rounded-panel border border-line-soft bg-surface-base px-6 py-6 shadow-[var(--shadow-lifted)] sm:max-w-[420px]">
-          <AlertDialogHeader className="text-left">
+        <AlertDialogContent>
+          <AlertDialogHeader>
             <p className="editorial-eyebrow">Confirmar acción</p>
-            <AlertDialogTitle className="font-serif text-title-2 font-normal text-ink-strong">
+            <AlertDialogTitle>
               Borrar ritual
             </AlertDialogTitle>
-            <AlertDialogDescription className="font-sans text-body-lg text-ink-muted">
+            <AlertDialogDescription>
               Este ritual se va a borrar de forma permanente. Este cambio no se puede deshacer.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter className="mt-2 gap-2 sm:justify-end">
-            <AlertDialogCancel className="editorial-button editorial-button--secondary">
+          <AlertDialogFooter>
+            <AlertDialogCancel>
               Cancelar
             </AlertDialogCancel>
-            {/* Acción irreversible: peligro sólido (spec 03). */}
-            <AlertDialogAction
-              onClick={handleConfirmDelete}
-              className="editorial-button editorial-button--danger-solid"
-            >
+            <AlertDialogAction onClick={handleConfirmDelete}>
               Sí, borrar
             </AlertDialogAction>
           </AlertDialogFooter>

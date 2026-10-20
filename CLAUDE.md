@@ -17,7 +17,7 @@ React 18 SPA deployed on Vercel at `https://rituales-app-ruby.vercel.app`. No ba
 
 ### UI Stack
 
-Tailwind v4 (uses `@theme inline` and `@custom-variant` syntax — not v3). shadcn/ui components live in `src/app/components/ui/`. Custom design tokens defined in `src/styles/theme.css`. App background is `#EEEAE6` with white content panel.
+Tailwind v4 (uses `@theme` / `@theme inline` syntax — not v3). Design system v1 lives in `src/styles/theme.css`: tokens (`--ink-*`, `--surface-*`, `--line-*`, type scale `text-title-2`, radii `rounded-card`…) and `editorial-*` component classes; the spec is in `docs/design-system/` (open `index.html`). Use those tokens and classes instead of hard-coded sizes or colors. `src/app/components/ui/` keeps only two Radix wrappers (`alert-dialog`, `dropdown-menu`) styled with the DS; the rest of shadcn/ui and dark mode were removed. Copy is rioplatense Spanish with voseo ("Cerrá los ojos", not "Cierra").
 
 Animations use `motion/react` (the `motion` package, v12). Import from `motion/react`, not `framer-motion`.
 

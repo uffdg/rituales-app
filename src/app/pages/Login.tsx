@@ -145,13 +145,7 @@ export function Login() {
 
   return (
     <div className="min-h-screen bg-surface-page flex flex-col items-center justify-center px-6">
-      <div
-        className="fixed inset-0 pointer-events-none"
-        style={{
-          background:
-            "radial-gradient(ellipse 70% 50% at 50% 0%, rgba(0,0,0,0.04) 0%, transparent 60%)",
-        }}
-      />
+      <div className="editorial-radial-wash" aria-hidden="true" />
 
       <motion.div
         initial={{ opacity: 0, y: 16 }}

@@ -8,13 +8,7 @@ export function Wiki() {
 
   return (
     <div className="min-h-screen bg-surface-page flex flex-col overflow-y-auto">
-      <div
-        className="fixed inset-0 pointer-events-none"
-        style={{
-          background:
-            "radial-gradient(ellipse 70% 45% at 50% 0%, rgba(0,0,0,0.04) 0%, transparent 60%)",
-        }}
-      />
+      <div className="editorial-radial-wash" aria-hidden="true" />
 
       <div className="relative z-10 pt-12 px-6 pb-2 flex items-center justify-between">
         <BackLink to="/" label="Inicio" />

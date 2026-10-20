@@ -426,7 +426,7 @@ export function Home() {
                 <div className="editorial-calendar-soft-block mb-4">
                   <p className="editorial-eyebrow mb-2.5">Tu práctica este día</p>
                   {journalByDate.get(selectedCosmicDay.dateKey)!.map((entry, i) => (
-                    <div key={i} className={i > 0 ? "mt-3 pt-3 border-t border-[var(--border-soft)]" : ""}>
+                    <div key={i} className={i > 0 ? "mt-3 pt-3 border-t border-[var(--line-soft)]" : ""}>
                       <p className="font-sans text-title-4 text-ink-strong">
                         "{entry.anchor}"
                       </p>
@@ -475,7 +475,7 @@ export function Home() {
                       </>
                     ) : null}
 
-                    <div className="mt-5 border-t border-[var(--border-soft)] pt-4 flex justify-center">
+                    <div className="mt-5 border-t border-[var(--line-soft)] pt-4 flex justify-center">
                       <button
                         onClick={() => {
                           setSelectedCosmicDay(null);

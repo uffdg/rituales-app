@@ -11,13 +11,6 @@
   100% { stroke-dashoffset: -1; }
 }
 
-/* Para los íconos de lucide (viewBox 24): ningún trazo supera 100 de largo. */
-@keyframes oracle-draw-icon {
-  0% { stroke-dashoffset: 100; }
-  45%, 85% { stroke-dashoffset: 0; }
-  100% { stroke-dashoffset: -100; }
-}
-
 @keyframes oracle-float {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-4px); }
@@ -49,16 +42,6 @@
   stroke-dashoffset: 1;
   animation: oracle-draw 6s ease-in-out infinite;
 }
-
-.oracle-draw-icon > * {
-  stroke-dasharray: 100;
-  stroke-dashoffset: 100;
-  animation: oracle-draw-icon 7s ease-in-out infinite;
-}
-
-.oracle-draw-icon > :nth-child(2) { animation-delay: 0.5s; }
-.oracle-draw-icon > :nth-child(3) { animation-delay: 1s; }
-.oracle-draw-icon > :nth-child(n + 4) { animation-delay: 1.5s; }
 
 .oracle-float {
   animation: oracle-float 5s ease-in-out infinite;
@@ -107,7 +90,6 @@
   .oracle-spin,
   .oracle-spin-rev,
   .oracle-draw,
-  .oracle-draw-icon > *,
   .oracle-float,
   .oracle-pulse,
   .arcana-animate .arcana-lines *,

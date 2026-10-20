@@ -64,7 +64,7 @@ export const CURATED_RITUALS: CuratedRitual[] = [
     aiRitual: {
       title: "Ritual de amor y reconocimiento propio",
       opening:
-        "Párate frente a un espejo o sentate cómodamente. Colocá una mano sobre tu corazón. Cerrá los ojos. Tomá tres respiraciones profundas y con cada una, sentí el calor de tu propia mano. Notá que tu corazón late — ha estado ahí, con vos, siempre.",
+        "Parate frente a un espejo o sentate cómodamente. Colocá una mano sobre tu corazón. Cerrá los ojos. Tomá tres respiraciones profundas y con cada una, sentí el calor de tu propia mano. Notá que tu corazón late — ha estado ahí, con vos, siempre.",
       symbolicAction:
         "Ponete algo de crema o aceite en las manos. Mientras te las aplicás, nombrá en voz alta o mentalmente tres cosas que tu cuerpo hace por vos cada día. No tienen que ser grandes. Pueden ser: \"me lleva donde necesito ir\", \"me permite abrazar\", \"me mantiene viva\".",
       closing:
@@ -112,7 +112,7 @@ export const CURATED_RITUALS: CuratedRitual[] = [
     aiRitual: {
       title: "Ritual de activación y enfoque",
       opening:
-        "Párate. Estirá los brazos sobre tu cabeza, inhalá profundo y al exhalar, bajá los brazos con fuerza. Repetí dos veces. Esto activa tu cuerpo y tu mente.",
+        "Parate. Estirá los brazos sobre tu cabeza, inhalá profundo y al exhalar, bajá los brazos con fuerza. Repetí dos veces. Esto activa tu cuerpo y tu mente.",
       symbolicAction:
         "Frotá tus palmas durante 10 segundos hasta sentir calor. Colocalas suavemente sobre tus ojos cerrados. Visualizá exactamente cómo querés que resulte el momento que viene — concreto, específico, ya logrado.",
       closing:
@@ -160,7 +160,7 @@ export const CURATED_RITUALS: CuratedRitual[] = [
     aiRitual: {
       title: "Ritual de apertura y atracción",
       opening:
-        "Párate descalza si podés, con los pies bien apoyados en el suelo. Respirá tres veces sintiendo el peso de tu cuerpo. Estás presente, estás acá.",
+        "Parate descalza si podés, con los pies bien apoyados en el suelo. Respirá tres veces sintiendo el peso de tu cuerpo. Estás presente, estás acá.",
       symbolicAction:
         "Sostené un objeto pequeño de la naturaleza — una piedra, una hoja, una semilla. Mientras lo sostenés, pensá en lo que querés atraer como si ya estuviera en camino. No como un deseo, sino como una certeza en formación.",
       closing:

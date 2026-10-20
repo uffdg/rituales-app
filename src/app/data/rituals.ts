@@ -1,6 +1,6 @@
 export const RITUAL_TYPES = [
   { id: "claridad", label: "Claridad", icon: "◯", description: "Ver con más nitidez" },
-  { id: "amor-propio", label: "Amor propio", icon: "◎", description: "Reconectar contigo" },
+  { id: "amor-propio", label: "Amor propio", icon: "◎", description: "Reconectar con vos" },
   { id: "calma", label: "Calma", icon: "—", description: "Soltar la tensión" },
   { id: "enfoque", label: "Enfoque", icon: "△", description: "Concentrar la energía" },
   { id: "cerrar-ciclo", label: "Cerrar ciclo", icon: "⊘", description: "Soltar y avanzar" },
@@ -19,7 +19,7 @@ export const ELEMENTS = [
     id: "tierra",
     label: "Tierra",
     subtitle: "Cuerpo · Estabilidad",
-    description: "Te ancla al presente. Ideal cuando necesitas estabilidad, paciencia o reconectar con tu cuerpo.",
+    description: "Te ancla al presente. Ideal cuando necesitás estabilidad, paciencia o reconectar con tu cuerpo.",
     symbol: "▭",
   },
   {
@@ -33,7 +33,7 @@ export const ELEMENTS = [
     id: "fuego",
     label: "Fuego",
     subtitle: "Acción · Coraje",
-    description: "Activa tu voluntad. Ideal cuando necesitas impulso, decisión o transformación.",
+    description: "Activa tu voluntad. Ideal cuando necesitás impulso, decisión o transformación.",
     symbol: "△",
   },
   {
@@ -63,38 +63,38 @@ export const AI_RITUALS: Record<string, any> = {
   default: {
     title: "Ritual de presencia y claridad",
     opening:
-      "Encuentra un lugar donde puedas estar sin interrupciones por unos minutos. Siéntate con la espalda recta y los pies apoyados en el suelo. Cierra los ojos. Toma tres respiraciones lentas y profundas — inhala por la nariz contando hasta cuatro, exhala por la boca contando hasta seis. Con cada exhalación, imagina que liberas todo lo que no necesitas cargar hoy.",
+      "Encontrá un lugar donde puedas estar sin interrupciones por unos minutos. Sentate con la espalda recta y los pies apoyados en el suelo. Cerrá los ojos. Hacé tres respiraciones lentas y profundas — inhalá por la nariz contando hasta cuatro, exhalá por la boca contando hasta seis. Con cada exhalación, imaginá que liberás todo lo que no necesitás cargar hoy.",
     symbolicAction:
-      "Llena un vaso con agua limpia. Sostén la copa entre ambas palmas y piensa en tu intención — no como algo que falta, sino como algo que ya está tomando forma. Bebe el agua lentamente, en tres sorbos conscientes. Con cada sorbo, siente cómo tu cuerpo recibe y acepta lo que estás pidiendo.",
+      "Llená un vaso con agua limpia. Sostené la copa entre ambas palmas y pensá en tu intención — no como algo que falta, sino como algo que ya está tomando forma. Tomá el agua lentamente, en tres sorbos conscientes. Con cada sorbo, sentí cómo tu cuerpo recibe y acepta lo que estás pidiendo.",
     closing:
-      "Abre los ojos. Toma un momento de silencio. En voz baja o en tu mente, di: \"Gracias por la claridad que ya existe en mí\". Escribe una palabra — solo una — que represente cómo quieres sentirte hoy. Guárdala.",
+      "Abrí los ojos. Tomate un momento de silencio. En voz baja o en tu mente, decí: \"Gracias por la claridad que ya existe en mí\". Escribí una palabra — solo una — que represente cómo querés sentirte hoy. Guardala.",
   },
   claridad: {
     title: "Ritual de claridad interior",
     opening:
-      "Siéntate en un lugar tranquilo. Apaga notificaciones. Cierra los ojos y toma cuatro respiraciones profundas, liberando tensión con cada exhalación. Cuando estés lista, lleva tu atención a la pregunta o situación que necesita claridad.",
+      "Sentate en un lugar tranquilo. Apagá las notificaciones. Cerrá los ojos y hacé cuatro respiraciones profundas, liberando tensión con cada exhalación. Cuando estés lista, llevá tu atención a la pregunta o situación que necesita claridad.",
     symbolicAction:
-      "Toma un vaso de agua limpia. Sostenlo entre tus manos. Visualiza el agua como un espejo de tu mente — clara, sin agitación. Bebe lentamente, pensando en que cada sorbo te conecta con tu propia sabiduría. Si tienes una hoja y lapicero, escribe la pregunta central y rodéala con un círculo.",
+      "Tomá un vaso de agua limpia. Sostenelo entre tus manos. Visualizá el agua como un espejo de tu mente — clara, sin agitación. Tomala lentamente, pensando en que cada sorbo te conecta con tu propia sabiduría. Si tenés una hoja y una lapicera, escribí la pregunta central y rodeala con un círculo.",
     closing:
-      "Cierra los ojos nuevamente. Inhala profundo y al exhalar, susurra: \"Ya tengo la respuesta que necesito — solo necesito escucharla\". Abre los ojos. Escribe lo primero que venga a tu mente sin editar. Confía en eso.",
+      "Cerrá los ojos nuevamente. Inhalá profundo y al exhalar, susurrá: \"Ya tengo la respuesta que necesito — solo necesito escucharla\". Abrí los ojos. Escribí lo primero que venga a tu mente sin editar. Confiá en eso.",
   },
   "amor-propio": {
     title: "Ritual de amor y reconocimiento propio",
     opening:
-      "Párate frente a un espejo o siéntate cómodamente. Coloca una mano sobre tu corazón. Cierra los ojos. Toma tres respiraciones profundas y con cada una, siente el calor de tu propia mano. Nota que tu corazón late — ha estado ahí, contigo, siempre.",
+      "Parate frente a un espejo o sentate cómodamente. Apoyá una mano sobre tu corazón. Cerrá los ojos. Hacé tres respiraciones profundas y con cada una, sentí el calor de tu propia mano. Nota que tu corazón late — estuvo ahí, con vos, siempre.",
     symbolicAction:
-      "Ponte algo de crema o aceite en las manos. Mientras te las aplicas, nombra en voz alta o mentalmente tres cosas que tu cuerpo hace por ti cada día. No tienen que ser grandes. Pueden ser: \"me lleva a donde necesito ir\", \"me permite abrazar\", \"me mantiene viva\".",
+      "Ponete algo de crema o aceite en las manos. Mientras te las aplicás, nombrá en voz alta o mentalmente tres cosas que tu cuerpo hace por vos cada día. No tienen que ser grandes. Pueden ser: \"me lleva a donde necesito ir\", \"me permite abrazar\", \"me mantiene viva\".",
     closing:
-      "Coloca ambas manos en tu pecho. Di: \"Me elijo hoy\". No tiene que ser perfecto — solo sincero. Respira hondo una vez más y suelta. Ya terminaste. Eso fue suficiente.",
+      "Apoyá ambas manos en tu pecho. Decí: \"Me elijo hoy\". No tiene que ser perfecto — solo sincero. Respirá hondo una vez más y soltá. Ya terminaste. Eso fue suficiente.",
   },
   calma: {
     title: "Ritual de calma y soltura",
     opening:
-      "Busca un lugar donde puedas sentarte o acostarte sin interrupciones. Cierra los ojos. Comienza a respirar con una cuenta de 4-7-8: inhala 4 segundos, retén 7 segundos, exhala 8 segundos. Repite este ciclo cuatro veces.",
+      "Buscá un lugar donde puedas sentarte o acostarte sin interrupciones. Cerrá los ojos. Empezá a respirar con una cuenta de 4-7-8: inhalá 4 segundos, retené 7 segundos, exhalá 8 segundos. Repetí este ciclo cuatro veces.",
     symbolicAction:
-      "Si tienes agua, coloca tus manos bajo el chorro unos segundos — fría o tibia, lo que prefieras. Mientras el agua corre sobre tus manos, imagina que se lleva la tensión, la preocupación, el ruido mental. Si no hay agua cerca, frota suavemente tus palmas entre sí hasta sentirlas cálidas.",
+      "Si tenés agua, poné tus manos bajo el chorro unos segundos — fría o tibia, lo que prefieras. Mientras el agua corre sobre tus manos, imaginá que se lleva la tensión, la preocupación, el ruido mental. Si no hay agua cerca, frotá suavemente tus palmas entre sí hasta sentirlas cálidas.",
     closing:
-      "Toma una respiración profunda. Al exhalar, di en voz baja: \"Puedo con esto — y también puedo descansar\". Siéntate en silencio 30 segundos más. No hagas nada. Solo sé.",
+      "Hacé una respiración profunda. Al exhalar, decí en voz baja: \"Puedo con esto — y también puedo descansar\". Quedate en silencio 30 segundos más. No hagas nada. Solo sé.",
   },
 };
 
@@ -112,11 +112,11 @@ export const EXPLORE_RITUALS = [
     aiRitual: {
       title: "Ritual de claridad para tomar una decisión",
       opening:
-        "Siéntate en silencio. Toma cuatro respiraciones profundas, soltando tensión con cada exhalación. Lleva tu atención a la situación que necesita claridad.",
+        "Sentate en silencio. Hacé cuatro respiraciones profundas, soltando tensión con cada exhalación. Llevá tu atención a la situación que necesita claridad.",
       symbolicAction:
-        "Toma un vaso de agua limpia. Sostenlo entre tus manos. Visualiza el agua como tu mente — clara, sin agitación. Bebe lentamente, pensando en tu sabiduría interior.",
+        "Tomá un vaso de agua limpia. Sostenelo entre tus manos. Visualizá el agua como tu mente — clara, sin agitación. Tomala lentamente, pensando en tu sabiduría interior.",
       closing:
-        "Cierra los ojos. Susurra: \"Ya tengo la respuesta que necesito\". Escribe lo primero que venga a tu mente.",
+        "Cerrá los ojos. Susurrá: \"Ya tengo la respuesta que necesito\". Escribí lo primero que venga a tu mente.",
     },
     intention: "Quiero tener claridad para tomar una decisión importante",
     anchor: "Escribir los pros y contras en papel",
@@ -134,11 +134,11 @@ export const EXPLORE_RITUALS = [
     aiRitual: {
       title: "Ritual de soltura y cierre",
       opening:
-        "Enciende una vela o imagina una pequeña llama frente a ti. Respira profundo tres veces. Piensa en lo que quieres soltar.",
+        "Encendé una vela o imaginá una pequeña llama frente a vos. Respirá profundo tres veces. Pensá en lo que querés soltar.",
       symbolicAction:
-        "Escribe en un papel lo que quieres dejar ir. Puede ser una emoción, una situación, una versión de ti. Rómpelo en pedazos pequeños y tíralo.",
+        "Escribí en un papel lo que querés dejar ir. Puede ser una emoción, una situación, una versión tuya. Rompelo en pedazos pequeños y tiralo.",
       closing:
-        "Observa el espacio vacío que queda. Respira. Di: \"Gracias. Ya fue. Ahora sigo\".",
+        "Observá el espacio vacío que queda. Respirá. Decí: \"Gracias. Ya fue. Ahora sigo\".",
     },
     intention: "Quiero cerrar un ciclo que me tiene anclada",
     anchor: "Borrar o archivar algo que me recordaba eso",
@@ -156,11 +156,11 @@ export const EXPLORE_RITUALS = [
     aiRitual: {
       title: "Ritual de apertura y atracción",
       opening:
-        "Párate descalza si puedes, con los pies bien apoyados en el suelo. Respira tres veces sintiendo el peso de tu cuerpo. Estás presente, estás aquí.",
+        "Parate descalza si podés, con los pies bien apoyados en el suelo. Respirá tres veces sintiendo el peso de tu cuerpo. Estás presente, estás acá.",
       symbolicAction:
-        "Sostén un objeto pequeño de la naturaleza — una piedra, una hoja, una semilla. Mientras lo sostienes, piensa en lo que quieres atraer como si ya estuviera en camino. No como un deseo, sino como una certeza en formación.",
+        "Sostené un objeto pequeño de la naturaleza — una piedra, una hoja, una semilla. Mientras lo sostenés, pensá en lo que querés atraer como si ya estuviera en camino. No como un deseo, sino como una certeza en formación.",
       closing:
-        "Guarda el objeto en un lugar visible. Cada vez que lo veas, recuerda tu intención. Di: \"Estoy segura para recibir lo que se alinea conmigo\".",
+        "Guardá el objeto en un lugar visible. Cada vez que lo veas, recordá tu intención. Decí: \"Estoy segura para recibir lo que se alinea conmigo\".",
     },
     intention: "Quiero abrir espacio para nuevas oportunidades laborales",
     anchor: "Mandar una propuesta o mensaje que tenía pendiente",
@@ -178,11 +178,11 @@ export const EXPLORE_RITUALS = [
     aiRitual: {
       title: "Ritual de activación y enfoque",
       opening:
-        "Párate. Estira los brazos sobre tu cabeza, inhala profundo y al exhalar, baja los brazos con fuerza. Repite dos veces. Esto activa tu cuerpo y tu mente.",
+        "Parate. Estirá los brazos sobre tu cabeza, inhalá profundo y al exhalar, bajá los brazos con fuerza. Repetí dos veces. Esto activa tu cuerpo y tu mente.",
       symbolicAction:
-        "Frota tus palmas durante 10 segundos hasta sentir calor. Colócalas suavemente sobre tus ojos cerrados. Visualiza exactamente cómo quieres que resulte el momento que viene.",
+        "Frotá tus palmas durante 10 segundos hasta sentir calor. Apoyalas suavemente sobre tus ojos cerrados. Visualizá exactamente cómo querés que resulte el momento que viene.",
       closing:
-        "Suelta las manos. Abre los ojos. Respira. Di: \"Estoy preparada. Voy\".",
+        "Soltá las manos. Abrí los ojos. Respirá. Decí: \"Estoy preparada. Voy\".",
     },
     intention: "Quiero estar enfocada antes de mi presentación",
     anchor: "Revisar mis notas y apagar el celular 10 minutos antes",
@@ -200,11 +200,11 @@ export const EXPLORE_RITUALS = [
     aiRitual: {
       title: "Ritual de reencuentro personal",
       opening:
-        "Encuentra silencio. Siéntate o acuéstate. Coloca una mano sobre tu pecho. Siente tu propio latido. Cierra los ojos.",
+        "Buscá silencio. Sentate o acostate. Apoyá una mano sobre tu pecho. Sentí tu propio latido. Cerrá los ojos.",
       symbolicAction:
-        "Date una ducha consciente o lávate la cara con agua fría. Mientras el agua te toca, piensa: 'Estoy limpiando lo que no me pertenece'. No lo que eres — solo lo que cargaste hoy.",
+        "Date una ducha consciente o lavate la cara con agua fría. Mientras el agua te toca, pensá: 'Estoy limpiando lo que no me pertenece'. No lo que sos — solo lo que cargaste hoy.",
       closing:
-        "Sécate despacio. Mírate en el espejo aunque sea un segundo. Di: \"Hice lo que pude. Y fue suficiente\".",
+        "Secate despacio. Mirate en el espejo aunque sea un segundo. Decí: \"Hice lo que pude. Y fue suficiente\".",
     },
     intention: "Quiero reconectarme conmigo después de un día muy pesado",
     anchor: "Acostarme sin el celular los primeros 15 minutos",
@@ -222,11 +222,11 @@ export const EXPLORE_RITUALS = [
     aiRitual: {
       title: "Ritual de inicio de semana",
       opening:
-        "Abre una ventana o sal un momento al exterior. Siente el aire en tu cara. Inhala profundo por la nariz, recibiendo el nuevo comienzo. Exhala por la boca, soltando lo que quedó de la semana anterior.",
+        "Abrí una ventana o salí un momento afuera. Sentí el aire en tu cara. Inhalá profundo por la nariz, recibiendo el nuevo comienzo. Exhala por la boca, soltando lo que quedó de la semana anterior.",
       symbolicAction:
-        "Escribe en papel o en tu teléfono una sola palabra que quieres que guíe esta semana. No una lista. Solo una palabra.",
+        "Escribí en papel o en tu teléfono una sola palabra que quieras que guíe esta semana. No una lista. Solo una palabra.",
       closing:
-        "Lee esa palabra en voz alta tres veces. Ponla en un lugar visible. Di: \"Esta semana, elijo ___\".",
+        "Leé esa palabra en voz alta tres veces. Ponela en un lugar visible. Decí: \"Esta semana, elijo ___\".",
     },
     intention: "Comenzar la semana con calma y sin ansiedad",
     anchor: "Planificar solo mis 3 prioridades del lunes",
@@ -244,11 +244,11 @@ export const EXPLORE_RITUALS = [
     aiRitual: {
       title: "Ritual rosa para atraer amor recíproco",
       opening:
-        "Busca un momento tranquilo. Respirá lento y apoyá una mano en el corazón. Imaginá una luz rosa envolviendo tu pecho y aflojando defensas viejas.",
+        "Buscá un momento tranquilo. Respirá lento y apoyá una mano en el corazón. Imaginá una luz rosa envolviendo tu pecho y aflojando defensas viejas.",
       symbolicAction:
         "Escribí en un papel cómo querés sentirte en un vínculo amoroso: vista, cuidada, elegida, en paz. Leelo en voz alta y sostené ese papel entre tus manos unos segundos.",
       closing:
-        "Dobla el papel y guardalo cerca de tu cama. Decí: \"Abro espacio para un amor que me encuentre disponible y en verdad\".",
+        "Doblá el papel y guardalo cerca de tu cama. Decí: \"Abro espacio para un amor que me encuentre disponible y en verdad\".",
     },
     intention: "Quiero atraer un amor recíproco y tierno",
     anchor: "Elegir un gesto concreto para tratarme con más amor esta semana",
@@ -266,7 +266,7 @@ export const EXPLORE_RITUALS = [
     aiRitual: {
       title: "Ritual rojo para activar una venta",
       opening:
-        "Párate con los pies firmes en el suelo. Inhalá profundo y al exhalar sentí cómo tu cuerpo se enciende con decisión, como una chispa roja que despierta acción.",
+        "Parate con los pies firmes en el suelo. Inhalá profundo y al exhalar sentí cómo tu cuerpo se enciende con decisión, como una chispa roja que despierta acción.",
       symbolicAction:
         "Tomá tu celular o cuaderno y escribí el nombre del servicio, producto o propuesta que querés mover hoy. Miralo como algo vivo, listo para circular.",
       closing:
@@ -376,7 +376,7 @@ export const EXPLORE_RITUALS = [
     aiRitual: {
       title: "Ritual naranja para abrir trabajo nuevo",
       opening:
-        "Párate y mové suavemente el cuerpo durante unos segundos. Respirá con energía, imaginando una llama naranja que despierta tu motivación y tu deseo de avanzar.",
+        "Parate y mové suavemente el cuerpo durante unos segundos. Respirá con energía, imaginando una llama naranja que despierta tu motivación y tu deseo de avanzar.",
       symbolicAction:
         "Escribí el tipo de trabajo, proyecto o cliente que querés atraer. Después, debajo, anotá una acción concreta que te acerque a eso hoy mismo.",
       closing:
@@ -424,7 +424,7 @@ export const EXPLORE_RITUALS = [
       symbolicAction:
         "Escribí una creencia de escasez que querés cortar, como \"no me alcanza\" o \"no puedo más\". Tachala varias veces hasta que deje de tener fuerza.",
       closing:
-        "Decí: \"Corto con lo que me achica y protejo mi energía\". Tirà ese papel y elegí una acción de orden que te devuelva poder.",
+        "Decí: \"Corto con lo que me achica y protejo mi energía\". Tirá ese papel y elegí una acción de orden que te devuelva poder.",
     },
     intention: "Quiero cortar con el miedo y la sensación constante de escasez",
     anchor: "Borrar un gasto automático que ya no necesito",
@@ -530,7 +530,7 @@ export const EXPLORE_RITUALS = [
     aiRitual: {
       title: "Ritual rojo para cobrar tu valor",
       opening:
-        "Párate recta y respirá profundo. Sentí una energía roja subiendo por el cuerpo, afirmando tu presencia y tu derecho a pedir lo que corresponde.",
+        "Parate recta y respirá profundo. Sentí una energía roja subiendo por el cuerpo, afirmando tu presencia y tu derecho a pedir lo que corresponde.",
       symbolicAction:
         "Escribí el monto, propuesta o límite económico que necesitás sostener. Miralo sin achicarte. Repetí: \"Mi trabajo merece intercambio claro\".",
       closing:
