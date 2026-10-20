@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>06 · Migración — Design System Rituales</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,300;1,400&family=Inter:wght@300;400;500&display=swap">
+<link rel="stylesheet" href="assets/ds.css">
+<link rel="stylesheet" href="assets/nav.css">
+<style>
+  .compare { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  .compare figure { margin: 0; }
+  .compare .shot { height: 560px; overflow-y: auto; border-radius: 18px; border: 1px solid var(--line-default); background: #fff; }
+  .compare img { width: 100%; display: block; }
+  .compare figcaption { font-size: 12px; color: var(--ink-muted); margin-top: 6px; text-align: center; }
+  .stage-row td:nth-child(3) { white-space: nowrap; }
+  @media (max-width: 860px) { .compare { grid-template-columns: 1fr; } .compare .shot { height: 420px; } }
+</style>
+</head>
+<body>
+<div class="docs">
+  <nav class="docs-nav" id="docs-nav" aria-label="Design system"><noscript><a href="index.html">Inicio</a></noscript></nav>
+
+  <main class="docs-main">
+    <div class="docs-content">
+      <p class="docs-eyebrow">Spec 06 · En curso · branch design-system-v1</p>
+      <h1>Migración</h1>
+      <p class="docs-lede">El registro de cómo el design system entra en la app, etapa por etapa: qué cambió, cómo se verificó y el antes y después de las pantallas públicas. Se actualiza al cerrar cada etapa.</p>
+
+      <h2 id="estado">Estado</h2>
+      <div class="table-scroll"><table class="spec">
+        <thead><tr><th>Etapa</th><th>Qué</th><th>Estado</th><th>Commit</th></tr></thead>
+        <tbody>
+          <tr class="stage-row"><td><b>1 · Tokens</b></td><td>Tokens v1 en <code>theme.css</code> y escalas de Tailwind; grises legibles; fuentes y reducir movimiento.</td><td><span class="pass">Hecha</span></td><td><code>e6b14f4</code></td></tr>
+          <tr class="stage-row"><td><b>2 · Componentes base</b></td><td>Clases del sistema, foco visible, <code>BackLink</code>, campos y toasts.</td><td><span class="pass">Hecha</span></td><td><code>89be7b7</code></td></tr>
+          <tr class="stage-row"><td><b>3 · Imágenes</b></td><td>Fotos a WebP, <code>loading</code>, <code>alt</code>, velo en texto sobre foto.</td><td><span class="pass">Hecha</span></td><td><code>bd7c4e2</code></td></tr>
+          <tr class="stage-row"><td><b>4 · Pantallas</b></td><td>Cada pantalla a tokens y piezas, de a una. Hechas: Home, Cuenta, Detalle de ritual.</td><td><span class="warn">En curso · 3 de 7</span></td><td><code>1e75108</code> Home · <code>1d73b47</code> Cuenta · <code>af25e66</code> Detalle</td></tr>
+          <tr class="stage-row"><td><b>5 · Limpieza</b></td><td>Clases y nombres viejos, shadcn sin uso, archivos sin uso, <code>.dark</code>.</td><td><span class="muted" style="font-size:12px">Pendiente</span></td><td>—</td></tr>
+        </tbody>
+      </table></div>
+      <div class="callout callout--rule"><strong>Decisiones tomadas para avanzar</strong>Se aplicaron las recomendaciones de las decisiones 1 a 8 (<a href="04-validacion.html#decisiones">spec 04</a>): fondo frío, botones en 400, botón de Home igual al resto, chips de 13 px, borrar shadcn sin uso, prefijo <code>editorial-</code>, calendario cósmico aparte y sin modo oscuro. Las que borran archivos se ejecutan recién en la etapa 5.</div>
+
+      <h2 id="etapa-1">Etapa 1 · Tokens</h2>
+      <ul class="type-body-lg" style="padding-left:20px;max-width:760px">
+        <li><code>--ink-subtle</code> pasa de #9ca3ad (2,5:1) a <b>#6b727c (4,9:1)</b>. Los 53 usos de <code>--ink-soft</code> en texto pasan a <code>--ink-subtle</code>; <code>--ink-soft</code> deja de existir y lo decorativo usa <code>--ink-decor</code>.</li>
+        <li>Tokens nuevos: <code>--on-ink-*</code>, <code>--surface-*</code>, <code>--line-*</code>, <code>--danger</code>, <code>--success</code>, <code>--oracle-*</code>, foco y movimiento. Los nombres viejos (<code>--app-page</code>, <code>--border-*</code>, <code>--surface-softest</code>) quedan como alias hasta la etapa 5.</li>
+        <li>Escalas de Tailwind: <code>text-display</code> … <code>text-eyebrow</code>, <code>rounded-xs</code> … <code>rounded-panel</code>, <code>shadow-soft/lifted/shell</code>, <code>ease-editorial</code>, y colores como clases (<code>text-ink-muted</code>, <code>bg-surface-muted</code>, <code>border-line-default</code>).</li>
+        <li>shadcn apunta a los tokens editoriales (el diálogo y el menú ya usan la misma paleta).</li>
+        <li>Una sola carga de fuentes desde <code>index.html</code>: fuera Source Serif 4 y el Inter repetido.</li>
+        <li>Reducir movimiento global: CSS + <code>&lt;MotionConfig reducedMotion="user"&gt;</code>.</li>
+      </ul>
+      <p class="muted">Verificado: build y tipos sin errores nuevos; los tokens llegan al CSS final; capturas de las 5 pantallas públicas.</p>
+
+      <h2 id="etapa-2">Etapa 2 · Componentes base</h2>
+      <ul class="type-body-lg" style="padding-left:20px;max-width:760px">
+        <li>Clases nuevas: <code>editorial-button</code> (primario, secundario, terciario, peligro, sobre oscuro, <code>--lg</code>), <code>editorial-input</code>, <code>editorial-notice</code>, <code>editorial-skeleton</code>, <code>editorial-badge</code>, <code>editorial-option</code>, <code>editorial-back-link</code> y variantes de card y eyebrow.</li>
+        <li>Actualizadas en el lugar: botones viejos a peso 400; botón de ícono redondo de 44; textarea en sans; error en <code>--danger</code>; rótulo y ayuda de campos; pill y chip de 13 px; link de sección con área de 44.</li>
+        <li>Foco visible con teclado en toda la app (antes no había).</li>
+        <li>Componente <code>BackLink</code> (texto o ícono), listo para la etapa de pantallas.</li>
+        <li>El email de Login y el nombre de Cuenta pasan a <code>editorial-input</code> (tenían el foco desactivado); el nombre deja la serif de 22 px.</li>
+        <li>Toasts con los valores de la spec.</li>
+      </ul>
+      <p class="muted">Verificado: build y tipos; recorrido con Tab en Login y Explorar (cada elemento muestra el contorno o el borde de foco).</p>
+      <div class="callout"><strong>Queda para la etapa de pantallas</strong>La sombra de la card base y el estilo de la opción elegida en los pasos de creación (hoy invertida, en la spec con borde): cambian mucho el aspecto y se revisan con cada pantalla.</div>
+
+      <h2 id="etapa-3">Etapa 3 · Imágenes</h2>
+      <div class="grid-3">
+        <div class="panel" style="margin:0"><p class="type-display" style="margin:0;color:var(--danger)">146 MB</p><p class="type-body muted" style="margin:4px 0 0">fotos antes</p></div>
+        <div class="panel" style="margin:0"><p class="type-display" style="margin:0;color:var(--success)">4,3 MB</p><p class="type-body muted" style="margin:4px 0 0">las 50 fotos en uso, en WebP</p></div>
+        <div class="panel" style="margin:0"><p class="type-display" style="margin:0;color:var(--ink-strong)">8</p><p class="type-body muted" style="margin:4px 0 0">originales sin uso que se borran en la etapa 5</p></div>
+      </div>
+      <ul class="type-body-lg" style="padding-left:20px;max-width:760px">
+        <li>Las 50 fotos en uso pasan a WebP de 1080 px de ancho y calidad 75 con <code>scripts/optimize-images.sh</code>. Se revisaron a ojo las que más bajaron de peso (cielos lisos, sin pérdida visible). Las originales siguen en el historial de git.</li>
+        <li>Referencias a <code>.webp</code> y el nombre <code>abastract</code> corregido a <code>abstract</code>. Verificado: las 50 rutas responden <code>200 image/webp</code>.</li>
+        <li><code>loading="lazy"</code> y <code>decoding="async"</code> en todas las fotos salvo las que se ven primero (hero de Home y del detalle de ritual); <code>alt=""</code> donde el título ya está al lado (el hero decía “Cielo actual”).</li>
+        <li>Tarjetas de ritual y de recomendación: velo más fuerte arriba y el rótulo pasa al eyebrow del sistema (10 px en blanco). Ahora se leen “CLARIDAD” sobre las dunas y “AMOR PROPIO” sobre el agua.</li>
+        <li>Hero de Home: se mantiene texto oscuro sobre cielos claros (es una decisión de diseño que funciona), pero los rótulos pasan de negro 48 % a 66 % y de blanco 68 % a 82 %; con texto claro, velo arriba. La regla quedó documentada como excepción en la <a href="05-ilustraciones-e-imagenes.html#texto-sobre-foto">spec 05</a>.</li>
+      </ul>
+      <div class="callout"><strong>Ajuste a la spec</strong>Se exporta un solo tamaño (1080 px) en vez de 800 y 1440: la misma foto se usa en la grilla y a pantalla completa, y con un solo archivo no hace falta <code>srcset</code>.</div>
+      <p class="muted">Verificado: build y tipos; capturas de las 5 pantallas públicas (la herramienta de capturas ahora fuerza la carga de las fotos diferidas antes de sacar la imagen).</p>
+
+      <h2 id="etapa-4">Etapa 4 · Pantallas</h2>
+      <div class="table-scroll"><table class="spec">
+        <thead><tr><th>Pantalla</th><th>Estado</th></tr></thead>
+        <tbody>
+          <tr><td>Home (hero, intención, oráculo, tarjetas)</td><td><span class="pass">Hecha</span> <code>1e75108</code></td></tr>
+          <tr><td>Cuenta y registro diario</td><td><span class="pass">Hecha</span> <code>1d73b47</code></td></tr>
+          <tr><td>Detalle de ritual y reproductor</td><td><span class="pass">Hecha</span> <code>af25e66</code></td></tr>
+          <tr><td>Pasos de creación</td><td class="muted">Pendiente</td></tr>
+          <tr><td>Compartir, Explorar y Wiki</td><td class="muted">Pendiente</td></tr>
+          <tr><td>Login y Onboarding</td><td class="muted">Pendiente</td></tr>
+          <tr><td>Stories y calendario</td><td class="muted">Pendiente</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3>Home</h3>
+      <ul class="type-body-lg" style="padding-left:20px;max-width:760px">
+        <li><b>Hero:</b> sin estilos escritos a mano; eyebrow del sistema, título en <code>display</code> (48) y el primario del sistema en lugar del botón recto de 58 px con peso 600 (decisión 3). Sobre fotos oscuras el primario es blanco.</li>
+        <li><b>Intención y oráculo:</b> títulos en <code>title-2</code>; la intención y “La mirada” del arcano pasan a sans (serif solo en titulares); botones, pill, skeleton y error del sistema; el oráculo usa los tokens <code>--oracle-*</code> en vez de dorado y carbón escritos a mano; margen lateral de 24 como el resto.</li>
+        <li><b>“Tu camino”:</b> el texto de las tres tarjetas pasa de 9 y 11 px (peso 600 sin cargar) a 11 y 14 px.</li>
+        <li><b>Recomendación y grilla de rituales:</b> card del sistema; el título chico de la grilla deja la serif de 13 px y pasa a sans 14; metadatos en 11 legibles; “Ver ritual” es el primario; guardar tiene área de 44.</li>
+        <li><b>Cielo de la semana, diálogo del día y notas:</b> a la escala (títulos de 20/26, caption 11) y a los radios (32 el diálogo, 16 los bloques internos). El calendario cósmico usa las mismas clases del diálogo, así que heredó esos radios.</li>
+      </ul>
+      <div class="compare">
+        <figure><div class="shot"><img src="assets/migracion/antes/home.jpg" alt="Home antes del design system" loading="lazy"></div><figcaption>Antes</figcaption></figure>
+        <figure><div class="shot"><img src="assets/migracion/etapa-3/home.jpg" alt="Home después de la etapa 3" loading="lazy"></div><figcaption>Etapa 3</figcaption></figure>
+        <figure><div class="shot"><img src="assets/migracion/etapa-4-home/home.jpg" alt="Home migrada al design system" loading="lazy"></div><figcaption>Home migrada</figcaption></figure>
+      </div>
+      <p class="type-body muted">Con sesión iniciada (intención escrita, carta revelada) no se captura automáticamente: revisar a mano.</p>
+
+      <h3>Cuenta y registro diario</h3>
+      <p class="type-body muted">Era la pantalla con más estilos a mano: 55 bloques <code>style={{}}</code> y 12 tamaños de letra (9 px en cinco rótulos). Quedan 4 estilos en línea, todos dependientes de datos (alto de las barras de actividad, colores de los puntos) o el lavado radial de fondo.</p>
+      <ul class="type-body-lg" style="padding-left:20px;max-width:760px">
+        <li><b>Arriba:</b> <code>BackLink</code> y “Salir” con el mismo estilo; saludo en <code>title-1</code>.</li>
+        <li><b>Tu práctica:</b> los rótulos de 9 px pasan al eyebrow del sistema (10 px y legible); números en <code>title-1</code>; radio 24.</li>
+        <li><b>Anclas recientes y registro diario:</b> las citas y las intenciones dejan la serif chica y pasan a sans; metadatos en caption; carga con skeleton; error en rojo.</li>
+        <li><b>Tus rituales:</b> filtros como chips del sistema con su estado anunciado (<code>aria-pressed</code>); el segundo “Todos” pasa a “Todos los elementos” para no repetirse; estado vacío con acción (quitar filtro, explorar o crear); menú de 44 px con “Eliminar” en rojo.</li>
+        <li><b>Tu cuenta:</b> rótulos de campo del sistema y un <code>&lt;label&gt;</code> real para el nombre; preferencias como chips.</li>
+        <li><b>Borrar ritual:</b> diálogo con radio 32 y título <code>title-2</code>; “Cancelar” secundario y “Sí, borrar” en rojo sólido (antes era negro, decisión de la spec 03).</li>
+      </ul>
+      <p class="type-body muted">Requiere sesión: no hay captura automática. Verificado con build y tipos; revisar a mano en <code>/cuenta</code>.</p>
+
+      <h3>Detalle de ritual y reproductor</h3>
+      <ul class="type-body-lg" style="padding-left:20px;max-width:760px">
+        <li><b>Barra inferior:</b> antes mezclaba tres estilos de botón (<code>editorial-button-primary</code>, <code>-soft</code> y uno hecho a mano). Ahora: primario (“Iniciar” / “Crear el mío”) y secundarios (“Compartir”, “Guardar”, descargar), todos de 52 px; “Guardado” se anuncia con <code>aria-pressed</code>.</li>
+        <li><b>Hero:</b> <code>BackLink</code> y “Editar” en blanco sobre la foto; título en <code>title-2</code>; los cinco badges salen de una sola clase (antes, cinco copias del mismo estilo en línea).</li>
+        <li><b>Contenido:</b> intención y texto de cada sección en sans; secciones como cards suaves; el anclaje como card invertida.</li>
+        <li><b>Hoja del reproductor:</b> velo del sistema; botones del sistema en el cierre, en la pregunta de precio (“Sí” / “No por ahora”) y en las pistas de ambiente; rótulos unidos a sus campos; error del audio en rojo.</li>
+        <li><b>Reproductor:</b> los botones de retroceder, reproducir y adelantar y la barra de posición <b>no tenían nombre</b> para lectores de pantalla; ahora sí. “Reiniciar” pasa a pill.</li>
+      </ul>
+      <div class="compare">
+        <figure><div class="shot"><img src="assets/migracion/etapa-4-detalle/detalle-publico.jpg" alt="Detalle de un ritual público migrado" loading="lazy"></div><figcaption>Detalle de ritual público, migrado</figcaption></figure>
+      </div>
+      <p class="type-body muted">La hoja del reproductor, la pregunta de precio y el cierre requieren iniciar un ritual con sesión: revisar a mano.</p>
+      <div class="callout"><strong>Encontrado al pasar (no es del design system)</strong>El frontend pide <code>GET /api/rituals/public</code> y el backend responde 404: esa ruta no existe. También quedan textos de rituales en tú (“Siéntate”, “Toma”) en vez de vos; se corrigen en la limpieza.</div>
+
+      <h2 id="comparacion">Antes y después</h2>
+      <p class="muted">Pantallas públicas en 390 px, mismas condiciones (se puede scrollear cada captura). Las capturas se regeneran con <code>tools/capture-screens.cjs</code>.</p>
+
+      <h3>Explorar</h3>
+      <div class="compare">
+        <figure><div class="shot"><img src="assets/migracion/antes/explorar.jpg" alt="Explorar antes del design system" loading="lazy"></div><figcaption>Antes</figcaption></figure>
+        <figure><div class="shot"><img src="assets/migracion/etapa-1/explorar.jpg" alt="Explorar después de la etapa 1" loading="lazy"></div><figcaption>Etapa 1</figcaption></figure>
+        <figure><div class="shot"><img src="assets/migracion/etapa-3/explorar.jpg" alt="Explorar después de la etapa 3" loading="lazy"></div><figcaption>Etapa 3</figcaption></figure>
+      </div>
+      <p class="type-body muted">Etapa 1: “Agua · 10 min” y los metadatos se leen. Etapa 3: los rótulos sobre fotos claras (“CLARIDAD”, “AMOR PROPIO”) tienen velo, y las fotos pesan 30 veces menos.</p>
+
+      <h3>Home</h3>
+      <div class="compare">
+        <figure><div class="shot"><img src="assets/migracion/antes/home.jpg" alt="Home antes del design system" loading="lazy"></div><figcaption>Antes</figcaption></figure>
+        <figure><div class="shot"><img src="assets/migracion/etapa-1/home.jpg" alt="Home después de la etapa 1" loading="lazy"></div><figcaption>Etapa 1</figcaption></figure>
+        <figure><div class="shot"><img src="assets/migracion/etapa-3/home.jpg" alt="Home después de la etapa 3" loading="lazy"></div><figcaption>Etapa 3</figcaption></figure>
+      </div>
+
+      <h3>Login</h3>
+      <div class="compare">
+        <figure><div class="shot"><img src="assets/migracion/antes/login.jpg" alt="Login antes del design system" loading="lazy"></div><figcaption>Antes</figcaption></figure>
+        <figure><div class="shot"><img src="assets/migracion/etapa-1/login.jpg" alt="Login después de la etapa 1" loading="lazy"></div><figcaption>Etapa 1</figcaption></figure>
+        <figure><div class="shot"><img src="assets/migracion/etapa-2/login.jpg" alt="Login después de la etapa 2" loading="lazy"></div><figcaption>Etapa 2</figcaption></figure>
+      </div>
+
+      <h3>Calendario y Wiki</h3>
+      <div class="compare">
+        <figure><div class="shot"><img src="assets/migracion/antes/calendario.jpg" alt="Calendario cósmico antes" loading="lazy"></div><figcaption>Calendario · antes</figcaption></figure>
+        <figure><div class="shot"><img src="assets/migracion/etapa-2/calendario.jpg" alt="Calendario cósmico después de la etapa 2" loading="lazy"></div><figcaption>Calendario · etapa 2</figcaption></figure>
+        <figure><div class="shot"><img src="assets/migracion/etapa-3/wiki.jpg" alt="Wiki después de la etapa 3" loading="lazy"></div><figcaption>Wiki · etapa 3</figcaption></figure>
+      </div>
+      <p class="type-body muted">Las pantallas con login (Cuenta, detalle de ritual, pasos de creación) no se capturan automáticamente: se revisan a mano en cada etapa.</p>
+    </div>
+  </main>
+</div>
+<script src="assets/nav.js"></script>
+</body>
+</html>
