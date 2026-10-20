@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>02 · Fundamentos — Design System Rituales</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,300;1,400&family=Inter:wght@300;400;500&display=swap">
+<link rel="stylesheet" href="assets/ds.css">
+<link rel="stylesheet" href="assets/nav.css">
+</head>
+<body>
+<div class="docs">
+  <nav class="docs-nav" id="docs-nav" aria-label="Design system"><noscript><a href="index.html">Inicio</a></noscript></nav>
+
+  <main class="docs-main">
+    <div class="docs-content">
+      <p class="docs-eyebrow">Spec 02 · Para validar · 19 oct 2026</p>
+      <h1>Fundamentos</h1>
+      <p class="docs-lede">Los valores base del sistema: de 27 tamaños de letra a 10, de ~14 radios a 6, una paleta semántica con contraste verificado y una sola forma de moverse. Todo lo que muestra esta página está dibujado con los tokens propuestos.</p>
+
+      <ul class="toc">
+        <li><a href="#principios">Principios</a></li>
+        <li><a href="#color">Color</a></li>
+        <li><a href="#tipografia">Tipografía</a></li>
+        <li><a href="#espaciado">Espaciado</a></li>
+        <li><a href="#radios">Radios</a></li>
+        <li><a href="#sombras">Sombras</a></li>
+        <li><a href="#motion">Movimiento</a></li>
+        <li><a href="#iconos">Íconos</a></li>
+        <li><a href="#accesibilidad">Accesibilidad</a></li>
+      </ul>
+
+      <!-- ─────────────────────────────── Principios -->
+      <h2 id="principios">Principios</h2>
+      <p class="muted">Cuatro reglas para decidir cuando un caso no está en la spec.</p>
+      <div class="grid-2">
+        <div class="panel">
+          <p class="type-title-3" style="margin:0 0 6px">Editorial, no decorado</p>
+          <p class="type-body muted" style="margin:0">Serif solo para titulares; todo lo demás (párrafos, intenciones, citas, botones, campos, metadatos) en sans. El blanco y el espacio hacen el trabajo; no hay gradientes ni sombras fuertes.</p>
+        </div>
+        <div class="panel">
+          <p class="type-title-3" style="margin:0 0 6px">Se lee siempre</p>
+          <p class="type-body muted" style="margin:0">Todo texto pasa 4,5:1 de contraste, aunque sea un rótulo de 10 px. El gris claro es para líneas y adornos, nunca para palabras. Nada de serif en párrafos ni en textos chicos.</p>
+        </div>
+        <div class="panel">
+          <p class="type-title-3" style="margin:0 0 6px">Una pieza por función</p>
+          <p class="type-body muted" style="margin:0">Un solo botón primario, un solo rótulo, una sola forma de volver. Si hace falta una variante, se agrega acá antes de usarla en una pantalla.</p>
+        </div>
+        <div class="panel">
+          <p class="type-title-3" style="margin:0 0 6px">El oráculo es otro mundo</p>
+          <p class="type-body muted" style="margin:0">El dorado sobre carbón es exclusivo de las piezas del oráculo (arcanos, dorsos, registro). Fuera de ahí, la app es blanco y negro.</p>
+        </div>
+      </div>
+
+      <!-- ─────────────────────────────── Color -->
+      <h2 id="color">Color</h2>
+      <p class="muted">Tokens semánticos: el nombre dice para qué se usa, no qué color es. El contraste está calculado contra blanco salvo que se indique otra cosa.</p>
+
+      <h3>Texto sobre fondos claros</h3>
+      <div class="grid-auto">
+        <div class="swatch"><div class="swatch-chip" style="background:#fff;color:var(--ink-strong)">Aa</div><div class="swatch-meta"><b>--ink-strong</b>#0a0a0a · títulos, acción<br><span class="pass">19,8:1</span></div></div>
+        <div class="swatch"><div class="swatch-chip" style="background:#fff;color:var(--ink-body)">Aa</div><div class="swatch-meta"><b>--ink-body</b>#17191c · texto corrido<br><span class="pass">17,6:1</span></div></div>
+        <div class="swatch"><div class="swatch-chip" style="background:#fff;color:var(--ink-muted)">Aa</div><div class="swatch-meta"><b>--ink-muted</b>#5e646d · secundario, helper<br><span class="pass">6,0:1</span></div></div>
+        <div class="swatch"><div class="swatch-chip" style="background:#fff;color:var(--ink-subtle)">Aa</div><div class="swatch-meta"><b>--ink-subtle</b>#6b727c · rótulos, meta, placeholder<br><span class="pass">4,9:1</span> <span class="muted">antes #9ca3ad, 2,5:1</span></div></div>
+        <div class="swatch"><div class="swatch-chip" style="background:#fff;color:var(--ink-decor)">✦ —</div><div class="swatch-meta"><b>--ink-decor</b>#b4bac2 · solo adornos y divisores<br><span class="fail">no es texto</span></div></div>
+      </div>
+
+      <h3>Texto sobre fondo oscuro o imagen</h3>
+      <div class="grid-auto">
+        <div class="swatch"><div class="swatch-chip" style="background:var(--ink-strong);color:var(--on-ink-strong)">Aa</div><div class="swatch-meta"><b>--on-ink-strong</b>#ffffff<br><span class="pass">19,8:1</span></div></div>
+        <div class="swatch"><div class="swatch-chip" style="background:var(--ink-strong);color:var(--on-ink-muted)">Aa</div><div class="swatch-meta"><b>--on-ink-muted</b>blanco 72 %<br><span class="pass">≈10:1</span></div></div>
+        <div class="swatch"><div class="swatch-chip" style="background:var(--ink-strong);color:var(--on-ink-subtle)">Aa</div><div class="swatch-meta"><b>--on-ink-subtle</b>blanco 56 % · reemplaza 38/40/45/50 %<br><span class="pass">6,4:1</span></div></div>
+        <div class="swatch"><div class="swatch-chip" style="background:linear-gradient(var(--scrim),var(--scrim)),#7a8a99;color:#fff">Aa</div><div class="swatch-meta"><b>--scrim</b>negro 35 % · velo de modales y fotos</div></div>
+      </div>
+
+      <h3>Superficies y líneas</h3>
+      <div class="grid-auto">
+        <div class="swatch"><div class="swatch-chip" style="background:var(--surface-shell)"></div><div class="swatch-meta"><b>--surface-shell</b>#eef0f3 · fondo detrás de la app</div></div>
+        <div class="swatch"><div class="swatch-chip" style="background:var(--surface-page)"></div><div class="swatch-meta"><b>--surface-page</b>#fbfcfd · hoja de contenido</div></div>
+        <div class="swatch"><div class="swatch-chip" style="background:var(--surface-base)"></div><div class="swatch-meta"><b>--surface-base</b>#ffffff · cards, botón secundario</div></div>
+        <div class="swatch"><div class="swatch-chip" style="background:var(--surface-soft)"></div><div class="swatch-meta"><b>--surface-soft</b>#f8f9fa · paneles de detalle</div></div>
+        <div class="swatch"><div class="swatch-chip" style="background:var(--surface-muted)"></div><div class="swatch-meta"><b>--surface-muted</b>#eceeef · campos, skeleton, hover</div></div>
+        <div class="swatch"><div class="swatch-chip" style="background:var(--surface-inverse)"></div><div class="swatch-meta"><b>--surface-inverse</b>#0a0a0a · card invertida, activo</div></div>
+        <div class="swatch"><div class="swatch-chip" style="background:#fff;box-shadow:inset 0 -1px 0 var(--line-soft),inset 0 -2px 0 var(--line-default),inset 0 -3px 0 var(--line-strong)"></div><div class="swatch-meta"><b>--line-soft / default / strong</b>pizarra 6 / 10 / 18 % · bordes y divisores</div></div>
+      </div>
+
+      <h3>Feedback</h3>
+      <div class="grid-auto">
+        <div class="swatch"><div class="swatch-chip" style="background:var(--danger-surface);color:var(--danger)">Aa</div><div class="swatch-meta"><b>--danger · --danger-surface</b>#b42318 · #fef3f2 · errores, acciones irreversibles<br><span class="pass">6,6:1</span></div></div>
+        <div class="swatch"><div class="swatch-chip" style="background:var(--success-surface);color:var(--success)">Aa</div><div class="swatch-meta"><b>--success · --success-surface</b>#1e6b47 · #ecf6f0 · confirmaciones<br><span class="pass">6,5:1</span></div></div>
+      </div>
+
+      <h3>Oráculo</h3>
+      <div class="grid-auto">
+        <div class="swatch"><div class="swatch-chip" style="background:var(--oracle-ink);color:var(--oracle-gold)">Aa</div><div class="swatch-meta"><b>--oracle-ink · --oracle-gold</b>#141312 · #c9a66b<br><span class="pass">8,1:1</span> <span class="muted">oro sobre blanco: 2,3:1, prohibido</span></div></div>
+        <div class="swatch"><div class="swatch-chip" style="background:var(--oracle-ink);color:var(--oracle-paper)">Aa</div><div class="swatch-meta"><b>--oracle-paper</b>#f3ede2 · texto de la carta<br><span class="pass">15,9:1</span></div></div>
+        <div class="swatch"><div class="swatch-chip" style="background:var(--oracle-ink);color:var(--oracle-paper-muted)">Aa</div><div class="swatch-meta"><b>--oracle-paper-muted</b>papel 60 % · meta de la carta<br><span class="pass">6,3:1</span></div></div>
+        <div class="swatch"><div class="swatch-chip" style="background:var(--oracle-ink);box-shadow:inset 0 -2px 0 var(--oracle-line)"></div><div class="swatch-meta"><b>--oracle-line · --oracle-glow</b>oro 25 % · 45 % · divisores y brillo</div></div>
+      </div>
+
+      <div class="do-dont" style="margin-top:20px">
+        <div class="do"><p>Sí</p>
+          <p class="editorial-eyebrow" style="margin-bottom:6px">Tu registro diario</p>
+          <p class="type-body" style="color:var(--ink-muted);margin:0">Rótulos en <code>--ink-subtle</code>, texto secundario en <code>--ink-muted</code>.</p>
+        </div>
+        <div class="dont"><p>No</p>
+          <p style="font:500 10px/1.2 var(--font-sans-ui);letter-spacing:.14em;text-transform:uppercase;color:#b4bac2;margin:0 0 6px">Tu registro diario</p>
+          <p class="type-body" style="color:#9ca3ad;margin:0">Así se ve hoy: 2,0:1 y 2,5:1. No se lee al sol.</p>
+        </div>
+      </div>
+
+      <div class="callout callout--rule"><strong>Reglas</strong>
+        Sobre <code>--surface-muted</code> el texto secundario va en <code>--ink-muted</code> (el subtle baja a 4,2:1). · Los colores que hoy viven sueltos en pantallas con nombre propio (tintes lunares de <code>TodayContextCard</code>, gradientes de Stories, colores de WhatsApp e Instagram) quedan como constantes locales, fuera de la paleta.</div>
+
+      <!-- ─────────────────────────────── Tipografía -->
+      <h2 id="tipografia">Tipografía</h2>
+      <p class="muted">Cormorant Garamond (serif) solo para titulares, de 20 px para arriba; Inter (sans) para todo lo demás. Diez tamaños en total. Mínimo absoluto: 10 px, y solo en mayúsculas espaciadas.</p>
+
+      <div class="panel panel--page">
+        <div class="stack" style="gap:22px">
+          <div><span class="type-display" style="color:var(--ink-strong)">Luna que <span class="type-accent">crece</span></span><div class="type-caption muted">display · 48/1.0 · serif 400 · hero de Home, números grandes</div></div>
+          <div><span class="type-title-1" style="color:var(--ink-strong)"><span class="type-accent">Hola,</span> Mariana</span><div class="type-caption muted">title-1 · 32/1.1 · serif 400 · título de pantalla</div></div>
+          <div><span class="type-title-2" style="color:var(--ink-strong)">¿Qué deseás hoy?</span><div class="type-caption muted">title-2 · 26/1.15 · serif 400 · título de sección o paso</div></div>
+          <div><span class="type-title-3" style="color:var(--ink-strong)">Ritual del ritmo propio</span><div class="type-caption muted">title-3 · 20/1.25 · serif 400 · título de card, estado vacío</div></div>
+          <div><span class="type-title-4" style="color:var(--ink-strong)">Notá dónde está la prisa en tu cuerpo; la calma no es lo opuesto a terminar.</span><div class="type-caption muted">title-4 · 17/1.45 · sans 400 · texto destacado: la intención, la mirada del arcano, opciones</div></div>
+          <div><span class="type-body-lg" style="color:var(--ink-body)">Encendé la vela y respirá tres veces antes de empezar.</span><div class="type-caption muted">body-lg · 15/1.6 · sans 300 · lectura larga y campos</div></div>
+          <div><span class="type-label" style="color:var(--ink-strong)">Recibir mi intención</span><div class="type-caption muted">label · 14/1.2 · sans 400 · botones, ítems, toasts</div></div>
+          <div><span class="type-body" style="color:var(--ink-body)">Contalo en pocas palabras y te devolvemos una intención clara.</span><div class="type-caption muted">body · 13/1.55 · sans 400 · texto de interfaz, helper, error, chips</div></div>
+          <div><span class="type-caption" style="color:var(--ink-muted)">Agua · 10 min · Suave</span><div class="type-caption muted">caption · 11/1.45 · sans 400 · metadatos no interactivos</div></div>
+          <div><span class="editorial-eyebrow">Oráculo del día</span><div class="type-caption muted">eyebrow · 10/1.2 · sans 500 · mayúsculas, espaciado .14em</div></div>
+        </div>
+      </div>
+
+      <div class="table-scroll"><table class="spec">
+        <thead><tr><th>Token</th><th>Uso</th><th>Absorbe (hoy)</th><th>En código</th></tr></thead>
+        <tbody>
+          <tr><td>display</td><td>Hero, números destacados</td><td>44 · 52 · 54</td><td><code>font-serif text-display</code></td></tr>
+          <tr><td>title-1</td><td>Título de pantalla</td><td>30 · 34 · 36</td><td><code>font-serif text-title-1</code></td></tr>
+          <tr><td>title-2</td><td>Título de sección o paso</td><td>24 · 25 · 28</td><td><code>font-serif text-title-2</code></td></tr>
+          <tr><td>title-3</td><td>Título de card, vacío</td><td>19 · 22</td><td><code>font-serif text-title-3</code></td></tr>
+          <tr><td>title-4</td><td>Texto destacado, opción</td><td>16 · 17 · 18 · 19 (serif y sans)</td><td><code>text-title-4</code></td></tr>
+          <tr><td>body-lg</td><td>Lectura, campos</td><td>14 · 16 (sans corrido)</td><td><code>text-body-lg font-light</code></td></tr>
+          <tr><td>label</td><td>Botones, ítems</td><td>14 de botón</td><td><code>text-label</code></td></tr>
+          <tr><td>body</td><td>Interfaz, helper, error</td><td>12 · 12,5 · 13</td><td><code>text-body</code></td></tr>
+          <tr><td>caption</td><td>Metadatos</td><td>11 · 12 de meta</td><td><code>text-caption</code></td></tr>
+          <tr><td>eyebrow</td><td>Rótulo en mayúsculas</td><td>9 · 10 · 11 en mayúscula</td><td><code>.editorial-eyebrow</code></td></tr>
+        </tbody>
+      </table></div>
+
+      <div class="callout callout--rule"><strong>Reglas</strong>
+        Pesos: Inter 300 / 400 / 500 (el 600 desaparece: no está cargado y el navegador lo falsea). Cormorant 400 / 500, y la itálica 300 solo como acento dentro de títulos de 26 px o más. · <b>Serif solo en titulares</b> (display, title-1, title-2, title-3: 20 px o más). Párrafos, intenciones, citas y todo texto chico van en Inter (decidido; coincide con el insight #8: “serif light cuesta leer”). · Interlineados: 1.0, 1.1, 1.15–1.35 en títulos, 1.55–1.6 en texto. · Espaciado entre letras: 0, o .14em en el eyebrow. El .3em del número del arcano es la única excepción.</div>
+
+      <div class="do-dont" style="margin-top:16px">
+        <div class="do"><p>Sí</p>
+          <p class="editorial-eyebrow" style="margin-bottom:8px">Tu intención de hoy</p>
+          <p class="type-title-4" style="margin:0;color:var(--ink-strong)">Notá qué te frena en el cuerpo cuando pensás en esa conversación. Tu intención hoy puede ser mirar eso primero.</p>
+        </div>
+        <div class="dont"><p>No</p>
+          <p class="editorial-eyebrow" style="margin-bottom:8px">Tu intención de hoy</p>
+          <p style="margin:0;font:400 17px/1.4 var(--font-serif-display);color:var(--ink-strong)">Notá qué te frena en el cuerpo cuando pensás en esa conversación. Tu intención hoy puede ser mirar eso primero.</p>
+          <p class="state-label" style="text-align:left">Serif en un párrafo chico: se ve fino y cuesta leer.</p>
+        </div>
+      </div>
+      <p class="type-body muted">Para migrar: la intención de Home (serif 24), las intenciones del registro diario (serif 17) y “La mirada” del arcano (serif itálica 19) pasan a <code>title-4</code>.</p>
+
+      <!-- ─────────────────────────────── Espaciado -->
+      <h2 id="espaciado">Espaciado</h2>
+      <p class="muted">Base 4. Ocho pasos. Desaparecen 3, 5, 7, 10, 13, 14, 15, 18 y 22.</p>
+      <div class="panel">
+        <div class="stack" style="gap:10px">
+          <div class="row"><span class="mono" style="width:120px">--space-1 · 4</span><span style="height:14px;width:4px;background:var(--ink-strong);border-radius:2px"></span></div>
+          <div class="row"><span class="mono" style="width:120px">--space-2 · 8</span><span style="height:14px;width:8px;background:var(--ink-strong);border-radius:2px"></span></div>
+          <div class="row"><span class="mono" style="width:120px">--space-3 · 12</span><span style="height:14px;width:12px;background:var(--ink-strong);border-radius:2px"></span></div>
+          <div class="row"><span class="mono" style="width:120px">--space-4 · 16</span><span style="height:14px;width:16px;background:var(--ink-strong);border-radius:2px"></span></div>
+          <div class="row"><span class="mono" style="width:120px">--space-5 · 20</span><span style="height:14px;width:20px;background:var(--ink-strong);border-radius:2px"></span></div>
+          <div class="row"><span class="mono" style="width:120px">--space-6 · 24</span><span style="height:14px;width:24px;background:var(--ink-strong);border-radius:2px"></span></div>
+          <div class="row"><span class="mono" style="width:120px">--space-8 · 32</span><span style="height:14px;width:32px;background:var(--ink-strong);border-radius:2px"></span></div>
+          <div class="row"><span class="mono" style="width:120px">--space-12 · 48</span><span style="height:14px;width:48px;background:var(--ink-strong);border-radius:2px"></span></div>
+        </div>
+      </div>
+      <div class="table-scroll"><table class="spec">
+        <thead><tr><th>Regla</th><th>Valor</th><th>Nota</th></tr></thead>
+        <tbody>
+          <tr><td>Margen lateral de pantalla</td><td>24 (<code>--space-gutter</code>)</td><td>Único. La intención y el oráculo de Home pasan de 20 a 24.</td></tr>
+          <tr><td>Entre bloques de Home</td><td>48</td><td>Entre secciones de otras pantallas: 32.</td></tr>
+          <tr><td>Padding de card</td><td>16 · 20 · 24</td><td>Compacta · normal · destacada.</td></tr>
+          <tr><td>Entre título y texto</td><td>8</td><td>Entre texto y acción: 20.</td></tr>
+          <tr><td>Entre botones apilados</td><td>12</td><td>Primario arriba, secundario abajo.</td></tr>
+        </tbody>
+      </table></div>
+
+      <!-- ─────────────────────────────── Radios -->
+      <h2 id="radios">Radios</h2>
+      <p class="muted">Seis pasos. La card deja de tener 16, 18, 20, 22, 24 o 28 según la pantalla: siempre 24.</p>
+      <div class="grid-auto">
+        <div class="stack" style="align-items:center"><div style="width:100%;height:84px;background:var(--surface-base);border:1px solid var(--line-strong);border-radius:var(--radius-xs)"></div><span class="type-caption"><b>xs · 6</b> badges</span></div>
+        <div class="stack" style="align-items:center"><div style="width:100%;height:84px;background:var(--surface-base);border:1px solid var(--line-strong);border-radius:var(--radius-sm)"></div><span class="type-caption"><b>sm · 12</b> toasts, celdas</span></div>
+        <div class="stack" style="align-items:center"><div style="width:100%;height:84px;background:var(--surface-base);border:1px solid var(--line-strong);border-radius:var(--radius-md)"></div><span class="type-caption"><b>md · 16</b> botones, campos, opciones</span></div>
+        <div class="stack" style="align-items:center"><div style="width:100%;height:84px;background:var(--surface-base);border:1px solid var(--line-strong);border-radius:var(--radius-card)"></div><span class="type-caption"><b>card · 24</b> cards</span></div>
+        <div class="stack" style="align-items:center"><div style="width:100%;height:84px;background:var(--surface-base);border:1px solid var(--line-strong);border-radius:var(--radius-panel)"></div><span class="type-caption"><b>panel · 32</b> sheets, diálogos</span></div>
+        <div class="stack" style="align-items:center"><div style="width:100%;height:84px;background:var(--surface-base);border:1px solid var(--line-strong);border-radius:var(--radius-full)"></div><span class="type-caption"><b>full</b> pills, íconos, chips</span></div>
+      </div>
+      <div class="callout callout--rule"><strong>Reglas</strong>Nada con esquinas rectas (el CTA de Home hoy tiene radio 0). · <code>99px</code> y <code>50%</code> pasan a <code>--radius-full</code>. · Hay que revisar el <code>@theme inline</code>: hoy <code>rounded-xl</code> mide 14 px sin que nadie lo sepa. · La carta del oráculo es la excepción documentada: arco completo.</div>
+
+      <!-- ─────────────────────────────── Sombras -->
+      <h2 id="sombras">Sombras</h2>
+      <p class="muted">De 13 definiciones a 3. La jerarquía la da el color de fondo, no la sombra.</p>
+      <div class="grid-3">
+        <div class="stack"><div style="height:110px;background:var(--surface-base);border-radius:var(--radius-card);box-shadow:var(--shadow-soft)"></div><span class="type-caption"><b>--shadow-soft</b> · cards que flotan sobre la hoja</span></div>
+        <div class="stack"><div style="height:110px;background:var(--surface-base);border-radius:var(--radius-card);box-shadow:var(--shadow-lifted)"></div><span class="type-caption"><b>--shadow-lifted</b> · sheets, diálogos, menús, toasts</span></div>
+        <div class="stack"><div style="height:110px;background:var(--surface-page);border-radius:var(--radius-panel);box-shadow:var(--shadow-shell)"></div><span class="type-caption"><b>--shadow-shell</b> · el marco de la app en desktop</span></div>
+      </div>
+
+      <!-- ─────────────────────────────── Motion -->
+      <h2 id="motion">Movimiento</h2>
+      <p class="muted">Una curva, tres duraciones. Todo se apaga si la persona pidió reducir movimiento.</p>
+      <div class="table-scroll"><table class="spec">
+        <thead><tr><th>Token</th><th>Valor</th><th>Para qué</th></tr></thead>
+        <tbody>
+          <tr><td><code>--ease-editorial</code></td><td>cubic-bezier(.22, 1, .36, 1)</td><td>Toda entrada y revelado (ya se usa 13 veces).</td></tr>
+          <tr><td><code>--duration-state</code></td><td>160 ms</td><td>Hover, color, foco.</td></tr>
+          <tr><td><code>--duration-enter</code></td><td>500 ms</td><td>Entrada de un bloque (subir 8–16 px y aparecer).</td></tr>
+          <tr><td><code>--duration-reveal</code></td><td>800 ms</td><td>Revelados: la carta, la intención.</td></tr>
+          <tr><td>Presionado</td><td>scale(.98)</td><td>Único valor para todo lo que se toca.</td></tr>
+          <tr><td>Ilustraciones</td><td>libres, en loop lento</td><td>Órbitas, estrellas, trazos del oráculo (<code>oracle.css</code>).</td></tr>
+        </tbody>
+      </table></div>
+      <div class="callout callout--rule"><strong>Reducir movimiento, una sola vez</strong><code>&lt;MotionConfig reducedMotion="user"&gt;</code> en <code>App.tsx</code> para las animaciones de motion, y un bloque <code>@media (prefers-reduced-motion)</code> global para las de CSS. Hoy cada componente lo resuelve por su cuenta.</div>
+
+      <!-- ─────────────────────────────── Íconos -->
+      <h2 id="iconos">Íconos</h2>
+      <p class="muted">Una sola librería: lucide. Trazo 1.5 siempre.</p>
+      <div class="panel">
+        <div class="row" style="gap:32px;align-items:flex-end">
+          <div class="stack" style="align-items:center;gap:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.4 6.6L21 12l-6.6 2.4L12 21l-2.4-6.6L3 12l6.6-2.4z"/></svg><span class="type-caption">14 · junto a texto</span></div>
+          <div class="stack" style="align-items:center;gap:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.4 6.6L21 12l-6.6 2.4L12 21l-2.4-6.6L3 12l6.6-2.4z"/></svg><span class="type-caption">16 · en botones</span></div>
+          <div class="stack" style="align-items:center;gap:6px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.4 6.6L21 12l-6.6 2.4L12 21l-2.4-6.6L3 12l6.6-2.4z"/></svg><span class="type-caption">20 · nav y sueltos</span></div>
+          <div class="stack" style="align-items:center;gap:6px"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.4 6.6L21 12l-6.6 2.4L12 21l-2.4-6.6L3 12l6.6-2.4z"/></svg><span class="type-caption">24 · reproductor</span></div>
+        </div>
+      </div>
+      <p class="type-body muted">Los símbolos alquímicos de los elementos (🜂 🜄) y los emojis de luna quedan como texto decorativo con <code>aria-hidden</code> y su nombre al lado.</p>
+
+      <!-- ─────────────────────────────── Accesibilidad -->
+      <h2 id="accesibilidad">Accesibilidad</h2>
+      <div class="table-scroll"><table class="spec">
+        <thead><tr><th>Tema</th><th>Regla del sistema</th></tr></thead>
+        <tbody>
+          <tr><td>Contraste</td><td>Texto ≥ 4,5:1 siempre, incluso a 10 px. Elementos de interfaz (bordes de campos, íconos que significan algo) ≥ 3:1.</td></tr>
+          <tr><td>Foco</td><td>Todo lo que se toca muestra un contorno de 2 px en <code>--ink-strong</code> con 2 px de separación al navegar con teclado (<code>:focus-visible</code>). Sobre oscuro, blanco. Hoy la app no tiene ninguno.</td></tr>
+          <tr><td>Área táctil</td><td>Mínimo 44 × 44. Si el dibujo es más chico (íconos sobre foto), el área se agranda con padding.</td></tr>
+          <tr><td>Errores</td><td>En <code>--danger</code>, con ícono y texto: nunca solo color. El campo con error lleva <code>aria-invalid</code> y el mensaje se asocia con <code>aria-describedby</code>.</td></tr>
+          <tr><td>Movimiento</td><td>Respeta “reducir movimiento” en todo, de forma global.</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </main>
+</div>
+<script src="assets/nav.js"></script>
+</body>
+</html>

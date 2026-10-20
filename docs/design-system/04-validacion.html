@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>04 · Validación e implementación — Design System Rituales</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,300;1,400&family=Inter:wght@300;400;500&display=swap">
+<link rel="stylesheet" href="assets/ds.css">
+<link rel="stylesheet" href="assets/nav.css">
+</head>
+<body>
+<div class="docs">
+  <nav class="docs-nav" id="docs-nav" aria-label="Design system"><noscript><a href="index.html">Inicio</a></noscript></nav>
+
+  <main class="docs-main">
+    <div class="docs-content">
+      <p class="docs-eyebrow">Spec 04 · Para validar · 19 oct 2026</p>
+      <h1>Validación e <em>implementación</em></h1>
+      <p class="docs-lede">Ocho decisiones para cerrar antes de tocar código (más dos sobre imágenes en la spec 05), y el plan para pasar el sistema a la app por fases, sin romper pantallas en el camino. Cada decisión trae una recomendación; si estás de acuerdo con todas, alcanza con decir “aprobado”.</p>
+
+      <!-- ─────────────────────────────── Decisiones -->
+      <h2 id="decisiones">Decisiones</h2>
+      <div class="callout callout--rule"><strong>Ya decidido</strong>La serif (Cormorant Garamond) es solo para titulares de 20 px o más. Párrafos, intenciones, citas y textos chicos van en Inter. Está aplicado en <a href="02-fundamentos.html#tipografia">Fundamentos</a> y <a href="03-componentes.html">Componentes</a>.</div>
+
+      <h3>1. Fondo de la app: frío o cálido</h3>
+      <p>El código usa un gris frío (#eef0f3) detrás de una hoja casi blanca. La guía del diseñador menciona un fondo cálido (#EEEAE6) que nunca llegó al código.</p>
+      <div class="grid-2">
+        <div class="stack"><div style="background:#eef0f3;border-radius:20px;padding:20px"><div style="background:#fbfcfd;border-radius:16px;padding:18px"><p class="editorial-eyebrow">Frío · actual</p><p class="type-title-3" style="margin:6px 0 0;color:var(--ink-strong)">¿Qué deseás hoy?</p></div></div><span class="state-label">#eef0f3 + #fbfcfd</span></div>
+        <div class="stack"><div style="background:#eeeae6;border-radius:20px;padding:20px"><div style="background:#fdfcfa;border-radius:16px;padding:18px"><p class="editorial-eyebrow" style="color:#6f6a64">Cálido · guía</p><p class="type-title-3" style="margin:6px 0 0;color:var(--ink-strong)">¿Qué deseás hoy?</p></div></div><span class="state-label">#eeeae6 + #fdfcfa</span></div>
+      </div>
+      <div class="callout callout--decision"><strong>Recomendación: mantener el frío.</strong>Es lo que la gente ya ve, y el oráculo aporta la calidez con su dorado. Pasar a cálido cambia todos los grises (texto, líneas, superficies) y conviene hacerlo como decisión de marca aparte, no dentro de la estandarización.</div>
+
+      <h3>2. Peso del texto en botones: 300 → 400</h3>
+      <div class="grid-2">
+        <div class="stack"><button class="editorial-button editorial-button--primary editorial-button--lg" type="button" style="font-weight:300">Recibir mi intención</button><span class="state-label">300 · hoy</span></div>
+        <div class="stack"><button class="editorial-button editorial-button--primary editorial-button--lg" type="button">Recibir mi intención</button><span class="state-label">400 · propuesta</span></div>
+      </div>
+      <div class="callout callout--decision"><strong>Recomendación: 400.</strong>El texto blanco en light sobre negro se afina y se pierde en pantallas de baja densidad. El resto del texto de interfaz sigue en 300/400 según la escala.</div>
+
+      <h3>3. El botón principal de Home</h3>
+      <p>Hoy es el único con esquinas rectas, 58 px de alto y negrita 600 (que la fuente no tiene cargada).</p>
+      <div class="grid-2">
+        <div class="stack"><div class="panel panel--dark" style="margin:0"><button type="button" style="width:100%;min-height:58px;border:0;border-radius:0;background:#fff;color:#0a0a0a;font:600 14px/1 var(--font-sans-ui)">Crear un ritual</button></div><span class="state-label">Hoy · variante única</span></div>
+        <div class="stack"><div class="panel panel--dark" style="margin:0"><button class="editorial-button editorial-button--primary editorial-button--on-dark editorial-button--lg" type="button">Crear un ritual</button></div><span class="state-label">Propuesta · primario lg sobre oscuro</span></div>
+      </div>
+      <div class="callout callout--decision"><strong>Recomendación: unificar.</strong>Primario lg sobre oscuro: mismo radio 16 y alto 52 que el resto. Si se quiere que Home destaque, que sea por ubicación y tamaño de la foto, no por un botón distinto.</div>
+
+      <h3>4. Tamaño del texto en chips y pills</h3>
+      <div class="callout callout--decision"><strong>Recomendación: 13 px (body), no 11 ni 12.</strong>Son cosas que se tocan: un texto de 11 cuesta leer y apuntar. El 11 (caption) queda solo para metadatos que no se tocan.</div>
+
+      <h3>5. Componentes de shadcn</h3>
+      <p>Hay 46 componentes de shadcn en <code>components/ui/</code>; solo se usan 2 (diálogo de confirmación y menú desplegable), con una paleta paralela a la editorial.</p>
+      <div class="callout callout--decision"><strong>Recomendación: borrar los 44 sin uso y tematizar los 2 que quedan</strong> con los tokens del sistema. Si más adelante hace falta uno, se trae y se tematiza en ese momento.</div>
+
+      <h3>6. Nombres de clases</h3>
+      <div class="callout callout--decision"><strong>Recomendación: mantener el prefijo <code>editorial-</code> y pasar a modificadores.</strong><code>editorial-button editorial-button--primary</code> reemplaza a <code>editorial-action-button-primary</code> y a <code>editorial-button-primary</code>. Los tokens se exponen además como clases de Tailwind (<code>text-title-2</code>, <code>text-ink-muted</code>, <code>bg-surface-muted</code>, <code>rounded-card</code>).</div>
+
+      <h3>7. Calendario cósmico mensual</h3>
+      <div class="callout callout--decision"><strong>Recomendación: rediseño aparte.</strong>Sus celdas usan texto de 7–8 px y el problema no se resuelve con un token: necesita otra forma (feedback #38). Queda fuera de esta estandarización y entra como spec propia.</div>
+
+      <h3>8. Modo oscuro</h3>
+      <div class="callout callout--decision"><strong>Recomendación: no por ahora.</strong>Borrar la variante <code>.dark</code> que no se usa. Los tokens semánticos dejan la puerta abierta para sumarlo después sin tocar pantallas.</div>
+
+      <!-- ─────────────────────────────── Plan -->
+      <h2 id="plan">Plan por fases</h2>
+      <p class="muted">Cada fase deja la app funcionando y se revisa antes de seguir. Se trabaja en una branch propia (<code>design-system-v1</code>), con un commit por fase.</p>
+      <div class="table-scroll"><table class="spec">
+        <thead><tr><th>Fase</th><th>Qué se hace</th><th>Qué se nota</th><th>Archivos</th></tr></thead>
+        <tbody>
+          <tr><td><b>0 · Validación</b></td><td>Cerrar las 8 decisiones de arriba.</td><td>Nada.</td><td>Estos documentos.</td></tr>
+          <tr><td><b>1 · Tokens</b></td><td>Tokens nuevos en <code>theme.css</code> y en <code>@theme inline</code>; <code>--ink-subtle</code> a #6b727c; <code>--ink-soft</code> fuera de los textos; tokens del oráculo, danger y success; carga de fuentes limpia en <code>index.html</code>; reducir movimiento global.</td><td>Los grises claros se leen. Nada más cambia de forma.</td><td>~4</td></tr>
+          <tr><td><b>2 · Componentes base</b></td><td>Clases de botones, pill, ícono, campos, chips, badges, cards, opción, eyebrow, error, aviso, skeleton; foco visible; componente <code>BackLink</code>; tema de sonner, del diálogo y del menú.</td><td>Foco con teclado en toda la app; toasts y diálogos con el estilo nuevo.</td><td>~6</td></tr>
+          <tr><td><b>3 · Imágenes</b></td><td>Exportar las fotos a WebP con los tamaños de la spec 05, renombrarlas, sumar <code>width/height</code>, <code>loading</code> y <code>alt</code>, y borrar las que no se usan (si se aprueba la decisión 10).</td><td>La app carga mucho más rápido.</td><td>~60 imágenes, ~6 componentes</td></tr>
+          <tr><td><b>4 · Pantallas</b></td><td>Migrar cada pantalla a las piezas y tokens. Orden: Home (hero, intención, oráculo) → Cuenta y registro → Detalle de ritual y reproductor → Pasos de creación → Compartir → Explorar y Wiki → Login y Onboarding → Stories y calendario.</td><td>Botones, radios y textos consistentes, pantalla por pantalla.</td><td>~25, de a una</td></tr>
+          <tr><td><b>5 · Limpieza</b></td><td>Borrar clases viejas, los 44 componentes de shadcn sin uso, <code>.dark</code>, lavados radiales inline; pasar el peso 600 a 500; corregir el tuteo que quedó.</td><td>Nada visible; menos código.</td><td>~50 (mayormente borrados)</td></tr>
+        </tbody>
+      </table></div>
+
+      <!-- ─────────────────────────────── Código -->
+      <h2 id="codigo">Cómo queda en código</h2>
+      <p class="muted">Los tokens viven una sola vez en <code>:root</code> y Tailwind los expone como clases. Las piezas, como clases de componentes.</p>
+      <div class="panel" style="padding:0;overflow:hidden">
+<pre style="margin:0;padding:20px;overflow-x:auto;background:#0f1115;color:#e7e9ee;font:12.5px/1.6 ui-monospace,'SF Mono',Menlo,monospace"><span style="color:#8b93a1">/* src/styles/theme.css */</span>
+:root {
+  --ink-subtle: #6b727c;
+  --surface-muted: #eceeef;
+  --oracle-gold: #c9a66b;
+  <span style="color:#8b93a1">/* … el resto de colores de 02 Fundamentos */</span>
+}
+
+<span style="color:#8b93a1">/* Escalas fijas: Tailwind crea la variable y la clase */</span>
+@theme {
+  --text-title-2: 26px;  --text-title-2--line-height: 1.15;
+  --text-body: 13px;     --text-body--line-height: 1.55;
+  --radius-card: 24px;   <span style="color:#8b93a1">/* → rounded-card */</span>
+}
+
+<span style="color:#8b93a1">/* Colores: apuntan a :root (deja la puerta abierta a un modo oscuro) */</span>
+@theme inline {
+  --color-ink-muted: var(--ink-muted);        <span style="color:#8b93a1">/* → text-ink-muted */</span>
+  --color-surface-muted: var(--surface-muted); <span style="color:#8b93a1">/* → bg-surface-muted */</span>
+}
+
+<span style="color:#8b93a1">// En una pantalla</span>
+&lt;p className="editorial-eyebrow"&gt;Oráculo del día&lt;/p&gt;
+&lt;h3 className="font-serif text-title-2 text-ink-strong"&gt;¿Qué deseás hoy?&lt;/h3&gt;
+&lt;p className="text-body text-ink-muted"&gt;Contalo en pocas palabras…&lt;/p&gt;
+&lt;button className="editorial-button editorial-button--primary editorial-button--lg"&gt;
+  Recibir mi intención
+&lt;/button&gt;</pre>
+      </div>
+      <div class="do-dont">
+        <div class="do"><p>Sí</p><code>className="text-body text-ink-muted"</code></div>
+        <div class="dont"><p>No</p><code>className="text-[13px] text-[var(--ink-muted)]"</code><br><code>style={{ fontSize: "13px" }}</code></div>
+      </div>
+
+      <!-- ─────────────────────────────── Criterios -->
+      <h2 id="criterios">Cómo se verifica</h2>
+      <div class="table-scroll"><table class="spec">
+        <thead><tr><th>Al terminar</th><th>Meta</th></tr></thead>
+        <tbody>
+          <tr><td>Tamaños de letra arbitrarios (<code>text-[Npx]</code>, <code>fontSize</code> inline)</td><td>0 (hoy 285)</td></tr>
+          <tr><td>Colores sueltos en pantallas (hex, rgba)</td><td>Solo las excepciones documentadas (tintes lunares, Stories, marcas de terceros)</td></tr>
+          <tr><td>Radios distintos</td><td>6 (hoy ~14)</td></tr>
+          <tr><td>Variantes de botón primario</td><td>1 (hoy 7)</td></tr>
+          <tr><td>Texto bajo 4,5:1</td><td>0 (hoy ~80)</td></tr>
+          <tr><td>Elementos interactivos sin foco visible</td><td>0</td></tr>
+          <tr><td>Build y tipos</td><td>Pasan en cada fase</td></tr>
+          <tr><td>Revisión visual</td><td>Captura antes/después de cada pantalla migrada, en esta carpeta (<code>06-migracion.html</code>)</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </main>
+</div>
+<script src="assets/nav.js"></script>
+</body>
+</html>

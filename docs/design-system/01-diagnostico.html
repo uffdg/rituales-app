@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>01 · Diagnóstico del sistema visual · Rituales</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<!-- Mismos pesos que carga la app (fonts.css): Inter 300/400/500, Cormorant 300–600 + itálicas -->
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+<style>
+  /* ── Estilo base compartido (repetido en cada spec) ── */
+  :root {
+    --ink: #0a0a0a; --body: #17191c; --muted: #5e646d; --subtle: #6b727c;
+    --page: #fbfcfd; --surface: #ffffff; --soft: #f3f4f6; --muted-surface: #eceeef;
+    --line: rgba(15,23,42,.10); --line-soft: rgba(15,23,42,.06);
+    --ok: #1f7a4d; --ok-bg: #e9f5ee; --bad: #b42318; --bad-bg: #fef3f2; --warn: #8a5300; --warn-bg: #fff6e5;
+    --gold: #c9a66b; --oracle: #141312;
+    --serif: "Cormorant Garamond", Georgia, serif; --sans: "Inter", system-ui, -apple-system, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+  body { margin: 0; background: var(--page); color: var(--body); font: 400 15px/1.6 var(--sans); }
+  a { color: var(--ink); text-underline-offset: 3px; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 40px 20px 96px; }
+  .eyebrow { font: 500 11px/1.2 var(--sans); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin: 0 0 10px; }
+  h1 { font: 400 44px/1.05 var(--serif); color: var(--ink); margin: 0 0 12px; }
+  h2 { font: 400 32px/1.1 var(--serif); color: var(--ink); margin: 64px 0 12px; padding-top: 24px; border-top: 1px solid var(--line); scroll-margin-top: 16px; }
+  h3 { font: 500 16px/1.3 var(--sans); color: var(--ink); margin: 36px 0 10px; scroll-margin-top: 16px; }
+  h4 { font: 500 13px/1.3 var(--sans); color: var(--ink); margin: 0 0 6px; }
+  p { margin: 0 0 12px; }
+  ul, ol { padding-left: 20px; margin: 0 0 12px; }
+  li { margin-bottom: 6px; }
+  .lead { font-size: 17px; color: var(--muted); max-width: 720px; }
+  .meta { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; font-size: 13px; color: var(--muted); margin: 16px 0 0; }
+  code { font: 12.5px/1.4 var(--mono); background: var(--soft); padding: 1px 5px; border-radius: 4px; color: var(--ink); word-break: break-word; }
+  .badge { display: inline-flex; align-items: center; gap: 6px; font: 500 11px/1 var(--sans); letter-spacing: .06em; text-transform: uppercase; padding: 6px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); white-space: nowrap; }
+  .badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  .st-diag { color: var(--warn); background: var(--warn-bg); border-color: transparent; }
+  .card { background: var(--surface); border: 1px solid var(--line-soft); border-radius: 16px; padding: 20px; }
+  .muted { color: var(--muted); }
+  .small { font-size: 13px; }
+
+  /* ── Diagnóstico ── */
+  .toc { columns: 2 220px; column-gap: 32px; font-size: 14px; margin: 0; padding-left: 18px; }
+  .toc a { text-decoration: none; }
+  .toc a:hover { text-decoration: underline; }
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 24px 0; }
+  .kpi { padding: 16px; }
+  .kpi b { display: block; font: 400 36px/1 var(--serif); color: var(--ink); margin-bottom: 6px; }
+  .kpi span { font-size: 13px; color: var(--muted); line-height: 1.45; display: block; }
+  .top { counter-reset: top; list-style: none; padding: 0; display: grid; gap: 10px; }
+  .top li { counter-increment: top; display: grid; grid-template-columns: 32px 1fr; gap: 12px; margin: 0; padding: 14px 16px; background: var(--surface); border: 1px solid var(--line-soft); border-radius: 14px; }
+  .top li::before { content: counter(top, decimal-leading-zero); font: 400 22px/1 var(--serif); color: var(--ink); }
+  .finding { border-left: 3px solid var(--ink); padding: 14px 16px; background: var(--surface); border-radius: 0 12px 12px 0; margin: 14px 0; }
+  .finding.alta { border-left-color: var(--bad); }
+  .finding.media { border-left-color: #c08a1e; }
+  .finding.baja { border-left-color: #9aa1aa; }
+  .finding h4 { font-size: 14px; }
+  .finding .why { font-size: 13px; color: var(--muted); margin: 6px 0 0; }
+  .finding .act { font-size: 13px; margin: 6px 0 0; }
+  .finding .act::before { content: "Acción: "; font-weight: 500; color: var(--ink); }
+  .sev { font: 500 10px/1 var(--sans); letter-spacing: .08em; text-transform: uppercase; padding: 3px 7px; border-radius: 999px; margin-left: 6px; vertical-align: 2px; }
+  .sev.alta { color: var(--bad); background: var(--bad-bg); }
+  .sev.media { color: var(--warn); background: var(--warn-bg); }
+  .sev.baja { color: var(--muted); background: var(--soft); }
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid var(--line-soft); border-radius: 12px; background: var(--surface); margin: 12px 0 16px; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; min-width: 560px; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line-soft); vertical-align: top; }
+  th { font: 500 11px/1.2 var(--sans); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); background: #fafbfc; }
+  tr:last-child td { border-bottom: 0; }
+  td.n { font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+  .pass { color: var(--ok); font-weight: 500; white-space: nowrap; }
+  .fail { color: var(--bad); font-weight: 500; white-space: nowrap; }
+  .note { font-size: 13px; color: var(--muted); background: var(--soft); border-radius: 10px; padding: 10px 12px; }
+
+  /* Escala tipográfica */
+  .type-rows { border: 1px solid var(--line-soft); border-radius: 12px; background: var(--surface); overflow: hidden; }
+  .type-row { display: grid; grid-template-columns: 64px 1fr 150px; gap: 12px; align-items: center; padding: 8px 14px; border-bottom: 1px solid var(--line-soft); }
+  .type-row:last-child { border-bottom: 0; }
+  .type-row .px { font: 500 12px/1 var(--mono); color: var(--ink); }
+  .type-row .sample { color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .type-row .uses { font-size: 12px; color: var(--muted); }
+  .bar { height: 6px; border-radius: 999px; background: var(--ink); margin-top: 4px; min-width: 2px; }
+  .type-row.cluster { background: #fffaf0; }
+  .type-row.tiny .px { color: var(--bad); }
+
+  /* Swatches */
+  .swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; margin: 12px 0 16px; }
+  .sw { border: 1px solid var(--line-soft); border-radius: 12px; overflow: hidden; background: var(--surface); font-size: 12px; }
+  .sw .chip { height: 64px; display: flex; align-items: flex-end; padding: 8px; font: 500 10px/1 var(--sans); letter-spacing: .14em; text-transform: uppercase; }
+  .sw .info { padding: 8px 10px 10px; line-height: 1.4; }
+  .sw .info b { display: block; font: 500 12px/1.3 var(--mono); color: var(--ink); }
+  .sw .info .tok { color: var(--muted); }
+  .sw .info .cnt { color: var(--ink); font-weight: 500; }
+
+  /* Contraste demo */
+  .contrast-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+  .cbox { border-radius: 12px; padding: 14px; border: 1px solid var(--line-soft); }
+  .cline { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 6px 0; border-bottom: 1px dashed var(--line); }
+  .cline:last-child { border-bottom: 0; }
+  .cline .s1 { font: 500 10px/1.2 var(--sans); letter-spacing: .14em; text-transform: uppercase; }
+  .cline .s2 { font: 300 13px/1.4 var(--sans); }
+  .cline .r { font: 500 11px/1 var(--mono); white-space: nowrap; }
+
+  /* Radios */
+  .radii { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 12px; margin: 12px 0 16px; }
+  .rbox { text-align: center; font-size: 12px; }
+  .rbox .shape { height: 84px; background: var(--muted-surface); border: 1px solid rgba(15,23,42,.12); margin-bottom: 8px; }
+  .rbox b { display: block; font: 500 12px/1.3 var(--mono); color: var(--ink); }
+  .rbox span { color: var(--muted); line-height: 1.35; display: block; }
+
+  /* Galería de componentes */
+  .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; margin: 12px 0 16px; }
+  .cell { border: 1px solid var(--line-soft); border-radius: 12px; background: var(--surface); overflow: hidden; display: flex; flex-direction: column; }
+  .stage { min-height: 112px; display: flex; align-items: center; justify-content: center; padding: 18px 16px; background: #ffffff; gap: 8px; flex-wrap: wrap; }
+  .stage.page { background: #fbfcfd; }
+  .stage.dark { background: #0a0a0a; }
+  .stage.photo { background: linear-gradient(160deg, #6d6a73 0%, #3b3a40 55%, #141317 100%); }
+  .stage.oracle { background: #141312; }
+  .stage.muted { background: #eceeef; }
+  .cell .desc { padding: 10px 12px 12px; font-size: 12px; line-height: 1.45; border-top: 1px solid var(--line-soft); }
+  .cell .desc b { display: block; font-size: 13px; color: var(--ink); margin-bottom: 2px; }
+  .cell .desc .src { color: var(--muted); }
+  .tag { display: inline-block; font: 500 10px/1 var(--sans); letter-spacing: .06em; text-transform: uppercase; padding: 3px 6px; border-radius: 4px; margin-top: 6px; }
+  .tag.sys { color: var(--ok); background: var(--ok-bg); }
+  .tag.hand { color: var(--bad); background: var(--bad-bg); }
+  .tag.mix { color: var(--warn); background: var(--warn-bg); }
+  .w100 { width: 100%; }
+
+  /* Recreaciones (valores copiados del código) */
+  .r-btn { font-family: var(--sans); border: 0; cursor: default; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+  .shadow-demo { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 20px; padding: 20px; background: #f6f7f8; border-radius: 12px; }
+  .shadow-demo div { height: 72px; background: #fff; border-radius: 16px; font-size: 11px; color: var(--muted); padding: 8px 10px; line-height: 1.35; }
+  .pillrow { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 12px; }
+  .pv { font: 500 12px/1 var(--mono); padding: 6px 9px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); color: var(--ink); }
+  .pv i { font-style: normal; color: var(--muted); font-weight: 400; margin-left: 4px; }
+  .pv.off { border-style: dashed; color: var(--bad); }
+
+  /* Propuesta */
+  .prop { border: 1px solid #c9d4f2; background: #f7f9fe; border-radius: 16px; padding: 20px; }
+  .prop-scale .row { display: grid; grid-template-columns: 150px 1fr; gap: 12px; align-items: baseline; padding: 10px 0; border-bottom: 1px solid rgba(43,76,155,.12); }
+  .prop-scale .row:last-child { border-bottom: 0; }
+  .prop-scale .tok { font: 500 12px/1.35 var(--mono); color: #2b4c9b; }
+  .prop-scale .tok span { display: block; font: 400 11px/1.35 var(--sans); color: var(--muted); }
+  .prio { counter-reset: p; list-style: none; padding: 0; }
+  .prio li { counter-increment: p; position: relative; padding: 14px 16px 14px 56px; background: var(--surface); border: 1px solid var(--line-soft); border-radius: 14px; margin-bottom: 10px; }
+  .prio li::before { content: "P" counter(p); position: absolute; left: 16px; top: 14px; font: 500 13px/1 var(--mono); color: #fff; background: var(--ink); border-radius: 6px; padding: 5px 6px; }
+  .prio .eff { font-size: 12px; color: var(--muted); }
+  @media (max-width: 640px) {
+    h1 { font-size: 36px; }
+    h2 { font-size: 28px; }
+    .type-row { grid-template-columns: 52px 1fr; }
+    .type-row .uses { grid-column: 1 / -1; }
+    .prop-scale .row { grid-template-columns: 1fr; gap: 4px; }
+  }
+</style>
+<link rel="stylesheet" href="assets/nav.css">
+</head>
+<body>
+
+<div class="docs">
+  <nav class="docs-nav" id="docs-nav" aria-label="Design system"><noscript><a href="index.html">Inicio</a></noscript></nav>
+  <div class="docs-main docs-main--plain">
+<main class="wrap">
+
+  <p class="eyebrow">Rituales · Design system · Spec 01</p>
+  <h1>Diagnóstico del sistema visual</h1>
+  <p class="lead">Qué hay hoy en el código, contado. Sirve para decidir qué estandarizar primero. No cambia nada del producto: es la foto previa a la propuesta de tokens.</p>
+  <div class="meta">
+    <span class="badge st-diag">Diagnóstico</span>
+    <span>19 oct 2026</span>
+    <span>Rama <code>intencion-y-oraculo</code></span>
+    <span>Repo <code>rituales-app</code></span>
+  </div>
+
+  <h3>Contenido</h3>
+  <ol class="toc">
+    <li><a href="#resumen">Resumen y hallazgos clave</a></li>
+    <li><a href="#metodo">Método y alcance</a></li>
+    <li><a href="#tipografia">Tipografía</a></li>
+    <li><a href="#color">Color y contraste</a></li>
+    <li><a href="#radios">Bordes y radios</a></li>
+    <li><a href="#botones">Botones y links</a></li>
+    <li><a href="#inputs">Inputs, chips y cards</a></li>
+    <li><a href="#espaciado">Espaciado y sombras</a></li>
+    <li><a href="#iconos">Íconos y motion</a></li>
+    <li><a href="#otras">Otras inconsistencias</a></li>
+    <li><a href="#propuesta">Propuesta preliminar</a></li>
+    <li><a href="#prioridades">Qué estandarizar primero</a></li>
+    <li><a href="#no-verificado">Lo que no se pudo verificar</a></li>
+  </ol>
+
+  <!-- ═══════════════════════════ RESUMEN ═══════════════════════════ -->
+  <h2 id="resumen">Resumen</h2>
+  <p>El sistema editorial existe (<code>theme.css</code> define ~75 clases <code>.editorial-*</code> y 20 tokens propios), pero <strong>la mitad de la app no lo usa</strong>: Account, Share, Explore, Stories, Wiki, WikiNote, Layout y casi todas las cards arman su estilo a mano con <code>style={{…}}</code>. El resultado son 27 tamaños de fuente, ~14 radios distintos y 7 formas diferentes de botón primario.</p>
+
+  <div class="kpis">
+    <div class="card kpi"><b>331</b><span>bloques <code>style={{…}}</code> inline en 26 archivos (56 solo en Account.tsx)</span></div>
+    <div class="card kpi"><b>285</b><span>tamaños de fuente hardcodeados (202 inline + 79 <code>text-[Npx]</code> + 4 Tailwind)</span></div>
+    <div class="card kpi"><b>27</b><span>tamaños de fuente distintos, de 7 px a 54 px</span></div>
+    <div class="card kpi"><b>~14</b><span>valores de border-radius distintos (2 a 36 px + full)</span></div>
+    <div class="card kpi"><b>194</b><span>usos de clases <code>.editorial-*</code>, concentrados en 14 de 27 archivos</span></div>
+    <div class="card kpi"><b>15</b><span>clases <code>.editorial-*</code> definidas y sin ningún uso</span></div>
+    <div class="card kpi"><b>~322</b><span>colores sueltos (154 hex + ~168 rgba) fuera de tokens</span></div>
+    <div class="card kpi"><b>44 / 46</b><span>componentes shadcn en <code>ui/</code> que nadie importa</span></div>
+  </div>
+
+  <h3>Los 8 hallazgos que más importan</h3>
+  <ol class="top">
+    <li><span><strong>Los grises de texto más usados no se leen.</strong> <code>--ink-subtle</code> (#9ca3ad, 2,5:1) y <code>--ink-soft</code> (#b4bac2, 2,0:1) se referencian 87 veces (~80 como color de texto), y <code>.editorial-eyebrow</code> (32 usos) usa <code>--ink-subtle</code>. Ninguno llega al mínimo AA de 4,5:1.</span></li>
+    <li><span><strong>7 botones primarios distintos.</strong> El CTA principal de Home (<code>TodayContextCard.tsx:308</code>) es negro, recto (radio 0), 58 px de alto y peso 600. El resto de los primarios usa radio 16, 14 o pill, con pesos de 300 a 500.</span></li>
+    <li><span><strong>Dos sistemas de botón editorial que hacen lo mismo:</strong> <code>.editorial-action-button-*</code> (12 usos) y <code>.editorial-button-primary/-soft</code> (7 usos). RitualDetail mezcla los dos y uno hecho a mano en la misma barra inferior (<code>RitualDetail.tsx:763–794</code>).</span></li>
+    <li><span><strong>En la práctica no hay escala tipográfica:</strong> 12 px y 13 px conviven en el mismo rol (101 usos entre los dos). Los títulos serif saltan entre 24, 25, 26 y 28 px, y entre 30 y 36 px, sin regla.</span></li>
+    <li><span><strong>El eyebrow está reescrito a mano 40 veces</strong> con 4 letter-spacings (.1/.12/.14/.18em), 3 tamaños (9/10/11 px) y 3 grises, aunque existe <code>.editorial-eyebrow</code>.</span></li>
+    <li><span><strong>Los errores no se ven como errores.</strong> OracleCard, DailyIntention y el audio guiado muestran el error en gris <code>--ink-muted</code>. Login, Account y StepRitual usan #B42318 inline, y <code>.editorial-error</code> se usa una sola vez.</span></li>
+    <li><span><strong>Texto ilegible en el calendario mensual:</strong> 7 px y 7,5 px (<code>CosmicCalendar.tsx:277–293</code>). Coincide con el insight #38 del feedback-log ("difícil de usar por el espacio chico").</span></li>
+    <li><span><strong>Fuentes mal cargadas:</strong> Source Serif 4 se descarga en <code>index.html</code> y no se usa nunca, Inter se pide dos veces, y el peso 600 de Inter se usa ~8 veces sin estar cargado (el navegador lo simula con negrita falsa).</span></li>
+  </ol>
+
+  <!-- ═══════════════════════════ MÉTODO ═══════════════════════════ -->
+  <h2 id="metodo">Método y alcance</h2>
+  <ul>
+    <li>Búsqueda de patrones con ripgrep sobre <code>src/app/pages</code> y <code>src/app/components</code>, <strong>excluyendo <code>components/ui/</code></strong> (shadcn), más lectura de <code>theme.css</code>, <code>fonts.css</code>, <code>tailwind.css</code>, <code>index.css</code>, <code>oracle.css</code> e <code>index.html</code>.</li>
+    <li>Archivos relevados: 18 páginas (Home, Account, Explore, RitualDetail, Step×5, Onboarding, Login, Share, Stories, Wiki, WikiNote, CosmicCalendar, dev/ArcanaGallery) y 14 componentes (Layout, OracleCard, DailyIntention, DailyRecordsCalendar, ArcanaArt, TodayContextCard, RitualGridCard, RitualRecommendationCard, GuidedAudioPlayer, PopularCarousel, ProgressBar, MoonPhaseIcon, UserMenu, App).</li>
+    <li>Los conteos son ocurrencias en el código, no instancias renderizadas: un chip dentro de un <code>.map()</code> cuenta una vez. Los estilos armados con ternarios o constantes pueden quedar subcontados (margen estimado ±5 %).</li>
+    <li>Contrastes calculados con la fórmula de WCAG 2.x sobre blanco (#fff), salvo que se indique otra superficie.</li>
+    <li>Evidencia de usuarios cruzada con <code>guidelines/feedback-log.md</code> (insights #8 y #38). Copy cruzado con <code>guidelines/VOICE.md</code>.</li>
+  </ul>
+
+  <!-- ═══════════════════════════ TIPOGRAFÍA ═══════════════════════════ -->
+  <h2 id="tipografia">1. Tipografía</h2>
+
+  <h3>1.1 Familias y carga de fuentes</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Familia</th><th>Dónde se carga</th><th>Cómo se aplica</th><th class="n">Usos</th><th>Estado</th></tr></thead>
+    <tbody>
+      <tr><td><span style="font-family:var(--serif);font-size:18px">Cormorant Garamond</span></td><td><code>fonts.css:1</code> (300–600 + itálicas)</td><td><code>--font-serif-display</code> inline · clase <code>font-serif</code></td><td class="n">~46 inline · ~19 clase</td><td class="pass">OK</td></tr>
+      <tr><td>Inter</td><td><code>fonts.css:1</code> <strong>y</strong> <code>index.html:34</code> (300/400/500)</td><td><code>--font-sans-ui</code> inline · <code>font-sans</code></td><td class="n">~162 inline · ~46 clase</td><td class="fail">Cargada 2 veces</td></tr>
+      <tr><td><span style="font-family:Georgia,serif">Source Serif 4</span></td><td><code>index.html:34</code> (eje completo 200–900)</td><td>—</td><td class="n">0</td><td class="fail">Se descarga y no se usa</td></tr>
+      <tr><td><span style="font-family:serif">serif genérica</span></td><td>—</td><td><code>fontFamily="serif"</code> en <code>&lt;text&gt;</code> SVG</td><td class="n">6</td><td class="fail">Cae a Times · <code>ArcanaArt.tsx:200–201, 399–402</code></td></tr>
+    </tbody>
+  </table></div>
+  <div class="finding media">
+    <h4>208 declaraciones <code>fontFamily: "var(--font-…)"</code> inline <span class="sev media">Media</span></h4>
+    <p class="small">Account.tsx tiene 36, RitualDetail 24, Share 23, StepRitual 18. El <code>body</code> ya hereda Inter (<code>theme.css:155</code>), así que las ~162 de sans son redundantes.</p>
+    <p class="why">Por qué importa: cada declaración inline anula la cascada y hace imposible cambiar la tipografía desde un solo lugar, que es justo lo que promete el comentario de <code>theme.css:102</code>.</p>
+    <p class="act">borrar las de sans; reemplazar las de serif por clases de la escala (§9.1).</p>
+  </div>
+
+  <h3>1.2 Escala real: los 27 tamaños que usa la app</h3>
+  <p class="small muted">Cada fila se ve en su tamaño real con la familia que predomina en ese tamaño. La barra es proporcional a la cantidad de usos en TSX (inline + <code>text-[Npx]</code>). En amarillo, los grupos casi iguales que deberían ser uno solo. En rojo, los tamaños por debajo del mínimo legible.</p>
+  <div class="type-rows">
+    <div class="type-row tiny"><span class="px">7</span><span class="sample" style="font:400 7px/1.2 var(--sans)">Sagitario · 14:32 — celda del calendario mensual</span><span class="uses">2 · CosmicCalendar.tsx:285, :288<div class="bar" style="width:3%"></div></span></div>
+    <div class="type-row tiny"><span class="px">7.5</span><span class="sample" style="font:500 7.5px/1.2 var(--sans)">L. llena — evento en calendario</span><span class="uses">2 · CosmicCalendar.tsx:277, :293<div class="bar" style="width:3%"></div></span></div>
+    <div class="type-row tiny"><span class="px">8</span><span class="sample" style="font:400 8px/1.2 var(--sans);letter-spacing:.1em;text-transform:uppercase">Evento</span><span class="uses">3 · CosmicCalendar.tsx:187, Stories.tsx:593<div class="bar" style="width:5%"></div></span></div>
+    <div class="type-row cluster"><span class="px">9</span><span class="sample" style="font:500 9px/1.2 var(--sans);letter-spacing:.1em;text-transform:uppercase;color:#5e646d">racha lunar · sesiones totales</span><span class="uses">9 · Account.tsx:392, RitualGridCard.tsx:122, RitualDetail.tsx:903<div class="bar" style="width:15%"></div></span></div>
+    <div class="type-row cluster"><span class="px">10</span><span class="sample" style="font:500 10px/1.2 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:#5e646d">Tu práctica · Oráculo del día</span><span class="uses">34 · Account.tsx:308, Layout.tsx:129, Home.tsx:388<div class="bar" style="width:58%"></div></span></div>
+    <div class="type-row cluster"><span class="px">11</span><span class="sample" style="font:400 11px/1.4 var(--sans)">Agua · 10 min · Suave — meta de card</span><span class="uses">33 · RitualDetail.tsx:661, Share.tsx:116, OracleCard.tsx:49<div class="bar" style="width:56%"></div></span></div>
+    <div class="type-row cluster"><span class="px">12</span><span class="sample" style="font:300 12px/1.5 var(--sans)">No pudimos escribir tu intención. Probá de nuevo.</span><span class="uses">42 · StepRitual.tsx:335, GuidedAudioPlayer.tsx:213, DailyIntention.tsx:282<div class="bar" style="width:71%"></div></span></div>
+    <div class="type-row cluster"><span class="px">13</span><span class="sample" style="font:300 13px/1.55 var(--sans)">Contalo en pocas palabras y te devolvemos una intención clara.</span><span class="uses">59 · Login.tsx:198, Account.tsx:279, DailyRecordsCalendar.tsx:100<div class="bar" style="width:100%"></div></span></div>
+    <div class="type-row cluster"><span class="px">14</span><span class="sample" style="font:300 14px/1.6 var(--sans)">Encendé la vela y respirá tres veces antes de empezar.</span><span class="uses">14 · Share.tsx:413, Layout.tsx:164, RitualDetail.tsx:735<div class="bar" style="width:24%"></div></span></div>
+    <div class="type-row cluster"><span class="px">15</span><span class="sample" style="font:300 15px/1.6 var(--sans)">Ej.: terminar la entrega sin perder la calma</span><span class="uses">6 · Login.tsx:216, Onboarding.tsx:337, OracleCard.tsx:83<div class="bar" style="width:10%"></div></span></div>
+    <div class="type-row cluster"><span class="px">16</span><span class="sample" style="font:400 16px/1.4 var(--serif)">"Elegir una sola cosa y terminarla"</span><span class="uses">11 · RitualDetail.tsx:701 (sans), Account.tsx:636, WikiNote.tsx:85<div class="bar" style="width:19%"></div></span></div>
+    <div class="type-row cluster"><span class="px">17</span><span class="sample" style="font:400 17px/1.45 var(--serif)">Llevate esta intención durante el resto del día.</span><span class="uses">3 · StepRitual.tsx:556, DailyIntention.tsx:356 · CSS <code>.editorial-textarea</code><div class="bar" style="width:5%"></div></span></div>
+    <div class="type-row cluster"><span class="px">18</span><span class="sample" style="font:400 18px/1.3 var(--serif)">Lluvia suave · 21 hs en Buenos Aires</span><span class="uses">6 · Home.tsx:446, Account.tsx:506, RitualDetail.tsx:1189<div class="bar" style="width:10%"></div></span></div>
+    <div class="type-row cluster"><span class="px">19</span><span class="sample" style="font:400 19px/1.4 var(--serif);font-style:italic">Lo que mirás con calma se ordena solo.</span><span class="uses">2 · OracleCard.tsx:75, WikiNote.tsx:112<div class="bar" style="width:3%"></div></span></div>
+    <div class="type-row cluster"><span class="px">20</span><span class="sample" style="font:400 20px/1.25 var(--serif)">Sin resultados · Creando tu ritual…</span><span class="uses">9 · Explore.tsx:309, StepRitual.tsx:324, StepElement.tsx:129<div class="bar" style="width:15%"></div></span></div>
+    <div class="type-row cluster"><span class="px">22</span><span class="sample" style="font:400 22px/1.2 var(--serif)">Ritual del ritmo propio</span><span class="uses">8 · RitualRecommendationCard.tsx:80, Login.tsx:286, RitualDetail.tsx:983<div class="bar" style="width:14%"></div></span></div>
+    <div class="type-row cluster"><span class="px">24</span><span class="sample" style="font:400 24px/1.15 var(--serif)">Tu intención de hoy</span><span class="uses">3 · Share.tsx:384, GuidedAudioPlayer.tsx:202, DailyIntention.tsx:347<div class="bar" style="width:5%"></div></span></div>
+    <div class="type-row cluster"><span class="px">25</span><span class="sample" style="font:400 25px/1.12 var(--serif)">Que no quede solo en la escucha.</span><span class="uses">1 · RitualDetail.tsx:889<div class="bar" style="width:2%"></div></span></div>
+    <div class="type-row cluster"><span class="px">26</span><span class="sample" style="font:400 26px/1.15 var(--serif)">¿Qué deseás hoy?</span><span class="uses">8 · StepRitual.tsx:374, Home.tsx:416, OracleCard.tsx:222<div class="bar" style="width:14%"></div></span></div>
+    <div class="type-row cluster"><span class="px">28</span><span class="sample" style="font:400 28px/1.2 var(--serif)">Revisá tu email</span><span class="uses">6 · RitualDetail.tsx:649, StepElement.tsx:72, Login.tsx:244 · CSS <code>.editorial-step-title</code><div class="bar" style="width:10%"></div></span></div>
+    <div class="type-row"><span class="px">30</span><span class="sample" style="font:400 30px/1.1 var(--serif)">Explorar</span><span class="uses">3 · Explore.tsx:198, Share.tsx:129, Account.tsx:1059<div class="bar" style="width:5%"></div></span></div>
+    <div class="type-row"><span class="px">32</span><span class="sample" style="font:400 32px/1.1 var(--serif)">Rituales</span><span class="uses">8 · Login.tsx:185, Onboarding.tsx:174, OracleCard.tsx:63<div class="bar" style="width:14%"></div></span></div>
+    <div class="type-row"><span class="px">34</span><span class="sample" style="font:400 34px/1.1 var(--serif)"><em style="font-weight:300">Hola,</em> Mariana</span><span class="uses">2 · Account.tsx:321, RitualDetail.tsx:996<div class="bar" style="width:3%"></div></span></div>
+    <div class="type-row"><span class="px">36</span><span class="sample" style="font:400 36px/1 var(--serif)">12</span><span class="uses">4 · Account.tsx:380, :451, :569 · Stories.tsx:551<div class="bar" style="width:7%"></div></span></div>
+    <div class="type-row"><span class="px">44</span><span class="sample" style="font:400 44px/1.05 var(--serif)">Las lunas</span><span class="uses">1 · WikiNote.tsx:75<div class="bar" style="width:2%"></div></span></div>
+    <div class="type-row"><span class="px">52</span><span class="sample" style="font:300 52px/1 var(--serif)">Rituales</span><span class="uses">1 · App.tsx:61 (splash)<div class="bar" style="width:2%"></div></span></div>
+    <div class="type-row"><span class="px">54</span><span class="sample" style="font:400 54px/.94 var(--serif);font-style:italic">Luna que crece</span><span class="uses">1 · TodayContextCard.tsx:282<div class="bar" style="width:2%"></div></span></div>
+  </div>
+  <p class="note">Además, <code>theme.css</code> define 8,5 px (<code>.editorial-step-tab</code>, sin uso) y 9 px (<code>.editorial-quick-path-body</code>, Home). Hay 4 clases Tailwind (<code>text-sm</code>, <code>text-xs</code>): en <code>Explore.tsx:263</code> y <code>:279</code> conviven <code>text-sm</code> y <code>fontSize: "12px"</code> inline en el mismo botón, así que la clase no hace nada. Home pisa la escala con <code>!text-[26px]</code>, <code>!text-[16px]</code> y <code>!text-[18px]</code> sobre <code>.editorial-title-*</code> (<code>Home.tsx:416, 425, 446, 464</code>): es la señal de que la escala definida no cubre lo que se necesita.</p>
+
+  <h3>1.3 Valores casi iguales que deberían ser uno</h3>
+  <div class="finding alta">
+    <h4>12 px vs 13 px para texto corrido y helpers: 101 usos <span class="sev alta">Alta</span></h4>
+    <p class="small">Mismo rol, distinto tamaño. El error de la intención va en 12 px (<code>DailyIntention.tsx:311</code>), el del oráculo en 12 px (<code>OracleCard.tsx:251</code>) y el de StepRitual en 13 px (<code>StepRitual.tsx:349</code>). El helper de Login va en 13 px (<code>Login.tsx:198</code>) y el de la pregunta de precio en 12 px (<code>RitualDetail.tsx:1073</code>).</p>
+    <p class="why">Por qué importa: a 1 px de distancia no se percibe como jerarquía, se percibe como descuido. Es la diferencia más repetida de la app.</p>
+    <p class="act">13 px para texto corrido, helper y error; 11 px para metadatos. 12 px deja de ser un paso de la escala.</p>
+  </div>
+  <div class="finding media">
+    <h4>Títulos serif: 24 / 25 / 26 / 28 px (18 usos) y 30 / 32 / 34 / 36 px (17 usos) <span class="sev media">Media</span></h4>
+    <p class="small">Título de paso en 28 px (<code>.editorial-step-title</code>, <code>StepElement.tsx:72</code>), título del ritual generado en 26 px (<code>StepRitual.tsx:374</code>), cierre en 25 px (<code>RitualDetail.tsx:889</code>). Hero de Explore en 30 px, Login en 32 px, Account en 34 px y números de Account en 36 px.</p>
+    <p class="why">Por qué importa: cada pantalla reinventa su H1. Navegando de Explorar (30) a Perfil (34) a Login (32), el título "salta".</p>
+    <p class="act">dos pasos de título: 32 px (pantalla) y 26 px (sección o paso).</p>
+  </div>
+  <div class="finding media">
+    <h4>Serif chica: Cormorant de 13 px en títulos de card <span class="sev media">Media</span></h4>
+    <p class="small"><code>RitualGridCard.tsx:181</code> usa Cormorant 13 px para el título de cada ritual en Explorar y Perfil. Cormorant tiene un ojo medio muy bajo y a 13 px queda más chico que un Inter de 11.</p>
+    <p class="why">Por qué importa: es el texto más escaneado del catálogo.</p>
+    <p class="act">mínimo 16 px para serif, o pasar el título de la grilla a Inter 13/500.</p>
+  </div>
+
+  <h3>1.4 Pesos</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Peso</th><th>Muestra</th><th class="n">Usos (inline + clase)</th><th>Comentario</th></tr></thead>
+    <tbody>
+      <tr><td>300 light</td><td><span style="font:300 14px var(--sans)">Inter light</span> · <span style="font:300 18px var(--serif)">Cormorant light</span></td><td class="n">69</td><td>Firma de la marca en sans. En serif, el feedback-log #8 dice que el copy serif "light" cuesta leer ("tuve que hacer un esfuerzo extra con la vista"): <code>.editorial-textarea</code> usa Cormorant 300.</td></tr>
+      <tr><td>400 regular</td><td><span style="font:400 14px var(--sans)">Inter regular</span> · <span style="font:400 18px var(--serif)">Cormorant regular</span></td><td class="n">53</td><td>Peso base de títulos serif.</td></tr>
+      <tr><td>500 medium</td><td><span style="font:500 14px var(--sans)">Inter medium</span></td><td class="n">57</td><td>Eyebrows, labels y chips activos. También Cormorant 500 en títulos de opción (<code>.editorial-option-title</code>, <code>Onboarding.tsx:214</code>).</td></tr>
+      <tr><td>600 semibold</td><td><span style="font:600 14px var(--sans)">Inter "600" (simulado)</span></td><td class="n">~8</td><td class="fail">No está cargado. <code>TodayContextCard.tsx:202, 270, 312</code>, <code>RitualGridCard.tsx:123</code>, <code>WikiNote.tsx:64, 180</code>, <code>CosmicCalendar.tsx:264</code>, <code>.editorial-quick-path-title</code>.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>1.5 Line-height y letter-spacing</h3>
+  <p class="small"><strong>21 line-heights distintos</strong> (inline + <code>leading-[…]</code> + CSS; los contadores son de TSX):</p>
+  <div class="pillrow">
+    <span class="pv">0.92</span><span class="pv">0.94</span><span class="pv">1<i>×20</i></span><span class="pv">1.04</span><span class="pv">1.05</span><span class="pv">1.1<i>×6</i></span><span class="pv">1.12</span><span class="pv">1.15<i>×8</i></span><span class="pv">1.2<i>×14</i></span><span class="pv">1.25</span><span class="pv">1.3</span><span class="pv">1.35</span><span class="pv">1.4<i>×7</i></span><span class="pv">1.45</span><span class="pv">1.5<i>×8</i></span><span class="pv">1.55<i>×6</i></span><span class="pv">1.6<i>×12</i></span><span class="pv">1.65</span><span class="pv">1.7<i>×3</i></span><span class="pv">1.72</span><span class="pv">1.8</span>
+  </div>
+  <p class="small"><strong>14 letter-spacings distintos</strong>, casi todos en eyebrows en mayúscula:</p>
+  <div class="pillrow">
+    <span class="pv">0</span><span class="pv">.01em</span><span class="pv">.02em<i>×4</i></span><span class="pv">.03em<i>×3</i></span><span class="pv">.04em<i>×5</i></span><span class="pv">.05em<i>×3</i></span><span class="pv">.06em<i>×2</i></span><span class="pv">.08em<i>×3</i></span><span class="pv">.1em<i>×11</i></span><span class="pv">.12em<i>×6</i></span><span class="pv">.14em<i>×16</i></span><span class="pv">.18em<i>×2</i></span><span class="pv">.2em</span><span class="pv">.3em</span><span class="pv off">tracking-wide / widest</span>
+  </div>
+
+  <h3>1.6 El eyebrow, reescrito 40 veces</h3>
+  <div class="gallery">
+    <div class="cell"><div class="stage"><span style="font:500 10px/1.2 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:#9ca3ad">Oráculo del día</span></div><div class="desc"><b>.editorial-eyebrow</b><span class="src">10 / 500 / .14em / --ink-subtle · 32 usos</span><br><span class="tag sys">Sistema</span></div></div>
+    <div class="cell"><div class="stage"><span style="font:500 10px/1.2 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:#b4bac2">Tu práctica</span></div><div class="desc"><b>Account.tsx:305</b><span class="src">10 / 500 / .14em / --ink-soft · ×7 en Account</span><br><span class="tag hand">A mano</span></div></div>
+    <div class="cell"><div class="stage"><span style="font:500 9px/1.2 var(--sans);letter-spacing:.1em;text-transform:uppercase;color:#b4bac2">racha lunar</span></div><div class="desc"><b>Account.tsx:389</b><span class="src">9 / 500 / .1em / --ink-soft · ×5</span><br><span class="tag hand">A mano</span></div></div>
+    <div class="cell"><div class="stage"><span style="font:500 11px/1.2 var(--sans);letter-spacing:.1em;text-transform:uppercase;color:#b4bac2">Compartir directo</span></div><div class="desc"><b>Share.tsx:304</b><span class="src">11 / 500 / .1em / --ink-soft · ×4</span><br><span class="tag hand">A mano</span></div></div>
+    <div class="cell"><div class="stage"><span style="font:500 11px/1.2 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:#b4bac2">Paso 3 — Elemento</span></div><div class="desc"><b>StepElement.tsx:56</b><span class="src">11 / 500 / .14em · los otros pasos usan <code>.editorial-eyebrow</code></span><br><span class="tag hand">A mano</span></div></div>
+    <div class="cell"><div class="stage photo"><span style="font:600 10px/1.2 var(--sans);letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.68)">Tu cielo hoy</span></div><div class="desc"><b>TodayContextCard.tsx:266</b><span class="src">10 / 600 / .18em sobre foto</span><br><span class="tag hand">A mano</span></div></div>
+  </div>
+  <div class="finding alta">
+    <h4>Mismo componente, 3 tamaños, 4 trackings, 3 grises <span class="sev alta">Alta</span></h4>
+    <p class="why">Por qué importa: el eyebrow es el patrón más repetido de la app (72 instancias entre sistema y manual) y es lo que le da el ritmo editorial. Además, el gris con que más se reescribe (<code>--ink-soft</code>) es el de peor contraste (§2.2).</p>
+    <p class="act">un único <code>.editorial-eyebrow</code> (con un modificador <code>-on-dark</code>), y migrar las 40 instancias manuales.</p>
+  </div>
+
+  <!-- ═══════════════════════════ COLOR ═══════════════════════════ -->
+  <h2 id="color">2. Color y contraste</h2>
+
+  <h3>2.1 Tokens editoriales y cuánto se usan</h3>
+  <p class="small muted">Usos = referencias directas <code>var(--token)</code> en TSX. Contraste = el color como texto sobre blanco.</p>
+  <div class="swatches">
+    <div class="sw"><div class="chip" style="background:#0a0a0a;color:#fff">Aa</div><div class="info"><b>#0a0a0a</b><span class="tok">--ink-strong</span><br><span class="cnt">156 usos · 28 archivos</span><br><span class="pass">19,8:1</span></div></div>
+    <div class="sw"><div class="chip" style="background:#17191c;color:#fff">Aa</div><div class="info"><b>#17191c</b><span class="tok">--ink-body</span><br><span class="cnt">9 usos</span><br><span class="pass">17,6:1</span></div></div>
+    <div class="sw"><div class="chip" style="background:#5e646d;color:#fff">Aa</div><div class="info"><b>#5e646d</b><span class="tok">--ink-muted</span><br><span class="cnt">61 usos</span><br><span class="pass">6,0:1</span></div></div>
+    <div class="sw"><div class="chip" style="background:#9ca3ad;color:#fff">Aa</div><div class="info"><b>#9ca3ad</b><span class="tok">--ink-subtle</span><br><span class="cnt">35 usos + 5 clases CSS</span><br><span class="fail">2,5:1</span></div></div>
+    <div class="sw"><div class="chip" style="background:#b4bac2;color:#fff">Aa</div><div class="info"><b>#b4bac2</b><span class="tok">--ink-soft</span><br><span class="cnt">52 usos (21 en Account)</span><br><span class="fail">2,0:1</span></div></div>
+    <div class="sw"><div class="chip" style="background:#eef0f3;color:#5e646d">shell</div><div class="info"><b>#eef0f3</b><span class="tok">--app-shell</span><br><span class="cnt">1 uso (Layout)</span></div></div>
+    <div class="sw"><div class="chip" style="background:#fbfcfd;color:#5e646d;border-bottom:1px solid #eee">page</div><div class="info"><b>#fbfcfd</b><span class="tok">--app-page</span><br><span class="cnt">5 usos</span></div></div>
+    <div class="sw"><div class="chip" style="background:#eceeef;color:#5e646d">muted</div><div class="info"><b>#eceeef</b><span class="tok">--surface-muted</span><br><span class="cnt">15 usos</span></div></div>
+    <div class="sw"><div class="chip" style="background:#f5f7f8;color:#5e646d">soft</div><div class="info"><b>#f5f7f8</b><span class="tok">--surface-soft</span><br><span class="cnt">4 usos</span></div></div>
+    <div class="sw"><div class="chip" style="background:#f8f9fa;color:#5e646d">softest</div><div class="info"><b>#f8f9fa</b><span class="tok">--surface-softest</span><br><span class="cnt">18 usos</span></div></div>
+    <div class="sw"><div class="chip" style="background:#fff;color:#b42318;border-bottom:1px dashed #b42318">no existe</div><div class="info"><b>—</b><span class="tok">--surface-base</span><br><span class="fail">referenciado en <code>.editorial-card</code>, nunca definido</span></div></div>
+    <div class="sw"><div class="chip" style="background:#fff;box-shadow:inset 0 0 0 2px rgba(15,23,42,.06);color:#5e646d">.06</div><div class="info"><b>rgba(15,23,42,.06)</b><span class="tok">--border-soft</span><br><span class="cnt">28 usos</span></div></div>
+    <div class="sw"><div class="chip" style="background:#fff;box-shadow:inset 0 0 0 2px rgba(15,23,42,.1);color:#5e646d">.10</div><div class="info"><b>rgba(15,23,42,.10)</b><span class="tok">--border-default</span><br><span class="cnt">13 usos</span></div></div>
+    <div class="sw"><div class="chip" style="background:#fff;box-shadow:inset 0 0 0 2px rgba(15,23,42,.18);color:#5e646d">.18</div><div class="info"><b>rgba(15,23,42,.18)</b><span class="tok">--border-strong</span><br><span class="cnt">5 usos</span></div></div>
+  </div>
+
+  <h3>2.2 Contraste de texto chico</h3>
+  <p class="small">Así se ve un eyebrow (10 px / 500) y un helper (13 px / 300) en cada gris del sistema, sobre las dos superficies más comunes.</p>
+  <div class="contrast-grid">
+    <div class="cbox" style="background:#fff">
+      <h4>Sobre blanco</h4>
+      <div class="cline"><span class="s1" style="color:#0a0a0a">--ink-strong</span><span class="s2" style="color:#0a0a0a">Probá de nuevo</span><span class="r pass">19,8</span></div>
+      <div class="cline"><span class="s1" style="color:#5e646d">--ink-muted</span><span class="s2" style="color:#5e646d">Probá de nuevo</span><span class="r pass">6,0</span></div>
+      <div class="cline"><span class="s1" style="color:#888f98">#888f98</span><span class="s2" style="color:#888f98">Probá de nuevo</span><span class="r fail">3,3</span></div>
+      <div class="cline"><span class="s1" style="color:#9ca3ad">--ink-subtle</span><span class="s2" style="color:#9ca3ad">Probá de nuevo</span><span class="r fail">2,5</span></div>
+      <div class="cline"><span class="s1" style="color:#aaaaaa">#AAA</span><span class="s2" style="color:#aaaaaa">Probá de nuevo</span><span class="r fail">2,3</span></div>
+      <div class="cline"><span class="s1" style="color:#b4bac2">--ink-soft</span><span class="s2" style="color:#b4bac2">Probá de nuevo</span><span class="r fail">2,0</span></div>
+      <div class="cline"><span class="s1" style="color:#c8ccd3">placeholder</span><span class="s2" style="color:#c8ccd3">Probá de nuevo</span><span class="r fail">1,6</span></div>
+    </div>
+    <div class="cbox" style="background:#eceeef">
+      <h4>Sobre --surface-muted</h4>
+      <div class="cline"><span class="s1" style="color:#5e646d">--ink-muted</span><span class="s2" style="color:#5e646d">Tu intención de hoy</span><span class="r pass">5,1</span></div>
+      <div class="cline"><span class="s1" style="color:#9ca3ad">--ink-subtle</span><span class="s2" style="color:#9ca3ad">Tu intención de hoy</span><span class="r fail">2,2</span></div>
+      <div class="cline"><span class="s1" style="color:#b4bac2">--ink-soft</span><span class="s2" style="color:#b4bac2">Tu intención de hoy</span><span class="r fail">1,7</span></div>
+    </div>
+    <div class="cbox" style="background:#0a0a0a;color:#fff">
+      <h4 style="color:#fff">Sobre --ink-strong (cards negras)</h4>
+      <div class="cline"><span class="s1" style="color:rgba(255,255,255,.4)">white/40</span><span class="s2" style="color:rgba(255,255,255,.4)">Tu anclaje real</span><span class="r fail">3,8</span></div>
+      <div class="cline"><span class="s1" style="color:rgba(255,255,255,.38)">white/38</span><span class="s2" style="color:rgba(255,255,255,.38)">racha lunar</span><span class="r fail">3,5</span></div>
+      <div class="cline"><span class="s1" style="color:rgba(255,255,255,.56)">white/56</span><span class="s2" style="color:rgba(255,255,255,.56)">propuesto</span><span class="r pass">6,4</span></div>
+    </div>
+    <div class="cbox" style="background:#141312;color:#f3ede2">
+      <h4 style="color:#f3ede2">Oráculo (#141312)</h4>
+      <div class="cline"><span class="s1" style="color:#c9a66b">dorado #c9a66b</span><span class="s2" style="color:#c9a66b">El consejo</span><span class="r pass">8,1</span></div>
+      <div class="cline"><span class="s1" style="color:rgba(243,237,226,.6)">papel/60</span><span class="s2" style="color:rgba(243,237,226,.6)">Luna creciente</span><span class="r pass">6,3</span></div>
+      <div class="cline" style="background:#fff;margin:6px -6px 0;padding:6px;border-radius:6px"><span class="s1" style="color:#c9a66b">dorado s/blanco</span><span class="s2" style="color:#c9a66b">no usar</span><span class="r fail">2,3</span></div>
+    </div>
+  </div>
+  <div class="finding alta">
+    <h4>~80 textos por debajo de 3:1, más 5 clases del sistema <span class="sev alta">Alta</span></h4>
+    <p class="small">Clases que salen con <code>--ink-subtle</code>: <code>.editorial-eyebrow</code>, <code>.editorial-meta</code>, <code>.editorial-field-label</code>, <code>.editorial-helper</code> (texto de ayuda de 13 px en el flujo de creación) y <code>.editorial-step-tab</code>. <code>.editorial-note-eyebrow</code> usa <code>--ink-soft</code>. A mano: la bottom nav entera (labels de 10 px en <code>--ink-soft</code>, <code>Layout.tsx:131</code>), la descripción de la recomendación de Home (<code>RitualRecommendationCard.tsx:96</code>), la meta de la grilla (<code>RitualGridCard.tsx:193</code>), los botones terciarios de Login (<code>Login.tsx:325, 337</code>) y el texto de las opciones (<code>.editorial-option-body</code>, opacidad .45 ≈ 3,2:1). De las 87 referencias a estos dos tokens, ~6 son trazos de íconos o fondos, no texto.</p>
+    <p class="why">Por qué importa: la app se usa de noche, con brillo bajo y en un momento de calma. Los textos de ayuda, los labels de navegación y los eyebrows quedan por debajo de lo legible. Corregirlo es barato: cambiar el valor de un token resuelve la mayoría.</p>
+    <p class="act">ver §9.2: oscurecer <code>--ink-subtle</code> a #6b727c (4,9:1) y sacar <code>--ink-soft</code> de todo texto.</p>
+  </div>
+
+  <h3>2.3 Colores sueltos y casi duplicados</h3>
+  <p class="small">154 hex (81 son paradas de gradiente en <code>Stories.tsx:76–359</code>) y ~168 <code>rgba()</code> fuera de tokens. Los grupos casi idénticos son estos:</p>
+  <h4>Negros (10 valores para "negro")</h4>
+  <div class="swatches">
+    <div class="sw"><div class="chip" style="background:#0a0a0a"></div><div class="info"><b>#0a0a0a</b>token · hex ×4 suelto (<code>StepElement.tsx:131</code>)</div></div>
+    <div class="sw"><div class="chip" style="background:#030213"></div><div class="info"><b>#030213</b><code>--primary</code> shadcn</div></div>
+    <div class="sw"><div class="chip" style="background:#111"></div><div class="info"><b>#111 / #111111</b>×4 · <code>RitualDetail.tsx:671</code>, MoonPhaseIcon</div></div>
+    <div class="sw"><div class="chip" style="background:#000"></div><div class="info"><b>#000 / bg-black</b>×2 · <code>CosmicCalendar.tsx:153</code>, <code>TodayContextCard.tsx:308</code></div></div>
+    <div class="sw"><div class="chip" style="background:#050505"></div><div class="info"><b>#050505</b><code>MoonPhaseIcon.tsx:26</code></div></div>
+    <div class="sw"><div class="chip" style="background:#1a1a1a"></div><div class="info"><b>#1a1a1a</b>hover de primarios (CSS)</div></div>
+    <div class="sw"><div class="chip" style="background:#141312"></div><div class="info"><b>#141312</b>tinta del oráculo</div></div>
+    <div class="sw"><div class="chip" style="background:#0b0a09"></div><div class="info"><b>#0b0a09</b>fondo ArcanaGallery (≠ oráculo)</div></div>
+  </div>
+  <h4>Grises de texto sueltos</h4>
+  <div class="swatches">
+    <div class="sw"><div class="chip" style="background:#555c66"></div><div class="info"><b>#555c66</b>CSS ×2 (<code>.editorial-chip-outline</code>, <code>-meta-badge</code>) ≈ --ink-muted</div></div>
+    <div class="sw"><div class="chip" style="background:#666"></div><div class="info"><b>#666</b>×3 · <code>StepElement.tsx:157</code>, <code>CosmicCalendar.tsx:157, 265</code></div></div>
+    <div class="sw"><div class="chip" style="background:#888f98"></div><div class="info"><b>#888f98</b>CSS ×2 (segmented, header-link)</div></div>
+    <div class="sw"><div class="chip" style="background:#a0a0a0"></div><div class="info"><b>#A0A0A0</b><code>WikiNote.tsx:171</code></div></div>
+    <div class="sw"><div class="chip" style="background:#aaa"></div><div class="info"><b>#AAA</b>×3 · <code>StepElement.tsx:144</code>, <code>CosmicCalendar.tsx:156</code></div></div>
+    <div class="sw"><div class="chip" style="background:#bbb"></div><div class="info"><b>#BBB</b><code>CosmicCalendar.tsx:265</code></div></div>
+    <div class="sw"><div class="chip" style="background:#c0bab4"></div><div class="info"><b>#C0BAB4</b>×2 · el único gris cálido (✦ del calendario)</div></div>
+    <div class="sw"><div class="chip" style="background:#c8ccd3"></div><div class="info"><b>#c8ccd3</b>placeholder de <code>.editorial-textarea</code></div></div>
+  </div>
+  <h4>Superficies claras casi iguales</h4>
+  <div class="swatches">
+    <div class="sw"><div class="chip" style="background:#fcfcfa"></div><div class="info"><b>#FCFCFA</b><code>GuidedAudioPlayer.tsx:182</code></div></div>
+    <div class="sw"><div class="chip" style="background:#fafaf9"></div><div class="info"><b>#FAFAF9</b><code>Account.tsx:615</code></div></div>
+    <div class="sw"><div class="chip" style="background:#f8f9fa"></div><div class="info"><b>#f8f9fa</b>--surface-softest</div></div>
+    <div class="sw"><div class="chip" style="background:#f8f8f8"></div><div class="info"><b>#F8F8F8</b><code>Share.tsx:353</code></div></div>
+    <div class="sw"><div class="chip" style="background:#f5f7f8"></div><div class="info"><b>#f5f7f8</b>--surface-soft</div></div>
+    <div class="sw"><div class="chip" style="background:#f3f3f3"></div><div class="info"><b>#f3f3f3</b><code>.editorial-segmented</code></div></div>
+    <div class="sw"><div class="chip" style="background:#f0f1f3"></div><div class="info"><b>#f0f1f3</b><code>.editorial-divider</code></div></div>
+    <div class="sw"><div class="chip" style="background:#e0e0e0"></div><div class="info"><b>#E0E0E0 / #e0e2e6 / #DDD</b>3 grises para el "handle" de sheet y los divisores</div></div>
+  </div>
+  <div class="finding media">
+    <h4>Dos bases de negro para bordes: rgba(0,0,0,·) ×53 vs rgba(15,23,42,·) <span class="sev media">Media</span></h4>
+    <p class="small">Los tokens de borde usan slate (15,23,42), pero 53 bordes y fondos a mano usan negro puro con 21 alphas distintos (.04, .045, .06, .07, .08, .09, .1, .12, .15, .18, .2…). Ejemplos: <code>Share.tsx:320</code> <code>border-[rgba(0,0,0,0.1)]</code>, <code>StepRitual.tsx:425</code> <code>rgba(0,0,0,0.07)</code>, <code>GuidedAudioPlayer.tsx:182</code> <code>rgba(0,0,0,0.08)</code>. Sobre blanco, <code>rgba(0,0,0,.07)</code>, <code>.08</code> y <code>--border-soft</code> no se distinguen.</p>
+    <p class="why">Por qué importa: los bordes son el 80 % del "dibujo" de esta estética minimalista, y hoy no hay forma de ajustarlos de manera global.</p>
+    <p class="act">todo borde pasa a <code>--border-soft/-default/-strong</code>.</p>
+  </div>
+  <div class="finding media">
+    <h4>Rojo de error: #B42318 inline ×5, <code>.editorial-error</code> ×1, <code>--destructive</code> #d4183d (shadcn) <span class="sev media">Media</span></h4>
+    <p class="small">Inline en <code>Login.tsx:220</code>, <code>Login.tsx:313</code>, <code>StepRitual.tsx:349</code> y <code>Account.tsx:904</code> (+ ícono :906); con la clase en <code>StepIntention.tsx:238</code>. Account usa <code>focus:bg-red-50</code> de Tailwind (<code>Account.tsx:903</code>).</p>
+    <p class="act">un token <code>--danger</code> (#b42318) y otro <code>--danger-surface</code>.</p>
+  </div>
+
+  <h3>2.4 Dos paletas en paralelo: shadcn vs editorial</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Rol</th><th>Token shadcn</th><th>Token editorial</th><th>Comentario</th></tr></thead>
+    <tbody>
+      <tr><td>Negro de acción</td><td><code>--primary</code> #030213</td><td><code>--ink-strong</code> #0a0a0a</td><td>Distintos (el de shadcn es azulado)</td></tr>
+      <tr><td>Superficie gris</td><td><code>--muted</code> #ececf0 · <code>--accent</code> #e9ebef</td><td><code>--surface-muted</code> #eceeef</td><td>Casi idénticos</td></tr>
+      <tr><td>Texto secundario</td><td><code>--muted-foreground</code> #717182</td><td><code>--ink-muted</code> #5e646d</td><td>Distintos</td></tr>
+      <tr><td>Borde</td><td><code>--border</code> rgba(0,0,0,.1)</td><td><code>--border-default</code> rgba(15,23,42,.1)</td><td>El base layer aplica <code>border-border</code> a <code>*</code> (<code>theme.css:150</code>): todo <code>border</code> sin color sale negro, no slate</td></tr>
+      <tr><td>Error</td><td><code>--destructive</code> #d4183d</td><td><code>.editorial-error</code> #b42318</td><td>Dos rojos</td></tr>
+      <tr><td>Radio</td><td><code>--radius</code> 10px → <code>rounded-lg</code> 10, <code>rounded-xl</code> 14</td><td><code>--radius-card</code> 24 · <code>--radius-chip</code> 999</td><td><code>@theme inline</code> redefine <code>rounded-xl</code> a 14 px (el default de Tailwind es 12)</td></tr>
+    </tbody>
+  </table></div>
+  <p class="small">Los tokens shadcn tienen <strong>0 usos</strong> fuera de <code>ui/</code>. Solo llegan al usuario por el <code>AlertDialog</code> y el <code>DropdownMenu</code> de Account (fondo <code>--popover</code>, hover <code>--accent</code>). El bloque <code>.dark</code> (<code>theme.css:64–99</code>) no se activa en ningún lado.</p>
+
+  <h3>2.5 Oráculo: dorado sobre carbón</h3>
+  <div class="swatches">
+    <div class="sw"><div class="chip" style="background:#141312;color:#c9a66b">Arcano</div><div class="info"><b>#141312</b><span class="tok">ARCANA_INK (TS)</span><br><code>ArcanaArt.tsx:13</code></div></div>
+    <div class="sw"><div class="chip" style="background:#c9a66b;color:#141312">Oro</div><div class="info"><b>#c9a66b</b><span class="tok">ARCANA_GOLD (TS)</span><br><code>ArcanaArt.tsx:12</code></div></div>
+    <div class="sw"><div class="chip" style="background:#f3ede2;color:#141312">Papel</div><div class="info"><b>#f3ede2</b><span class="tok">CARD_TEXT (TS)</span><br><code>OracleCard.tsx:15</code></div></div>
+    <div class="sw"><div class="chip" style="background:#141312;color:rgba(243,237,226,.6)">.60</div><div class="info"><b>rgba(243,237,226,.6/.9)</b>texto secundario · <code>OracleCard.tsx:49, 76</code></div></div>
+    <div class="sw"><div class="chip" style="background:#141312;box-shadow:inset 0 -2px 0 rgba(201,166,107,.25);color:#c9a66b">.25</div><div class="info"><b>rgba(201,166,107,.25/.45)</b>línea y brillo · <code>OracleCard.tsx:71, 306</code></div></div>
+    <div class="sw"><div class="chip" style="background:#0b0a09;color:#f3ede2">≠</div><div class="info"><b>#0b0a09</b>fondo de ArcanaGallery: otro carbón (<code>ArcanaGallery.tsx:10</code>)</div></div>
+  </div>
+  <div class="finding baja">
+    <h4>La paleta del oráculo vive en constantes de TypeScript, no en <code>theme.css</code> <span class="sev baja">Baja</span></h4>
+    <p class="why">Por qué importa: es una sub-marca con buen contraste (dorado 8,1:1 sobre carbón), pero CSS no la puede usar (por ejemplo, desde <code>oracle.css</code>), y la galería de dev ya se desvió con otro negro. Es también la única zona cálida en una app de grises fríos (slate): esa diferencia tiene que ser intencional y tener nombre.</p>
+    <p class="act">tokens <code>--oracle-*</code> en <code>theme.css</code>; las constantes TS los leen con <code>var()</code>.</p>
+  </div>
+
+  <!-- ═══════════════════════════ RADIOS ═══════════════════════════ -->
+  <h2 id="radios">3. Bordes y radios</h2>
+  <div class="radii">
+    <div class="rbox"><div class="shape" style="border-radius:0"></div><b>0</b><span>×1 · CTA Home<br><code>TodayContextCard:308</code></span></div>
+    <div class="rbox"><div class="shape" style="border-radius:2px"></div><b>2 px</b><span>×2 barras/progreso inline</span></div>
+    <div class="rbox"><div class="shape" style="border-radius:6px"></div><b>6 px</b><span>×2 tags "Hoy/Evento"<br><code>CosmicCalendar:183</code></span></div>
+    <div class="rbox"><div class="shape" style="border-radius:10px"></div><b>10 px</b><span><code>rounded-lg</code> ×3 · segmented option</span></div>
+    <div class="rbox"><div class="shape" style="border-radius:12px"></div><b>12 px</b><span>dashed-action · segmented · toast</span></div>
+    <div class="rbox"><div class="shape" style="border-radius:14px"></div><b>14 px</b><span><code>rounded-xl</code> ×11 · Share, OTP, dropdown</span></div>
+    <div class="rbox"><div class="shape" style="border-radius:16px"></div><b>16 px</b><span><code>rounded-2xl</code> ×22 + 4 clases de botón</span></div>
+    <div class="rbox"><div class="shape" style="border-radius:18px"></div><b>18 px</b><span><code>.editorial-textarea</code> · <code>-icon-button</code></span></div>
+    <div class="rbox"><div class="shape" style="border-radius:20px"></div><b>20 px</b><span><code>rounded-[20px]</code> ×5 (Account)</span></div>
+    <div class="rbox"><div class="shape" style="border-radius:22px"></div><b>22 px</b><span>×3 + <code>.editorial-calendar-soft-block</code></span></div>
+    <div class="rbox"><div class="shape" style="border-radius:24px"></div><b>24 px</b><span><code>--radius-card</code> · ×6 arbitrario · <code>rounded-t-3xl</code></span></div>
+    <div class="rbox"><div class="shape" style="border-radius:28px"></div><b>28 px</b><span>×6 · Oracle, GuidedAudio, dialog</span></div>
+    <div class="rbox"><div class="shape" style="border-radius:32px"></div><b>32 px</b><span><code>--radius-panel</code> · sin uso</span></div>
+    <div class="rbox"><div class="shape" style="border-radius:36px 36px 0 0"></div><b>36 px</b><span>page-sheet Home · WikiNote</span></div>
+    <div class="rbox"><div class="shape" style="border-radius:999px"></div><b>full</b><span><code>rounded-full</code> ×73 · 99px ×10 · 50% ×7</span></div>
+  </div>
+  <div class="finding alta">
+    <h4>16 / 18 / 20 / 22 / 24 / 28 px para el mismo objeto: "card" <span class="sev alta">Alta</span></h4>
+    <p class="small">Dentro de Home conviven la card de intención (22 px, <code>DailyIntention.tsx:342</code>), la del oráculo (28 px, <code>OracleCard.tsx:45</code>), la recomendación (24 px, <code>RitualRecommendationCard.tsx:34</code>) y la grilla de populares (16 px, <code>RitualGridCard.tsx:95</code>). En Account, los tiles van en 20 px y la card de cuenta en 24 px. RitualDetail pisa <code>.editorial-card-soft</code> (24) con <code>rounded-2xl</code> (16) en la misma línea (<code>RitualDetail.tsx:729</code>).</p>
+    <p class="why">Por qué importa: en una estética que depende de pocas formas, una diferencia de 4 a 6 px entre cards apiladas se nota y se lee como desprolijidad.</p>
+    <p class="act">tres radios de contenedor: 16 (elementos internos), 24 (cards) y 32 (sheets y diálogos).</p>
+  </div>
+  <div class="finding baja">
+    <h4>Pills con tres sintaxis: <code>rounded-full</code>, <code>"99px"</code>, <code>"50%"</code>, más <code>--radius-chip</code> <span class="sev baja">Baja</span></h4>
+    <p class="small">El resultado es el mismo, pero <code>borderRadius: "99px"</code> inline (<code>RitualDetail.tsx:661–680</code>, <code>Account.tsx:720</code>) no se puede buscar ni cambiar junto con el resto.</p>
+  </div>
+  <div class="finding media">
+    <h4>Trampa: <code>rounded-xl</code> mide 14 px, no 12 <span class="sev media">Media</span></h4>
+    <p class="small"><code>@theme inline</code> redefine <code>--radius-xl: calc(var(--radius) + 4px)</code> (<code>theme.css:137</code>), y <code>rounded-2xl</code> queda en el default de Tailwind (16 px). <code>WikiNote.tsx:159</code> usa <code>var(--radius-2xl, 24px)</code> esperando 24 px, pero como la variable existe, probablemente renderiza 16 px.</p>
+  </div>
+  <p class="small"><strong>Grosores de borde:</strong> 1 px en todos lados, salvo el indicador de tab de Explore (1,5 px, <code>Explore.tsx:248</code>), el ring del micrófono (<code>inset 0 0 0 1.5px</code>, <code>DailyIntention.tsx:265</code>), el ring de la carta elegida (1,5 px dorado, <code>OracleCard.tsx:306</code>) y la barra de progreso de 1 px (<code>ProgressBar.tsx:25</code>). <strong>Estilo:</strong> sólido, más 3 punteados (<code>.editorial-dashed-action</code>, "Limpiar" de Explore y la rueda lunar).</p>
+
+  <!-- ═══════════════════════════ BOTONES ═══════════════════════════ -->
+  <h2 id="botones">4. Botones y links</h2>
+  <p>Hay 104 <code>&lt;button&gt;</code> en 27 archivos. Solo <strong>19 usan una clase de botón del sistema</strong> (12 <code>.editorial-action-button</code>, 5 <code>.editorial-button-primary</code> y 2 <code>.editorial-button-soft</code>). Abajo están recreados con los valores exactos del código.</p>
+
+  <h3>4.1 Primarios (fondo negro)</h3>
+  <div class="gallery">
+    <div class="cell"><div class="stage page"><button class="r-btn w100" style="border-radius:16px;padding:16px 24px;background:#0a0a0a;color:#fff;font-size:14px;font-weight:300">Recibir mi intención</button></div><div class="desc"><b>.editorial-action-button-primary</b><span class="src">r16 · 16/24 · 14/300 · ≈50 px · ancho completo · ×11 (Login, Onboarding, Steps, Oracle, DailyIntention, RitualDetail)</span><br><span class="tag sys">Sistema</span></div></div>
+    <div class="cell"><div class="stage page"><button class="r-btn" style="border-radius:16px;padding:12px 24px;background:#0a0a0a;color:#fff;font-size:14px;font-weight:300">Guardar</button></div><div class="desc"><b>.editorial-button-primary</b><span class="src">r16 · padding a mano (px-5/6 py-3 o py-3.5) · ×5 · <code>Account.tsx:994</code>, <code>RitualDetail.tsx:588, 763</code></span><br><span class="tag mix">Sistema duplicado</span></div></div>
+    <div class="cell"><div class="stage photo"><button class="r-btn w100" style="height:58px;border-radius:0;background:#000;color:#fff;font-size:14px;font-weight:600">Crear un ritual ↗</button></div><div class="desc"><b>CTA principal de Home</b><span class="src">r0 · h58 · 14/600 (no cargado) · bg-black · <code>TodayContextCard.tsx:308</code></span><br><span class="tag hand">A mano</span></div></div>
+    <div class="cell"><div class="stage"><button class="r-btn w100" style="border-radius:999px;padding:12px 0;background:#0a0a0a;color:#fff;font-size:13px;font-weight:400">Ver ritual</button></div><div class="desc"><b>Recomendación de Home</b><span class="src">pill · py-3 · 13/400 · <code>RitualRecommendationCard.tsx:123</code></span><br><span class="tag hand">A mano</span></div></div>
+    <div class="cell"><div class="stage page"><button class="r-btn" style="border-radius:999px;padding:8px 16px;background:#0a0a0a;color:#fff;font-size:12px;font-weight:400">+ Crear</button></div><div class="desc"><b>Crear (header de Explore)</b><span class="src">pill · px-4 py-2 · 12/400 · <code>Explore.tsx:185</code></span><br><span class="tag hand">A mano</span></div></div>
+    <div class="cell"><div class="stage"><button class="r-btn w100" style="border-radius:14px;padding:14px 0;background:#0a0a0a;color:#fff;font-size:14px;font-weight:400">Publicar en comunidad</button></div><div class="desc"><b>Publicar (Share)</b><span class="src">r14 · py-3.5 · 14/400 · <code>Share.tsx:408</code> · también Copiar :290 y "Volver a la wiki" <code>WikiNote.tsx:30</code></span><br><span class="tag hand">A mano</span></div></div>
+    <div class="cell"><div class="stage" style="background:#f8f9fa"><button class="r-btn" style="flex:1;border-radius:999px;padding:12px 16px;background:#0a0a0a;color:#fff;font-size:13px;font-weight:500">Sí</button><button class="r-btn" style="flex:1;border-radius:999px;padding:12px 16px;background:#fff;color:#0a0a0a;border:1px solid rgba(15,23,42,.1);font-size:13px;font-weight:500">No por ahora</button></div><div class="desc"><b>Pregunta de precio (WTP)</b><span class="src">pill · 13/500 · <code>RitualDetail.tsx:1032, 1039</code></span><br><span class="tag hand">A mano</span></div></div>
+  </div>
+  <div class="finding alta">
+    <h4>El CTA más importante de la app es el que menos se parece al resto <span class="sev alta">Alta</span></h4>
+    <p class="small">"Crear un ritual" en Home es el único botón con esquinas rectas y peso 600. Dos scrolls más abajo, la misma acción ("Crear un ritual" en la quick-path) es una card; en Explore es una pill chica, y en el flujo es un rectángulo redondeado de 16.</p>
+    <p class="why">Por qué importa: el usuario aprende la forma del botón primario y la busca en cada pantalla. Con 7 formas, ese aprendizaje no se da.</p>
+    <p class="act">decidir si el hero de Home es una excepción intencional (en ese caso se documenta como variante <code>hero</code>) o si pasa a primario lg. Recomiendo lo segundo.</p>
+  </div>
+
+  <h3>4.2 Secundarios (borde o fondo claro)</h3>
+  <div class="gallery">
+    <div class="cell"><div class="stage page"><button class="r-btn w100" style="border-radius:16px;padding:16px 24px;background:#fff;color:#0a0a0a;border:1px solid rgba(15,23,42,.1);font-size:14px;font-weight:300">Hacer un ritual con esta intención ↗</button></div><div class="desc"><b>.editorial-action-button-secondary</b><span class="src">r16 · borde --border-default · 14/300 · ×1 · <code>DailyIntention.tsx:367</code></span><br><span class="tag sys">Sistema</span></div></div>
+    <div class="cell"><div class="stage page"><button class="r-btn" style="border-radius:16px;padding:14px 16px;background:#fff;color:#0a0a0a;border:1px solid rgba(15,23,42,.1);font-size:14px;font-weight:300">Compartir</button><button class="r-btn" style="width:50px;height:50px;border-radius:16px;background:#fff;border:1px solid rgba(15,23,42,.1);font-size:14px">⤓</button></div><div class="desc"><b>.editorial-button-soft</b><span class="src">r16 · ×2 · <code>RitualDetail.tsx:769, 775</code></span><br><span class="tag mix">Sistema duplicado</span></div></div>
+    <div class="cell"><div class="stage page"><button class="r-btn w100" style="border-radius:14px;padding:14px 16px;background:#fff;color:#5e646d;border:1px solid rgba(15,23,42,.1);font-size:13px">♡ Guardar</button></div><div class="desc"><b>Guardar (barra de RitualDetail)</b><span class="src">r14 · 13 · <code>RitualDetail.tsx:794</code>, al lado de botones r16</span><br><span class="tag hand">A mano</span></div></div>
+    <div class="cell"><div class="stage page"><button class="r-btn w100" style="border-radius:16px;padding:16px 24px;background:#fff;color:#0a0a0a;border:1px solid rgba(0,0,0,.12);font-size:15px;font-weight:400">Volver al inicio</button></div><div class="desc"><b>Volver al inicio (Share)</b><span class="src">r16 · 15/400 · rgba negro · <code>Share.tsx:464</code>: igual al secundario del sistema, pero con otros valores</span><br><span class="tag hand">A mano</span></div></div>
+    <div class="cell"><div class="stage page"><button class="r-btn" style="flex:1;border-radius:14px;padding:14px 0;background:#fff;color:#0a0a0a;border:1px solid rgba(0,0,0,.1);font-size:13px"><span style="color:#25D366">●</span> WhatsApp</button><button class="r-btn" style="flex:1;border-radius:14px;padding:14px 0;background:#fff;color:#0a0a0a;border:1px solid rgba(0,0,0,.1);font-size:13px"><span style="color:#dc2743">●</span> Instagram</button></div><div class="desc"><b>Canales (Share)</b><span class="src">r14 · 13 · <code>Share.tsx:320, 330</code></span><br><span class="tag hand">A mano</span></div></div>
+    <div class="cell"><div class="stage"><button class="r-btn" style="border-radius:20px;padding:12px 20px;background:#fff;color:#5e646d;border:1px solid rgba(0,0,0,.08);font-size:13px">Cancelar</button><button class="r-btn" style="border-radius:16px;padding:12px 20px;background:#0a0a0a;color:#fff;font-size:14px;font-weight:300">Confirmar</button></div><div class="desc"><b>AlertDialog de borrar (Account)</b><span class="src">shadcn <code>buttonVariants</code> pisado: Cancelar r20 · Confirmar = primario negro para una acción destructiva · <code>Account.tsx:1080, 1087</code></span><br><span class="tag mix">shadcn + editorial</span></div></div>
+    <div class="cell"><div class="stage muted"><button class="r-btn w100" style="border-radius:16px;padding:20px;background:#eceeef;color:#17191c;font-size:14px;font-weight:300">🎙 Hablá, la app te escucha</button></div><div class="desc"><b>Micrófono (Onboarding)</b><span class="src">r16 · surface-muted sin borde · <code>Onboarding.tsx:255</code></span><br><span class="tag hand">A mano</span></div></div>
+  </div>
+
+  <h3>4.3 Pills de acción secundaria</h3>
+  <div class="gallery">
+    <div class="cell"><div class="stage"><button class="r-btn" style="border-radius:999px;padding:6px 12px;background:#fff;color:#5e646d;border:1px solid rgba(15,23,42,.15);font-size:11px">✦ Sugerencia</button></div><div class="desc"><b>.editorial-pill-button</b><span class="src">6/12 · 11 · ×1 · <code>StepIntention.tsx:179</code></span><br><span class="tag sys">Sistema</span></div></div>
+    <div class="cell"><div class="stage"><button class="r-btn" style="border-radius:999px;padding:8px 14px;background:#fff;color:#5e646d;border:1px solid rgba(0,0,0,.12);font-size:12px">✦ Regenerar</button><button class="r-btn" style="border-radius:999px;padding:8px 14px;background:#fff;color:#5e646d;border:1px solid rgba(0,0,0,.12);font-size:12px">Hacerlo más simple</button></div><div class="desc"><b>Acciones de IA (StepRitual)</b><span class="src">8/14 · 12 · ×3 · <code>StepRitual.tsx:479–496</code>: lo mismo que pill-button, con otros valores</span><br><span class="tag hand">A mano</span></div></div>
+    <div class="cell"><div class="stage"><button class="r-btn" style="border-radius:999px;padding:8px 20px;background:#fff;color:#5e646d;border:1px solid rgba(0,0,0,.15);font-size:13px">Reintentar</button></div><div class="desc"><b>Reintentar (error de generación)</b><span class="src">8/20 · 13 · <code>StepRitual.tsx:354</code></span><br><span class="tag hand">A mano</span></div></div>
+    <div class="cell"><div class="stage" style="background:#fcfcfa"><button class="r-btn" style="border-radius:999px;padding:8px 16px;background:#fff;color:#0a0a0a;border:1px solid rgba(0,0,0,.08);font-size:12px;font-weight:500">Reiniciar</button></div><div class="desc"><b>Reiniciar (player)</b><span class="src">8/16 · 12/500 · <code>GuidedAudioPlayer.tsx:242</code></span><br><span class="tag hand">A mano</span></div></div>
+    <div class="cell"><div class="stage muted"><button class="r-btn" style="border-radius:999px;padding:8px 14px;background:#fff;color:#17191c;font-size:12px;font-weight:300">🎙 Hablar</button></div><div class="desc"><b>Hablar (intención)</b><span class="src">8/14 · 12/300 · <code>DailyIntention.tsx:282</code></span><br><span class="tag hand">A mano</span></div></div>
+  </div>
+
+  <h3>4.4 Terciarios, links y "volver"</h3>
+  <div class="gallery">
+    <div class="cell"><div class="stage"><span style="font:300 13px var(--sans);color:#5e646d;text-decoration:underline;text-underline-offset:4px;min-height:44px;display:inline-flex;align-items:center">Pedir otra intención</span></div><div class="desc"><b>Link subrayado</b><span class="src">13/300 · ink-muted · min-h 44 ✓ · <code>DailyIntention.tsx:376</code></span><br><span class="tag hand">A mano</span></div></div>
+    <div class="cell"><div class="stage"><span style="font:500 12px var(--sans);color:#0a0a0a;text-decoration:underline;text-underline-offset:3px">Abrir información de lunas</span></div><div class="desc"><b>Link subrayado</b><span class="src">12/500 · ink-strong · <code>Home.tsx:479</code></span><br><span class="tag hand">A mano</span></div></div>
+    <div class="cell"><div class="stage"><span style="font:300 13px var(--sans);color:#9ca3ad">Reenviar código</span></div><div class="desc"><b>Texto sin subrayado</b><span class="src">13/300 · ink-subtle (2,5:1) · <code>Login.tsx:325, 337</code> · <code>RitualDetail.tsx:1131, 1206</code></span><br><span class="tag hand">A mano</span></div></div>
+    <div class="cell"><div class="stage"><span style="font:500 11px var(--sans);letter-spacing:.03em;color:#0a0a0a">Ver completo →</span><span style="font:300 11px var(--sans);color:#5e646d;margin-left:12px">Tu registro →</span></div><div class="desc"><b>.editorial-section-link</b> vs a mano<span class="src">11/500 (<code>Home.tsx:300</code>) vs 11/300 (<code>DailyIntention.tsx:225</code>)</span><br><span class="tag mix">Mixto</span></div></div>
+    <div class="cell"><div class="stage page" style="justify-content:flex-start;gap:20px"><span style="font:400 13px var(--sans);color:#5e646d">‹ Volver</span><span style="font:400 13px var(--sans);color:#9ca3ad">‹ Rituales</span><span style="font:400 13px var(--sans);color:#888f98">‹ Inicio</span></div><div class="desc"><b>Volver: 3 grises</b><span class="src">ink-muted <code>Account.tsx:278</code> · ink-subtle <code>Onboarding.tsx:155</code> · #888f98 <code>.editorial-detail-header-link</code> · el mismo SVG está copiado 8 veces</span><br><span class="tag hand">A mano ×8</span></div></div>
+    <div class="cell"><div class="stage page"><span style="width:32px;height:32px;border-radius:50%;border:1px solid rgba(0,0,0,.1);display:inline-flex;align-items:center;justify-content:center;font-size:14px">‹</span><span style="width:40px;height:40px;border-radius:50%;background:#3b3a40;border:1px solid rgba(255,255,255,.2);color:#fff;font-size:16px;display:inline-flex;align-items:center;justify-content:center">←</span></div><div class="desc"><b>Volver circular</b><span class="src">32 px (<code>ProgressBar.tsx:14</code>) · 40 px vidrio (<code>WikiNote.tsx:41</code>)</span><br><span class="tag hand">A mano</span></div></div>
+  </div>
+
+  <h3>4.5 Botones de ícono</h3>
+  <div class="gallery">
+    <div class="cell"><div class="stage photo"><span style="width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,.32);color:rgba(255,255,255,.9);display:inline-flex;align-items:center;justify-content:center;font-size:12px">⌑</span></div><div class="desc"><b>Guardar en grilla · 28 px</b><span class="src"><code>RitualGridCard.tsx:142</code> y menú de <code>Account.tsx:852</code>: área táctil menor a 44 px</span><br><span class="tag hand">A mano</span></div></div>
+    <div class="cell"><div class="stage"><span style="width:46px;height:46px;border-radius:50%;border:1px solid rgba(15,23,42,.1);display:inline-flex;align-items:center;justify-content:center;color:#5e646d">⌑</span></div><div class="desc"><b>Guardar en recomendación · 46 px</b><span class="src"><code>RitualRecommendationCard.tsx:138</code></span><br><span class="tag hand">A mano</span></div></div>
+    <div class="cell"><div class="stage" style="background:#fcfcfa"><span style="width:48px;height:48px;border-radius:50%;border:1px solid rgba(0,0,0,.08);background:#fff;display:inline-flex;align-items:center;justify-content:center">⏮</span><span style="width:64px;height:64px;border-radius:50%;background:#0a0a0a;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:20px">▶</span><span style="width:48px;height:48px;border-radius:50%;border:1px solid rgba(0,0,0,.08);background:#fff;display:inline-flex;align-items:center;justify-content:center">⏭</span></div><div class="desc"><b>Player · 48 / 64 px</b><span class="src"><code>GuidedAudioPlayer.tsx:304–343</code></span><br><span class="tag hand">A mano</span></div></div>
+    <div class="cell"><div class="stage"><span style="width:32px;height:32px;border-radius:50%;border:1px solid rgba(15,23,42,.06);background:#f8f9fa;display:inline-flex;align-items:center;justify-content:center;color:#5e646d;font-size:11px">✕</span><span style="width:40px;height:40px;border-radius:18px;border:1px solid rgba(15,23,42,.06);background:#f8f9fa;display:inline-flex;align-items:center;justify-content:center;font-size:12px">‹</span></div><div class="desc"><b>.editorial-icon-button</b><span class="src">define r18, pero los 4 usos lo pisan con <code>rounded-full</code> (<code>Home.tsx:407</code>, <code>CosmicCalendar.tsx:119</code>)</span><br><span class="tag mix">Sistema pisado</span></div></div>
+  </div>
+  <div class="finding alta">
+    <h4>Estados: sin foco visible, "deshabilitado" de dos maneras, carga inconsistente <span class="sev alta">Alta</span></h4>
+    <ul class="small">
+      <li><strong>Foco:</strong> no hay ni un <code>focus-visible</code> en la app. Solo existe el <code>outline-ring/50</code> global del base layer (gris claro al 50 %). <code>Login.tsx:215</code> y <code>Account.tsx:984</code> ponen <code>outline-none</code> sin reemplazo, así que el input de email no muestra el foco.</li>
+      <li><strong>Deshabilitado:</strong> <code>.editorial-action-button-disabled</code> está marcada como deprecada en <code>theme.css:874</code>, pero se sigue usando 5 veces (<code>StepIntention.tsx:263</code>, <code>StepEnergy.tsx:135</code>, <code>StepAnchor.tsx:178</code>, <code>RitualDetail.tsx:951, 1100</code>).</li>
+      <li><strong>Cargando:</strong> spinner + texto en RitualDetail (<code>:954</code>), solo texto en Login ("Enviando...") y en DailyIntention ("Escribiendo tu intención…"), y "Publicando..." en Share. Hay dos tipos de elipsis ("..." y "…").</li>
+      <li><strong>Hover:</strong> el primario oscurece a #1a1a1a, mientras que los hechos a mano no tienen hover o usan <code>hover:opacity-60</code> / <code>hover:opacity-80</code>.</li>
+    </ul>
+  </div>
+
+  <!-- ═══════════════════════════ INPUTS / CHIPS / CARDS ═══════════════════════════ -->
+  <h2 id="inputs">5. Inputs, chips y cards</h2>
+
+  <h3>5.1 Campos de texto: 5 estilos</h3>
+  <div class="gallery">
+    <div class="cell"><div class="stage page"><div class="w100" style="border-radius:18px;border:1px solid rgba(15,23,42,.1);background:#f8f9fa;padding:16px;font:300 17px/1.5 var(--serif);color:#c8ccd3">Una idea, una sensación…</div></div><div class="desc"><b>.editorial-textarea</b><span class="src">r18 · Cormorant 17/300 · ×4 · <code>StepIntention.tsx:196</code>, <code>RitualDetail.tsx:940</code></span><br><span class="tag sys">Sistema</span></div></div>
+    <div class="cell"><div class="stage page"><div class="w100" style="border-radius:16px;background:#eceeef;padding:16px 20px 40px;font:300 15px/1.6 var(--sans);color:#b4bac2">Ej.: terminar la entrega sin perder la calma</div></div><div class="desc"><b>Intención del día</b><span class="src">r16 · sin borde · Inter 15/300 · placeholder ink-soft · <code>DailyIntention.tsx:262–275</code></span><br><span class="tag hand">A mano</span></div></div>
+    <div class="cell"><div class="stage page"><div class="w100" style="border-radius:16px;border:1px solid rgba(15,23,42,.1);background:#f8f9fa;padding:16px;font:300 15px var(--sans);color:#9ca3ad">tu@email.com</div></div><div class="desc"><b>Email (Login)</b><span class="src">r16 · Inter 15/300 · <code>focus:outline-none</code> sin reemplazo · <code>Login.tsx:215</code></span><br><span class="tag hand">A mano</span></div></div>
+    <div class="cell"><div class="stage page"><span style="width:44px;height:52px;border-radius:14px;border:1px solid rgba(0,0,0,.12);background:#f8f9fa;display:inline-flex;align-items:center;justify-content:center;font:400 22px var(--sans)">4</span><span style="width:44px;height:52px;border-radius:14px;border:1px solid #0a0a0a;background:#f8f9fa;display:inline-flex;align-items:center;justify-content:center;font:400 22px var(--sans)"></span></div><div class="desc"><b>OTP (Login)</b><span class="src">r14 · foco = borde negro ✓ · <code>Login.tsx:283</code></span><br><span class="tag hand">A mano</span></div></div>
+    <div class="cell"><div class="stage"><div class="w100" style="border-radius:28px;border:1px solid rgba(0,0,0,.08);background:#f8f9fa;padding:16px 20px;font:400 22px var(--serif);color:#0a0a0a">Mariana</div></div><div class="desc"><b>Nombre (Account)</b><span class="src">r28 · Cormorant 22 · <code>outline-none</code> · <code>Account.tsx:984</code></span><br><span class="tag hand">A mano</span></div></div>
+  </div>
+  <p class="small">Además, el toggle "Mostrar mi nombre" está hecho a mano (<code>Share.tsx:447</code>, apagado en <code>--ink-soft</code>) aunque existe <code>ui/switch.tsx</code>, y el slider del player es un <code>input range</code> nativo con <code>accent-black</code> (<code>GuidedAudioPlayer.tsx:250</code>) que se ve distinto en cada navegador.</p>
+
+  <h3>5.2 Chips y badges: 9 variantes a mano + 1 del sistema</h3>
+  <div class="gallery">
+    <div class="cell"><div class="stage"><span style="border-radius:999px;border:1px solid rgba(15,23,42,.12);padding:6px 16px;font:400 13px var(--sans);color:#555c66">Escribir</span><span style="border-radius:999px;background:#0a0a0a;padding:6px 16px;font:400 13px var(--sans);color:#fff">Respirar</span></div><div class="desc"><b>.editorial-chip-outline</b><span class="src">13 · 6/16 · ×1 <code>StepAnchor.tsx:151</code></span><br><span class="tag sys">Sistema</span></div></div>
+    <div class="cell"><div class="stage page"><span style="border-radius:999px;border:1px solid rgba(15,23,42,.1);background:#fff;padding:6px 14px;font:400 12px var(--sans);color:#5e646d">Calma</span><span style="border-radius:999px;background:#0a0a0a;padding:6px 14px;font:400 12px var(--sans);color:#fff">Claridad</span></div><div class="desc"><b>Filtros de Explorar</b><span class="src">12 · 6/14 · <code>Explore.tsx:263</code></span><br><span class="tag hand">A mano</span></div></div>
+    <div class="cell"><div class="stage page"><span style="border-radius:999px;border:1px solid #0a0a0a;background:#0a0a0a;padding:7px 16px;font:500 12px var(--sans);color:#fff">Todos</span><span style="border-radius:999px;border:1px solid rgba(15,23,42,.06);background:#f8f9fa;padding:7px 16px;font:500 12px var(--sans);color:#5e646d">Guardados</span></div><div class="desc"><b>Filtro de origen (Account)</b><span class="src">12/500 · 7/16 · <code>Account.tsx:711</code></span><br><span class="tag hand">A mano</span></div></div>
+    <div class="cell"><div class="stage page"><span style="border-radius:999px;border:1px solid rgba(15,23,42,.06);background:rgba(15,23,42,.08);padding:5px 14px;font:400 11px var(--sans);color:#0a0a0a">Todos</span><span style="border-radius:999px;border:1px solid rgba(15,23,42,.06);padding:5px 14px;font:400 11px var(--sans);color:#b4bac2">🜄 Agua</span></div><div class="desc"><b>Filtro de elemento (Account)</b><span class="src">11 · 5/14 · el activo es gris, no negro · <code>Account.tsx:744</code></span><br><span class="tag hand">A mano</span></div></div>
+    <div class="cell"><div class="stage"><span style="border-radius:999px;border:1px solid rgba(15,23,42,.1);background:#fff;padding:8px 12px;font:400 12px var(--sans);color:#5e646d">Más guía</span><span style="border-radius:999px;background:#0a0a0a;padding:8px 12px;font:400 12px var(--sans);color:#fff">Breve</span></div><div class="desc"><b>Preferencias (Account)</b><span class="src">12 · 8/12 · <code>Account.tsx:1019</code></span><br><span class="tag hand">A mano</span></div></div>
+    <div class="cell"><div class="stage photo"><span style="border-radius:999px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.14);padding:4px 11px;font:400 11px var(--sans);color:rgba(255,255,255,.85)">Agua</span><span style="border-radius:999px;background:rgba(255,255,255,.88);padding:4px 11px;font:500 11px var(--sans);color:#111">Suave</span></div><div class="desc"><b>Badges hero (RitualDetail)</b><span class="src">11 · 4/11 · inline ×5 · <code>RitualDetail.tsx:661–680</code></span><br><span class="tag hand">A mano</span></div></div>
+    <div class="cell"><div class="stage photo"><span style="border-radius:999px;background:rgba(0,0,0,.28);padding:4px 10px;font:500 10px var(--sans);letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.9)">🌒 Creciente</span></div><div class="desc"><b>Eyebrow pill (recomendación)</b><span class="src">10/500 · <code>RitualRecommendationCard.tsx:56</code></span><br><span class="tag hand">A mano</span></div></div>
+    <div class="cell"><div class="stage"><span style="border-radius:6px;background:#0a0a0a;padding:4px 10px;font:400 9px/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;color:#fff">Hoy</span><span style="border-radius:6px;background:#0a0a0a;padding:4px 8px;font:400 8px/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;color:#fff">Evento</span></div><div class="desc"><b>Tags del calendario</b><span class="src">r6 (único) · 8–9 px · <code>CosmicCalendar.tsx:183, 187</code></span><br><span class="tag hand">A mano</span></div></div>
+    <div class="cell"><div class="stage photo"><span style="border-radius:999px;background:rgba(17,17,17,.25);padding:8px 16px;font:600 13px var(--sans);color:#fff">Luna creciente</span></div><div class="desc"><b>Chip de fase (Home hero)</b><span class="src">13/600 · <code>TodayContextCard.tsx:196</code></span><br><span class="tag hand">A mano</span></div></div>
+    <div class="cell"><div class="stage"><span style="border-radius:999px;border:1px solid rgba(0,0,0,.08);padding:4px 10px;font:400 11px var(--sans);color:#b4bac2">5</span></div><div class="desc"><b>Contador (StepRitual)</b><span class="src">11 · 4/10 · <code>StepRitual.tsx:413</code></span><br><span class="tag hand">A mano</span></div></div>
+  </div>
+  <p class="small">Hay clases definidas que nadie usa: <code>.editorial-chip</code>/<code>-active</code>, <code>.editorial-meta-badge</code>/<code>-active</code> y <code>.editorial-journey-badge</code>. O sea, el sistema tiene tres chips sin uso y la app tiene nueve hechos a mano.</p>
+
+  <h3>5.3 Cards seleccionables y de contenido</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Card</th><th>Radio</th><th>Fondo / borde / sombra</th><th>Origen</th></tr></thead>
+    <tbody>
+      <tr><td>Opción seleccionable (energía, pistas)</td><td>16</td><td>blanco, borde rgba(15,23,42,.08) · activa negra</td><td><code>.editorial-option-card</code> · <code>StepEnergy.tsx:67</code>, <code>RitualDetail.tsx:1186</code></td></tr>
+      <tr><td>Tipo de ritual (Onboarding)</td><td>16</td><td>blanco, --border-default · activa negra</td><td>A mano · <code>Onboarding.tsx:201</code></td></tr>
+      <tr><td>Elemento (StepElement)</td><td>16</td><td>blanco, rgba(0,0,0,.08) · activa negra + check</td><td>A mano · <code>StepElement.tsx:104</code></td></tr>
+      <tr><td>Versión del ritual (sheet)</td><td>16</td><td>borde rgba(0,0,0,.08), sin estado activo</td><td>A mano · <code>StepRitual.tsx:551</code></td></tr>
+      <tr><td>Quick-path Home</td><td>24</td><td>blanco + --shadow-soft</td><td><code>.editorial-card-elevated</code> · <code>Home.tsx:306</code></td></tr>
+      <tr><td>Recomendación Home</td><td>24</td><td>blanco + 0 2px 20px rgba(0,0,0,.09), sin borde</td><td>A mano · <code>RitualRecommendationCard.tsx:34</code></td></tr>
+      <tr><td>Grilla de rituales</td><td>16</td><td>blanco + 0 1px 3px rgba(0,0,0,.08), sin borde</td><td>A mano · <code>RitualGridCard.tsx:95</code></td></tr>
+      <tr><td>Intención hecha</td><td>22</td><td>--surface-muted, sin borde</td><td>A mano · <code>DailyIntention.tsx:342</code></td></tr>
+      <tr><td>Arcano revelado</td><td>28</td><td>#141312</td><td>A mano · <code>OracleCard.tsx:45</code></td></tr>
+      <tr><td>Tiles de práctica (Account)</td><td>20</td><td>--surface-softest + --border-soft · activa negra</td><td>A mano · <code>Account.tsx:359</code></td></tr>
+      <tr><td>Player guiado</td><td>28</td><td>#FCFCFA + rgba(0,0,0,.08)</td><td>A mano · <code>GuidedAudioPlayer.tsx:182</code></td></tr>
+      <tr><td>Día de semana / del mes</td><td>28 / 22</td><td>blanco + rgba(0,0,0,.07)</td><td>A mano · <code>CosmicCalendar.tsx:163, 252</code></td></tr>
+      <tr><td>Secciones del ritual</td><td>16 (pisa 24)</td><td>--surface-muted + --border-soft</td><td><code>.editorial-card-soft</code> + <code>rounded-2xl</code> · <code>RitualDetail.tsx:729</code></td></tr>
+    </tbody>
+  </table></div>
+  <div class="finding media">
+    <h4>El patrón "card seleccionable que se pone negra" está implementado 4 veces <span class="sev media">Media</span></h4>
+    <p class="small">Solo StepEnergy y las pistas de RitualDetail usan <code>.editorial-option-card</code>. Onboarding y StepElement, que son los pasos 0 y 3 del mismo flujo, lo reimplementan con otros bordes y otros tamaños de título (serif 16/500 y 20/500, contra 18/500 del sistema).</p>
+    <p class="why">Por qué importa: en un flujo de 5 pasos seguidos, la misma interacción tiene que verse idéntica. Si toca rediseñar el flujo, antes hay que revisar <code>docs/rituales-v2-plan.md</code>.</p>
+  </div>
+
+  <h3>5.4 Estados vacíos, de carga y de error</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Estado</th><th>Cómo se ve hoy</th><th>Dónde</th></tr></thead>
+    <tbody>
+      <tr><td>Carga (skeleton)</td><td>bloque <code>animate-pulse</code> --surface-muted de 300 px r22 vs 340 px r28</td><td><code>DailyIntention.tsx:239</code> · <code>OracleCard.tsx:209</code></td></tr>
+      <tr><td>Carga (pantalla)</td><td>texto serif 26 "Cargando tu ritual..." vs anillo animado + serif 20/300 "Creando tu ritual..."</td><td><code>RitualDetail.tsx:574</code> · <code>StepRitual.tsx:300–341</code></td></tr>
+      <tr><td>Error</td><td class="fail">gris --ink-muted 12 px</td><td><code>OracleCard.tsx:251</code> · <code>DailyIntention.tsx:311</code> · <code>RitualDetail.tsx:1123</code> (audio)</td></tr>
+      <tr><td>Error</td><td>#B42318 12–13 px inline</td><td><code>Login.tsx:220, 313</code> · <code>StepRitual.tsx:349</code></td></tr>
+      <tr><td>Error</td><td><code>.editorial-error</code> 12 px</td><td><code>StepIntention.tsx:238</code></td></tr>
+      <tr><td>Vacío</td><td>serif 20 --ink-muted + 13/300 --ink-soft (2,0:1) + círculo con "◯"</td><td><code>Explore.tsx:305–331</code></td></tr>
+      <tr><td>Vacío</td><td>card r24 --surface-softest, serif 20 + 12 --ink-subtle</td><td><code>Account.tsx:784–815</code></td></tr>
+    </tbody>
+  </table></div>
+  <div class="finding alta">
+    <h4>Un error en gris no se percibe como error <span class="sev alta">Alta</span></h4>
+    <p class="why">Por qué importa: el feedback-log ya registra bugs críticos que eran justamente casos sin estado de error visible (el audio que no suena, el OTP que no llega). El error del audio guiado (<code>RitualDetail.tsx:1123</code>) es ese caso: sale en el mismo gris que el texto de ayuda.</p>
+    <p class="act">un patrón de error único: color <code>--danger</code>, 13 px, ícono opcional y ubicado junto a la acción que falló.</p>
+  </div>
+
+  <!-- ═══════════════════════════ ESPACIADO / SOMBRAS ═══════════════════════════ -->
+  <h2 id="espaciado">6. Espaciado y sombras</h2>
+  <h3>6.1 Espaciado</h3>
+  <p class="small">La mayor parte usa la escala de Tailwind (387 clases <code>p-/m-/gap-</code> estándar). Los desvíos vienen de los estilos inline: ~90 márgenes y paddings en px, varios fuera de la grilla de 4.</p>
+  <div class="pillrow">
+    <span class="pv">2</span><span class="pv off">3<i>×3</i></span><span class="pv">4<i>×8</i></span><span class="pv off">5<i>×3</i></span><span class="pv">6<i>×9</i></span><span class="pv off">7</span><span class="pv">8<i>×17</i></span><span class="pv off">10<i>×6</i></span><span class="pv">12<i>×7</i></span><span class="pv off">13</span><span class="pv off">14<i>×5</i></span><span class="pv off">15</span><span class="pv">16<i>×7</i></span><span class="pv off">18<i>×3</i></span><span class="pv">20</span><span class="pv off">22<i>×2</i></span><span class="pv">24<i>×6</i></span><span class="pv">32<i>×2</i></span>
+  </div>
+  <ul class="small">
+    <li><strong>Margen lateral de página:</strong> 24 px (<code>px-6</code>, 41 usos), salvo los dos bloques nuevos de Home (intención y oráculo), que usan <code>px-5</code> = 20 px (<code>Home.tsx:276, 287</code>). Quedan desalineados 4 px respecto de "Tu camino" y "Cielo de la semana", que están justo debajo.</li>
+    <li><strong>Separación entre secciones:</strong> 48 px en Home (<code>mb-12</code> ×6), 24–32 px en Account (<code>mb-6/7/8</code>) y 56 px en WikiNote (<code>mb-14</code>).</li>
+    <li><strong>Padding de card:</strong> 16, 20 y 24 px (<code>p-4</code>, <code>p-5</code>, <code>p-6</code>), más 28 px en WikiNote (<code>p-7</code>).</li>
+    <li><strong>Encabezado de página:</strong> <code>pt-14</code> (56 px) en Account, Explore, Onboarding, RitualDetail y ProgressBar, y <code>pt-[50px]</code> en Home.</li>
+  </ul>
+
+  <h3>6.2 Sombras: 13 definiciones</h3>
+  <div class="shadow-demo">
+    <div style="box-shadow:0 10px 30px rgba(15,23,42,.05)">--shadow-soft<br>cards editoriales</div>
+    <div style="box-shadow:0 18px 42px rgba(15,23,42,.09)">--shadow-lifted<br><b>sin uso</b></div>
+    <div style="box-shadow:0 8px 24px rgba(15,23,42,.08)">day-card activa</div>
+    <div style="box-shadow:0 2px 8px rgba(15,23,42,.08)">segmented activo</div>
+    <div style="box-shadow:0 20px 60px rgba(0,0,0,.12)">calendar-dialog ·<br>AlertDialog (<code>Account:1042</code>)</div>
+    <div style="box-shadow:0 2px 20px rgba(0,0,0,.09)">Recomendación<br><code>RRC:35</code></div>
+    <div style="box-shadow:0 1px 3px rgba(0,0,0,.08)">Grilla<br><code>RitualGridCard:96</code></div>
+    <div style="box-shadow:0 8px 18px rgba(10,10,10,.22)">Mazo del oráculo<br><code>OracleCard:239</code></div>
+    <div style="box-shadow:0 -8px 40px rgba(15,23,42,.12)">page-sheet Home</div>
+    <div style="box-shadow:0 -12px 40px rgba(0,0,0,.15)">sheet WikiNote</div>
+    <div style="box-shadow:0 30px 80px rgba(15,23,42,.14),0 2px 8px rgba(15,23,42,.08)">Shell (Layout)<br>+ <code>shadow-2xl</code> a la vez</div>
+    <div style="box-shadow:0 10px 15px -3px rgba(0,0,0,.1),0 4px 6px -4px rgba(0,0,0,.1)">Tailwind <code>shadow-lg</code><br>dropdown</div>
+  </div>
+  <p class="small">Además: <code>shadow-sm</code> ×2 y <code>shadow-2xl</code> ×2 de Tailwind, y el brillo dorado de la carta elegida. <code>Layout.tsx:147–148</code> aplica <code>shadow-2xl</code> y un <code>boxShadow</code> inline al mismo elemento (gana el inline).</p>
+
+  <!-- ═══════════════════════════ ÍCONOS / MOTION ═══════════════════════════ -->
+  <h2 id="iconos">7. Íconos y motion</h2>
+  <h3>7.1 Íconos</h3>
+  <ul class="small">
+    <li><strong>Tres fuentes de íconos:</strong> <code>lucide-react</code> en 11 archivos, 30 <code>&lt;svg&gt;</code> dibujados a mano en 19 archivos (bottom nav, chevrons, estrellas, micrófono) y glifos Unicode usados como ícono (◯ ✦ ◎ · ○ ♥ ✓).</li>
+    <li><strong>Tamaños vía <code>size=</code> (50 usos, lucide + MoonPhaseIcon):</strong> 12 ×5 · 13 ×5 · 14 ×12 · 15 ×2 · 16 ×9 · 18 ×6 · 20 ×7 · 24 ×2 · 30 · 34. SVG a mano: 10, 11, 12, 14, 18, 20, 22.</li>
+    <li><strong>10 strokeWidth distintos:</strong> 1 · 1.1 · 1.25 · 1.3 · 1.4 · 1.5 · 1.6 · 1.75 · 1.8 · 2. El mismo bookmark va en 1.8 y su versión "guardado" en 2 (<code>RitualGridCard.tsx:152</code>).</li>
+    <li><strong>El chevron de "volver"</strong> (<code>M9 2L4 7L9 12</code>) está copiado 8 veces: <code>Explore:179</code>, <code>Onboarding:159</code>, <code>RitualDetail:628</code>, <code>Account:282</code>, <code>Wiki:25</code>, <code>Share:98</code>, <code>CosmicCalendar:101</code>, <code>ProgressBar:20</code>. WikiNote usa <code>ArrowLeft</code> de lucide.</li>
+  </ul>
+  <h3>7.2 Motion</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Qué</th><th>Valores encontrados</th><th>Comentario</th></tr></thead>
+    <tbody>
+      <tr><td>Curva</td><td><code>[0.22, 1, 0.36, 1]</code> ×13 · <code>easeInOut</code> ×3 · <code>linear</code> ×2 · CSS <code>ease</code> · <code>ease-out</code></td><td>Ya hay una curva de facto: candidata a token</td></tr>
+      <tr><td>Entrada de pantalla o bloque</td><td>0.3 · 0.35 · 0.4 · 0.45 · 0.5 · 0.6 · 0.7 · 0.8 s</td><td>8 duraciones para lo mismo; 0.5 y 0.6 son las más usadas</td></tr>
+      <tr><td>Transiciones de estado (CSS)</td><td>160 ms (todas las <code>.editorial-*</code>) · 80 ms de scale al presionar · Tailwind <code>duration-300/500/700</code></td><td>Las <code>.editorial-*</code> son consistentes; las hechas a mano usan el default de Tailwind (150 ms)</td></tr>
+      <tr><td>Presionar</td><td><code>scale(0.98)</code> · <code>active:scale-[0.97]</code> · <code>0.99</code> · <code>0.95</code> · <code>scale-90</code></td><td>5 escalas de "presionado"</td></tr>
+      <tr><td>Sheets</td><td>spring <code>damping 28, stiffness 280</code> ×2 · carta <code>220/24</code></td><td>Consistente</td></tr>
+      <tr><td>Loops decorativos</td><td>oracle.css: 24/32/48 s spin · 6–7 s draw · 5 s float · 2.4 s pulse · arcano 2.6 s</td><td>Tiene <code>prefers-reduced-motion</code> ✓</td></tr>
+      <tr><td>Reduced motion en motion/react</td><td>Solo OracleCard (chequeo manual)</td><td class="fail">El resto de la app ignora la preferencia (no hay <code>MotionConfig</code>)</td></tr>
+    </tbody>
+  </table></div>
+
+  <!-- ═══════════════════════════ OTRAS ═══════════════════════════ -->
+  <h2 id="otras">8. Otras inconsistencias</h2>
+  <div class="finding baja">
+    <h4>15 clases <code>.editorial-*</code> sin uso <span class="sev baja">Baja</span></h4>
+    <p class="small"><code>-body</code>, <code>-card</code>, <code>-card-compact</code>, <code>-panel-soft</code>, <code>-journey-badge</code>, <code>-step-bar</code>/<code>-active</code>, <code>-step-tab</code>/<code>-active</code>, <code>-chip</code>/<code>-active</code>, <code>-icon-shell</code>, <code>-meta-badge</code>/<code>-active</code> y <code>-chip-row-bleed</code>. <code>-panel-soft</code> es idéntica a <code>-card-soft</code>, y <code>-card</code> es idéntica a <code>-card-elevated</code>. <code>.editorial-step-bar</code> (segmentos de 5 px) convive con <code>ProgressBar</code>, que dibuja otra cosa (una línea de 1 px). <code>.editorial-chip-row-bleed</code> hace lo mismo que el filtro de Account armado a mano (<code>Account.tsx:696</code>).</p>
+  </div>
+  <div class="finding baja">
+    <h4>Tokens definidos sin uso o rotos <span class="sev baja">Baja</span></h4>
+    <p class="small"><code>--radius-panel</code> (32 px) y <code>--shadow-lifted</code> no se usan. <code>--surface-base</code> está referenciado y no definido. <code>--font-size</code>, <code>--font-weight-*</code> y los 32 tokens shadcn/chart/sidebar no se usan en la app.</p>
+  </div>
+  <div class="finding baja">
+    <h4>shadcn: 46 componentes, 2 usados <span class="sev baja">Baja</span></h4>
+    <p class="small">Solo se importan <code>alert-dialog</code> y <code>dropdown-menu</code> (Account), más <code>button</code> de forma indirecta (<code>buttonVariants</code>). Mientras tanto, la app reimplementa a mano switch, slider, textarea, input, badge, sheet, tabs y skeleton. Hay que elegir: o shadcn es la base y se tematiza con los tokens editoriales, o se borra y se crean primitivas editoriales.</p>
+  </div>
+  <div class="finding baja">
+    <h4>El lavado radial está copiado 8 veces inline <span class="sev baja">Baja</span></h4>
+    <p class="small">Existe <code>.editorial-radial-wash</code> (6 usos), pero Explore, StepRitual, Onboarding, Share, Login, StepElement, Wiki y Account lo reescriben inline con 4 variantes (60/40, 70/40, 70/45, 70/50; alpha .04 o .045).</p>
+  </div>
+  <div class="finding media">
+    <h4>El flujo de creación no es homogéneo <span class="sev media">Media</span></h4>
+    <p class="small">StepIntention, StepEnergy y StepAnchor usan <code>.editorial-step-title</code>, <code>-eyebrow</code> y <code>-content-scroll</code>. StepElement y StepRitual arman todo inline con otros valores (eyebrow de 11 px, títulos 28/1.25 y 26/1.3). Hay que cruzarlo con <code>docs/rituales-v2-plan.md</code> antes de tocarlo.</p>
+  </div>
+  <div class="finding baja">
+    <h4>Copy de UI en tuteo (VOICE.md pide voseo rioplatense) <span class="sev baja">Baja</span></h4>
+    <p class="small">"¿Qué tipo de ritual <em>quieres</em> hoy?" (<code>Onboarding.tsx:183</code>), "¿Con qué energía natural <em>quieres</em> trabajar?" (<code>StepElement.tsx:82</code>), "¿Cómo te <em>quieres</em>…" (<code>StepEnergy.tsx:50</code>), "<em>Elige</em> una versión" (<code>StepRitual.tsx:544</code>), "<em>Prueba</em> con otros filtros." (<code>Explore.tsx:330</code>) y "<em>Puedes</em> desactivar…" (<code>Share.tsx:363</code>). No es un tema visual, pero entra en la misma limpieza.</p>
+  </div>
+  <div class="finding baja">
+    <h4>Discrepancia con la documentación interna <span class="sev baja">Baja</span></h4>
+    <p class="small">Las instrucciones de diseño describen el fondo de la app como #EEEAE6 (cálido), pero ese color no aparece en el código: el shell real es <code>--app-shell</code> #eef0f3 (gris frío) y la página es <code>--app-page</code> #fbfcfd. Hay que confirmar cuál es la intención antes de cerrar la paleta.</p>
+  </div>
+
+  <!-- ═══════════════════════════ PROPUESTA ═══════════════════════════ -->
+  <h2 id="propuesta">9. Propuesta preliminar</h2>
+  <p class="lead">Es solo una propuesta, para discutir. La idea es <strong>reusar los nombres que ya existen</strong> (<code>--ink-*</code>, <code>--surface-*</code>, <code>--border-*</code>, <code>.editorial-*</code>) y achicar la cantidad de valores, no inventar un sistema nuevo.</p>
+
+  <h3>9.1 Escala tipográfica: de 27 tamaños a 10</h3>
+  <div class="prop prop-scale">
+    <div class="row"><span class="tok">--text-display<span>48 / 1.0 · serif 400 (itálica 300 opcional) · absorbe 44, 52, 54</span></span><span style="font:400 48px/1 var(--serif);font-style:italic;color:#0a0a0a">Luna que crece</span></div>
+    <div class="row"><span class="tok">--text-title-1<span>32 / 1.1 · serif 400 · H1 de pantalla, números · absorbe 30, 34, 36</span></span><span style="font:400 32px/1.1 var(--serif);color:#0a0a0a"><em style="font-weight:300">Hola,</em> Mariana</span></div>
+    <div class="row"><span class="tok">--text-title-2<span>26 / 1.15 · serif 400 · título de paso, sección, card destacada · absorbe 24, 25, 28</span></span><span style="font:400 26px/1.15 var(--serif);color:#0a0a0a">¿Qué deseás hoy?</span></div>
+    <div class="row"><span class="tok">--text-title-3<span>20 / 1.25 · serif 400 · título de card, estados vacíos · absorbe 19, 22</span></span><span style="font:400 20px/1.25 var(--serif);color:#0a0a0a">Ritual del ritmo propio</span></div>
+    <div class="row"><span class="tok">--text-title-4<span>17 / 1.35 · serif 500 · opción, cita, ancla · absorbe 16, 18</span></span><span style="font:500 17px/1.35 var(--serif);color:#0a0a0a">"Elegir una sola cosa y terminarla"</span></div>
+    <div class="row"><span class="tok">--text-body-lg<span>15 / 1.6 · sans 300 · lectura larga, inputs · absorbe 14 y 16 de texto corrido</span></span><span style="font:300 15px/1.6 var(--sans);color:#17191c">Encendé la vela y respirá tres veces antes de empezar.</span></div>
+    <div class="row"><span class="tok">--text-label<span>14 / 1.2 · sans 400 · botones, toasts, ítems de lista</span></span><span style="font:400 14px/1.2 var(--sans);color:#0a0a0a">Recibir mi intención</span></div>
+    <div class="row"><span class="tok">--text-body<span>13 / 1.55 · sans 300/400 · texto, helper, error · absorbe 12 de texto</span></span><span style="font:300 13px/1.55 var(--sans);color:#5e646d">Contalo en pocas palabras y te devolvemos una intención clara.</span></div>
+    <div class="row"><span class="tok">--text-caption<span>11 / 1.45 · sans 400 · meta, chips, badges · absorbe 12 de metadatos</span></span><span style="font:400 11px/1.45 var(--sans);color:#5e646d">Agua · 10 min · Suave</span></div>
+    <div class="row"><span class="tok">--text-eyebrow<span>10 / 1.2 · sans 500 · mayúsculas .14em · absorbe 9 y 11 en mayúscula</span></span><span style="font:500 10px/1.2 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:#6b727c">Oráculo del día</span></div>
+  </div>
+  <ul class="small" style="margin-top:12px">
+    <li><strong>Mínimo absoluto: 10 px.</strong> Las celdas del calendario mensual (7–8 px) necesitan un rediseño, no un token (insight #38).</li>
+    <li><strong>Nunca serif 300 en bloques de lectura</strong> (insight #8). La itálica 300 queda solo para acentos en títulos de 26 px o más, y <code>.editorial-textarea</code> pasa a 400.</li>
+    <li><strong>Pesos:</strong> Inter 300 / 400 / 500 (los 600 pasan a 500); Cormorant 400 / 500 + itálica 300.</li>
+    <li><strong>Line-heights:</strong> 1.0 · 1.1 · 1.25 · 1.5 · 1.6 (de 21 a 5). <strong>Tracking:</strong> 0 · .02em · .14em (de 14 a 3; el .3em del número de arcano queda como excepción documentada).</li>
+    <li><strong>Decisión abierta:</strong> ¿botones en 14/400 en vez de 14/300? El texto blanco light sobre negro "adelgaza" en pantallas de baja densidad. Recomiendo 400.</li>
+  </ul>
+
+  <h3>9.2 Paleta semántica</h3>
+  <h4>Texto</h4>
+  <div class="swatches">
+    <div class="sw"><div class="chip" style="background:#0a0a0a;color:#fff">Aa</div><div class="info"><b>--ink-strong</b>#0a0a0a · títulos, acción<br><span class="pass">19,8:1</span></div></div>
+    <div class="sw"><div class="chip" style="background:#17191c;color:#fff">Aa</div><div class="info"><b>--ink-body</b>#17191c · texto corrido<br><span class="pass">17,6:1</span></div></div>
+    <div class="sw"><div class="chip" style="background:#5e646d;color:#fff">Aa</div><div class="info"><b>--ink-muted</b>#5e646d · secundario<br><span class="pass">6,0:1 · 5,1 s/muted</span></div></div>
+    <div class="sw"><div class="chip" style="background:#6b727c;color:#fff">Aa</div><div class="info"><b>--ink-subtle</b> <span class="fail">cambia</span><br>#9ca3ad → <b style="display:inline">#6b727c</b> · eyebrows, meta, placeholder<br><span class="pass">4,9:1 s/blanco</span> (sobre muted, usar --ink-muted)</div></div>
+    <div class="sw"><div class="chip" style="background:#b4bac2;color:#fff">—</div><div class="info"><b>--ink-decor</b> <span class="muted">(ex --ink-soft)</span><br>#b4bac2 · <strong>solo no-texto</strong>: ✦, divisores, íconos decorativos</div></div>
+  </div>
+  <h4>Sobre fondo oscuro e imagen</h4>
+  <div class="swatches">
+    <div class="sw"><div class="chip" style="background:#0a0a0a;color:#fff">Aa</div><div class="info"><b>--on-ink-strong</b>#fff</div></div>
+    <div class="sw"><div class="chip" style="background:#0a0a0a;color:rgba(255,255,255,.72)">Aa</div><div class="info"><b>--on-ink-muted</b>rgba(255,255,255,.72)<br><span class="pass">≈10:1</span></div></div>
+    <div class="sw"><div class="chip" style="background:#0a0a0a;color:rgba(255,255,255,.56)">Aa</div><div class="info"><b>--on-ink-subtle</b>rgba(255,255,255,.56) · reemplaza .38/.40/.45/.5<br><span class="pass">6,4:1</span></div></div>
+    <div class="sw"><div class="chip" style="background:linear-gradient(#6d6a73,#3b3a40)"><span style="background:rgba(0,0,0,.35);padding:3px 6px;border-radius:4px;color:#fff">scrim</span></div><div class="info"><b>--scrim</b>rgba(0,0,0,.35) · overlays de modal (hoy: black/30, /35, /40)</div></div>
+  </div>
+  <h4>Superficies y bordes</h4>
+  <div class="swatches">
+    <div class="sw"><div class="chip" style="background:#fff;border-bottom:1px solid #eee"></div><div class="info"><b>--surface-base</b>#fff · <strong>definir</strong> (hoy se referencia y no existe)</div></div>
+    <div class="sw"><div class="chip" style="background:#fbfcfd;border-bottom:1px solid #eee"></div><div class="info"><b>--app-page</b>#fbfcfd</div></div>
+    <div class="sw"><div class="chip" style="background:#f8f9fa"></div><div class="info"><b>--surface-softest</b>#f8f9fa · absorbe --surface-soft, #FAFAF9, #FCFCFA y #F8F8F8</div></div>
+    <div class="sw"><div class="chip" style="background:#eceeef"></div><div class="info"><b>--surface-muted</b>#eceeef · absorbe #f3f3f3, --muted y --accent</div></div>
+    <div class="sw"><div class="chip" style="background:#0a0a0a"></div><div class="info"><b>--surface-inverse</b>= --ink-strong · cards y estados activos</div></div>
+    <div class="sw"><div class="chip" style="background:#fff;box-shadow:inset 0 0 0 2px rgba(15,23,42,.06)"></div><div class="info"><b>--border-soft / -default / -strong</b>slate .06 / .10 / .18 · absorben los 53 rgba(0,0,0,·), #f0f1f3, #e0e2e6, #E0E0E0 y #DDD</div></div>
+  </div>
+  <h4>Feedback y oráculo</h4>
+  <div class="swatches">
+    <div class="sw"><div class="chip" style="background:#b42318;color:#fff">Error</div><div class="info"><b>--danger</b>#b42318 · absorbe #d4183d<br><span class="pass">6,6:1</span></div></div>
+    <div class="sw"><div class="chip" style="background:#fef3f2;color:#b42318">Error</div><div class="info"><b>--danger-surface</b>#fef3f2 · hover de ítem destructivo</div></div>
+    <div class="sw"><div class="chip" style="background:#141312;color:#c9a66b">Arcano</div><div class="info"><b>--oracle-ink</b>#141312 · absorbe #0b0a09</div></div>
+    <div class="sw"><div class="chip" style="background:#c9a66b;color:#141312">Oro</div><div class="info"><b>--oracle-gold</b>#c9a66b · <strong>solo sobre --oracle-ink</strong> (8,1:1; sobre blanco 2,3:1)</div></div>
+    <div class="sw"><div class="chip" style="background:#f3ede2;color:#141312">Papel</div><div class="info"><b>--oracle-paper</b>#f3ede2 · <b style="display:inline">-paper-muted</b> .6</div></div>
+    <div class="sw"><div class="chip" style="background:#141312;box-shadow:inset 0 0 0 2px rgba(201,166,107,.25)"></div><div class="info"><b>--oracle-line / -glow</b>oro .25 / .45</div></div>
+  </div>
+  <p class="small"><strong>Fuera de la paleta, con nombre local:</strong> los tintes lunares de TodayContextCard (<code>:35–84</code>), los gradientes de Stories y los colores de marca de terceros (WhatsApp #25D366, gradiente de Instagram).</p>
+
+  <h3>9.3 Radios: de ~14 a 6</h3>
+  <div class="radii">
+    <div class="rbox"><div class="shape" style="border-radius:6px;background:#eef2fc;border-color:#c9d4f2"></div><b>--radius-xs 6</b><span>tags chicos</span></div>
+    <div class="rbox"><div class="shape" style="border-radius:12px;background:#eef2fc;border-color:#c9d4f2"></div><b>--radius-sm 12</b><span>segmented, toasts, dashed · absorbe 10</span></div>
+    <div class="rbox"><div class="shape" style="border-radius:16px;background:#eef2fc;border-color:#c9d4f2"></div><b>--radius-md 16</b><span>botones, inputs, opciones · absorbe 14, 18, 20</span></div>
+    <div class="rbox"><div class="shape" style="border-radius:24px;background:#eef2fc;border-color:#c9d4f2"></div><b>--radius-card 24</b><span>cards · absorbe 20 (tiles), 22, 28</span></div>
+    <div class="rbox"><div class="shape" style="border-radius:32px;background:#eef2fc;border-color:#c9d4f2"></div><b>--radius-panel 32</b><span>sheets, diálogos · absorbe 28 (diálogo), 36</span></div>
+    <div class="rbox"><div class="shape" style="border-radius:999px;background:#eef2fc;border-color:#c9d4f2"></div><b>--radius-chip full</b><span>pills, íconos · reemplaza "99px" y "50%"</span></div>
+  </div>
+  <p class="small">Sacar el CTA recto (radio 0) de Home y el 2 px inline. Revisar el <code>@theme inline</code> para que <code>rounded-lg/xl</code> no signifiquen 10/14 px sin que nadie lo note.</p>
+
+  <h3>9.4 Botones: 3 jerarquías + pill + ícono</h3>
+  <div class="gallery">
+    <div class="cell"><div class="stage page" style="flex-direction:column;align-items:stretch"><button class="r-btn" style="height:52px;border-radius:16px;background:#0a0a0a;color:#fff;font-size:14px;font-weight:400">Recibir mi intención</button><button class="r-btn" style="height:52px;border-radius:16px;background:#0a0a0a;color:#fff;font-size:14px;font-weight:400;outline:2px solid #0a0a0a;outline-offset:2px">Foco visible</button><button class="r-btn" style="height:52px;border-radius:16px;background:#0a0a0a;color:#fff;font-size:14px;font-weight:400;opacity:.3">Deshabilitado</button></div><div class="desc"><b>Primario</b><span class="src">--ink-strong · r16 · 14/400 · <strong>lg</strong> 52 px de ancho completo (CTA de flujo, hero de Home) · <strong>md</strong> 44 px auto (diálogos, reintentar). Hover #1a1a1a · presionado .98 · foco: outline 2px con offset 2 · deshabilitado .3 vía <code>:disabled</code> · cargando: spinner 14 + gerundio, con el mismo ancho.</span></div></div>
+    <div class="cell"><div class="stage page" style="flex-direction:column;align-items:stretch"><button class="r-btn" style="height:52px;border-radius:16px;background:#fff;color:#0a0a0a;border:1px solid rgba(15,23,42,.1);font-size:14px;font-weight:400">Hacer un ritual con esta intención</button><button class="r-btn" style="height:44px;border-radius:16px;background:#fff;color:#b42318;border:1px solid rgba(180,35,24,.3);font-size:14px;font-weight:400">Borrar ritual</button></div><div class="desc"><b>Secundario (+ danger)</b><span class="src">--surface-base · borde --border-default → hover --border-strong · mismos tamaños. Variante <strong>danger</strong> para confirmaciones irreversibles (hoy el "Confirmar" de borrar es negro).</span></div></div>
+    <div class="cell"><div class="stage page" style="flex-direction:column"><span style="font:400 13px var(--sans);color:#5e646d;text-decoration:underline;text-underline-offset:4px;min-height:44px;display:inline-flex;align-items:center">Pedir otra intención</span><span style="font:500 11px var(--sans);letter-spacing:.03em;color:#0a0a0a">Ver completo →</span></div><div class="desc"><b>Terciario / link</b><span class="src">13/400 --ink-muted · subrayado con offset 4 · min-h 44. Variante <strong>section-link</strong> 11/500 para encabezados (ya existe). Reemplaza los terciarios en --ink-subtle de Login y RitualDetail.</span></div></div>
+    <div class="cell"><div class="stage"><button class="r-btn" style="height:36px;border-radius:999px;padding:0 14px;background:#fff;color:#5e646d;border:1px solid rgba(15,23,42,.1);font-size:12px">✦ Regenerar</button><button class="r-btn" style="height:36px;border-radius:999px;padding:0 14px;background:#0a0a0a;color:#fff;font-size:12px">Activo</button></div><div class="desc"><b>Pill (sm 36 px)</b><span class="src">evolución de <code>.editorial-pill-button</code>: acciones de IA, reintentar, reiniciar y filtros. Pasa a 11 px según la escala (o se mantiene 12 como única excepción de label chico).</span></div></div>
+    <div class="cell"><div class="stage photo"><span style="width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center"><span style="width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,.32);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:13px">⌑</span></span><span style="width:44px;height:44px;border-radius:50%;background:#fff;border:1px solid rgba(15,23,42,.1);display:inline-flex;align-items:center;justify-content:center">‹</span><span style="width:64px;height:64px;border-radius:50%;background:#0a0a0a;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:20px;border:1px solid rgba(255,255,255,.2)">▶</span></div><div class="desc"><b>Ícono</b><span class="src">área táctil mínima de 44 (visual de 32 sobre imagen) · 44 por defecto · 64 para play. Siempre con <code>aria-label</code>. Unifica <code>.editorial-icon-button</code> (r18 → full).</span></div></div>
+  </div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Hoy</th><th>Pasa a</th></tr></thead>
+    <tbody>
+      <tr><td><code>.editorial-action-button-primary</code> ×11</td><td>Primario lg (sin cambios de forma)</td></tr>
+      <tr><td><code>.editorial-button-primary</code> ×5 · Publicar/Copiar de Share · WikiNote · "Ver ritual" de RRC · "Crear" de Explore · "Sí" de WTP</td><td>Primario md ("Crear" de Explore: pill sm)</td></tr>
+      <tr><td>CTA de Home <code>TodayContextCard.tsx:308</code></td><td>Primario lg (o variante <code>hero</code> documentada, a decidir)</td></tr>
+      <tr><td><code>.editorial-button-soft</code> ×2 · "Volver al inicio" y canales de Share · "Guardar" de RitualDetail · "No por ahora" de WTP · Cancelar del AlertDialog</td><td>Secundario md/lg</td></tr>
+      <tr><td>"Confirmar" de borrar en Account</td><td>Secundario danger (o primario danger)</td></tr>
+      <tr><td>Regenerar / Simplificar / 3 versiones / Reintentar de StepRitual · Reiniciar del player · Hablar de DailyIntention</td><td>Pill sm</td></tr>
+      <tr><td>Reenviar / Cambiar email de Login · "Prefiero solo música" / "Volver a voz guiada" de RitualDetail</td><td>Terciario</td></tr>
+      <tr><td>8 "volver" a mano + ProgressBar + WikiNote</td><td>Componente <code>BackLink</code> (texto) e ícono de 44 (circular)</td></tr>
+      <tr><td><code>.editorial-action-button-disabled</code> ×5</td><td>Borrar la clase y usar <code>disabled</code></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>9.5 Espaciado, sombras y motion</h3>
+  <div class="prop prop-scale">
+    <div class="row"><span class="tok">Escala de espaciado<span>base 4</span></span><span class="small">4 · 8 · 12 · 16 · 20 · 24 · 32 · 48. Sin 3, 5, 7, 10, 13, 14, 15, 18 ni 22.</span></div>
+    <div class="row"><span class="tok">--space-gutter<span>24</span></span><span class="small">Margen lateral único (<code>px-6</code>); intención y oráculo de Home pasan de 20 a 24.</span></div>
+    <div class="row"><span class="tok">--space-section<span>48 / 32</span></span><span class="small">48 entre bloques de Home; 32 entre secciones dentro de una pantalla.</span></div>
+    <div class="row"><span class="tok">Padding de card<span>16 · 20 · 24</span></span><span class="small">compacta · default · destacada.</span></div>
+    <div class="row"><span class="tok">Sombras<span>3 tokens</span></span><span class="small"><code>--shadow-soft</code> (cards) · <code>--shadow-lifted</code> (sheets, diálogos y dropdown; unificar en 0 20px 60px rgba(15,23,42,.12)) · <code>--shadow-shell</code> (Layout). Las cards de la grilla y la recomendación usan --shadow-soft o solo borde.</span></div>
+    <div class="row"><span class="tok">--ease-editorial<span>cubic-bezier(.22,1,.36,1)</span></span><span class="small">La curva que ya se usa 13 veces.</span></div>
+    <div class="row"><span class="tok">Duraciones<span>160 · 500 · 800 ms</span></span><span class="small">estado (hover, color) · entrada de bloque · revelado (carta, intención). Presionado: un solo <code>scale(.98)</code>.</span></div>
+    <div class="row"><span class="tok">Reduced motion<span>global</span></span><span class="small"><code>&lt;MotionConfig reducedMotion="user"&gt;</code> en <code>App.tsx</code>, para que no dependa de cada componente.</span></div>
+    <div class="row"><span class="tok">Íconos<span>lucide</span></span><span class="small">Una sola librería · tamaños 14 (junto a texto), 16 (en botón), 20 (nav y sueltos) y 24 (player) · <code>strokeWidth</code> 1.5 único (1.75 en la nav, si hace falta).</span></div>
+  </div>
+
+  <!-- ═══════════════════════════ PRIORIDADES ═══════════════════════════ -->
+  <h2 id="prioridades">10. Qué estandarizar primero</h2>
+  <p class="small muted">Ordenado por impacto en el usuario sobre esfuerzo. Los dos primeros se pueden hacer casi sin tocar pantallas.</p>
+  <ol class="prio">
+    <li><strong>Contraste de grises.</strong> Cambiar el valor de <code>--ink-subtle</code> a #6b727c (arregla de una vez eyebrows, meta, helpers y field labels) y sacar <code>--ink-soft</code> de los textos (21 en Account, la bottom nav de Layout, Explore, Share). El placeholder pasa a <code>--ink-subtle</code>.<br><span class="eff">Impacto alto · esfuerzo bajo · theme.css + buscar y reemplazar</span></li>
+    <li><strong>Errores visibles y foco.</strong> <code>.editorial-error</code> con <code>--danger</code> en OracleCard, DailyIntention y el audio de RitualDetail, y <code>focus-visible</code> en botones e inputs (arreglar <code>Login.tsx:215</code> y <code>Account.tsx:984</code>).<br><span class="eff">Impacto alto · esfuerzo bajo · 6–8 archivos</span></li>
+    <li><strong>Botones.</strong> Primario, secundario, terciario, pill e ícono sobre <code>.editorial-action-button</code>. Borrar <code>.editorial-button-primary/-soft</code> y <code>-disabled</code>, migrar los 7 primarios hechos a mano, resolver el CTA de Home y unificar la barra inferior de RitualDetail.<br><span class="eff">Impacto alto · esfuerzo medio · ~15 archivos</span></li>
+    <li><strong>Escala tipográfica.</strong> 10 tokens + clases utilitarias. Migrar primero las pantallas con más estilos inline: Account (38 fontSize), RitualDetail (24), Share (22) y StepRitual (18). Borrar los <code>fontFamily</code> de sans redundantes.<br><span class="eff">Impacto medio-alto · esfuerzo alto · se puede hacer por pantalla</span></li>
+    <li><strong>Eyebrow y "volver" únicos.</strong> Los 40 eyebrows a mano pasan a <code>.editorial-eyebrow</code> (+ <code>-on-dark</code>) y los 8 chevrons a <code>BackLink</code>.<br><span class="eff">Impacto medio · esfuerzo bajo</span></li>
+    <li><strong>Radios.</strong> Escala de 6 pasos: cards a 24, sheets y diálogos a 32, inputs y botones a 16. Reemplazar <code>"99px"</code> y <code>"50%"</code>.<br><span class="eff">Impacto medio · esfuerzo medio</span></li>
+    <li><strong>Colores sueltos → tokens.</strong> Bordes rgba(0,0,0,·) → <code>--border-*</code>, definir <code>--surface-base</code>, tokens <code>--oracle-*</code> en CSS, <code>--danger</code> y <code>--on-ink-*</code>.<br><span class="eff">Impacto medio · esfuerzo medio</span></li>
+    <li><strong>Limpieza.</strong> Sacar Source Serif 4 y la carga doble de Inter de <code>index.html</code>; pasar el peso 600 a 500; decidir qué hacer con shadcn (tematizar o borrar los 44 componentes sin uso); borrar <code>.dark</code>, las 15 clases sin uso y los 8 lavados radiales inline; unificar chips y option-cards; corregir el tuteo.<br><span class="eff">Impacto bajo en la UI · esfuerzo bajo · baja la deuda</span></li>
+  </ol>
+
+  <!-- ═══════════════════════════ NO VERIFICADO ═══════════════════════════ -->
+  <h2 id="no-verificado">11. Lo que no se pudo verificar</h2>
+  <ul class="small">
+    <li><strong>No se renderizó la app.</strong> Los valores computados se infieren del código: <code>rounded-2xl</code> = 16 px (default de Tailwind v4), <code>rounded-xl</code> = 14 px (por el override de <code>@theme inline</code>), <code>var(--radius-2xl, 24px)</code> en WikiNote probablemente = 16 px. La negrita falsa de Inter 600 depende del navegador.</li>
+    <li><strong>Contraste sobre fotos</strong> (hero de Home, hero de RitualDetail, grilla de rituales, Stories): depende de cada imagen y no se puede medir de forma estática.</li>
+    <li><strong>Conteos por búsqueda de texto:</strong> los estilos armados con ternarios, template strings o constantes (por ejemplo, los colores de TodayContextCard o <code>CosmicCalendar.tsx:153–157</code>) pueden estar subcontados. Margen estimado ±5 %.</li>
+    <li><strong>No se auditaron</strong> los componentes de <code>components/ui/</code> por dentro (solo si se usan o no), <code>data/*.ts</code> ni la carpeta <code>public/</code> (imágenes, manifest).</li>
+    <li><strong>Investigación del TFG en Drive:</strong> no se consultó, porque no hacía falta para un diagnóstico de código. La evidencia de usuarios usada sale de <code>feedback-log.md</code> (#8 y #38).</li>
+    <li><strong>Fondo #EEEAE6</strong> mencionado en las instrucciones de diseño: no existe en el código (§8). Falta confirmar cuál es la intención.</li>
+  </ul>
+
+</main>
+  </div>
+</div>
+<script src="assets/nav.js"></script>
+</body>
+</html>

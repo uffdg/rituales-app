@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design System Rituales</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,300;1,400&family=Inter:wght@300;400;500&display=swap">
+<link rel="stylesheet" href="assets/ds.css">
+<link rel="stylesheet" href="assets/nav.css">
+</head>
+<body>
+<div class="docs">
+  <nav class="docs-nav" id="docs-nav" aria-label="Design system"><noscript><a href="index.html">Inicio</a></noscript></nav>
+
+  <main class="docs-main">
+    <div class="docs-content">
+      <p class="docs-eyebrow">Design system · 19 oct 2026</p>
+      <h1>Un solo lenguaje para <em>Rituales</em></h1>
+      <p class="docs-lede">La app tiene hoy 27 tamaños de letra, 7 botones primarios distintos, unos 14 radios y grises que no se leen. Esta carpeta documenta el sistema que lo reemplaza: primero el diagnóstico, después la propuesta para validar y, por último, su implementación en el código.</p>
+
+      <div class="grid-3">
+        <div class="panel" style="margin:0"><p class="type-display" style="margin:0;color:var(--ink-strong)">10</p><p class="type-body muted" style="margin:4px 0 0">tamaños de letra <span class="mono">(hoy 27)</span></p></div>
+        <div class="panel" style="margin:0"><p class="type-display" style="margin:0;color:var(--ink-strong)">6</p><p class="type-body muted" style="margin:4px 0 0">radios <span class="mono">(hoy ~14)</span></p></div>
+        <div class="panel" style="margin:0"><p class="type-display" style="margin:0;color:var(--ink-strong)">1</p><p class="type-body muted" style="margin:4px 0 0">botón primario <span class="mono">(hoy 7)</span></p></div>
+      </div>
+
+      <h2>Dónde estamos</h2>
+      <div class="table-scroll"><table class="spec">
+        <thead><tr><th>Spec</th><th>Qué tiene</th><th>Estado</th></tr></thead>
+        <tbody>
+          <tr><td><a href="01-diagnostico.html">01 Diagnóstico</a></td><td>Relevamiento de toda la app sin tocar código: tipografía, color y contraste, radios, botones, campos, chips, cards, espaciado, sombras, íconos y movimiento, con conteos y <code>archivo:línea</code>.</td><td><span class="pass">Hecho</span></td></tr>
+          <tr><td><a href="02-fundamentos.html">02 Fundamentos</a></td><td>Principios, paleta semántica con contraste verificado, escala tipográfica, espaciado, radios, sombras, movimiento, íconos y accesibilidad.</td><td><span class="warn">Para validar</span></td></tr>
+          <tr><td><a href="03-componentes.html">03 Componentes</a></td><td>Botones, campos, chips y badges, cards, rótulos, volver, feedback, navegación y piezas del oráculo, con estados y la tabla de qué reemplaza a qué.</td><td><span class="warn">Para validar</span></td></tr>
+          <tr><td><a href="04-validacion.html">04 Validación e implementación</a></td><td>Las 8 decisiones a cerrar, el plan por fases, cómo queda en código y cómo se verifica.</td><td><span class="warn">Para validar</span></td></tr>
+          <tr><td><a href="05-ilustraciones-e-imagenes.html">05 Ilustraciones e imágenes</a></td><td>Las dos familias de ilustración, usos y proporciones de foto, texto sobre foto, peso y formato, texto alternativo, archivos sin uso y 2 decisiones más.</td><td><span class="warn">Para validar</span></td></tr>
+          <tr><td><a href="galeria.html">Galería de assets</a></td><td>Todas las ilustraciones e imágenes con ruta, medidas, peso y dónde se usan. Se regenera con <code>tools/build-galeria.py</code>.</td><td><span class="pass">Al día</span></td></tr>
+          <tr><td class="muted">06 Migración</td><td class="muted">Antes y después de cada pantalla migrada. Se crea al implementar.</td><td><span class="muted" style="font-size:12px">Pendiente</span></td></tr>
+        </tbody>
+      </table></div>
+
+      <h2>Cómo validar</h2>
+      <ol class="type-body-lg" style="padding-left:20px;max-width:720px">
+        <li><a href="02-fundamentos.html">Fundamentos</a>: mirá la paleta y la escala tipográfica. ¿Se siente Rituales?</li>
+        <li><a href="03-componentes.html">Componentes</a>: probá los botones y campos con mouse y con Tab. ¿Falta alguna pieza que usemos?</li>
+        <li><a href="05-ilustraciones-e-imagenes.html">Ilustraciones e imágenes</a>: mirá las reglas de foto e ilustración y recorré la <a href="galeria.html">galería</a>.</li>
+        <li>Decisiones (<a href="04-validacion.html#decisiones">1 a 8</a> y <a href="05-ilustraciones-e-imagenes.html#decisiones">9 y 10</a>): cada una trae una recomendación. Respondé “aprobado” o decí cuáles cambiar.</li>
+      </ol>
+      <p class="muted">Con eso cerrado, se implementa por fases en una branch propia, y cada spec pasa de “Para validar” a “Aprobado”.</p>
+
+      <h2>Cómo está armada esta carpeta</h2>
+      <div class="table-scroll"><table class="spec">
+        <tbody>
+          <tr><td><code>NN-tema.html</code></td><td>Una spec por archivo, numeradas en orden. Se abren con doble clic, sin servidor.</td></tr>
+          <tr><td><code>galeria.html</code></td><td>Galería de assets, generada por <code>tools/build-galeria.py</code> (miniaturas y SVG en <code>assets/galeria/</code>).</td></tr>
+          <tr><td><code>assets/nav.js</code></td><td>El menú de todas las páginas. Para sumar una página, se agrega ahí y aparece en todas.</td></tr>
+          <tr><td><code>assets/ds.css</code></td><td>Estilos compartidos. La primera parte son los tokens y componentes del sistema tal como van a la app: lo que ves en las specs es lo que se implementa.</td></tr>
+          <tr><td><code>README.md</code></td><td>Convenciones para sumar specs.</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </main>
+</div>
+<script src="assets/nav.js"></script>
+</body>
+</html>

@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>03 · Componentes — Design System Rituales</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,300;1,400&family=Inter:wght@300;400;500&display=swap">
+<link rel="stylesheet" href="assets/ds.css">
+<link rel="stylesheet" href="assets/nav.css">
+</head>
+<body>
+<div class="docs">
+  <nav class="docs-nav" id="docs-nav" aria-label="Design system"><noscript><a href="index.html">Inicio</a></noscript></nav>
+
+  <main class="docs-main">
+    <div class="docs-content">
+      <p class="docs-eyebrow">Spec 03 · Para validar · 19 oct 2026</p>
+      <h1>Componentes</h1>
+      <p class="docs-lede">Una pieza por función. Cada ejemplo de esta página está hecho con las clases que se van a usar en la app, así que lo que ves es lo que se implementa. Los botones y campos son interactivos: probalos con mouse y con Tab.</p>
+
+      <ul class="toc">
+        <li><a href="#botones">Botones</a></li>
+        <li><a href="#campos">Campos</a></li>
+        <li><a href="#chips">Chips y badges</a></li>
+        <li><a href="#cards">Cards</a></li>
+        <li><a href="#rotulos">Rótulos y volver</a></li>
+        <li><a href="#feedback">Feedback</a></li>
+        <li><a href="#navegacion">Navegación</a></li>
+        <li><a href="#oraculo">Oráculo</a></li>
+      </ul>
+
+      <!-- ─────────────────────────────── Botones -->
+      <h2 id="botones">Botones</h2>
+      <p class="muted">Tres jerarquías, una variante de peligro, el pill para acciones chicas y el botón de ícono. Reemplazan 7 primarios distintos, dos sistemas de clases duplicados y los botones hechos a mano.</p>
+
+      <h3>Jerarquía</h3>
+      <div class="panel panel--page">
+        <div class="phone" style="box-shadow:none;padding:0;background:transparent;max-width:380px">
+          <div class="stack">
+            <button class="editorial-button editorial-button--primary editorial-button--lg" type="button">Recibir mi intención</button>
+            <button class="editorial-button editorial-button--secondary editorial-button--lg" type="button">Hacer un ritual con esta intención</button>
+            <button class="editorial-button editorial-button--tertiary" type="button" style="align-self:center">Pedir otra intención</button>
+          </div>
+        </div>
+      </div>
+      <div class="table-scroll"><table class="spec">
+        <thead><tr><th>Variante</th><th>Cuándo</th><th>Forma</th><th>Clase</th></tr></thead>
+        <tbody>
+          <tr><td><b>Primario</b></td><td>La acción principal de la pantalla. Uno solo por pantalla o bloque.</td><td>Fondo <code>--ink-strong</code>, texto blanco, 14/400, radio 16.</td><td><code>editorial-button editorial-button--primary</code></td></tr>
+          <tr><td><b>Secundario</b></td><td>Alternativa a la principal, o principal de un bloque secundario.</td><td>Fondo blanco, borde <code>--line-default</code> → hover <code>--line-strong</code>.</td><td><code>editorial-button editorial-button--secondary</code></td></tr>
+          <tr><td><b>Terciario</b></td><td>Salidas suaves: pedir otra, reenviar, “prefiero solo música”.</td><td>Texto 13 <code>--ink-muted</code> subrayado, área de 44.</td><td><code>editorial-button editorial-button--tertiary</code></td></tr>
+          <tr><td><b>Peligro</b></td><td>Borrar, salir sin guardar. Confirmación final: sólido.</td><td>Texto o fondo <code>--danger</code>.</td><td><code>--danger</code> · <code>--danger-solid</code></td></tr>
+        </tbody>
+      </table></div>
+
+      <h3>Tamaños</h3>
+      <div class="panel">
+        <div class="row" style="align-items:flex-start">
+          <div class="stack" style="flex:1 1 260px"><button class="editorial-button editorial-button--primary editorial-button--lg" type="button">Elegir mi carta</button><span class="state-label">lg · 52 alto · ancho completo · CTA de flujo y de Home</span></div>
+          <div class="stack" style="flex:0 0 auto"><button class="editorial-button editorial-button--primary" type="button">Reintentar</button><span class="state-label">md · 44 alto · ancho del texto · diálogos, acciones en línea</span></div>
+        </div>
+      </div>
+
+      <h3>Estados</h3>
+      <div class="panel">
+        <div class="grid-auto">
+          <div><button class="editorial-button editorial-button--primary editorial-button--lg" type="button">Guardar</button><p class="state-label">Normal</p></div>
+          <div><button class="editorial-button editorial-button--primary editorial-button--lg" type="button" style="background:#26282c">Guardar</button><p class="state-label">Hover · #26282c</p></div>
+          <div><button class="editorial-button editorial-button--primary editorial-button--lg" type="button" style="outline:var(--focus-ring);outline-offset:var(--focus-offset)">Guardar</button><p class="state-label">Foco con teclado</p></div>
+          <div><button class="editorial-button editorial-button--primary editorial-button--lg" type="button" disabled>Guardar</button><p class="state-label">Deshabilitado · 30 %</p></div>
+          <div><button class="editorial-button editorial-button--primary editorial-button--lg" type="button" aria-busy="true"><span class="is-spinner" aria-hidden="true"></span>Escribiendo tu intención…</button><p class="state-label">Cargando · spinner + gerundio</p></div>
+        </div>
+        <p class="type-body muted" style="margin:16px 0 0">Presionado: <code>scale(.98)</code>. Deshabilitado con el atributo <code>disabled</code> (desaparece la clase <code>-disabled</code>). Cargando: mismo ancho, sin saltos.</p>
+      </div>
+
+      <h3>Peligro y sobre oscuro</h3>
+      <div class="grid-2">
+        <div class="panel">
+          <div class="stack">
+            <button class="editorial-button editorial-button--danger editorial-button--lg" type="button">Borrar ritual</button>
+            <button class="editorial-button editorial-button--danger-solid editorial-button--lg" type="button">Sí, borrar para siempre</button>
+          </div>
+          <p class="state-label">Hoy el “Confirmar” de borrar en Cuenta es negro: pasa a sólido rojo.</p>
+        </div>
+        <div class="panel panel--dark">
+          <div class="stack">
+            <button class="editorial-button editorial-button--primary editorial-button--on-dark editorial-button--lg" type="button">Crear un ritual</button>
+            <button class="editorial-button editorial-button--tertiary" type="button" style="color:var(--on-ink-muted);align-self:center">Ver cómo funciona</button>
+          </div>
+          <p class="state-label" style="color:var(--on-ink-subtle)">Sobre foto o fondo negro: primario blanco.</p>
+        </div>
+      </div>
+
+      <h3>Pill y botón de ícono</h3>
+      <div class="panel">
+        <div class="row">
+          <button class="editorial-pill" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M12 3l2.4 6.6L21 12l-6.6 2.4L12 21l-2.4-6.6L3 12l6.6-2.4z"/></svg>Regenerar</button>
+          <button class="editorial-pill" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3"/></svg>Hablar</button>
+          <button class="editorial-pill is-active" type="button" aria-pressed="true">Escuchando…</button>
+          <span style="width:16px"></span>
+          <button class="editorial-icon-button" type="button" aria-label="Volver"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
+          <button class="editorial-icon-button editorial-icon-button--filled" type="button" aria-label="Guardar en favoritos"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></button>
+          <button class="editorial-icon-button editorial-icon-button--play" type="button" aria-label="Reproducir"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button>
+        </div>
+        <p class="type-body muted" style="margin:16px 0 0">Pill: 36 de alto, 13/400, para acciones de IA, reintentar, dictar y filtros. Ícono: área de 44 (64 el play), siempre con <code>aria-label</code>.</p>
+      </div>
+
+      <h3>De hoy a la propuesta</h3>
+      <div class="table-scroll"><table class="spec">
+        <thead><tr><th>Hoy</th><th>Pasa a</th></tr></thead>
+        <tbody>
+          <tr><td><code>.editorial-action-button-primary</code> ×11</td><td>Primario lg</td></tr>
+          <tr><td><code>.editorial-button-primary</code> ×5 (Share, WikiNote, recomendación, Explore, WTP)</td><td>Primario md (el “Crear” de Explore: pill)</td></tr>
+          <tr><td>CTA de Home (<code>TodayContextCard.tsx:308</code>, radio 0, 58 px, peso 600)</td><td>Primario lg sobre oscuro (ver decisión 3)</td></tr>
+          <tr><td><code>.editorial-button-soft</code>, “Guardar” de RitualDetail, Cancelar de diálogos</td><td>Secundario</td></tr>
+          <tr><td>“Confirmar” de borrar en Account</td><td>Peligro sólido</td></tr>
+          <tr><td>Regenerar · Simplificar · Reintentar · Reiniciar · Hablar</td><td>Pill</td></tr>
+          <tr><td>Reenviar / Cambiar email (Login) · “Prefiero solo música” · “Pedir otra intención”</td><td>Terciario</td></tr>
+          <tr><td>8 “volver” hechos a mano + ProgressBar + WikiNote</td><td>Volver (texto) o ícono de 44</td></tr>
+          <tr><td><code>.editorial-action-button-disabled</code> ×5</td><td>Se borra: atributo <code>disabled</code></td></tr>
+        </tbody>
+      </table></div>
+
+      <div class="do-dont">
+        <div class="do"><p>Sí</p><div class="stack"><button class="editorial-button editorial-button--primary editorial-button--lg" type="button">Guardar ritual</button><button class="editorial-button editorial-button--secondary editorial-button--lg" type="button">Volver a editar</button></div></div>
+        <div class="dont"><p>No</p><div class="stack"><button class="editorial-button editorial-button--primary editorial-button--lg" type="button">Guardar ritual</button><button class="editorial-button editorial-button--primary editorial-button--lg" type="button">Volver a editar</button></div><p class="state-label">Dos primarios compiten: la persona no sabe cuál es el paso.</p></div>
+      </div>
+
+      <!-- ─────────────────────────────── Campos -->
+      <h2 id="campos">Campos</h2>
+      <p class="muted">Un input y un textarea, con rótulo, ayuda y error. Reemplazan 5 estilos de campo.</p>
+      <div class="grid-2">
+        <div class="panel">
+          <div class="editorial-field">
+            <label class="editorial-field-label" for="f-name">Tu nombre</label>
+            <input class="editorial-input" id="f-name" placeholder="Cómo querés que te llamemos" aria-describedby="f-name-help">
+            <p class="editorial-field-helper" id="f-name-help">Lo usamos solo para saludarte.</p>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="editorial-field">
+            <label class="editorial-field-label" for="f-mail">Email</label>
+            <input class="editorial-input" id="f-mail" value="mariana@" aria-invalid="true" aria-describedby="f-mail-err">
+            <p class="editorial-error" id="f-mail-err"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true" style="margin-top:3px;flex:none"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>Revisá el email: le falta el dominio.</p>
+          </div>
+        </div>
+        <div class="panel" style="grid-column:1/-1">
+          <div class="editorial-field">
+            <label class="editorial-field-label" for="f-wish">¿Qué deseás hoy?</label>
+            <textarea class="editorial-textarea" id="f-wish" placeholder="Ej.: terminar la entrega sin perder la calma"></textarea>
+            <div class="row" style="justify-content:space-between">
+              <p class="editorial-field-helper">Escribilo o dictalo.</p>
+              <button class="editorial-pill" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3"/></svg>Hablar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="table-scroll"><table class="spec">
+        <thead><tr><th>Parte</th><th>Spec</th></tr></thead>
+        <tbody>
+          <tr><td>Campo</td><td>Fondo <code>--surface-muted</code>, radio 16, 15/1.6 sans 400, alto 52 (textarea: 120). Placeholder en <code>--ink-subtle</code>.</td></tr>
+          <tr><td>Foco</td><td>Fondo blanco + borde <code>--ink-strong</code>. Sin sombra.</td></tr>
+          <tr><td>Rótulo</td><td>13/500 <code>--ink-body</code>, siempre visible (el placeholder no es rótulo).</td></tr>
+          <tr><td>Ayuda</td><td>13/400 <code>--ink-muted</code>.</td></tr>
+          <tr><td>Error</td><td>Borde <code>--danger</code>, mensaje 13 en <code>--danger</code> con ícono, <code>aria-invalid</code> + <code>aria-describedby</code>.</td></tr>
+          <tr><td>Grabando (dictado)</td><td>Borde <code>--ink-strong</code> 1,5 + pill activa “Escuchando…”.</td></tr>
+        </tbody>
+      </table></div>
+
+      <!-- ─────────────────────────────── Chips -->
+      <h2 id="chips">Chips y badges</h2>
+      <p class="muted">Chip: se toca (filtros, opciones rápidas). Badge: solo informa. Reemplazan 9 variantes hechas a mano.</p>
+      <div class="panel">
+        <div class="row">
+          <button class="editorial-chip" type="button" aria-pressed="true">Todos</button>
+          <button class="editorial-chip" type="button" aria-pressed="false">Míos</button>
+          <button class="editorial-chip" type="button" aria-pressed="false">Guardados</button>
+          <button class="editorial-chip" type="button" aria-pressed="false">🜄 Agua</button>
+        </div>
+        <div class="row" style="margin-top:16px">
+          <span class="editorial-badge">10 min</span>
+          <span class="editorial-badge">Suave</span>
+          <span class="editorial-badge editorial-badge--inverse">Nuevo</span>
+          <span class="editorial-badge editorial-badge--oracle">XVII · La Estrella</span>
+        </div>
+      </div>
+      <div class="table-scroll"><table class="spec">
+        <thead><tr><th>Pieza</th><th>Spec</th></tr></thead>
+        <tbody>
+          <tr><td>Chip</td><td>36 alto, radio full, 13/400, borde <code>--line-default</code>. Activo: invertido. Estado en <code>aria-pressed</code>.</td></tr>
+          <tr><td>Badge</td><td>11/500, radio 6, fondo <code>--surface-muted</code> + texto <code>--ink-muted</code>. Variantes invertida y oráculo.</td></tr>
+        </tbody>
+      </table></div>
+
+      <!-- ─────────────────────────────── Cards -->
+      <h2 id="cards">Cards</h2>
+      <p class="muted">Siempre radio 24. Cambia el fondo según la jerarquía; la sombra es excepcional.</p>
+      <div class="grid-2">
+        <div class="editorial-card">
+          <p class="editorial-eyebrow" style="margin-bottom:8px">Ritual para hoy</p>
+          <p class="type-title-3" style="margin:0 0 6px;color:var(--ink-strong)">Ritual del ritmo propio</p>
+          <p class="type-body" style="margin:0;color:var(--ink-muted)">Base · blanca con línea suave. Contenido general.</p>
+        </div>
+        <div class="editorial-card editorial-card--raised">
+          <p class="editorial-eyebrow" style="margin-bottom:8px">Destacada</p>
+          <p class="type-title-3" style="margin:0 0 6px;color:var(--ink-strong)">Luna creciente</p>
+          <p class="type-body" style="margin:0;color:var(--ink-muted)">Elevada · <code>--shadow-soft</code>. Solo si flota sobre una foto o un fondo con textura.</p>
+        </div>
+        <div class="editorial-card editorial-card--soft">
+          <p class="editorial-eyebrow" style="margin-bottom:8px">Detalle del día</p>
+          <p class="type-title-3" style="margin:0 0 6px;color:var(--ink-strong)">Lunes 19 de octubre</p>
+          <p class="type-body" style="margin:0;color:var(--ink-muted)">Suave · paneles de detalle dentro de una pantalla.</p>
+        </div>
+        <div class="editorial-card editorial-card--muted">
+          <p class="editorial-eyebrow" style="margin-bottom:8px;color:var(--ink-muted)">Tu intención de hoy</p>
+          <p class="type-title-4" style="margin:0 0 6px;color:var(--ink-strong)">Notá dónde está la prisa en tu cuerpo.</p>
+          <p class="type-body" style="margin:0;color:var(--ink-muted)">Gris · resultado generado (la intención).</p>
+        </div>
+        <div class="editorial-card editorial-card--inverse">
+          <p class="editorial-eyebrow editorial-eyebrow--on-dark" style="margin-bottom:8px">Recomendado</p>
+          <p class="type-title-3" style="margin:0 0 6px">Cerrar el ciclo</p>
+          <p class="type-body" style="margin:0;color:var(--on-ink-muted)">Invertida · para la pieza más importante de la pantalla.</p>
+        </div>
+        <div class="editorial-card editorial-card--oracle">
+          <p class="editorial-eyebrow editorial-eyebrow--oracle" style="margin-bottom:8px">Tu arcano de hoy</p>
+          <p class="type-title-3" style="margin:0 0 6px">XVII · La Estrella</p>
+          <p class="type-body" style="margin:0;color:var(--oracle-paper-muted)">Oráculo · exclusiva de las piezas del oráculo.</p>
+        </div>
+      </div>
+
+      <h3>Opción seleccionable</h3>
+      <div class="panel">
+        <div class="stack" style="max-width:420px">
+          <button class="editorial-option" type="button" aria-pressed="true"><span class="type-title-4">Calma</span><span class="type-body" style="margin-left:auto;color:var(--ink-muted)">Bajar el ritmo</span></button>
+          <button class="editorial-option" type="button" aria-pressed="false"><span class="type-title-4">Enfoque</span><span class="type-body" style="margin-left:auto;color:var(--ink-muted)">Una sola cosa</span></button>
+          <button class="editorial-option" type="button" aria-pressed="false"><span class="type-title-4">Cerrar</span><span class="type-body" style="margin-left:auto;color:var(--ink-muted)">Soltar lo que pesa</span></button>
+        </div>
+        <p class="type-body muted" style="margin:16px 0 0">Para los pasos de creación (energía, elemento, duración). Radio 16, seleccionada con borde <code>--ink-strong</code>. Unifica las option-cards de cada paso.</p>
+      </div>
+
+      <!-- ─────────────────────────────── Rótulos -->
+      <h2 id="rotulos">Rótulos y volver</h2>
+      <h3>Eyebrow y encabezado de sección</h3>
+      <div class="panel">
+        <div class="editorial-section-header">
+          <p class="editorial-eyebrow">Tu camino en Rituales</p>
+          <button class="editorial-section-link" type="button">Mi continuidad →</button>
+        </div>
+        <p class="type-body muted" style="margin:0">Hoy el eyebrow está reescrito a mano 40 veces, con 3 tamaños, 4 espaciados y 3 grises. Pasa a una sola clase con dos variantes: <code>--on-dark</code> y <code>--oracle</code>.</p>
+      </div>
+      <h3>Volver</h3>
+      <div class="panel">
+        <div class="row" style="gap:32px">
+          <a class="editorial-back-link" href="#rotulos"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>Volver</a>
+          <button class="editorial-icon-button editorial-icon-button--filled" type="button" aria-label="Volver"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
+        </div>
+        <p class="type-body muted" style="margin:16px 0 0">Componente React <code>&lt;BackLink /&gt;</code> con dos formas: texto (en flujos) o ícono circular (sobre fotos). Reemplaza los 8 chevrons hechos a mano.</p>
+      </div>
+
+      <!-- ─────────────────────────────── Feedback -->
+      <h2 id="feedback">Feedback</h2>
+      <div class="grid-2">
+        <div class="panel">
+          <h3 style="margin-top:0">Error en línea</h3>
+          <p class="editorial-error"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true" style="margin-top:3px;flex:none"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>No pudimos sacar tu carta. Probá de nuevo.</p>
+          <p class="state-label" style="text-align:left">Hoy el oráculo, la intención y el audio guiado muestran el error en gris.</p>
+        </div>
+        <div class="panel">
+          <h3 style="margin-top:0">Aviso</h3>
+          <div class="stack">
+            <div class="editorial-notice editorial-notice--danger">La conexión está tardando demasiado. Probá de nuevo.</div>
+            <div class="editorial-notice editorial-notice--success">Tu ritual quedó guardado en Favoritos.</div>
+          </div>
+        </div>
+        <div class="panel">
+          <h3 style="margin-top:0">Toast</h3>
+          <div class="editorial-toast" role="status">Ritual guardado ✓<small>Lo encontrás en Favoritos.</small></div>
+          <p class="state-label" style="text-align:left">Sonner se tematiza con estos valores: radio 12, fondo negro, 14/400.</p>
+        </div>
+        <div class="panel">
+          <h3 style="margin-top:0">Carga</h3>
+          <div class="editorial-skeleton" style="height:120px"></div>
+          <p class="state-label" style="text-align:left">Mismo tamaño y radio que el contenido que reemplaza.</p>
+        </div>
+        <div class="panel" style="grid-column:1/-1">
+          <h3 style="margin-top:0">Vacío</h3>
+          <div style="text-align:center;padding:24px 8px">
+            <p class="type-title-3" style="margin:0 0 6px;color:var(--ink-strong)">Todavía no hay registros este mes</p>
+            <p class="type-body" style="margin:0 auto 20px;color:var(--ink-muted);max-width:320px">Cuando pidas una intención o saques tu arcano, aparecen acá.</p>
+            <button class="editorial-button editorial-button--secondary" type="button">Ir a Home</button>
+          </div>
+          <p class="state-label">Título 3 + texto + una acción secundaria. Nunca solo “No hay datos”.</p>
+        </div>
+      </div>
+
+      <!-- ─────────────────────────────── Navegación -->
+      <h2 id="navegacion">Navegación inferior</h2>
+      <div class="panel">
+        <nav aria-label="Ejemplo de navegación" style="display:flex;justify-content:space-around;max-width:380px;margin:0 auto;padding:8px 0;border-top:1px solid var(--line-default)">
+          <a href="#navegacion" aria-current="page" style="display:flex;flex-direction:column;align-items:center;gap:4px;min-width:64px;min-height:44px;text-decoration:none;color:var(--ink-strong)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V21H3z"/></svg><span class="type-caption" style="font-weight:500">Inicio</span></a>
+          <a href="#navegacion" style="display:flex;flex-direction:column;align-items:center;gap:4px;min-width:64px;min-height:44px;text-decoration:none;color:var(--ink-subtle)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5z"/></svg><span class="type-caption">Explorar</span></a>
+          <a href="#navegacion" style="display:flex;flex-direction:column;align-items:center;gap:4px;min-width:64px;min-height:44px;text-decoration:none;color:var(--ink-subtle)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg><span class="type-caption">Calendario</span></a>
+          <a href="#navegacion" style="display:flex;flex-direction:column;align-items:center;gap:4px;min-width:64px;min-height:44px;text-decoration:none;color:var(--ink-subtle)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 5-6 8-6s6.5 2 8 6"/></svg><span class="type-caption">Cuenta</span></a>
+        </nav>
+        <p class="type-body muted" style="margin:16px 0 0">Ícono 20 + caption 11. Activo en <code>--ink-strong</code> con peso 500 y <code>aria-current</code>; inactivo en <code>--ink-subtle</code> (hoy <code>--ink-soft</code>, 2,0:1).</p>
+      </div>
+
+      <!-- ─────────────────────────────── Oráculo -->
+      <h2 id="oraculo">Oráculo</h2>
+      <p class="muted">Las piezas del oráculo ya existen en código (<code>OracleCard</code>, <code>arcana/ArcanaArt</code>, <code>DailyRecordsCalendar</code>). El sistema solo les da tokens propios en lugar de los valores sueltos actuales.</p>
+      <div class="panel panel--oracle">
+        <div class="row" style="gap:24px;align-items:flex-start">
+          <svg width="92" height="138" viewBox="0 0 200 300" fill="none" stroke="var(--oracle-gold)" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><rect x="6" y="6" width="188" height="288" rx="94"/><rect x="12" y="12" width="176" height="276" rx="88" stroke-width=".8" opacity=".45"/><path d="M100 62 L106 82 L126 88 L106 94 L100 114 L94 94 L74 88 L94 82 Z"/><path d="M30 240 Q60 232 90 240 T150 240"/><path d="M24 254 Q60 246 100 254 T176 254"/></svg>
+          <div style="flex:1 1 240px">
+            <p class="editorial-eyebrow editorial-eyebrow--oracle">Tu arcano de hoy</p>
+            <p style="margin:8px 0 2px;font:500 12px/1 var(--font-sans-ui);letter-spacing:.3em;color:var(--oracle-gold)">XVII</p>
+            <p class="type-title-1" style="margin:0 0 6px;color:var(--oracle-paper)">La Estrella</p>
+            <p class="type-caption" style="margin:0 0 16px;color:var(--oracle-gold)">Esperanza · Renovación · Fe</p>
+            <p class="editorial-eyebrow editorial-eyebrow--oracle">La mirada</p>
+            <p class="type-title-4" style="margin:6px 0 14px;color:var(--oracle-paper)">Después de la tormenta, la calma deja ver el camino.</p>
+            <p class="editorial-eyebrow editorial-eyebrow--oracle">El consejo</p>
+            <p class="type-body-lg" style="margin:6px 0 0;color:var(--oracle-paper)">Hacé algo que te devuelva la confianza: un paso chico hacia lo que soñás.</p>
+          </div>
+        </div>
+      </div>
+      <div class="table-scroll"><table class="spec">
+        <thead><tr><th>Hoy</th><th>Pasa a</th></tr></thead>
+        <tbody>
+          <tr><td><code>ARCANA_INK</code> #141312 · #0b0a09 (galería)</td><td><code>--oracle-ink</code></td></tr>
+          <tr><td><code>ARCANA_GOLD</code> #c9a66b</td><td><code>--oracle-gold</code></td></tr>
+          <tr><td><code>CARD_TEXT</code> #f3ede2 y rgba(243,237,226,.6/.9)</td><td><code>--oracle-paper</code> · <code>--oracle-paper-muted</code></td></tr>
+          <tr><td>rgba(201,166,107,.25 / .45)</td><td><code>--oracle-line</code> · <code>--oracle-glow</code></td></tr>
+          <tr><td>Radio 28 de la carta revelada</td><td><code>--radius-card</code> (24)</td></tr>
+          <tr><td>“La mirada” en serif itálica 19</td><td><code>title-4</code> en sans (la serif queda para el nombre del arcano)</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </main>
+</div>
+<script src="assets/nav.js"></script>
+</body>
+</html>

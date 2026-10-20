@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>05 · Ilustraciones e imágenes — Design System Rituales</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,300;1,400&family=Inter:wght@300;400;500&display=swap">
+<link rel="stylesheet" href="assets/ds.css">
+<link rel="stylesheet" href="assets/nav.css">
+</head>
+<body>
+<div class="docs">
+  <nav class="docs-nav" id="docs-nav" aria-label="Design system"><noscript><a href="index.html">Inicio</a></noscript></nav>
+
+  <main class="docs-main">
+    <div class="docs-content">
+      <p class="docs-eyebrow">Spec 05 · Para validar · 19 oct 2026</p>
+      <h1>Ilustraciones e <em>imágenes</em></h1>
+      <p class="docs-lede">Cuándo se ilustra, cuándo va una foto y cómo se trata cada una. La app tiene hoy dos familias de ilustración, tres usos de fotografía y 146 MB de imágenes sin optimizar. Todos los archivos están en la <a href="galeria.html">galería de assets</a>.</p>
+
+      <ul class="toc">
+        <li><a href="#ilustracion">Ilustración</a></li>
+        <li><a href="#fotografia">Fotografía</a></li>
+        <li><a href="#texto-sobre-foto">Texto sobre foto</a></li>
+        <li><a href="#tecnica">Peso y formato</a></li>
+        <li><a href="#accesibilidad">Accesibilidad</a></li>
+        <li><a href="#limpieza">Limpieza</a></li>
+        <li><a href="#decisiones">Decisiones</a></li>
+        <li><a href="galeria.html">Galería →</a></li>
+      </ul>
+
+      <!-- ─────────────────────────────── Ilustración -->
+      <h2 id="ilustracion">Ilustración</h2>
+      <p class="muted">Siempre de línea. Nunca relleno, sombras, degradés ni emojis como ilustración.</p>
+
+      <div class="grid-2">
+        <div class="panel panel--oracle" style="margin:0">
+          <div class="row" style="justify-content:center;gap:16px">
+            <img src="assets/galeria/ilustraciones/arcano-la-estrella.svg" alt="" width="96" height="144">
+            <img src="assets/galeria/ilustraciones/arcano-el-sol.svg" alt="" width="96" height="144">
+            <img src="assets/galeria/ilustraciones/arcano-dorso.svg" alt="" width="96" height="144">
+          </div>
+          <p class="editorial-eyebrow editorial-eyebrow--oracle" style="margin-top:20px">Familia 1 · Oráculo</p>
+          <p class="type-body" style="margin:6px 0 0;color:var(--oracle-paper-muted)">Línea dorada sobre carbón, dentro de un arco. Solo en las piezas del oráculo: arcanos, dorsos, registro diario.</p>
+        </div>
+        <div class="panel" style="margin:0">
+          <div class="row" style="justify-content:center;gap:28px;min-height:144px">
+            <svg width="104" height="80" viewBox="0 0 104 80" fill="none" stroke="#0a0a0a" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 58 H96" stroke="rgba(10,10,10,0.25)"/><path d="M18 58 Q52 84 86 58"/><path d="M52 62 C46 50 58 42 52 32"/><path d="M52 8 L54.5 17.5 L64 20 L54.5 22.5 L52 32 L49.5 22.5 L40 20 L49.5 17.5 Z"/><ellipse cx="52" cy="20" rx="20" ry="7" stroke="rgba(10,10,10,0.35)" stroke-width="0.8"/><path d="M30 10 v4 M28 12 h4"/><path d="M78 30 v4 M76 32 h4"/></svg>
+            <img src="assets/galeria/ilustraciones/luna-cuarto-creciente.svg" alt="" width="56" height="56">
+          </div>
+          <p class="editorial-eyebrow" style="margin-top:20px">Familia 2 · Interfaz</p>
+          <p class="type-body muted" style="margin:6px 0 0">Línea en tinta sobre claro. Encabeza un bloque, acompaña un estado vacío o marca la fase lunar.</p>
+        </div>
+      </div>
+
+      <div class="table-scroll"><table class="spec">
+        <thead><tr><th>Regla</th><th>Oráculo</th><th>Interfaz</th></tr></thead>
+        <tbody>
+          <tr><td>Color de línea</td><td><code>--oracle-gold</code></td><td><code>--ink-strong</code>; detalles secundarios al 25–35 %</td></tr>
+          <tr><td>Fondo</td><td><code>--oracle-ink</code>, siempre</td><td>Claro (<code>--surface-page</code>, <code>-base</code>, <code>-muted</code>)</td></tr>
+          <tr><td>Grosor</td><td>1,2 en viewBox 200 × 300; marco 1,2 + interior 0,6</td><td>1,1 en el tamaño final; íconos de lucide 1,5</td></tr>
+          <tr><td>Remates</td><td colspan="2">Puntas y uniones redondeadas. Excepciones al “sin relleno”: puntos chicos (estrellas, ojos) y la parte iluminada de la fase lunar en <code>MoonPhaseIcon</code>.</td></tr>
+          <tr><td>Motivos</td><td>Símbolo del arcano + celeste (estrellas, luna, sol, agua)</td><td>Celeste y cotidiano: estrella, órbita, luna, cuenco, llama, hoja</td></tr>
+          <tr><td>Tamaño</td><td>168 de ancho en la carta; 104 en el abanico; 56 en el registro</td><td>64–104 de alto; nunca más de una por pantalla</td></tr>
+          <tr><td>Movimiento</td><td>Los trazos se dibujan al revelar (2,6 s) y las estrellas titilan</td><td>Loop lento (estrella que flota, órbita que gira); se acelera mientras la app “escucha” o “escribe”</td></tr>
+          <tr><td>Dónde vive</td><td><code>components/arcana/ArcanaArt.tsx</code></td><td>Componentes junto al bloque que ilustran; animación en <code>styles/oracle.css</code></td></tr>
+        </tbody>
+      </table></div>
+
+      <div class="do-dont">
+        <div class="do"><p>Sí</p><div class="row" style="gap:16px"><svg width="72" height="56" viewBox="0 0 104 80" fill="none" stroke="#0a0a0a" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M18 58 Q52 84 86 58"/><path d="M52 8 L54.5 17.5 L64 20 L54.5 22.5 L52 32 L49.5 22.5 L40 20 L49.5 17.5 Z"/></svg><p class="type-body" style="margin:0;flex:1">Una ilustración de línea, en tinta, que acompaña el título del bloque.</p></div></div>
+        <div class="dont"><p>No</p><div class="row" style="gap:16px"><span style="font-size:40px;line-height:1" aria-hidden="true">🌙✨</span><p class="type-body" style="margin:0;flex:1">Emojis o íconos rellenos como ilustración. Tampoco oro sobre fondo claro (2,3:1).</p></div></div>
+      </div>
+
+      <h3>Cómo se suma una ilustración nueva</h3>
+      <ol class="type-body" style="padding-left:20px;max-width:720px">
+        <li>Se dibuja en SVG con la grilla de su familia (200 × 300 para arcanos, cuadrada o 104 × 80 para interfaz) y <code>stroke="currentColor"</code>.</li>
+        <li>Se arma como componente React, con <code>aria-hidden="true"</code> si es decorativa.</li>
+        <li>Si se anima, la animación va en CSS y se apaga con “reducir movimiento”.</li>
+        <li>Se corre <code>tools/build-galeria.py</code> para que aparezca en la galería.</li>
+      </ol>
+
+      <!-- ─────────────────────────────── Fotografía -->
+      <h2 id="fotografia">Fotografía</h2>
+      <p class="muted">La foto da contexto y clima. Siempre naturaleza o materia (agua, fuego, bosque, montaña, cielo, piedra), con luz natural y sin texto en la imagen.</p>
+      <div class="grid-3">
+        <div class="stack">
+          <img src="assets/galeria/fotos/fondos-home/bg-2.jpg" alt="" style="width:100%;aspect-ratio:9/16;object-fit:cover;border-radius:var(--radius-card)">
+          <p class="type-label" style="margin:0;color:var(--ink-strong)">Hero de Home</p>
+          <p class="type-body muted" style="margin:0">Pantalla completa, vertical. Una al azar en cada visita, con texto blanco encima.</p>
+        </div>
+        <div class="stack">
+          <img src="assets/galeria/fotos/rituales/story-water-1.jpg" alt="" style="width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:var(--radius-card)">
+          <p class="type-label" style="margin:0;color:var(--ink-strong)">Portada de ritual</p>
+          <p class="type-body muted" style="margin:0">3:4 en la grilla y la recomendación; 9:16 en Stories y el detalle. Radio 24.</p>
+        </div>
+        <div class="stack">
+          <img src="assets/galeria/fotos/wiki/nicole-queiroz-hfGFOLrztbM-unsplash.jpg" alt="" style="width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:var(--radius-card)">
+          <p class="type-label" style="margin:0;color:var(--ink-strong)">Nota de la Wiki</p>
+          <p class="type-body muted" style="margin:0">4:5 en la card; ancho completo arriba de la nota.</p>
+        </div>
+      </div>
+      <div class="table-scroll"><table class="spec">
+        <thead><tr><th>Uso</th><th>Proporción</th><th>Tamaño de exportación</th><th>Carga</th></tr></thead>
+        <tbody>
+          <tr><td>Hero de Home</td><td>9:16, cubre la pantalla</td><td>1440 px de lado largo</td><td>Inmediata (es lo primero que se ve)</td></tr>
+          <tr><td>Portada en grilla y recomendación</td><td>3:4</td><td>800 px</td><td><code>loading="lazy"</code></td></tr>
+          <tr><td>Stories y detalle de ritual</td><td>9:16</td><td>1440 px</td><td>Inmediata la primera; el resto lazy</td></tr>
+          <tr><td>Wiki (card y nota)</td><td>4:5</td><td>800 px card · 1440 px nota</td><td><code>loading="lazy"</code></td></tr>
+        </tbody>
+      </table></div>
+
+      <!-- ─────────────────────────────── Texto sobre foto -->
+      <h2 id="texto-sobre-foto">Texto sobre foto</h2>
+      <p class="muted">El contraste no se puede garantizar con la foto sola: el texto blanco siempre va sobre un velo.</p>
+      <div class="grid-2">
+        <div class="do" style="padding:0;overflow:hidden"><p style="padding:16px 16px 0">Sí</p>
+          <div style="position:relative;aspect-ratio:4/3;margin:12px 16px 16px;border-radius:var(--radius-card);overflow:hidden">
+            <img src="assets/galeria/fotos/fondos-home/bg-3.jpg" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+            <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 30%,rgba(0,0,0,.55) 100%)"></div>
+            <div style="position:absolute;left:20px;right:20px;bottom:18px">
+              <p class="editorial-eyebrow editorial-eyebrow--on-dark">Cuarto creciente</p>
+              <p class="type-title-2" style="margin:6px 0 0;color:#fff">Luna que crece</p>
+            </div>
+          </div>
+        </div>
+        <div class="dont" style="padding:0;overflow:hidden"><p style="padding:16px 16px 0">No</p>
+          <div style="position:relative;aspect-ratio:4/3;margin:12px 16px 16px;border-radius:var(--radius-card);overflow:hidden">
+            <img src="assets/galeria/fotos/fondos-home/bg-3.jpg" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+            <div style="position:absolute;left:20px;right:20px;bottom:18px">
+              <p style="margin:0;font:500 10px/1.2 var(--font-sans-ui);letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.45)">Cuarto creciente</p>
+              <p class="type-title-2" style="margin:6px 0 0;color:#fff">Luna que crece</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="callout callout--rule"><strong>Reglas</strong>Velo de abajo hacia arriba: de transparente al 30 % a negro 55 % (o <code>--scrim</code> parejo si el texto está arriba). Texto en <code>--on-ink-strong</code> y <code>--on-ink-subtle</code>, nunca grises claros sueltos. Hoy el hero de Home elige entre texto claro y oscuro según la foto (<code>HERO_TEXT_THEMES</code>): con el velo, siempre claro.</div>
+
+      <!-- ─────────────────────────────── Técnica -->
+      <h2 id="tecnica">Peso y formato</h2>
+      <div class="grid-3">
+        <div class="panel" style="margin:0"><p class="type-display" style="margin:0;color:var(--danger)">146 MB</p><p class="type-body muted" style="margin:4px 0 0">de fotos en <code>public/</code> hoy</p></div>
+        <div class="panel" style="margin:0"><p class="type-display" style="margin:0;color:var(--ink-strong)">6 MB</p><p class="type-body muted" style="margin:4px 0 0">la más pesada (<code>story-air-3.jpg</code>, 8165 × 12247 px)</p></div>
+        <div class="panel" style="margin:0"><p class="type-display" style="margin:0;color:var(--success)">~10 MB</p><p class="type-body muted" style="margin:4px 0 0">estimado en WebP a los tamaños de arriba</p></div>
+      </div>
+      <p>Las fotos se suben tal como salen de la cámara o de Unsplash. Cada portada de la grilla descarga entre 0,5 y 6 MB para mostrarse a unos 170 px de ancho. Las fotos de rituales pesan 2,4 MB en promedio: cada 10 portadas son unos 24 MB de datos móviles.</p>
+      <div class="table-scroll"><table class="spec">
+        <thead><tr><th>Regla</th><th>Valor</th></tr></thead>
+        <tbody>
+          <tr><td>Formato</td><td>WebP calidad 75 (JPEG de respaldo solo si hace falta).</td></tr>
+          <tr><td>Tamaño</td><td>El de la tabla de fotografía: 800 o 1440 px de lado largo. Peso objetivo: menos de 250 KB.</td></tr>
+          <tr><td>En el HTML</td><td><code>width</code> y <code>height</code> (o <code>aspect-ratio</code>) para que no salte el layout; <code>decoding="async"</code>; <code>loading="lazy"</code> salvo lo primero que se ve.</td></tr>
+          <tr><td>Recorte</td><td><code>object-fit: cover</code> con <code>object-position</code> elegido por foto si el motivo no está centrado.</td></tr>
+          <tr><td>Nombres</td><td><code>uso-tema-n.webp</code> en minúscula (<code>story-agua-1.webp</code>). Hoy conviven <code>abastract</code> (con error), inglés y castellano.</td></tr>
+          <tr><td>Créditos</td><td>Las fotos de Unsplash guardan el autor en los datos (no solo en el nombre del archivo) y se acreditan en la nota.</td></tr>
+        </tbody>
+      </table></div>
+
+      <!-- ─────────────────────────────── Accesibilidad -->
+      <h2 id="accesibilidad">Accesibilidad</h2>
+      <div class="table-scroll"><table class="spec">
+        <thead><tr><th>Caso</th><th>Texto alternativo</th></tr></thead>
+        <tbody>
+          <tr><td>Foto decorativa (hero, fondo de Stories)</td><td><code>alt=""</code>. Hoy el hero dice “Cielo actual”, que no describe la foto: pasa a vacío.</td></tr>
+          <tr><td>Foto que acompaña un título visible (portada de ritual, nota)</td><td><code>alt=""</code> si el título ya está al lado; si la foto es el único contenido, el título del ritual.</td></tr>
+          <tr><td>Ilustraciones</td><td><code>aria-hidden="true"</code>. El arcano se nombra en el texto de la carta.</td></tr>
+          <tr><td>Fase lunar sola (sin texto al lado)</td><td><code>role="img"</code> y <code>aria-label</code> con el nombre de la fase.</td></tr>
+        </tbody>
+      </table></div>
+
+      <!-- ─────────────────────────────── Limpieza -->
+      <h2 id="limpieza">Limpieza</h2>
+      <p class="muted">Archivos que hoy no usa ninguna pantalla. El detalle está en la <a href="galeria.html">galería</a>, marcado como “Sin uso”.</p>
+      <div class="table-scroll"><table class="spec">
+        <thead><tr><th>Archivos</th><th>Qué hacer</th></tr></thead>
+        <tbody>
+          <tr><td>5 lunas en PNG: <code>moon-bg</code>, <code>moon-phases</code>, <code>creciente</code>, <code>llena</code>, <code>menguante</code></td><td>Borrar (son versiones previas de las que sí se usan).</td></tr>
+          <tr><td>7 fotos de rituales: <code>story-grass-4…8</code>, <code>story-mountain-4…5</code></td><td>Borrar, o asignarlas a rituales nuevos.</td></tr>
+          <tr><td>1 foto de la Wiki: <code>heidi-fin-…-unsplash.jpg</code></td><td>Borrar o usar en una nota.</td></tr>
+          <tr><td><code>components/figma/ImageWithFallback.tsx</code></td><td>Revisar: su texto de error está en inglés (“Error loading image”).</td></tr>
+        </tbody>
+      </table></div>
+
+      <!-- ─────────────────────────────── Decisiones -->
+      <h2 id="decisiones">Decisiones</h2>
+      <h3>9. Lunas: íconos de línea o renders en PNG</h3>
+      <div class="grid-2">
+        <div class="panel" style="margin:0;text-align:center"><img src="assets/galeria/ilustraciones/luna-cuarto-creciente.svg" alt="" width="64" height="64"><p class="state-label">MoonPhaseIcon · línea</p></div>
+        <div class="panel panel--dark" style="margin:0;text-align:center"><img src="assets/galeria/fotos/lunas-png/moon-waxing.jpg" alt="" width="64" height="64" style="object-fit:contain"><p class="state-label" style="color:var(--on-ink-subtle)">moon-waxing.png · render</p></div>
+      </div>
+      <div class="callout callout--decision"><strong>Recomendación: quedarse con los íconos de línea</strong> (<code>MoonPhaseIcon</code>) y dejar los PNG solo donde la luna es protagonista (el calendario cósmico), como “foto” de la luna. Así hay un solo lenguaje para los íconos.</div>
+
+      <h3>10. Optimizar las fotos</h3>
+      <div class="callout callout--decision"><strong>Recomendación: sí, como fase propia</strong> (“Imágenes”, entre Componentes y Pantallas del plan): exportar a WebP con los tamaños de esta spec, renombrar, sumar <code>width/height</code>, <code>loading</code> y <code>alt</code>, y borrar lo que no se usa. Es el cambio que más se nota en velocidad.</div>
+    </div>
+  </main>
+</div>
+<script src="assets/nav.js"></script>
+</body>
+</html>
