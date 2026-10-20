@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router";
+import { BackLink } from "../components/BackLink";
 import { motion, AnimatePresence } from "motion/react";
 import { useRitual } from "../context/RitualContext";
 import { RITUAL_TYPES } from "../data/rituals";
@@ -140,7 +141,7 @@ export function Onboarding() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--app-page)] flex flex-col overflow-y-auto">
+    <div className="min-h-screen bg-surface-page flex flex-col overflow-y-auto">
       <div
         className="fixed inset-0 pointer-events-none"
         style={{
@@ -149,85 +150,41 @@ export function Onboarding() {
         }}
       />
 
-      <div className="relative z-10 pt-14 px-6">
-        <button
-          onClick={() => navigate("/")}
-          className="mt-4 flex items-center gap-2 text-[var(--ink-subtle)] hover:text-[var(--ink-strong)] transition-colors"
-          style={{ fontFamily: "var(--font-sans-ui)", fontSize: "13px" }}
-        >
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <path d="M9 2L4 7L9 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-          </svg>
-          Rituales
-        </button>
+      <div className="relative z-10 pt-12 px-6">
+        <BackLink to="/" label="Rituales" />
       </div>
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="relative z-10 flex-1 px-6 pt-8 pb-10"
+        className="relative z-10 flex-1 px-6 pt-6 pb-10"
       >
-        <h1
-          style={{
-            fontFamily: "var(--font-serif-display)",
-            fontSize: "32px",
-            fontWeight: 400,
-            color: "var(--ink-strong)",
-            lineHeight: 1.2,
-            marginBottom: "6px",
-          }}
-        >
+        <h1 className="mb-1.5 font-serif text-title-1 text-ink-strong">
           ¿Qué tipo de ritual
           <br />
-          <em style={{ fontStyle: "italic", fontWeight: 300 }}>quieres hoy?</em>
+          <em className="italic font-light">querés hoy?</em>
         </h1>
-        <p
-          className="mb-8 text-[var(--ink-subtle)]"
-          style={{ fontFamily: "var(--font-sans-ui)", fontSize: "13px", fontWeight: 300 }}
-        >
-          Elegí el punto de partida de tu intención
-        </p>
+        <p className="mb-8 font-sans text-body text-ink-muted">Elegí el punto de partida de tu intención</p>
 
         {/* Ritual type grid */}
         <div className="grid grid-cols-2 gap-3 mb-6">
           {RITUAL_TYPES.map((type, i) => (
             <motion.button
               key={type.id}
+              type="button"
               initial={{ opacity: 0, scale: 0.96 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.35, delay: i * 0.06 }}
               onClick={() => { setSelected(type.id); setReframedIntention(null); }}
-              className={`text-left p-4 rounded-2xl border transition-all active:scale-[0.97] ${
-                selected === type.id
-                  ? "bg-[var(--ink-strong)] border-[var(--ink-strong)] text-white"
-                  : "bg-white border-[var(--border-default)] text-[var(--ink-strong)] hover:border-[var(--border-strong)]"
-              }`}
+              aria-pressed={selected === type.id}
+              className={`editorial-option-card active:scale-[0.97] ${selected === type.id ? "editorial-option-card-active" : ""}`}
             >
-              <div className={`mb-2 ${selected === type.id ? "opacity-90" : "opacity-40"}`}>
+              <div className={`mb-2 ${selected === type.id ? "text-ink-strong" : "text-ink-muted"}`} aria-hidden="true">
                 {ritualIcons[type.id] ?? type.icon}
               </div>
-              <p
-                style={{
-                  fontFamily: "var(--font-serif-display)",
-                  fontSize: "16px",
-                  fontWeight: 500,
-                  lineHeight: 1.2,
-                  marginBottom: "2px",
-                }}
-              >
-                {type.label}
-              </p>
-              <p
-                style={{
-                  fontFamily: "var(--font-sans-ui)",
-                  fontSize: "11px",
-                  fontWeight: 300,
-                  opacity: selected === type.id ? 0.7 : 0.5,
-                }}
-              >
-                {type.description}
-              </p>
+              <p className="editorial-option-title">{type.label}</p>
+              <p className="editorial-option-body">{type.description}</p>
             </motion.button>
           ))}
         </div>
@@ -235,32 +192,23 @@ export function Onboarding() {
         {/* Voice alternative */}
         {hasSpeechRecognition && (
           <div className="mb-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="flex-1 h-px bg-[var(--border-default)]" />
-              <span
-                style={{
-                  fontFamily: "var(--font-sans-ui)",
-                  fontSize: "11px",
-                  color: "var(--ink-subtle)",
-                  letterSpacing: "0.08em",
-                }}
-              >
-                o contame qué está pasando
-              </span>
-              <div className="flex-1 h-px bg-[var(--border-default)]" />
+            <div className="mb-4 flex items-center gap-3">
+              <div className="h-px flex-1 bg-line-default" />
+              <span className="font-sans text-caption text-ink-muted">o contame qué está pasando</span>
+              <div className="h-px flex-1 bg-line-default" />
             </div>
 
             <button
+              type="button"
               onClick={handleMic}
-              className={`relative w-full py-5 px-5 rounded-2xl transition-all flex items-center justify-center gap-3 active:scale-[0.98] ${
-                isListening
-                  ? "bg-[var(--ink-strong)] text-white"
-                  : "bg-[var(--surface-muted)] text-[var(--ink-body)]"
+              aria-pressed={isListening}
+              className={`relative flex min-h-[64px] w-full items-center justify-center gap-3 rounded-md px-5 py-4 transition-all active:scale-[0.98] ${
+                isListening ? "bg-ink-strong text-on-ink-strong" : "bg-surface-muted text-ink-body"
               }`}
             >
               {isListening ? (
                 <>
-                  <div className="flex gap-[3px] items-center h-4">
+                  <div className="flex h-4 items-center gap-[3px]" aria-hidden="true">
                     {[0, 1, 2, 3].map((i) => (
                       <motion.div key={i} className="w-[3px] rounded-full bg-white"
                         animate={{ height: ["5px", "16px", "5px"] }}
@@ -268,18 +216,18 @@ export function Onboarding() {
                       />
                     ))}
                   </div>
-                  <span className="font-sans text-[14px] font-light">Escuchando...</span>
+                  <span className="font-sans text-label">Escuchando… tocá para terminar</span>
                 </>
               ) : (
                 <>
-                  <svg width="20" height="20" viewBox="0 0 16 16" fill="none" className="shrink-0">
+                  <svg width="20" height="20" viewBox="0 0 16 16" fill="none" className="shrink-0" aria-hidden="true">
                     <rect x="5" y="1" width="6" height="9" rx="3" stroke="currentColor" strokeWidth="1.3" />
                     <path d="M2 8.5C2 11.538 4.686 14 8 14C11.314 14 14 11.538 14 8.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
                     <line x1="8" y1="14" x2="8" y2="15.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
                   </svg>
                   <div className="text-left">
-                    <p className="font-sans text-[14px] font-light leading-none mb-0.5">Hablá, la app te escucha</p>
-                    <p className="font-sans text-[11px] font-light text-[var(--ink-muted)]">Tocá para hablar</p>
+                    <p className="mb-0.5 font-sans text-label">Hablá, la app te escucha</p>
+                    <p className="font-sans text-caption text-ink-muted">Tocá para hablar</p>
                   </div>
                 </>
               )}
@@ -292,22 +240,20 @@ export function Onboarding() {
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 8 }}
-                  className="mt-4 flex items-center gap-3 rounded-2xl border p-4"
-                  style={{ background: "var(--surface-softest)", borderColor: "var(--border-soft)" }}
+                  className="editorial-card editorial-card--soft mt-4 flex items-center gap-3 p-4"
+                  role="status"
                 >
-                  <div className="flex gap-1">
+                  <div className="flex gap-1" aria-hidden="true">
                     {[0, 1, 2].map((i) => (
                       <motion.div
                         key={i}
-                        className="w-1.5 h-1.5 rounded-full bg-[var(--ink-strong)]"
+                        className="h-1.5 w-1.5 rounded-full bg-ink-strong"
                         animate={{ opacity: [0.2, 1, 0.2] }}
                         transition={{ duration: 1, repeat: Infinity, delay: i * 0.2 }}
                       />
                     ))}
                   </div>
-                  <span style={{ fontFamily: "var(--font-sans-ui)", fontSize: "13px", color: "var(--ink-muted)" }}>
-                    Construyendo tu intención...
-                  </span>
+                  <span className="font-sans text-body text-ink-muted">Construyendo tu intención…</span>
                 </motion.div>
               )}
 
@@ -316,42 +262,11 @@ export function Onboarding() {
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0 }}
-                  className="mt-4 rounded-2xl border p-5"
-                  style={{ background: "var(--surface-muted)", borderColor: "var(--border-soft)" }}
+                  className="editorial-card editorial-card--muted mt-4 p-5"
                 >
-                  <p
-                    style={{
-                      fontFamily: "var(--font-sans-ui)",
-                      fontSize: "10px",
-                      color: "var(--ink-subtle)",
-                      letterSpacing: "0.12em",
-                      textTransform: "uppercase",
-                      marginBottom: "8px",
-                    }}
-                  >
-                    Tu intención
-                  </p>
-                  <p
-                    style={{
-                      fontFamily: "var(--font-sans-ui)",
-                      fontSize: "15px",
-                      fontWeight: 400,
-                      color: "var(--ink-strong)",
-                      lineHeight: 1.5,
-                      marginBottom: "16px",
-                    }}
-                  >
-                    {reframedIntention}
-                  </p>
-                  <p
-                    style={{
-                      fontFamily: "var(--font-sans-ui)",
-                      fontSize: "12px",
-                      color: "var(--ink-subtle)",
-                      marginBottom: "16px",
-                      lineHeight: 1.5,
-                    }}
-                  >
+                  <p className="editorial-eyebrow mb-2 text-ink-muted">Tu intención</p>
+                  <p className="mb-4 font-sans text-title-4 text-ink-strong">{reframedIntention}</p>
+                  <p className="font-sans text-body text-ink-muted">
                     Vamos a construir un ritual para acompañar lo que necesitás.
                   </p>
                 </motion.div>
@@ -362,22 +277,15 @@ export function Onboarding() {
 
         {/* CTA cards */}
         <button
+          type="button"
           onClick={handleContinue}
           disabled={!selected && !reframedIntention}
-          className="editorial-action-button editorial-action-button-primary"
+          className="editorial-button editorial-button--primary editorial-button--lg"
         >
           Continuar
         </button>
 
-        <p
-          className="mt-5 text-center text-[var(--ink-subtle)]"
-          style={{
-            fontFamily: "var(--font-sans-ui)",
-            fontSize: "11px",
-            fontWeight: 300,
-            lineHeight: 1.6,
-          }}
-        >
+        <p className="mt-5 text-center font-sans text-caption text-ink-muted">
           Esta es una herramienta de reflexión y bienestar.
           <br />
           No reemplaza ayuda profesional.

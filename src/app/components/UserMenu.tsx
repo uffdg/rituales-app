@@ -9,20 +9,13 @@ export function UserMenu() {
 
   return (
     <button
+      type="button"
       onClick={() => navigate(session ? "/cuenta" : "/login")}
-      className="w-9 h-9 rounded-full bg-[var(--ink-strong)] flex items-center justify-center flex-shrink-0 transition-all active:scale-[0.93] hover:bg-[var(--ink-strong)]"
+      className="group flex h-11 w-11 shrink-0 items-center justify-center"
       aria-label={session ? "Ir a mi cuenta" : "Iniciar sesión"}
     >
-      <span
-        style={{
-          fontFamily: "var(--font-serif-display)",
-          fontSize: "16px",
-          fontWeight: 500,
-          color: "white",
-          lineHeight: 1,
-          letterSpacing: "0.02em",
-        }}
-      >
+      {/* Círculo de 36 con la inicial; el área táctil es de 44. */}
+      <span className="flex h-9 w-9 items-center justify-center rounded-full bg-ink-strong font-sans text-label font-medium text-on-ink-strong transition-transform group-active:scale-[0.93]">
         {initial}
       </span>
     </button>

@@ -144,7 +144,7 @@ export function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--app-page)] flex flex-col items-center justify-center px-6">
+    <div className="min-h-screen bg-surface-page flex flex-col items-center justify-center px-6">
       <div
         className="fixed inset-0 pointer-events-none"
         style={{
@@ -161,49 +161,16 @@ export function Login() {
       >
         {/* Logo */}
         <div className="flex justify-center mb-10">
-          <div
-            style={{
-              width: 48,
-              height: 48,
-              borderRadius: "50%",
-              border: "1px solid var(--border-default)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <div style={{ width: 10, height: 10, borderRadius: "50%", background: "var(--ink-strong)" }} />
+          <div className="flex h-12 w-12 items-center justify-center rounded-full border border-line-default" aria-hidden="true">
+            <div className="h-2.5 w-2.5 rounded-full bg-ink-strong" />
           </div>
         </div>
 
         <AnimatePresence mode="wait">
           {step === "email" ? (
             <motion.div key="email" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-              <h1
-                style={{
-                  fontFamily: "var(--font-serif-display)",
-                  fontSize: "32px",
-                  fontWeight: 400,
-                  color: "var(--ink-strong)",
-                  marginBottom: "8px",
-                  lineHeight: 1.2,
-                  textAlign: "center",
-                }}
-              >
-                Rituales
-              </h1>
-              <p
-                style={{
-                  fontFamily: "var(--font-sans-ui)",
-                  fontSize: "13px",
-                  fontWeight: 300,
-                  color: "var(--ink-subtle)",
-                  textAlign: "center",
-                  marginBottom: "32px",
-                }}
-              >
-                Ingresá tu email para continuar
-              </p>
+              <h1 className="mb-2 text-center font-serif text-title-1 text-ink-strong">Rituales</h1>
+              <p className="mb-8 text-center font-sans text-body text-ink-muted">Ingresá tu email para continuar</p>
 
               <form onSubmit={handleSend} className="flex flex-col gap-3">
                 <input
@@ -217,7 +184,7 @@ export function Login() {
                 />
 
                 {error && (
-                  <p style={{ fontFamily: "var(--font-sans-ui)", fontSize: "12px", color: "#B42318" }}>
+                  <p className="editorial-error" role="alert">
                     {error}
                   </p>
                 )}
@@ -225,9 +192,10 @@ export function Login() {
                 <button
                   type="submit"
                   disabled={loading || !email.trim()}
-                  className="editorial-action-button editorial-action-button-primary"
+                  aria-busy={loading}
+                  className="editorial-button editorial-button--primary editorial-button--lg"
                 >
-                  {loading ? "Enviando..." : "Recibir código"}
+                  {loading ? "Enviando…" : "Recibir código"}
                 </button>
               </form>
             </motion.div>
@@ -238,104 +206,62 @@ export function Login() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
             >
-              <h1
-                style={{
-                  fontFamily: "var(--font-serif-display)",
-                  fontSize: "28px",
-                  fontWeight: 400,
-                  color: "var(--ink-strong)",
-                  marginBottom: "8px",
-                  lineHeight: 1.2,
-                  textAlign: "center",
-                }}
-              >
-                Revisá tu email
-              </h1>
-              <p
-                style={{
-                  fontFamily: "var(--font-sans-ui)",
-                  fontSize: "13px",
-                  fontWeight: 300,
-                  color: "var(--ink-subtle)",
-                  textAlign: "center",
-                  marginBottom: "32px",
-                  lineHeight: 1.6,
-                }}
-              >
+              <h1 className="mb-2 text-center font-serif text-title-2 text-ink-strong">Revisá tu email</h1>
+              <p className="mb-8 text-center font-sans text-body text-ink-muted">
                 Enviamos un código de 6 dígitos a{" "}
-                <span style={{ color: "var(--ink-muted)" }}>{email.trim().toLowerCase()}</span>.
+                <span className="font-medium text-ink-strong">{email.trim().toLowerCase()}</span>.
                 Si no lo ves en unos minutos, revisá spam o promociones.
               </p>
 
               {/* Code inputs */}
-              <div className="flex gap-2 justify-center mb-4" onPaste={handlePaste}>
+              <div className="flex gap-2 justify-center mb-4" onPaste={handlePaste} role="group" aria-label="Código de 6 dígitos">
                 {code.map((digit, i) => (
                   <input
                     key={i}
                     ref={(el) => { inputRefs.current[i] = el; }}
                     type="text"
                     inputMode="numeric"
+                    autoComplete={i === 0 ? "one-time-code" : "off"}
+                    aria-label={`Dígito ${i + 1} de 6`}
                     maxLength={1}
                     value={digit}
                     autoFocus={i === 0}
                     onChange={(e) => handleCodeChange(i, e.target.value)}
                     onKeyDown={(e) => handleKeyDown(i, e)}
-                    className="w-12 h-14 text-center rounded-xl border border-[rgba(0,0,0,0.12)] bg-[var(--surface-softest)] focus:outline-none focus:border-[var(--ink-strong)] transition-colors"
-                    style={{
-                      fontFamily: "var(--font-sans-ui)",
-                      fontSize: "22px",
-                      fontWeight: 400,
-                      color: "var(--ink-strong)",
-                    }}
+                    className="h-14 w-12 rounded-sm border border-transparent bg-surface-muted text-center font-sans text-title-3 text-ink-strong outline-none transition-colors focus-visible:border-ink-strong focus-visible:bg-surface-base"
                   />
                 ))}
               </div>
 
               {verifying && (
-                <p
-                  style={{
-                    fontFamily: "var(--font-sans-ui)",
-                    fontSize: "13px",
-                    color: "var(--ink-subtle)",
-                    textAlign: "center",
-                    marginBottom: "8px",
-                  }}
-                >
-                  Verificando...
+                <p className="mb-2 text-center font-sans text-body text-ink-muted" role="status">
+                  Verificando…
                 </p>
               )}
 
               {error && (
-                <p
-                  style={{
-                    fontFamily: "var(--font-sans-ui)",
-                    fontSize: "12px",
-                    color: "#B42318",
-                    textAlign: "center",
-                    marginBottom: "8px",
-                  }}
-                >
+                <p className="editorial-error mb-2 justify-center text-center" role="alert">
                   {error}
                 </p>
               )}
 
               <button
+                type="button"
                 onClick={handleResend}
                 disabled={loading || cooldownRemaining > 0}
-                className="w-full mt-4 py-3 text-[var(--ink-subtle)] hover:text-[var(--ink-strong)] disabled:opacity-50 disabled:hover:text-[var(--ink-subtle)] transition-colors"
-                style={{ fontFamily: "var(--font-sans-ui)", fontSize: "13px", fontWeight: 300 }}
+                className="editorial-button editorial-button--tertiary mx-auto mt-4 flex"
               >
                 {loading
-                  ? "Reenviando..."
+                  ? "Reenviando…"
                   : cooldownRemaining > 0
                     ? `Reenviar código en ${cooldownRemaining}s`
                     : "Reenviar código"}
               </button>
 
               <button
+                type="button"
                 onClick={() => { setStep("email"); setError(""); setCode(["", "", "", "", "", ""]); }}
-                className="w-full mt-2 py-3 text-[var(--ink-subtle)] hover:text-[var(--ink-strong)] transition-colors"
-                style={{ fontFamily: "var(--font-sans-ui)", fontSize: "13px", fontWeight: 300 }}
+                className="editorial-button editorial-button--tertiary mx-auto mt-1 flex"
               >
                 Cambiar email
               </button>
