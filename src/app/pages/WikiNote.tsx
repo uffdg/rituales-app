@@ -15,21 +15,13 @@ export function WikiNote() {
 
   if (!note) {
     return (
-      <div className="min-h-screen bg-white flex flex-col items-center justify-center px-6 text-center">
-        <p
-          style={{
-            fontFamily: "var(--font-serif-display)",
-            fontSize: "28px",
-            color: "var(--ink-strong)",
-            marginBottom: "8px",
-          }}
-        >
-          No encontramos esta nota
-        </p>
+      <div className="min-h-screen bg-surface-page flex flex-col items-center justify-center px-6 text-center">
+        <p className="mb-2 font-serif text-title-2 text-ink-strong">No encontramos esta nota</p>
+        <p className="mb-5 font-sans text-body text-ink-muted">Puede que el enlace haya cambiado.</p>
         <button
+          type="button"
           onClick={() => navigate("/wiki")}
-          className="px-5 py-3 rounded-xl bg-[var(--ink-strong)] text-white"
-          style={{ fontFamily: "var(--font-sans-ui)", fontSize: "14px" }}
+          className="editorial-button editorial-button--primary"
         >
           Volver a la wiki
         </button>

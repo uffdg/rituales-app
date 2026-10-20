@@ -55,30 +55,12 @@ function SplashScreen() {
             </svg>
           </div>
 
-          <h1
-            style={{
-              fontFamily: "var(--font-serif-display)",
-              fontSize: "52px",
-              fontWeight: 300,
-              letterSpacing: "0.12em",
-              color: "var(--ink-strong)",
-              lineHeight: 1,
-              textTransform: "uppercase",
-            }}
-          >
+          {/* Logotipo: única excepción de tracking ancho, documentada como marca. */}
+          <h1 className="font-serif text-display font-light uppercase tracking-[0.12em] text-ink-strong">
             Rituales
           </h1>
 
-          <p
-            className="mt-4 text-center text-[var(--ink-subtle)]"
-            style={{
-              fontFamily: "var(--font-sans-ui)",
-              fontSize: "13px",
-              fontWeight: 300,
-              letterSpacing: "0.08em",
-              lineHeight: 1.6,
-            }}
-          >
+          <p className="mt-4 text-center font-sans text-body text-ink-muted">
             Magia natural para ordenar tu intención.
           </p>
         </motion.div>
