@@ -262,7 +262,7 @@ export function StepRitual() {
     : [];
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen bg-surface-page flex flex-col">
       <div
         className="fixed inset-0 pointer-events-none"
         style={{
@@ -274,19 +274,7 @@ export function StepRitual() {
       <ProgressBar step={4} onBack={() => navigate("/crear/3")} />
 
       <div className="flex-1 px-6 pb-10 overflow-y-auto relative z-10">
-        {/* Step label */}
-        <p
-          className="mb-3 text-[var(--ink-subtle)]"
-          style={{
-            fontFamily: "var(--font-sans-ui)",
-            fontSize: "11px",
-            fontWeight: 500,
-            letterSpacing: "0.14em",
-            textTransform: "uppercase",
-          }}
-        >
-          Paso 4 — Ingredientes del ritual
-        </p>
+        <p className="editorial-eyebrow editorial-step-label">Paso 4 — Ingredientes del ritual</p>
 
         {/* Loading state */}
         <AnimatePresence>
@@ -296,17 +284,16 @@ export function StepRitual() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="flex flex-col items-center justify-center py-20"
+              role="status"
+              aria-live="polite"
             >
-              <div
-                className="relative mb-6"
-                style={{ width: 64, height: 64 }}
-              >
+              <div className="relative mb-6 h-16 w-16" aria-hidden="true">
                 <motion.div
-                  className="absolute inset-0 rounded-full border border-[var(--ink-strong)]"
+                  className="absolute inset-0 rounded-full border border-ink-strong"
                   animate={{ scale: [1, 1.4, 1], opacity: [0.4, 0, 0.4] }}
                   transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
                 />
-                <div className="absolute inset-0 rounded-full border border-[rgba(0,0,0,0.15)]" />
+                <div className="absolute inset-0 rounded-full border border-line-strong" />
                 <div className="absolute inset-0 flex items-center justify-center">
                   <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
                     <path
@@ -318,42 +305,19 @@ export function StepRitual() {
                   </svg>
                 </div>
               </div>
-              <p
-                style={{
-                  fontFamily: "var(--font-serif-display)",
-                  fontSize: "20px",
-                  fontWeight: 300,
-                  color: "var(--ink-strong)",
-                  marginBottom: "4px",
-                }}
-              >
-                Creando tu ritual...
-              </p>
-              <p
-                style={{
-                  fontFamily: "var(--font-sans-ui)",
-                  fontSize: "12px",
-                  color: "var(--ink-subtle)",
-                  fontWeight: 300,
-                }}
-              >
-                Un momento
-              </p>
+              <p className="mb-1 font-serif text-title-3 text-ink-strong">Creando tu ritual…</p>
+              <p className="font-sans text-body text-ink-muted">Un momento</p>
             </motion.div>
           )}
         </AnimatePresence>
 
         {/* Error state */}
         {!isGenerating && generateError && (
-          <div className="py-8 text-center">
-            <p style={{ fontFamily: "var(--font-sans-ui)", fontSize: "13px", color: "#B42318", marginBottom: "16px" }}>
+          <div className="flex flex-col items-center gap-4 py-8 text-center">
+            <p className="editorial-error justify-center" role="alert">
               {generateError}
             </p>
-            <button
-              onClick={handleGenerateRitual}
-              className="px-5 py-2 rounded-full border border-[rgba(0,0,0,0.15)] text-[var(--ink-muted)]"
-              style={{ fontFamily: "var(--font-sans-ui)", fontSize: "13px" }}
-            >
+            <button type="button" onClick={handleGenerateRitual} className="editorial-pill-button bg-surface-base">
               Reintentar
             </button>
           </div>
@@ -367,105 +331,35 @@ export function StepRitual() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
             >
-              {/* Title */}
-              <h2
-                style={{
-                  fontFamily: "var(--font-serif-display)",
-                  fontSize: "26px",
-                  fontWeight: 400,
-                  color: "var(--ink-strong)",
-                  lineHeight: 1.3,
-                  marginBottom: "18px",
-                }}
-              >
-                {currentRitual.title}
-              </h2>
+              <h2 className="editorial-step-title">{currentRitual.title}</h2>
 
               {/* Recipe ingredients */}
               <div className="mb-5">
                 <div className="mb-3 flex items-end justify-between gap-3">
                   <div>
-                    <p
-                      style={{
-                        fontFamily: "var(--font-sans-ui)",
-                        fontSize: "10px",
-                        fontWeight: 500,
-                        letterSpacing: "0.12em",
-                        textTransform: "uppercase",
-                        color: "var(--ink-subtle)",
-                        marginBottom: "6px",
-                      }}
-                    >
-                      Vas a necesitar
-                    </p>
-                    <p
-                      style={{
-                        fontFamily: "var(--font-sans-ui)",
-                        fontSize: "13px",
-                        fontWeight: 300,
-                        lineHeight: 1.5,
-                        color: "var(--ink-muted)",
-                      }}
-                    >
+                    <p className="editorial-eyebrow mb-1.5">Vas a necesitar</p>
+                    <p className="font-sans text-body text-ink-muted">
                       Juntá estos elementos. Después armamos el ritual completo con ellos.
                     </p>
                   </div>
-                  <span
-                    className="shrink-0 rounded-full border border-[rgba(0,0,0,0.08)] px-2.5 py-1"
-                    style={{
-                      fontFamily: "var(--font-sans-ui)",
-                      fontSize: "11px",
-                      color: "var(--ink-subtle)",
-                    }}
-                  >
+                  <span className="editorial-badge shrink-0" aria-label={`${ritualIngredients.length} elementos`}>
                     {ritualIngredients.length}
                   </span>
                 </div>
 
-                <div className="overflow-hidden rounded-2xl border border-[rgba(0,0,0,0.07)]">
+                <div className="overflow-hidden rounded-md border border-line-soft bg-surface-base">
                   {ritualIngredients.map((item, index) => (
                     <motion.div
                       key={`${item.name}-${index}`}
                       className={`grid grid-cols-[74px_1fr] gap-3 px-4 py-3 ${
-                        index > 0 ? "border-t border-[rgba(0,0,0,0.06)]" : ""
+                        index > 0 ? "border-t border-line-soft" : ""
                       }`}
                       layout
                     >
-                      <p
-                        style={{
-                          fontFamily: "var(--font-sans-ui)",
-                          fontSize: "12px",
-                          fontWeight: 500,
-                          color: "var(--ink-muted)",
-                          lineHeight: 1.4,
-                        }}
-                      >
-                        {item.quantity}
-                      </p>
+                      <p className="font-sans text-body font-medium text-ink-muted">{item.quantity}</p>
                       <div>
-                        <p
-                          style={{
-                            fontFamily: "var(--font-sans-ui)",
-                            fontSize: "14px",
-                            fontWeight: 500,
-                            color: "var(--ink-strong)",
-                            lineHeight: 1.35,
-                            marginBottom: "2px",
-                          }}
-                        >
-                          {item.name}
-                        </p>
-                        <p
-                          style={{
-                            fontFamily: "var(--font-sans-ui)",
-                            fontSize: "12px",
-                            fontWeight: 300,
-                            color: "var(--ink-muted)",
-                            lineHeight: 1.45,
-                          }}
-                        >
-                          {item.note}
-                        </p>
+                        <p className="mb-0.5 font-sans text-label font-medium leading-[1.35] text-ink-strong">{item.name}</p>
+                        <p className="font-sans text-body text-ink-muted">{item.note}</p>
                       </div>
                     </motion.div>
                   ))}
@@ -473,37 +367,26 @@ export function StepRitual() {
               </div>
 
               {/* AI action buttons */}
-              <div className="flex gap-2 mb-8 flex-wrap">
-                <button
-                  onClick={() => handleGenerateRitual()}
-                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-full border border-[rgba(0,0,0,0.12)] text-[var(--ink-muted)] hover:border-[rgba(0,0,0,0.3)] transition-all"
-                  style={{ fontFamily: "var(--font-sans-ui)", fontSize: "12px" }}
-                >
-                  <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
+              <div className="mb-8 flex flex-wrap gap-2">
+                <button type="button" onClick={() => handleGenerateRitual()} className="editorial-pill-button bg-surface-base">
+                  <svg width="12" height="12" viewBox="0 0 11 11" fill="none" aria-hidden="true">
                     <path d="M5.5 1L6.8 4.2L10 5.5L6.8 6.8L5.5 10L4.2 6.8L1 5.5L4.2 4.2L5.5 1Z" stroke="currentColor" strokeWidth="1" strokeLinejoin="round" />
                   </svg>
                   Regenerar
                 </button>
-                <button
-                  onClick={handleSimplify}
-                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-full border border-[rgba(0,0,0,0.12)] text-[var(--ink-muted)] hover:border-[rgba(0,0,0,0.3)] transition-all"
-                  style={{ fontFamily: "var(--font-sans-ui)", fontSize: "12px" }}
-                >
+                <button type="button" onClick={handleSimplify} className="editorial-pill-button bg-surface-base">
                   Hacerlo más simple
                 </button>
-                <button
-                  onClick={() => setShowVersions(true)}
-                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-full border border-[rgba(0,0,0,0.12)] text-[var(--ink-muted)] hover:border-[rgba(0,0,0,0.3)] transition-all"
-                  style={{ fontFamily: "var(--font-sans-ui)", fontSize: "12px" }}
-                >
+                <button type="button" onClick={() => setShowVersions(true)} className="editorial-pill-button bg-surface-base">
                   Dame 3 versiones
                 </button>
               </div>
 
               {/* CTA */}
               <button
+                type="button"
                 onClick={handleNext}
-                className="editorial-action-button editorial-action-button-primary"
+                className="editorial-button editorial-button--primary editorial-button--lg"
               >
                 Siguiente
               </button>
@@ -520,7 +403,7 @@ export function StepRitual() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/30 z-40"
+              className="fixed inset-0 bg-scrim z-40"
               onClick={() => setShowVersions(false)}
             />
             <motion.div
@@ -528,54 +411,22 @@ export function StepRitual() {
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
               transition={{ type: "spring", damping: 28, stiffness: 280 }}
-              className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[390px] bg-white rounded-t-3xl z-50 p-6 pb-10"
-              style={{ maxHeight: "80vh", overflowY: "auto" }}
+              className="editorial-sheet fixed bottom-0 left-1/2 z-50 max-h-[80vh] w-full max-w-[390px] -translate-x-1/2 overflow-y-auto p-6 pb-10"
+              role="dialog"
+              aria-label="Elegí una versión"
             >
-              <div className="w-10 h-1 bg-[#E0E0E0] rounded-full mx-auto mb-6" />
-              <p
-                style={{
-                  fontFamily: "var(--font-serif-display)",
-                  fontSize: "22px",
-                  fontWeight: 400,
-                  marginBottom: "16px",
-                  color: "var(--ink-strong)",
-                }}
-              >
-                Elige una versión
-              </p>
+              <div className="editorial-sheet-handle mb-6" />
+              <p className="mb-4 font-serif text-title-3 text-ink-strong">Elegí una versión</p>
               <div className="flex flex-col gap-3">
                 {RITUAL_VERSIONS.map((v, i) => (
                   <button
                     key={i}
+                    type="button"
                     onClick={() => handleSelectVersion(v)}
-                    className="text-left p-4 border border-[rgba(0,0,0,0.08)] rounded-2xl hover:border-[rgba(0,0,0,0.2)] transition-all"
+                    className="editorial-option flex-col items-start gap-1"
                   >
-                    <p
-                      style={{
-                        fontFamily: "var(--font-serif-display)",
-                        fontSize: "17px",
-                        fontWeight: 500,
-                        color: "var(--ink-strong)",
-                        marginBottom: "4px",
-                      }}
-                    >
-                      {v.title}
-                    </p>
-                    <p
-                      style={{
-                        fontFamily: "var(--font-sans-ui)",
-                        fontSize: "12px",
-                        fontWeight: 300,
-                        color: "var(--ink-subtle)",
-                        lineHeight: 1.5,
-                        WebkitLineClamp: 2,
-                        display: "-webkit-box",
-                        WebkitBoxOrient: "vertical",
-                        overflow: "hidden",
-                      }}
-                    >
-                      {v.opening}
-                    </p>
+                    <span className="font-sans text-title-4 font-medium text-ink-strong">{v.title}</span>
+                    <span className="line-clamp-2 font-sans text-body text-ink-muted">{v.opening}</span>
                   </button>
                 ))}
               </div>

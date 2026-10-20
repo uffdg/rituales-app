@@ -1104,7 +1104,7 @@ export function RitualDetail() {
                             });
                         }
                       }}
-                      className={`editorial-option-card flex items-center justify-between ${isActive ? "editorial-option-card-active" : "editorial-card-soft"}`}
+                      className={`editorial-option-card flex items-center justify-between ${isActive ? "!border-ink-strong !bg-ink-strong text-on-ink-strong" : "editorial-card-soft"}`}
                     >
                       <div className="text-left">
                         <p className="font-sans text-title-4">{t.label}</p>

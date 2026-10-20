@@ -47,7 +47,7 @@ export function StepEnergy() {
         </p>
 
         <h2 className="editorial-step-title mb-6">
-          ¿Cómo te quieres{" "}
+          ¿Cómo te querés{" "}
           <em>sentir?</em>
         </h2>
 
@@ -64,6 +64,7 @@ export function StepEnergy() {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.3, delay: i * 0.05 }}
                 onClick={() => setEnergy(e.id)}
+                aria-pressed={energy === e.id}
                 className={`editorial-option-card active:scale-[0.97] ${energy === e.id ? "editorial-option-card-active" : ""}`}
               >
                 <p className="editorial-option-title">{e.label}</p>
@@ -101,22 +102,23 @@ export function StepEnergy() {
               <button
                 key={item.id}
                 onClick={() => setIntensity(item.id)}
+                aria-pressed={intensity === item.id}
                 className={`editorial-option-card active:scale-[0.98] flex items-center justify-between ${intensity === item.id ? "editorial-option-card-active" : ""}`}
               >
                 <div>
                   <p className="editorial-option-title">{item.label}</p>
-                  <p className="editorial-option-body text-[12px]">{item.description}</p>
+                  <p className="editorial-option-body">{item.description}</p>
                 </div>
                 <div
                   className={`shrink-0 ml-3 w-5 h-5 rounded-full flex items-center justify-center transition-all ${
                     intensity === item.id
-                      ? "bg-white"
-                      : "border border-[var(--border-default)] bg-transparent"
+                      ? "bg-ink-strong"
+                      : "border border-line-default bg-transparent"
                   }`}
                 >
                   {intensity === item.id && (
                     <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                      <path d="M2 5L4 7L8 3" stroke="var(--ink-strong)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                      <path d="M2 5L4 7L8 3" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                   )}
                 </div>
@@ -129,11 +131,7 @@ export function StepEnergy() {
         <button
           onClick={handleNext}
           disabled={!isValid}
-          className={`editorial-action-button active:scale-[0.98] ${
-            isValid
-              ? "editorial-action-button-primary"
-              : "editorial-action-button-disabled"
-          }`}
+          className="editorial-button editorial-button--primary editorial-button--lg"
         >
           Siguiente
         </button>

@@ -52,40 +52,15 @@ export function StepElement() {
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         className="flex-1 px-6 pb-10 overflow-y-auto"
       >
-        {/* Step label */}
-        <p
-          className="mb-3 text-[var(--ink-subtle)]"
-          style={{
-            fontFamily: "var(--font-sans-ui)",
-            fontSize: "11px",
-            fontWeight: 500,
-            letterSpacing: "0.14em",
-            textTransform: "uppercase",
-          }}
-        >
-          Paso 3 — Elemento
-        </p>
+        <p className="editorial-eyebrow editorial-step-label">Paso 3 — Elemento</p>
 
-        <h2
-          style={{
-            fontFamily: "var(--font-serif-display)",
-            fontSize: "28px",
-            fontWeight: 400,
-            color: "var(--ink-strong)",
-            lineHeight: 1.25,
-            marginBottom: "6px",
-          }}
-        >
-          ¿Con qué{" "}
-          <em style={{ fontStyle: "italic", fontWeight: 300 }}>energía natural</em>
+        <h2 className="editorial-step-title mb-1.5">
+          ¿Con qué <em className="italic font-light">energía natural</em>
           <br />
-          quieres trabajar?
+          querés trabajar?
         </h2>
 
-        <p
-          className="text-[var(--ink-subtle)] mb-8"
-          style={{ fontFamily: "var(--font-sans-ui)", fontSize: "13px", fontWeight: 300 }}
-        >
+        <p className="mb-8 font-sans text-body text-ink-muted">
           Cada elemento te acompaña de una manera distinta.
         </p>
 
@@ -97,78 +72,39 @@ export function StepElement() {
             return (
               <motion.button
                 key={el.id}
+                type="button"
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: i * 0.07 }}
                 onClick={() => setElement(el.id)}
-                className={`text-left rounded-2xl border overflow-hidden transition-all active:scale-[0.98] ${
-                  isSelected
-                    ? "border-[var(--ink-strong)]"
-                    : "border-[rgba(0,0,0,0.08)] hover:border-[rgba(0,0,0,0.18)]"
-                }`}
-                style={{ background: isSelected ? "var(--ink-strong)" : "white" }}
+                aria-pressed={isSelected}
+                className={`editorial-option-card active:scale-[0.98] p-5 ${isSelected ? "editorial-option-card-active" : ""}`}
               >
-                <div className="p-5 relative overflow-hidden">
-                  <div className="flex items-start justify-between relative z-10">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <span
-                          style={{
-                            fontFamily: "var(--font-serif-display)",
-                            fontSize: "22px",
-                            fontWeight: 300,
-                            color: isSelected ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.2)",
-                          }}
-                        >
-                          {style.symbol}
-                        </span>
-                        <div>
-                          <p
-                            style={{
-                              fontFamily: "var(--font-serif-display)",
-                              fontSize: "20px",
-                              fontWeight: 500,
-                              color: isSelected ? "white" : "#0A0A0A",
-                              lineHeight: 1,
-                            }}
-                          >
-                            {el.label}
-                          </p>
-                          <p
-                            style={{
-                              fontFamily: "var(--font-sans-ui)",
-                              fontSize: "11px",
-                              fontWeight: 400,
-                              letterSpacing: "0.08em",
-                              textTransform: "uppercase",
-                              color: isSelected ? "rgba(255,255,255,0.5)" : "#AAA",
-                            }}
-                          >
-                            {el.subtitle}
-                          </p>
-                        </div>
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="mb-2 flex items-center gap-3">
+                      <span className="font-serif text-title-3 font-light text-ink-decor" aria-hidden="true">
+                        {style.symbol}
+                      </span>
+                      <div>
+                        {/* Nombre del elemento: título de la opción, en serif de 20 */}
+                        <p className="font-serif text-title-3 font-medium leading-none text-ink-strong">{el.label}</p>
+                        <p className="editorial-eyebrow mt-1">{el.subtitle}</p>
                       </div>
-                      <p
-                        style={{
-                          fontFamily: "var(--font-sans-ui)",
-                          fontSize: "13px",
-                          fontWeight: 300,
-                          lineHeight: 1.5,
-                          color: isSelected ? "rgba(255,255,255,0.7)" : "#666",
-                        }}
-                      >
-                        {el.description}
-                      </p>
                     </div>
-                    <div className={`shrink-0 ml-3 w-5 h-5 rounded-full flex items-center justify-center transition-all ${
-                      isSelected ? "bg-white" : "border border-[rgba(0,0,0,0.15)] bg-transparent"
-                    }`}>
-                      {isSelected && (
-                        <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                          <path d="M2 5L4 7L8 3" stroke="var(--ink-strong)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                      )}
-                    </div>
+                    <p className="font-sans text-body text-ink-muted">{el.description}</p>
+                  </div>
+                  <div
+                    className={`ml-3 flex h-5 w-5 shrink-0 items-center justify-center rounded-full transition-all ${
+                      isSelected ? "bg-ink-strong" : "border border-line-default bg-transparent"
+                    }`}
+                    aria-hidden="true"
+                  >
+                    {isSelected && (
+                      <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                        <path d="M2 5L4 7L8 3" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    )}
                   </div>
                 </div>
               </motion.button>
@@ -178,9 +114,10 @@ export function StepElement() {
 
         {/* CTA */}
         <button
+          type="button"
           onClick={handleNext}
           disabled={!element}
-          className="editorial-action-button editorial-action-button-primary"
+          className="editorial-button editorial-button--primary editorial-button--lg"
         >
           Siguiente
         </button>

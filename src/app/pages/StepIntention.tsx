@@ -257,11 +257,7 @@ export function StepIntention() {
         <button
           onClick={handleNext}
           disabled={!intention.trim()}
-          className={`editorial-action-button active:scale-[0.98] ${
-            intention.trim()
-              ? "editorial-action-button-primary"
-              : "editorial-action-button-disabled"
-          }`}
+          className="editorial-button editorial-button--primary editorial-button--lg"
         >
           Siguiente
         </button>

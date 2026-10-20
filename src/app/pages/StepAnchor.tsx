@@ -172,11 +172,7 @@ export function StepAnchor() {
         <button
           onClick={handleFinish}
           disabled={!anchor.trim() || isSavingAnchor}
-          className={`editorial-action-button active:scale-[0.98] ${
-            anchor.trim() && !isSavingAnchor
-              ? "editorial-action-button-primary"
-              : "editorial-action-button-disabled"
-          }`}
+          className="editorial-button editorial-button--primary editorial-button--lg"
         >
           {isSavingAnchor ? "Guardando..." : "Construir ritual"}
         </button>
