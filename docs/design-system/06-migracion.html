@@ -36,7 +36,7 @@
           <tr class="stage-row"><td><b>1 · Tokens</b></td><td>Tokens v1 en <code>theme.css</code> y escalas de Tailwind; grises legibles; fuentes y reducir movimiento.</td><td><span class="pass">Hecha</span></td><td><code>e6b14f4</code></td></tr>
           <tr class="stage-row"><td><b>2 · Componentes base</b></td><td>Clases del sistema, foco visible, <code>BackLink</code>, campos y toasts.</td><td><span class="pass">Hecha</span></td><td><code>89be7b7</code></td></tr>
           <tr class="stage-row"><td><b>3 · Imágenes</b></td><td>Fotos a WebP, <code>loading</code>, <code>alt</code>, velo en texto sobre foto.</td><td><span class="pass">Hecha</span></td><td><code>bd7c4e2</code></td></tr>
-          <tr class="stage-row"><td><b>4 · Pantallas</b></td><td>Cada pantalla a tokens y piezas, de a una. Hechas: Home, Cuenta, Detalle de ritual, Pasos de creación.</td><td><span class="warn">En curso · 4 de 7</span></td><td><code>1e75108</code> Home · <code>1d73b47</code> Cuenta · <code>af25e66</code> Detalle · <code>2ba79aa</code> Pasos</td></tr>
+          <tr class="stage-row"><td><b>4 · Pantallas</b></td><td>Cada pantalla a tokens y piezas, de a una. Hechas: Home, Cuenta, Detalle de ritual, Pasos de creación, Compartir/Explorar/Wiki.</td><td><span class="warn">En curso · 5 de 7</span></td><td><code>1e75108</code> Home · <code>1d73b47</code> Cuenta · <code>af25e66</code> Detalle · <code>2ba79aa</code> Pasos · <code>5f6171e</code> Compartir/Explorar/Wiki</td></tr>
           <tr class="stage-row"><td><b>5 · Limpieza</b></td><td>Clases y nombres viejos, shadcn sin uso, archivos sin uso, <code>.dark</code>.</td><td><span class="muted" style="font-size:12px">Pendiente</span></td><td>—</td></tr>
         </tbody>
       </table></div>
@@ -89,7 +89,7 @@
           <tr><td>Cuenta y registro diario</td><td><span class="pass">Hecha</span> <code>1d73b47</code></td></tr>
           <tr><td>Detalle de ritual y reproductor</td><td><span class="pass">Hecha</span> <code>af25e66</code></td></tr>
           <tr><td>Pasos de creación</td><td><span class="pass">Hecha</span> <code>2ba79aa</code></td></tr>
-          <tr><td>Compartir, Explorar y Wiki</td><td class="muted">Pendiente</td></tr>
+          <tr><td>Compartir, Explorar y Wiki</td><td><span class="pass">Hecha</span> <code>5f6171e</code></td></tr>
           <tr><td>Login y Onboarding</td><td class="muted">Pendiente</td></tr>
           <tr><td>Stories y calendario</td><td class="muted">Pendiente</td></tr>
         </tbody>
@@ -144,6 +144,21 @@
         <li><b>Voseo en la interfaz:</b> “querés trabajar”, “te querés sentir”, “Elegí una versión”. Los textos de ejemplo de los rituales siguen en tú: van en la limpieza.</li>
       </ul>
       <p class="type-body muted">Requieren sesión: no hay captura automática. Verificado con build y tipos; revisar a mano en <code>/crear/1</code> a <code>/crear/5</code>.</p>
+
+      <h3>Compartir, Explorar y Wiki</h3>
+      <ul class="type-body-lg" style="padding-left:20px;max-width:760px">
+        <li><b>Explorar:</b> “Crear” como pill; los grupos de filtro son pestañas accesibles y los filtros, chips del sistema con su estado anunciado; la grilla toma el margen de 24; el estado vacío suma “Limpiar filtros” y pasa a voseo (“Probá”).</li>
+        <li><b>Tarjeta de la grilla (ajuste de Home):</b> con el título en sans 14 se cortaban más títulos; queda en 13 con peso medio y entra la mayoría en dos líneas. El rótulo largo (“ATRAER OPORTUNIDAD”) termina en “…” antes del botón de guardar en vez de quedar tapado.</li>
+        <li><b>Wiki:</b> encabezado a la escala; en las cards, rótulo y resumen legibles sobre la foto.</li>
+        <li><b>Nota de la Wiki:</b> el botón de volver flotante <b>no tenía nombre</b> para lectores de pantalla; ahora es un <code>BackLink</code> de ícono (“Volver a la wiki”). Título en <code>display</code>, texto de lectura en sans con <code>--ink-body</code> (antes <code>--ink-muted</code>), viñetas en card suave.</li>
+        <li><b>Compartir:</b> botones del sistema (copiar, WhatsApp e Instagram con sus colores de marca, publicar, volver); “Mostrar mi nombre” es un interruptor real para lectores de pantalla; “Copiado” se anuncia; voseo (“Compartido por vos”, “Podés”, “Vas a compartir”).</li>
+      </ul>
+      <div class="compare">
+        <figure><div class="shot"><img src="assets/migracion/antes/explorar.jpg" alt="Explorar antes" loading="lazy"></div><figcaption>Explorar · antes</figcaption></figure>
+        <figure><div class="shot"><img src="assets/migracion/etapa-4-explorar/explorar.jpg" alt="Explorar migrada" loading="lazy"></div><figcaption>Explorar · migrada</figcaption></figure>
+        <figure><div class="shot"><img src="assets/migracion/etapa-4-explorar/wiki-nota.jpg" alt="Nota de la wiki migrada" loading="lazy"></div><figcaption>Nota de la Wiki · migrada</figcaption></figure>
+      </div>
+      <p class="type-body muted">Compartir requiere sesión: revisar a mano. La bajada de la Wiki (“Este espacio queda preparado para sumar…”) es un texto de desarrollo visible para usuarios; queda anotado para contenido.</p>
 
       <div class="callout"><strong>Encontrado al pasar (no es del design system)</strong>El frontend pide <code>GET /api/rituals/public</code> y el backend responde 404: esa ruta no existe. También quedan textos de rituales en tú (“Siéntate”, “Toma”) en vez de vos; se corrigen en la limpieza.</div>
 
