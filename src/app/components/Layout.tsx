@@ -76,26 +76,12 @@ function BottomNav() {
       active: accountActive,
       icon: (active: boolean) => (
         <div
-          className="flex items-center justify-center rounded-full"
-          style={{
-            width: 28,
-            height: 28,
-            background: active ? "var(--ink-strong)" : "var(--surface-muted)",
-            border: active ? "1px solid var(--ink-strong)" : "1px solid var(--border-soft)",
-          }}
+          className={`flex h-7 w-7 items-center justify-center rounded-full border font-sans text-body font-medium leading-none ${
+            active ? "border-ink-strong bg-ink-strong text-on-ink-strong" : "border-line-soft bg-surface-muted text-ink-muted"
+          }`}
+          aria-hidden="true"
         >
-          <span
-            style={{
-              fontFamily: "var(--font-serif-display)",
-              fontSize: "16px",
-              fontWeight: 500,
-              color: active ? "#FFFFFF" : "var(--ink-muted)",
-              lineHeight: 1,
-              letterSpacing: "0.02em",
-            }}
-          >
-            {initial}
-          </span>
+          {initial}
         </div>
       ),
     },
@@ -103,37 +89,21 @@ function BottomNav() {
 
   return (
     <nav
-      className="flex items-center"
-      style={{
-        position: "fixed",
-        bottom: 0,
-        left: "50%",
-        transform: "translateX(-50%)",
-        width: "100%",
-        maxWidth: "390px",
-        borderTop: "1px solid var(--border-soft)",
-        background: "white",
-        zIndex: 100,
-      }}
+      aria-label="Navegación principal"
+      className="fixed bottom-0 left-1/2 z-[100] flex w-full max-w-[390px] -translate-x-1/2 items-center border-t border-line-soft bg-surface-base"
     >
       {tabs.map((tab) => (
         <button
           key={tab.path}
+          type="button"
           onClick={() => navigate(tab.path)}
-          className="flex-1 flex flex-col items-center justify-center py-3 gap-1"
+          aria-current={tab.active ? "page" : undefined}
+          className={`flex min-h-[56px] flex-1 flex-col items-center justify-center gap-1 py-2.5 ${
+            tab.active ? "text-ink-strong" : "text-ink-subtle hover:text-ink-strong"
+          }`}
         >
           {tab.icon(tab.active)}
-          <span
-            style={{
-              fontFamily: "var(--font-sans-ui)",
-              fontSize: "10px",
-              fontWeight: tab.active ? 500 : 400,
-              color: tab.active ? "var(--ink-strong)" : "var(--ink-subtle)",
-              letterSpacing: "0.01em",
-            }}
-          >
-            {tab.label}
-          </span>
+          <span className={`font-sans text-caption ${tab.active ? "font-medium" : ""}`}>{tab.label}</span>
         </button>
       ))}
     </nav>
@@ -142,11 +112,8 @@ function BottomNav() {
 
 export function Layout() {
   return (
-    <div className="min-h-screen flex items-start md:items-center justify-center overflow-x-hidden" style={{ background: "var(--app-shell)" }}>
-      <div
-        className="relative w-full max-w-[390px] min-h-[100dvh] bg-white overflow-x-hidden shadow-2xl"
-        style={{ boxShadow: "0 30px 80px rgba(15,23,42,0.14), 0 2px 8px rgba(15,23,42,0.08)" }}
-      >
+    <div className="min-h-screen flex items-start md:items-center justify-center overflow-x-hidden bg-surface-shell">
+      <div className="relative w-full max-w-[390px] min-h-[100dvh] overflow-x-hidden bg-surface-base shadow-shell">
         <RouteTracker />
         <div className="pb-16">
           <Outlet />

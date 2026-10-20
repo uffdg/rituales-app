@@ -1,5 +1,7 @@
 import { useMemo, useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router";
+import { BackLink } from "../components/BackLink";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { addMonths, addWeeks, format, subMonths, subWeeks } from "date-fns";
 import { es } from "date-fns/locale";
 import { MoonPhaseIcon } from "../components/MoonPhaseIcon";
@@ -20,6 +22,17 @@ import {
   getJournalEntries,
   getJournalEntriesFromOwnRituals,
 } from "../lib/practice-journal";
+
+// Nombres que entran en una celda del mes (unos 40 px) a 10 px, el mínimo del
+// design system. El nombre completo, el signo y la hora están en el detalle del día.
+const CELL_LABELS: Record<string, string> = {
+  "Luna nueva": "Nueva",
+  "Luna llena": "Llena",
+  "Cuarto creciente": "Crec.",
+  "Cuarto menguante": "Meng.",
+  Equinoccio: "Equin.",
+  Solsticio: "Solst.",
+};
 
 export function CosmicCalendar() {
   const navigate = useNavigate();
@@ -93,15 +106,7 @@ export function CosmicCalendar() {
       <div className="editorial-radial-wash" />
 
       <div className="relative z-10 pt-14 px-6 pb-4 flex items-center justify-between">
-        <button
-          onClick={() => navigate("/")}
-          className="editorial-detail-header-link"
-        >
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <path d="M9 2L4 7L9 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-          </svg>
-          Inicio
-        </button>
+        <BackLink to="/" label="Inicio" />
       </div>
 
       <div className="relative z-10 px-6 pb-12">
@@ -116,26 +121,30 @@ export function CosmicCalendar() {
         </div>
 
         <div className="flex items-center justify-between mb-4">
-          <button onClick={goPrevious} className="editorial-icon-button h-10 w-10 rounded-full text-[var(--ink-muted)]">
-            ←
+          <button type="button" onClick={goPrevious} className="editorial-icon-button text-ink-muted" aria-label={view === "week" ? "Semana anterior" : "Mes anterior"}>
+            <ChevronLeft size={18} strokeWidth={1.5} aria-hidden="true" />
           </button>
-          <p className="font-serif text-[26px] text-[var(--ink-strong)]">
+          <p className="font-serif text-title-2 capitalize text-ink-strong" aria-live="polite">
             {format(currentDate, "LLLL yyyy", { locale: es })}
           </p>
-          <button onClick={goNext} className="editorial-icon-button h-10 w-10 rounded-full text-[var(--ink-muted)]">
-            →
+          <button type="button" onClick={goNext} className="editorial-icon-button text-ink-muted" aria-label={view === "week" ? "Semana siguiente" : "Mes siguiente"}>
+            <ChevronRight size={18} strokeWidth={1.5} aria-hidden="true" />
           </button>
         </div>
 
         <div className="editorial-segmented mb-6 inline-flex">
           <button
+            type="button"
             onClick={() => setView("week")}
+            aria-pressed={view === "week"}
             className={`editorial-segmented-option px-4 ${view === "week" ? "editorial-segmented-option-active" : ""}`}
           >
             Semana
           </button>
           <button
+            type="button"
             onClick={() => setView("month")}
+            aria-pressed={view === "month"}
             className={`editorial-segmented-option px-4 ${view === "month" ? "editorial-segmented-option-active" : ""}`}
           >
             Mes
@@ -150,17 +159,17 @@ export function CosmicCalendar() {
               const isNewMoon = bgUrl === "black";
               const isBlackCard = bgUrl !== null;
               
-              const cardBgClass = isBlackCard ? "bg-[#000] border-transparent" : "bg-white border-[rgba(0,0,0,0.07)]";
-              const tagBg = isBlackCard ? "bg-[var(--ink-strong)] text-[var(--surface-muted)]" : "bg-[var(--ink-strong)] text-white";
-              const dateColor = isBlackCard ? "#FFF" : "#0A0A0A";
-              const dayColor = isBlackCard ? "#FFF" : "#AAA";
-              const descColor = isBlackCard ? "#CCC" : "#666";
+              const cardBgClass = isBlackCard ? "bg-black border-transparent" : "bg-surface-base border-line-soft";
+              const dateColor = isBlackCard ? "text-on-ink-strong" : "text-ink-strong";
+              const dayColor = isBlackCard ? "editorial-eyebrow--on-dark" : "";
+              const descColor = isBlackCard ? "text-on-ink-muted" : "text-ink-muted";
 
               return (
                 <button
                   key={day.dateKey}
+                  type="button"
                   onClick={() => setSelectedDay(day)}
-                  className={`relative overflow-hidden rounded-[28px] border ${cardBgClass} px-5 py-5 text-left transition-all flex flex-col hover:opacity-90 min-h-[164px]`}
+                  className={`relative flex min-h-[164px] flex-col overflow-hidden rounded-card border ${cardBgClass} p-5 text-left transition-all hover:opacity-90`}
                 >
                   {isBlackCard && !isNewMoon && bgUrl && (
                     <div
@@ -176,24 +185,16 @@ export function CosmicCalendar() {
 
                   <div className="relative z-10 w-full h-full text-current flex flex-col flex-1">
                     <div className="flex justify-between items-start mb-2">
-                      <p style={{ fontFamily: "var(--font-sans-ui)", fontSize: "10px", color: dayColor, textTransform: "uppercase", letterSpacing: "0.1em", fontWeight: 500 }}>
-                        {day.weekdayLabel}
-                      </p>
+                      <p className={`editorial-eyebrow ${dayColor}`}>{day.weekdayLabel}</p>
                       {isToday(day.date) ? (
-                        <span className={`text-[9px] px-2.5 py-1 rounded-[6px] ${tagBg} font-sans align-middle uppercase tracking-widest leading-none`}>
-                          Hoy
-                        </span>
+                        <span className={`editorial-badge ${isBlackCard ? "bg-white text-ink-strong" : "editorial-badge--inverse"}`}>Hoy</span>
                       ) : day.perfection ? (
-                        <span className={`text-[8px] px-2 py-1 rounded-[6px] ${tagBg} font-sans align-middle uppercase tracking-widest leading-none`}>
-                          Evento
-                        </span>
+                        <span className="editorial-badge editorial-badge--inverse">Evento</span>
                       ) : null}
                     </div>
 
                     <div className="flex items-center justify-between mb-auto text-current">
-                      <p style={{ fontFamily: "var(--font-serif-display)", fontSize: "32px", color: dateColor, lineHeight: 1 }}>
-                        {format(day.date, "d")}
-                      </p>
+                      <p className={`font-serif text-title-1 leading-none ${dateColor}`}>{format(day.date, "d")}</p>
                       <div className={isBlackCard ? "invert opacity-90" : ""}>
                         <MoonPhaseIcon phase={getDisplayMoonPhase(day)} size={30} />
                       </div>
@@ -202,17 +203,16 @@ export function CosmicCalendar() {
                     <div className="mt-auto pt-4 flex items-end justify-between">
                       {day.perfection ? (
                         <div>
-                          <p style={{ fontFamily: "var(--font-sans-ui)", fontSize: "12px", color: descColor, marginBottom: "4px", fontWeight: 500 }}>
-                            {day.perfection.label}
-                          </p>
-                          <p style={{ fontFamily: "var(--font-sans-ui)", fontSize: "10px", color: dayColor, lineHeight: 1.4 }}>
+                          <p className={`mb-1 font-sans text-body font-medium ${descColor}`}>{day.perfection.label}</p>
+                          <p className={`font-sans text-caption ${descColor}`}>
                             {day.perfection.timeBuenosAires} hs · {day.perfection.zodiacSign}
                           </p>
                         </div>
                       ) : <div />}
                       {journalByDate.has(day.dateKey) && (
-                        <span style={{ fontSize: 12, color: isBlackCard ? "rgba(255,255,255,0.6)" : "#C0BAB4", lineHeight: 1 }} title="Hiciste un ritual este día">
-                          ✦
+                        <span className={`text-body leading-none ${isBlackCard ? "text-on-ink-muted" : "text-ink-decor"}`} title="Hiciste un ritual este día">
+                          <span aria-hidden="true">✦</span>
+                          <span className="sr-only">Hiciste un ritual este día</span>
                         </span>
                       )}
                     </div>
@@ -225,17 +225,7 @@ export function CosmicCalendar() {
           <>
             <div className="grid grid-cols-7 gap-2 mb-3">
               {["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"].map((weekday) => (
-                <p
-                  key={weekday}
-                  className="text-center"
-                  style={{
-                    fontFamily: "var(--font-sans-ui)",
-                    fontSize: "10px",
-                    letterSpacing: "0.1em",
-                    textTransform: "uppercase",
-                    color: "var(--ink-subtle)",
-                  }}
-                >
+                <p key={weekday} className="text-center font-sans text-caption font-medium text-ink-muted">
                   {weekday}
                 </p>
               ))}
@@ -248,54 +238,41 @@ export function CosmicCalendar() {
                 return (
                   <button
                     key={day.dateKey}
+                    type="button"
                     onClick={() => setSelectedDay(day)}
-                    className={`min-h-[96px] rounded-[22px] border px-2 py-2 text-left transition-colors flex flex-col ${
-                      inCurrentMonth
-                        ? "border-[rgba(0,0,0,0.07)] bg-white"
-                        : "border-[rgba(0,0,0,0.04)] bg-[var(--surface-softest)]"
+                    aria-label={`${format(day.date, "d 'de' LLLL", { locale: es })}${day.perfection ? `, ${day.perfection.label}` : day.events[0] ? `, ${day.events[0].label}` : ""}`}
+                    className={`flex min-h-[80px] flex-col rounded-sm border px-1 py-1.5 text-left transition-colors ${
+                      inCurrentMonth ? "border-line-soft bg-surface-base" : "border-transparent bg-surface-soft"
                     }`}
                   >
                     <div className="flex items-center justify-between mb-1">
                       <span
-                        className={isToday(day.date) ? "flex items-center justify-center w-6 h-6 rounded-full bg-[var(--ink-strong)] text-white" : ""}
-                        style={{
-                          fontFamily: "var(--font-sans-ui)",
-                          fontSize: "11px",
-                          fontWeight: isToday(day.date) ? 600 : 400,
-                          color: isToday(day.date) ? "#FFF" : inCurrentMonth ? "#666" : "#BBB",
-                        }}
+                        className={`font-sans text-caption ${
+                          isToday(day.date)
+                            ? "flex h-6 w-6 items-center justify-center rounded-full bg-ink-strong font-medium text-on-ink-strong"
+                            : inCurrentMonth
+                            ? "text-ink-body"
+                            : "text-ink-subtle"
+                        }`}
                       >
                         {format(day.date, "d")}
                       </span>
                       <MoonPhaseIcon phase={getDisplayMoonPhase(day)} size={16} />
                     </div>
                     <div className="mt-auto flex flex-col gap-0.5">
+                      {/* Mínimo 10 px: la celda muestra solo el evento; signo y hora
+                          están en el detalle del día (rediseño del mes: spec aparte). */}
                       {day.perfection ? (
-                        <>
-                          <span
-                            className="w-full truncate leading-tight"
-                            style={{ fontFamily: "var(--font-sans-ui)", fontSize: "7.5px", color: "var(--ink-strong)", fontWeight: 500 }}
-                          >
-                            {day.perfection.label === "Luna nueva" ? "L. nueva"
-                              : day.perfection.label === "Luna llena" ? "L. llena"
-                              : day.perfection.label === "Cuarto creciente" ? "C. creciente"
-                              : day.perfection.label === "Cuarto menguante" ? "C. menguante"
-                              : day.perfection.label}
-                          </span>
-                          <span className="w-full truncate" style={{ fontFamily: "var(--font-sans-ui)", fontSize: "7px", color: "var(--ink-subtle)" }}>
-                            {day.perfection.zodiacSign}
-                          </span>
-                          <span className="w-full truncate" style={{ fontFamily: "var(--font-sans-ui)", fontSize: "7px", color: "var(--ink-subtle)" }}>
-                            {day.perfection.timeBuenosAires}
-                          </span>
-                        </>
+                        <span className="w-full truncate font-sans text-eyebrow font-medium leading-tight text-ink-strong" aria-hidden="true">
+                          {CELL_LABELS[day.perfection.label] ?? day.perfection.label}
+                        </span>
                       ) : day.events[0] ? (
-                        <span className="w-full truncate" style={{ fontFamily: "var(--font-sans-ui)", fontSize: "7.5px", color: "var(--ink-strong)", fontWeight: 500 }}>
-                          {day.events[0].shortLabel}
+                        <span className="w-full truncate font-sans text-eyebrow font-medium leading-tight text-ink-strong" aria-hidden="true">
+                          {CELL_LABELS[day.events[0].shortLabel] ?? day.events[0].shortLabel}
                         </span>
                       ) : null}
                       {journalByDate.has(day.dateKey) && (
-                        <span style={{ fontSize: 8, color: "#C0BAB4", lineHeight: 1 }}>✦</span>
+                        <span className="text-caption leading-none text-ink-decor" aria-hidden="true">✦</span>
                       )}
                     </div>
                   </button>
@@ -309,13 +286,15 @@ export function CosmicCalendar() {
       {selectedDay ? (
         <div className="fixed inset-0 z-40">
           <div
-            className="absolute inset-0 bg-black/35"
+            className="absolute inset-0 bg-scrim"
             onClick={() => setSelectedDay(null)}
           />
           <div className="editorial-calendar-dialog absolute left-1/2 top-1/2 w-[calc(100%-3rem)] max-w-[330px] -translate-x-1/2 -translate-y-1/2 px-5 py-5">
             <button
+              type="button"
               onClick={() => setSelectedDay(null)}
-              className="editorial-icon-button absolute top-5 right-5 h-8 w-8 rounded-full text-[var(--ink-muted)]"
+              className="editorial-icon-button absolute top-3 right-3 text-ink-muted"
+              aria-label="Cerrar"
             >
               <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
                 <path d="M1 1L9 9M9 1L1 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
@@ -324,7 +303,7 @@ export function CosmicCalendar() {
 
             <p className="editorial-eyebrow mb-2.5">{selectedDay.weekdayLabel}</p>
 
-            <p className="font-serif text-[26px] font-normal text-[var(--ink-strong)] leading-[1.1] mb-2.5 pr-6">
+            <p className="editorial-title-section mb-2.5 pr-8">
               {format(selectedDay.date, "d 'de' LLLL", { locale: es })}
             </p>
 
@@ -335,12 +314,12 @@ export function CosmicCalendar() {
                   Tu práctica este día
                 </p>
                 {journalByDate.get(selectedDay.dateKey)!.map((entry, i) => (
-                  <div key={i} className={i > 0 ? "mt-3 pt-3 border-t border-[var(--border-soft)]" : ""}>
-                    <p className="font-serif text-[16px] text-[var(--ink-strong)] leading-[1.4]">
+                  <div key={i} className={i > 0 ? "mt-3 pt-3 border-t border-line-soft" : ""}>
+                    <p className="font-sans text-title-4 text-ink-strong">
                       "{entry.anchor}"
                     </p>
                     {entry.element && (
-                      <p className="font-sans text-[10px] text-[var(--ink-subtle)] mt-1 capitalize tracking-[0.04em]">
+                      <p className="mt-1 font-sans text-caption capitalize text-ink-muted">
                         {entry.ritualType} · {entry.element}
                       </p>
                     )}
@@ -359,7 +338,7 @@ export function CosmicCalendar() {
                   <p className="editorial-eyebrow mb-2">
                     Posición exacta
                   </p>
-                  <p className="font-serif text-[18px] text-[var(--ink-strong)] leading-[1.2] mb-1.5">
+                  <p className="editorial-title-card mb-1.5">
                     {selectedDay.perfection?.timeBuenosAires} hs en Buenos Aires
                   </p>
                   <p className="editorial-body-muted">
@@ -379,7 +358,7 @@ export function CosmicCalendar() {
                       <p className="editorial-eyebrow mb-2">
                         Próximo evento
                       </p>
-                      <p className="font-serif text-[18px] text-[var(--ink-strong)] leading-[1.2] mb-0.5">
+                      <p className="editorial-title-card mb-0.5">
                         {nextEventData.perfection.label}
                       </p>
                       <p className="editorial-body-muted">
@@ -388,13 +367,13 @@ export function CosmicCalendar() {
                     </>
                   )}
                   
-                  <div className="mt-5 border-t border-[var(--border-soft)] pt-4 flex justify-center">
+                  <div className="mt-5 border-t border-line-soft pt-4 flex justify-center">
                     <button
                       onClick={() => {
                         setSelectedDay(null);
                         setTimeout(() => navigate("/"), 50);
                       }}
-                      className="font-sans text-[12px] text-[var(--ink-strong)] font-medium underline underline-offset-[3px] hover:opacity-60 transition-opacity"
+                      className="editorial-button editorial-button--tertiary"
                     >
                       Ir a Inicio para abrir la wiki
                     </button>

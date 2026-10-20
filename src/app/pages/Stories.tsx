@@ -502,28 +502,31 @@ export function Stories() {
               {card.isMoodPicker ? (
                 /* ── Mood picker ── */
                 <div>
-                  <p style={{ fontFamily: "var(--font-sans-ui)", fontSize: 10, letterSpacing: "0.14em", color: "rgba(255,255,255,0.55)", marginBottom: 12, fontWeight: 500, textTransform: "uppercase" }}>
+                  <p className="editorial-eyebrow mb-3" style={{ color: "rgba(255,255,255,0.82)" }}>
                     {card.eyebrow}
                   </p>
-                  <h1 style={{ fontFamily: "var(--font-serif-display)", fontSize: 32, fontWeight: 400, color: "rgba(255,255,255,0.95)", lineHeight: 1.15, marginBottom: 24 }}>
+                  <h1 className="mb-6 font-serif text-title-1 text-on-ink-strong">
                     {card.title}
                   </h1>
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8, marginBottom: 20 }}>
                     {MOOD_OPTIONS.map((mood) => (
                       <button
                         key={mood.id}
+                        type="button"
                         onClick={() => setSelectedMood(mood.id)}
+                        aria-pressed={selectedMood === mood.id}
                         style={{
                           padding: "12px 6px",
-                          borderRadius: 14,
+                          minHeight: 64,
+                          borderRadius: 12,
                           border: selectedMood === mood.id ? "1px solid rgba(255,255,255,0.7)" : "1px solid rgba(255,255,255,0.15)",
                           background: selectedMood === mood.id ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.05)",
                           display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
                           cursor: "pointer", transition: "all 0.18s ease",
                         }}
                       >
-                        <span style={{ fontSize: 20, color: "rgba(255,255,255,0.85)", fontFamily: "var(--font-sans-ui)" }}>{mood.emoji}</span>
-                        <span style={{ fontFamily: "var(--font-sans-ui)", fontSize: 10, color: selectedMood === mood.id ? "rgba(255,255,255,0.95)" : "rgba(255,255,255,0.5)", letterSpacing: "0.04em" }}>
+                        <span className="text-title-3 leading-none" style={{ color: "rgba(255,255,255,0.85)" }} aria-hidden="true">{mood.emoji}</span>
+                        <span className="font-sans text-caption" style={{ color: selectedMood === mood.id ? "rgba(255,255,255,0.95)" : "rgba(255,255,255,0.78)" }}>
                           {mood.label}
                         </span>
                       </button>
@@ -534,8 +537,9 @@ export function Stories() {
                       <motion.button
                         initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
                         transition={{ duration: 0.22 }}
+                        type="button"
                         onClick={handleMoodContinue}
-                        style={{ width: "100%", padding: "15px 0", borderRadius: 16, background: "rgba(255,255,255,0.95)", border: "none", fontFamily: "var(--font-sans-ui)", fontSize: 14, fontWeight: 500, color: "var(--ink-strong)", cursor: "pointer", letterSpacing: "0.03em" }}
+                        className="editorial-button editorial-button--primary editorial-button--on-dark editorial-button--lg"
                       >
                         Crear ritual para este momento →
                       </motion.button>
@@ -545,19 +549,20 @@ export function Stories() {
               ) : (
                 /* ── Card editorial ── */
                 <div>
-                  <p style={{ fontFamily: "var(--font-sans-ui)", fontSize: 10, letterSpacing: "0.14em", color: "rgba(255,255,255,0.5)", marginBottom: 12, fontWeight: 500, textTransform: "uppercase" }}>
+                  <p className="editorial-eyebrow mb-3" style={{ color: "rgba(255,255,255,0.82)" }}>
                     {card.eyebrow}
                   </p>
-                  <h1 style={{ fontFamily: "var(--font-serif-display)", fontSize: 36, fontWeight: 400, color: "rgba(255,255,255,0.95)", lineHeight: 1.12, marginBottom: 16 }}>
+                  <h1 className="mb-4 font-serif text-title-1 text-on-ink-strong">
                     {card.title}
                   </h1>
-                  <p style={{ fontFamily: "var(--font-sans-ui)", fontSize: 14, fontWeight: 300, color: "rgba(255,255,255,0.72)", lineHeight: 1.72 }}>
+                  <p className="font-sans text-body-lg" style={{ color: "rgba(255,255,255,0.86)" }}>
                     {card.body}
                   </p>
                   {card.cta && (
                     <button
+                      type="button"
                       onClick={() => handleCardCta(card)}
-                      style={{ marginTop: 22, padding: "13px 22px", borderRadius: 14, border: "1px solid rgba(255,255,255,0.28)", background: "rgba(255,255,255,0.08)", fontFamily: "var(--font-sans-ui)", fontSize: 13, color: "rgba(255,255,255,0.9)", cursor: "pointer", letterSpacing: "0.03em", backdropFilter: "blur(4px)" }}
+                      className="editorial-button editorial-button--on-dark mt-6 border-white/30 bg-white/10 text-on-ink-strong backdrop-blur-sm"
                     >
                       {card.cta.label} →
                     </button>
@@ -570,7 +575,7 @@ export function Stories() {
       </motion.div>
 
       {/* Dots verticales */}
-      <div style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", display: "flex", flexDirection: "column", gap: 5, zIndex: 20, pointerEvents: "none" }}>
+      <div aria-hidden="true" style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", display: "flex", flexDirection: "column", gap: 5, zIndex: 20, pointerEvents: "none" }}>
         {ALL_CARDS.map((_, i) => (
           <div key={i} style={{ width: 3, height: i === idx ? 20 : 4, borderRadius: 2, background: i === idx ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.25)", transition: "all 0.3s ease" }} />
         ))}
@@ -582,6 +587,7 @@ export function Stories() {
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             style={{ position: "absolute", right: 16, top: "50%", transform: "translateY(-50%)", zIndex: 30, pointerEvents: "none" }}
+            aria-hidden="true"
           >
             <motion.div
               animate={{ y: [16, -16, 16] }}
@@ -590,7 +596,7 @@ export function Stories() {
             >
               <div style={{ width: 3, height: 40, borderRadius: 999, background: "rgba(255,255,255,0.85)" }} />
               <div style={{ width: 20, height: 20, borderRadius: "50%", border: "1px solid rgba(255,255,255,0.3)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <span style={{ fontFamily: "var(--font-sans-ui)", fontSize: 8, color: "rgba(255,255,255,0.7)" }}>↑↓</span>
+                <span className="font-sans text-eyebrow" style={{ color: "rgba(255,255,255,0.7)" }}>↑↓</span>
               </div>
             </motion.div>
           </motion.div>
