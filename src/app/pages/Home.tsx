@@ -244,10 +244,14 @@ export function Home() {
       {/* Dynamic Background Image */}
       <div className="absolute top-0 left-0 w-full h-[100svh] z-0 pointer-events-none">
         <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/50 to-transparent z-10" />
-        <img 
-          src={`/home/bg-${heroImageIndex}.jpg`}
-          alt="Cielo actual" 
-          className="w-full h-full object-cover object-center" 
+        {heroTextTheme === "light" ? (
+          <div className="absolute inset-x-0 top-0 h-2/5 bg-gradient-to-b from-black/35 to-transparent z-10" />
+        ) : null}
+        <img
+          src={`/home/bg-${heroImageIndex}.webp`}
+          alt=""
+          decoding="async"
+          className="w-full h-full object-cover object-center"
         />
       </div>
 
@@ -544,7 +548,9 @@ export function Home() {
                   {note.image ? (
                     <img
                       src={note.image}
-                      alt={note.title}
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
                       className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 hover:scale-105"
                     />
                   ) : null}

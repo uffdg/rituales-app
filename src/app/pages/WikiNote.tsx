@@ -48,7 +48,7 @@ export function WikiNote() {
       <div className="relative w-full h-[88vh] min-h-[500px] flex flex-col justify-end overflow-hidden isolate">
         {note.image && (
           <motion.div style={{ y, opacity }} className="absolute inset-0 z-0">
-            <img src={note.image} alt="" className="w-full h-full object-cover origin-bottom" />
+            <img src={note.image} alt="" decoding="async" className="w-full h-full object-cover origin-bottom" />
             <div className="absolute inset-0 bg-gradient-to-t from-[var(--ink-strong)] via-black/40 to-black/10" />
           </motion.div>
         )}

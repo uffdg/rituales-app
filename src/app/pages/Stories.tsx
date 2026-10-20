@@ -72,7 +72,7 @@ const EDITORIAL_CARDS: StoryCard[] = [
   // Fuego
   {
     id: "fuego-1",
-    image: "/images/story-fire-1.jpg",
+    image: "/images/story-fire-1.webp",
     bg: ["#1A0A04", "#2A1208", "#180A04"],
     eyebrow: "RITUAL DE FUEGO",
     title: "Lo que ya no alimenta, se quema",
@@ -81,7 +81,7 @@ const EDITORIAL_CARDS: StoryCard[] = [
   },
   {
     id: "fuego-2",
-    image: "/images/story-fire-3.jpg",
+    image: "/images/story-fire-3.webp",
     bg: ["#1C0C04", "#2C1A0A", "#140804"],
     eyebrow: "MICRO-RITUAL · FUEGO",
     title: "La llama de la intención",
@@ -89,7 +89,7 @@ const EDITORIAL_CARDS: StoryCard[] = [
   },
   {
     id: "fuego-3",
-    image: "/images/story-fire-5.jpg",
+    image: "/images/story-fire-5.webp",
     bg: ["#180C02", "#241408", "#160A02"],
     eyebrow: "FUEGO · ENERGÍA",
     title: "Cuando todo urge",
@@ -99,7 +99,7 @@ const EDITORIAL_CARDS: StoryCard[] = [
   // Agua
   {
     id: "agua-1",
-    image: "/images/story-water-1.jpg",
+    image: "/images/story-water-1.webp",
     bg: ["#060E18", "#0A1420", "#060C16"],
     eyebrow: "RITUAL DE AGUA",
     title: "El agua recuerda",
@@ -108,7 +108,7 @@ const EDITORIAL_CARDS: StoryCard[] = [
   },
   {
     id: "agua-2",
-    image: "/images/story-water-2.jpg",
+    image: "/images/story-water-2.webp",
     bg: ["#040C16", "#081018", "#040A14"],
     eyebrow: "MICRO-RITUAL · AGUA",
     title: "Lavarse las manos con intención",
@@ -116,7 +116,7 @@ const EDITORIAL_CARDS: StoryCard[] = [
   },
   {
     id: "agua-3",
-    image: "/images/story-water-3.jpg",
+    image: "/images/story-water-3.webp",
     bg: ["#06101A", "#0A1620", "#060E18"],
     eyebrow: "AGUA · EMOCIÓN",
     title: "Las emociones fluyen",
@@ -126,7 +126,7 @@ const EDITORIAL_CARDS: StoryCard[] = [
   // Aire
   {
     id: "aire-1",
-    image: "/images/story-air-1.jpg",
+    image: "/images/story-air-1.webp",
     bg: ["#0C1018", "#141820", "#0A0E16"],
     eyebrow: "RITUAL DE AIRE",
     title: "La respiración es el ancla",
@@ -135,7 +135,7 @@ const EDITORIAL_CARDS: StoryCard[] = [
   },
   {
     id: "aire-2",
-    image: "/images/story-air-3.jpg",
+    image: "/images/story-air-3.webp",
     bg: ["#0E1220", "#141A28", "#0C1018"],
     eyebrow: "MICRO-RITUAL · AIRE",
     title: "Un minuto afuera",
@@ -143,7 +143,7 @@ const EDITORIAL_CARDS: StoryCard[] = [
   },
   {
     id: "aire-3",
-    image: "/images/story-air-5.jpg",
+    image: "/images/story-air-5.webp",
     bg: ["#0A0E1C", "#10162A", "#08101A"],
     eyebrow: "AIRE · CLARIDAD",
     title: "Cuando la mente no para",
@@ -153,7 +153,7 @@ const EDITORIAL_CARDS: StoryCard[] = [
   // Tierra
   {
     id: "tierra-1",
-    image: "/images/story-forest-2.jpg",
+    image: "/images/story-forest-2.webp",
     bg: ["#060E08", "#0A1410", "#06100A"],
     eyebrow: "RITUAL DE TIERRA",
     title: "Los pies en el piso",
@@ -162,7 +162,7 @@ const EDITORIAL_CARDS: StoryCard[] = [
   },
   {
     id: "tierra-2",
-    image: "/images/story-grass-3.jpg",
+    image: "/images/story-grass-3.webp",
     bg: ["#080E06", "#0C1408", "#060C04"],
     eyebrow: "MICRO-RITUAL · TIERRA",
     title: "Tocar algo real",
@@ -170,7 +170,7 @@ const EDITORIAL_CARDS: StoryCard[] = [
   },
   {
     id: "tierra-3",
-    image: "/images/story-mountain-2.jpg",
+    image: "/images/story-mountain-2.webp",
     bg: ["#0C1018", "#141820", "#0A0E14"],
     eyebrow: "TIERRA · CUERPO",
     title: "El cuerpo sabe antes que la mente",
@@ -180,7 +180,7 @@ const EDITORIAL_CARDS: StoryCard[] = [
   // Lluvia / introspección
   {
     id: "lluvia-1",
-    image: "/images/story-lluvia-5.jpg",
+    image: "/images/story-lluvia-5.webp",
     bg: ["#0A0C10", "#10141C", "#080A10"],
     eyebrow: "RITUAL DE LLUVIA",
     title: "La lluvia llama adentro",
@@ -189,7 +189,7 @@ const EDITORIAL_CARDS: StoryCard[] = [
   },
   {
     id: "lluvia-2",
-    image: "/images/story-lluvia-3.jpg",
+    image: "/images/story-lluvia-3.webp",
     bg: ["#080C14", "#0C1018", "#060A10"],
     eyebrow: "LLUVIA · QUIETUD",
     title: "El sonido del agua que cae",
@@ -198,7 +198,7 @@ const EDITORIAL_CARDS: StoryCard[] = [
   // Noche / cierre
   {
     id: "noche-1",
-    image: "/images/story-noche.jpg",
+    image: "/images/story-noche.webp",
     bg: ["#080614", "#0C0A1C", "#06041A"],
     eyebrow: "RITUAL DE NOCHE",
     title: "Cierre consciente",
@@ -207,7 +207,7 @@ const EDITORIAL_CARDS: StoryCard[] = [
   },
   {
     id: "noche-2",
-    image: "/images/story-abastract-2.jpg",
+    image: "/images/story-abstract-2.webp",
     bg: ["#06080E", "#0A0C16", "#040610"],
     eyebrow: "NOCHE · DESCANSO",
     title: "Lo que no terminaste puede esperar",
@@ -216,7 +216,7 @@ const EDITORIAL_CARDS: StoryCard[] = [
   // Abstracto / identidad
   {
     id: "abstracto-1",
-    image: "/images/story-abastract-4.jpg",
+    image: "/images/story-abstract-4.webp",
     bg: ["#0C0A10", "#14101C", "#080814"],
     eyebrow: "PRÁCTICA ESPIRITUAL",
     title: "Un ritual no necesita ser perfecto",
@@ -225,7 +225,7 @@ const EDITORIAL_CARDS: StoryCard[] = [
   },
   {
     id: "playa-1",
-    image: "/images/story-beach-1.jpg",
+    image: "/images/story-beach-1.webp",
     bg: ["#0A0C10", "#0E1018", "#080A0E"],
     eyebrow: "AGUA · EXPANSIÓN",
     title: "El horizonte como práctica",
@@ -343,7 +343,7 @@ export function Stories() {
     }
     return {
       id: "lunar-hoy",
-      image: "/images/story-abastract-1.jpg",
+      image: "/images/story-abstract-1.webp",
       bg: ["#0C0E14", "#101420", "#080C18"],
       eyebrow: `${day.moonPhase.toUpperCase()} · HOY`,
       title: lunarPhrase,
@@ -355,7 +355,7 @@ export function Stories() {
   // Card 1: entrada emocional
   const moodCard: StoryCard = useMemo(() => ({
     id: "mood-picker",
-    image: "/images/story-abastract-3.jpg",
+    image: "/images/story-abstract-3.webp",
     bg: ["#080A10", "#0C1018", "#060810"],
     eyebrow: "AHORA MISMO",
     title: "¿Cómo llegás hoy?",

@@ -15,7 +15,7 @@ export interface WikiNote {
 export const WIKI_NOTES: WikiNote[] = [
   {
     id: "preparar-vela",
-    image: "/wiki/sixteen-miles-out-oDfeFV-Y2v0-unsplash.jpg",
+    image: "/wiki/sixteen-miles-out-oDfeFV-Y2v0-unsplash.webp",
     title: "Cómo se prepara una vela",
     eyebrow: "Guía esencial",
     summary: "Intención, limpieza, encendido y cuidado para usar la vela como parte real del ritual.",
@@ -138,7 +138,7 @@ export const WIKI_NOTES: WikiNote[] = [
   },
   {
     id: "importancia-del-ritual",
-    image: "/wiki/ray-albrow-vCc-F97wkHk-unsplash.jpg",
+    image: "/wiki/ray-albrow-vCc-F97wkHk-unsplash.webp",
     title: "La importancia del ritual",
     eyebrow: "Fundamentos",
     summary: "Por qué un gesto simbólico puede ordenar la atención, sostener una intención y crear presencia real.",
@@ -212,7 +212,7 @@ export const WIKI_NOTES: WikiNote[] = [
   },
   {
     id: "como-prepararte",
-    image: "/wiki/nicole-queiroz-hfGFOLrztbM-unsplash.jpg",
+    image: "/wiki/nicole-queiroz-hfGFOLrztbM-unsplash.webp",
     title: "Cómo prepararte para un ritual",
     eyebrow: "Antes de empezar",
     summary: "Cuerpo, respiración, espacio y presencia para llegar al ritual antes de empezar.",
@@ -331,7 +331,7 @@ export const WIKI_NOTES: WikiNote[] = [
   },
   {
     id: "rituales-en-grupo",
-    image: "/wiki/gustavo-zambelli-sK9W1j9oR3I-unsplash.jpg",
+    image: "/wiki/gustavo-zambelli-sK9W1j9oR3I-unsplash.webp",
     title: "Rituales en grupo",
     eyebrow: "Prácticas compartidas",
     summary: "Cuidado, roles y estructura para sostener bien una práctica ritual compartida.",
@@ -432,7 +432,7 @@ export const WIKI_NOTES: WikiNote[] = [
   },
   {
     id: "el-aquelarre",
-    image: "/wiki/shane-rounce-DNkoNXQti3c-unsplash.jpg",
+    image: "/wiki/shane-rounce-DNkoNXQti3c-unsplash.webp",
     title: "El aquelarre",
     eyebrow: "Historia y símbolo",
     summary: "Sentido histórico, simbólico y comunitario del encuentro ritual compartido.",
@@ -514,7 +514,7 @@ export const WIKI_NOTES: WikiNote[] = [
   },
   {
     id: "las-lunas-y-su-energia",
-    image: "/wiki/siim-lukka-K6rjbT5P6wE-unsplash.jpg",
+    image: "/wiki/siim-lukka-K6rjbT5P6wE-unsplash.webp",
     title: "Las lunas y su energía",
     eyebrow: "Ciclos lunares",
     summary: "Cómo cada fase lunar puede acompañar distintos ritmos, intenciones y tipos de ritual.",
@@ -648,7 +648,7 @@ export const WIKI_NOTES: WikiNote[] = [
   },
   {
     id: "piedras-y-cristales",
-    image: "/images/story-stones-1.jpg",
+    image: "/images/story-stones-1.webp",
     title: "Piedras y cristales",
     eyebrow: "Elementos rituales",
     summary:

@@ -46,7 +46,7 @@ export const CURATED_RITUALS: CuratedRitual[] = [
       closing:
         "Cerrá los ojos nuevamente. Inhalá profundo y al exhalar, susurrá: \"Ya tengo la respuesta que necesito — solo necesito escucharla\". Abrí los ojos. Escribí lo primero que venga a tu mente sin editar. Confiá en eso.",
     },
-    storyImage: "/images/story-water-1.jpg",
+    storyImage: "/images/story-water-1.webp",
     storyEyebrow: "RITUAL DE CLARIDAD",
     storyTitle: "Lo que buscás ya está en vos",
     storyBody: "El agua refleja sin juzgar. Este ritual te ayuda a ver con nitidez lo que ya sabés pero todavía no te animaste a escuchar.",
@@ -70,7 +70,7 @@ export const CURATED_RITUALS: CuratedRitual[] = [
       closing:
         "Colocá ambas manos en tu pecho. Decí: \"Me elijo hoy\". No tiene que ser perfecto — solo sincero. Respirá hondo una vez más y soltá. Ya terminaste. Eso fue suficiente.",
     },
-    storyImage: "/images/story-water-2.jpg",
+    storyImage: "/images/story-water-2.webp",
     storyEyebrow: "RITUAL DE AMOR PROPIO",
     storyTitle: "Tu cuerpo te lleva a donde necesitás",
     storyBody: "Reconectar con vos no es un lujo — es el punto de partida de todo lo demás. Este ritual dura 10 minutos y cuesta cero.",
@@ -94,7 +94,7 @@ export const CURATED_RITUALS: CuratedRitual[] = [
       closing:
         "Tomá una respiración profunda. Al exhalar, decí en voz baja: \"Puedo con esto — y también puedo descansar\". Quedate en silencio 30 segundos más. No hagás nada. Solo sé.",
     },
-    storyImage: "/images/story-grass-3.jpg",
+    storyImage: "/images/story-grass-3.webp",
     storyEyebrow: "RITUAL DE CALMA",
     storyTitle: "La tierra te sostiene cuando todo se mueve",
     storyBody: "No hay nada que resolver ahora mismo. Este ritual de 5 minutos es un permiso para dejar de correr.",
@@ -118,7 +118,7 @@ export const CURATED_RITUALS: CuratedRitual[] = [
       closing:
         "Soltá las manos. Abrí los ojos. Respirá. Decí: \"Estoy preparada. Voy\".",
     },
-    storyImage: "/images/story-fire-1.jpg",
+    storyImage: "/images/story-fire-1.webp",
     storyEyebrow: "RITUAL DE ENFOQUE",
     storyTitle: "El fuego que se dirige es el más poderoso",
     storyBody: "Antes de empezar algo importante, este ritual de 5 minutos activa tu cuerpo, aclara tu mente y te pone en modo hacer.",
@@ -142,7 +142,7 @@ export const CURATED_RITUALS: CuratedRitual[] = [
       closing:
         "Observá el espacio vacío que queda. Respirá. Decí: \"Gracias. Ya fue. Ahora sigo\". Cerrá los ojos un minuto más y sentí la liviandad de lo que soltaste.",
     },
-    storyImage: "/images/story-fire-3.jpg",
+    storyImage: "/images/story-fire-3.webp",
     storyEyebrow: "RITUAL DE CIERRE",
     storyTitle: "Lo que ya fue no necesita más de tu energía",
     storyBody: "Soltar no es olvidar — es elegir no cargar más con algo que ya cumplió su ciclo. Este ritual crea un cierre real.",
@@ -166,7 +166,7 @@ export const CURATED_RITUALS: CuratedRitual[] = [
       closing:
         "Guardá el objeto en un lugar visible. Cada vez que lo veas, recordá tu intención. Decí: \"Estoy segura para recibir lo que se alinea conmigo\".",
     },
-    storyImage: "/images/story-mountain-2.jpg",
+    storyImage: "/images/story-mountain-2.webp",
     storyEyebrow: "RITUAL DE ATRACCIÓN",
     storyTitle: "Lo que querés ya está en movimiento",
     storyBody: "La tierra sostiene lo que sembrás. Este ritual conecta tu intención con una acción concreta para que lo que deseás pueda llegar.",

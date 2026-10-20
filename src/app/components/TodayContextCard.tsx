@@ -101,7 +101,8 @@ export function TodayContextCard({
   const mood = getSkyMood(momentOfDay, weatherCondition);
   const MoodIcon = mood.icon;
   const isLight = textTheme === "light";
-  const labelColor = isLight ? "rgba(255,255,255,0.68)" : "rgba(10,10,10,0.48)";
+  // Rótulos sobre la foto: 0.82 / 0.66 para pasar 4,5:1 (antes 0.68 / 0.48).
+  const labelColor = isLight ? "rgba(255,255,255,0.82)" : "rgba(10,10,10,0.66)";
   const titleColor = isLight ? "#FFFFFF" : "var(--ink-strong)";
   const bodyColor = isLight ? "rgba(255,255,255,0.86)" : "rgba(23,25,28,0.78)";
   const chipBackground = isLight ? "rgba(17,17,17,0.25)" : "rgba(255,255,255,0.68)";

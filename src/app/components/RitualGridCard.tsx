@@ -3,48 +3,48 @@ import { Bookmark, BookmarkCheck, Loader2 } from "lucide-react";
 
 const IMAGE_POOLS: Record<string, string[]> = {
   Agua: [
-    "/images/story-water-1.jpg",
-    "/images/story-water-2.jpg",
-    "/images/story-water-3.jpg",
-    "/images/story-beach-1.jpg",
-    "/images/story-lluvia-1.jpg",
-    "/images/story-lluvia-2.jpg",
-    "/images/story-lluvia-3.jpg",
-    "/images/story-lluvia-4.jpg",
-    "/images/story-lluvia-5.jpg",
+    "/images/story-water-1.webp",
+    "/images/story-water-2.webp",
+    "/images/story-water-3.webp",
+    "/images/story-beach-1.webp",
+    "/images/story-lluvia-1.webp",
+    "/images/story-lluvia-2.webp",
+    "/images/story-lluvia-3.webp",
+    "/images/story-lluvia-4.webp",
+    "/images/story-lluvia-5.webp",
   ],
   Fuego: [
-    "/images/story-fire-1.jpg",
-    "/images/story-fire-2.jpg",
-    "/images/story-fire-3.jpg",
-    "/images/story-fire-4.jpg",
-    "/images/story-fire-5.jpg",
+    "/images/story-fire-1.webp",
+    "/images/story-fire-2.webp",
+    "/images/story-fire-3.webp",
+    "/images/story-fire-4.webp",
+    "/images/story-fire-5.webp",
   ],
   Tierra: [
-    "/images/story-forest-1.jpg",
-    "/images/story-forest-2.jpg",
-    "/images/story-forest-3.jpg",
-    "/images/story-forest-4.jpg",
-    "/images/story-forest-5.jpg",
-    "/images/story-stones-1.jpg",
-    "/images/story-stones-2.jpg",
-    "/images/story-stones-3.jpg",
-    "/images/story-grass-1.jpg",
-    "/images/story-grass-2.jpg",
-    "/images/story-mountain-1.jpg",
-    "/images/story-mountain-2.jpg",
+    "/images/story-forest-1.webp",
+    "/images/story-forest-2.webp",
+    "/images/story-forest-3.webp",
+    "/images/story-forest-4.webp",
+    "/images/story-forest-5.webp",
+    "/images/story-stones-1.webp",
+    "/images/story-stones-2.webp",
+    "/images/story-stones-3.webp",
+    "/images/story-grass-1.webp",
+    "/images/story-grass-2.webp",
+    "/images/story-mountain-1.webp",
+    "/images/story-mountain-2.webp",
   ],
   Aire: [
-    "/images/story-air-1.jpg",
-    "/images/story-air-2.jpg",
-    "/images/story-air-3.jpg",
-    "/images/story-air-4.jpg",
-    "/images/story-air-5.jpg",
-    "/images/story-abastract-1.jpg",
-    "/images/story-abastract-2.jpg",
-    "/images/story-abastract-3.jpg",
-    "/images/story-abastract-4.jpg",
-    "/images/story-abastract-5.jpg",
+    "/images/story-air-1.webp",
+    "/images/story-air-2.webp",
+    "/images/story-air-3.webp",
+    "/images/story-air-4.webp",
+    "/images/story-air-5.webp",
+    "/images/story-abstract-1.webp",
+    "/images/story-abstract-2.webp",
+    "/images/story-abstract-3.webp",
+    "/images/story-abstract-4.webp",
+    "/images/story-abstract-5.webp",
   ],
 };
 
@@ -100,7 +100,9 @@ export function RitualGridCard({
       <div className="relative w-full" style={{ aspectRatio: imageAspect }}>
         <img
           src={imageUrl}
-          alt={title}
+          alt=""
+          loading="lazy"
+          decoding="async"
           className="absolute inset-0 w-full h-full object-cover"
           draggable={false}
         />
@@ -110,22 +112,13 @@ export function RitualGridCard({
           className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(to bottom, rgba(0,0,0,0.12) 0%, transparent 40%, rgba(0,0,0,0.52) 100%)",
+              "linear-gradient(to bottom, rgba(0,0,0,0.38) 0%, transparent 38%, transparent 55%, rgba(0,0,0,0.52) 100%)",
           }}
         />
 
         {/* Type label top-left */}
         <div className="absolute top-2.5 left-3">
-          <span
-            style={{
-              fontFamily: "var(--font-sans-ui)",
-              fontSize: "9px",
-              fontWeight: 600,
-              letterSpacing: "0.14em",
-              textTransform: "uppercase",
-              color: "rgba(255,255,255,0.72)",
-            }}
-          >
+          <span className="editorial-eyebrow" style={{ color: "rgba(255,255,255,0.92)" }}>
             {type}
           </span>
         </div>

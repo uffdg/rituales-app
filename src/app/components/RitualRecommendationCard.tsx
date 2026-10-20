@@ -39,7 +39,9 @@ export function RitualRecommendationCard({
       <div className="relative w-full" style={{ aspectRatio: "4/3" }}>
         <img
           src={imageUrl}
-          alt={title}
+          alt=""
+          loading="lazy"
+          decoding="async"
           className="absolute inset-0 w-full h-full object-cover"
           draggable={false}
         />
@@ -47,7 +49,7 @@ export function RitualRecommendationCard({
           className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(to bottom, rgba(0,0,0,0.18) 0%, transparent 45%)",
+              "linear-gradient(to bottom, rgba(0,0,0,0.35) 0%, transparent 45%)",
           }}
         />
 
