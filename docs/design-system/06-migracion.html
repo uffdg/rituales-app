@@ -36,8 +36,8 @@
           <tr class="stage-row"><td><b>1 · Tokens</b></td><td>Tokens v1 en <code>theme.css</code> y escalas de Tailwind; grises legibles; fuentes y reducir movimiento.</td><td><span class="pass">Hecha</span></td><td><code>e6b14f4</code></td></tr>
           <tr class="stage-row"><td><b>2 · Componentes base</b></td><td>Clases del sistema, foco visible, <code>BackLink</code>, campos y toasts.</td><td><span class="pass">Hecha</span></td><td><code>89be7b7</code></td></tr>
           <tr class="stage-row"><td><b>3 · Imágenes</b></td><td>Fotos a WebP, <code>loading</code>, <code>alt</code>, velo en texto sobre foto.</td><td><span class="pass">Hecha</span></td><td><code>bd7c4e2</code></td></tr>
-          <tr class="stage-row"><td><b>4 · Pantallas</b></td><td>Cada pantalla a tokens y piezas, de a una. Hechas: Home, Cuenta, Detalle de ritual, Pasos de creación, Compartir/Explorar/Wiki, Login/Onboarding.</td><td><span class="warn">En curso · 6 de 7</span></td><td><code>1e75108</code> Home · <code>1d73b47</code> Cuenta · <code>af25e66</code> Detalle · <code>2ba79aa</code> Pasos · <code>5f6171e</code> Compartir/Explorar/Wiki · <code>c0038d6</code> Login/Onboarding</td></tr>
-          <tr class="stage-row"><td><b>5 · Limpieza</b></td><td>Clases y nombres viejos, shadcn sin uso, archivos sin uso, <code>.dark</code>.</td><td><span class="muted" style="font-size:12px">Pendiente</span></td><td>—</td></tr>
+          <tr class="stage-row"><td><b>4 · Pantallas</b></td><td>Las 7 pantallas, de a una. Hechas: Home, Cuenta, Detalle de ritual, Pasos de creación, Compartir/Explorar/Wiki, Login/Onboarding, Stories/calendario/navegación.</td><td><span class="pass">Hecha · 7 de 7</span></td><td><code>1e75108</code> Home · <code>1d73b47</code> Cuenta · <code>af25e66</code> Detalle · <code>2ba79aa</code> Pasos · <code>5f6171e</code> Compartir/Explorar/Wiki · <code>c0038d6</code> Login/Onboarding · <code>d702068</code> Stories/calendario</td></tr>
+          <tr class="stage-row"><td><b>5 · Limpieza</b></td><td>Clases y nombres viejos, shadcn sin uso, archivos sin uso, <code>.dark</code>.</td><td><span class="warn">Siguiente</span></td><td>—</td></tr>
         </tbody>
       </table></div>
       <div class="callout callout--rule"><strong>Decisiones tomadas para avanzar</strong>Se aplicaron las recomendaciones de las decisiones 1 a 8 (<a href="04-validacion.html#decisiones">spec 04</a>): fondo frío, botones en 400, botón de Home igual al resto, chips de 13 px, borrar shadcn sin uso, prefijo <code>editorial-</code>, calendario cósmico aparte y sin modo oscuro. Las que borran archivos se ejecutan recién en la etapa 5.</div>
@@ -91,7 +91,7 @@
           <tr><td>Pasos de creación</td><td><span class="pass">Hecha</span> <code>2ba79aa</code></td></tr>
           <tr><td>Compartir, Explorar y Wiki</td><td><span class="pass">Hecha</span> <code>5f6171e</code></td></tr>
           <tr><td>Login y Onboarding</td><td><span class="pass">Hecha</span> <code>c0038d6</code></td></tr>
-          <tr><td>Stories y calendario</td><td class="muted">Pendiente</td></tr>
+          <tr><td>Stories, calendario y navegación inferior</td><td><span class="pass">Hecha</span> <code>d702068</code></td></tr>
         </tbody>
       </table></div>
 
@@ -171,6 +171,19 @@
         <figure><div class="shot"><img src="assets/migracion/etapa-4-login/login.jpg" alt="Login migrado" loading="lazy"></div><figcaption>Login · migrado</figcaption></figure>
       </div>
       <p class="type-body muted">El paso del código no se captura (habría que enviar un email real) y Onboarding requiere sesión: revisar a mano.</p>
+
+      <h3>Stories, calendario y navegación inferior</h3>
+      <ul class="type-body-lg" style="padding-left:20px;max-width:760px">
+        <li><b>Calendario cósmico:</b> las flechas de mes eran los caracteres “←” y “→” sin nombre; ahora son botones de ícono con “Mes anterior/siguiente”. Las tarjetas de la semana usan badges del sistema (“Hoy” y “Evento” estaban en 8–9 px).</li>
+        <li><b>Mes (sin rediseñarlo):</b> las celdas mostraban evento, signo y hora en 7 y 7,5 px. Para cumplir el mínimo de 10 px, muestran solo un nombre corto que entra (“Nueva”, “Llena”, “Crec.”, “Meng.”); el signo y la hora siguen en el detalle del día, y cada celda tiene un rótulo accesible con la fecha y el evento completos. El rediseño del mes sigue pendiente como spec propia (decisión 7). Un primer intento con los nombres de antes a 10 px se cortaba en “C. …”: se corrigió con los nombres cortos.</li>
+        <li><b>Stories:</b> rótulos del 50 % al 82 % de blanco, títulos a la escala, texto legible sobre la foto, “Crear ritual para este momento” como primario del sistema y estados de ánimo con su estado anunciado. Los degradados de cada historia quedan como constantes locales (excepción documentada).</li>
+        <li><b>Navegación inferior (toda la app):</b> se identifica como navegación principal, marca la pestaña actual para lectores de pantalla, rótulos de 11 px (antes 10) y áreas de 56 px; la inicial del perfil pasa a sans. El marco de la app usa los tokens de fondo y sombra.</li>
+      </ul>
+      <div class="compare">
+        <figure><div class="shot"><img src="assets/migracion/antes/calendario.jpg" alt="Calendario antes" loading="lazy"></div><figcaption>Calendario · antes</figcaption></figure>
+        <figure><div class="shot"><img src="assets/migracion/etapa-4-stories/calendario-mes.jpg" alt="Calendario mensual migrado" loading="lazy"></div><figcaption>Calendario mes · migrado</figcaption></figure>
+        <figure><div class="shot"><img src="assets/migracion/etapa-4-stories/stories.jpg" alt="Stories migrada" loading="lazy"></div><figcaption>Stories · migrada</figcaption></figure>
+      </div>
 
       <div class="callout"><strong>Encontrado al pasar (no es del design system)</strong>El frontend pide <code>GET /api/rituals/public</code> y el backend responde 404: esa ruta no existe. También quedan textos de rituales en tú (“Siéntate”, “Toma”) en vez de vos; se corrigen en la limpieza.</div>
 
