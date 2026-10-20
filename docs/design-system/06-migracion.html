@@ -36,7 +36,7 @@
           <tr class="stage-row"><td><b>1 · Tokens</b></td><td>Tokens v1 en <code>theme.css</code> y escalas de Tailwind; grises legibles; fuentes y reducir movimiento.</td><td><span class="pass">Hecha</span></td><td><code>e6b14f4</code></td></tr>
           <tr class="stage-row"><td><b>2 · Componentes base</b></td><td>Clases del sistema, foco visible, <code>BackLink</code>, campos y toasts.</td><td><span class="pass">Hecha</span></td><td><code>89be7b7</code></td></tr>
           <tr class="stage-row"><td><b>3 · Imágenes</b></td><td>Fotos a WebP, <code>loading</code>, <code>alt</code>, velo en texto sobre foto.</td><td><span class="pass">Hecha</span></td><td><code>bd7c4e2</code></td></tr>
-          <tr class="stage-row"><td><b>4 · Pantallas</b></td><td>Cada pantalla a tokens y piezas, de a una. Hechas: Home, Cuenta, Detalle de ritual.</td><td><span class="warn">En curso · 3 de 7</span></td><td><code>1e75108</code> Home · <code>1d73b47</code> Cuenta · <code>af25e66</code> Detalle</td></tr>
+          <tr class="stage-row"><td><b>4 · Pantallas</b></td><td>Cada pantalla a tokens y piezas, de a una. Hechas: Home, Cuenta, Detalle de ritual, Pasos de creación.</td><td><span class="warn">En curso · 4 de 7</span></td><td><code>1e75108</code> Home · <code>1d73b47</code> Cuenta · <code>af25e66</code> Detalle · <code>2ba79aa</code> Pasos</td></tr>
           <tr class="stage-row"><td><b>5 · Limpieza</b></td><td>Clases y nombres viejos, shadcn sin uso, archivos sin uso, <code>.dark</code>.</td><td><span class="muted" style="font-size:12px">Pendiente</span></td><td>—</td></tr>
         </tbody>
       </table></div>
@@ -88,7 +88,7 @@
           <tr><td>Home (hero, intención, oráculo, tarjetas)</td><td><span class="pass">Hecha</span> <code>1e75108</code></td></tr>
           <tr><td>Cuenta y registro diario</td><td><span class="pass">Hecha</span> <code>1d73b47</code></td></tr>
           <tr><td>Detalle de ritual y reproductor</td><td><span class="pass">Hecha</span> <code>af25e66</code></td></tr>
-          <tr><td>Pasos de creación</td><td class="muted">Pendiente</td></tr>
+          <tr><td>Pasos de creación</td><td><span class="pass">Hecha</span> <code>2ba79aa</code></td></tr>
           <tr><td>Compartir, Explorar y Wiki</td><td class="muted">Pendiente</td></tr>
           <tr><td>Login y Onboarding</td><td class="muted">Pendiente</td></tr>
           <tr><td>Stories y calendario</td><td class="muted">Pendiente</td></tr>
@@ -134,6 +134,17 @@
         <figure><div class="shot"><img src="assets/migracion/etapa-4-detalle/detalle-publico.jpg" alt="Detalle de un ritual público migrado" loading="lazy"></div><figcaption>Detalle de ritual público, migrado</figcaption></figure>
       </div>
       <p class="type-body muted">La hoja del reproductor, la pregunta de precio y el cierre requieren iniciar un ritual con sesión: revisar a mano.</p>
+      <h3>Pasos de creación</h3>
+      <ul class="type-body-lg" style="padding-left:20px;max-width:760px">
+        <li><b>Opción elegida:</b> pasa de invertirse a negro a <b>borde negro sobre blanco</b> (spec 03). Energía, intensidad y elemento anuncian cuál está elegida (<code>aria-pressed</code>). El indicador de tilde se invierte para el nuevo estilo. La pista de ambiente que está sonando en el reproductor conserva el fondo negro, ahora de forma explícita.</li>
+        <li><b>Textos de las opciones:</b> el título pasa de serif 18 a sans 17; la descripción, de 11 px al 45 % de opacidad (no se leía) a 13 px en <code>--ink-muted</code>.</li>
+        <li><b>Botones:</b> todos los “Siguiente” y “Construir ritual” son el primario del sistema; “Regenerar”, “Hacerlo más simple”, “Dame 3 versiones” y “Reintentar” son pills.</li>
+        <li><b>Elemento y ritual:</b> sin estilos escritos a mano; la hoja de versiones usa la hoja y el velo del sistema (radio 32); la carga se anuncia a lectores de pantalla y el error va en rojo.</li>
+        <li><b>Barra de progreso:</b> “Volver” de 44 px y una barra de progreso accesible (“Paso 3 de 5”).</li>
+        <li><b>Voseo en la interfaz:</b> “querés trabajar”, “te querés sentir”, “Elegí una versión”. Los textos de ejemplo de los rituales siguen en tú: van en la limpieza.</li>
+      </ul>
+      <p class="type-body muted">Requieren sesión: no hay captura automática. Verificado con build y tipos; revisar a mano en <code>/crear/1</code> a <code>/crear/5</code>.</p>
+
       <div class="callout"><strong>Encontrado al pasar (no es del design system)</strong>El frontend pide <code>GET /api/rituals/public</code> y el backend responde 404: esa ruta no existe. También quedan textos de rituales en tú (“Siéntate”, “Toma”) en vez de vos; se corrigen en la limpieza.</div>
 
       <h2 id="comparacion">Antes y después</h2>
