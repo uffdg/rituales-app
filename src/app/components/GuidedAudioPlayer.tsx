@@ -179,41 +179,13 @@ export function GuidedAudioPlayer({
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
-    <div className="rounded-[28px] border border-[rgba(0,0,0,0.08)] bg-[#FCFCFA] p-5">
-      <p
-        style={{
-          fontFamily: "var(--font-sans-ui)",
-          fontSize: "10px",
-          fontWeight: 500,
-          letterSpacing: "0.12em",
-          textTransform: "uppercase",
-          color: "var(--ink-subtle)",
-          marginBottom: "6px",
-        }}
-      >
-        Reproduciendo
-      </p>
+    <div className="editorial-card editorial-card--soft p-5">
+      <p className="editorial-eyebrow mb-1.5">Reproduciendo</p>
 
       <div className="mb-6 flex items-start justify-between gap-4">
         <div>
-          <h3
-            style={{
-              fontFamily: "var(--font-serif-display)",
-              fontSize: "24px",
-              lineHeight: 1.1,
-              color: "var(--ink-strong)",
-              marginBottom: "6px",
-            }}
-          >
-            {title}
-          </h3>
-          <p
-            style={{
-              fontFamily: "var(--font-sans-ui)",
-              fontSize: "12px",
-              color: "var(--ink-subtle)",
-            }}
-          >
+          <h3 className="mb-1.5 font-serif text-title-3 text-ink-strong">{title}</h3>
+          <p className="font-sans text-body text-ink-muted" role="status" aria-live="polite">
             {disabled ? (
               <span className="flex items-center gap-2">
                 <span>Generando audio</span>
@@ -221,7 +193,7 @@ export function GuidedAudioPlayer({
                   {[0, 1, 2].map((i) => (
                     <motion.span
                       key={i}
-                      className="inline-block w-[3px] h-[3px] rounded-full bg-[var(--ink-subtle)]"
+                      className="inline-block w-[3px] h-[3px] rounded-full bg-ink-subtle"
                       animate={{ opacity: [0.2, 1, 0.2] }}
                       transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.2 }}
                     />
@@ -237,10 +209,10 @@ export function GuidedAudioPlayer({
         </div>
 
         <button
+          type="button"
           onClick={restart}
           disabled={!src || disabled}
-          className="shrink-0 rounded-full border border-[rgba(0,0,0,0.08)] bg-white px-4 py-2 text-[var(--ink-strong)] disabled:opacity-40"
-          style={{ fontFamily: "var(--font-sans-ui)", fontSize: "12px", fontWeight: 500 }}
+          className="editorial-pill-button shrink-0 bg-surface-base disabled:opacity-40"
         >
           Reiniciar
         </button>
@@ -261,55 +233,46 @@ export function GuidedAudioPlayer({
             setCurrentTime(nextTime);
             syncAmbienceToVoice();
           }}
-          className="w-full accent-black disabled:opacity-40"
-          style={{ height: "4px" }}
+          aria-label="Posición del audio"
+          aria-valuetext={`${formatTime(currentTime)} de ${formatTime(duration)}`}
+          className="h-1 w-full accent-black disabled:opacity-40"
         />
       </div>
 
       <div className="mb-5 flex items-center justify-between">
-        <p
-          style={{
-            fontFamily: "var(--font-sans-ui)",
-            fontSize: "12px",
-            color: "var(--ink-subtle)",
-            fontVariantNumeric: "tabular-nums",
-          }}
-        >
+        <p className="font-sans text-caption tabular-nums text-ink-muted">
           {formatTime(currentTime)}
         </p>
 
-        <div className="mx-3 h-[3px] flex-1 overflow-hidden rounded-full bg-[rgba(0,0,0,0.06)]">
+        <div className="mx-3 h-[3px] flex-1 overflow-hidden rounded-full bg-line-soft" aria-hidden="true">
           <div
-            className="h-full rounded-full bg-[var(--ink-strong)] transition-[width]"
+            className="h-full rounded-full bg-ink-strong transition-[width]"
             style={{ width: `${progress}%` }}
           />
         </div>
 
-        <p
-          style={{
-            fontFamily: "var(--font-sans-ui)",
-            fontSize: "12px",
-            color: "var(--ink-subtle)",
-            fontVariantNumeric: "tabular-nums",
-          }}
-        >
+        <p className="font-sans text-caption tabular-nums text-ink-muted">
           {formatTime(duration)}
         </p>
       </div>
 
       <div className="flex items-center justify-center gap-3">
         <button
+          type="button"
           onClick={() => jumpBy(-10)}
           disabled={!src || disabled}
-          className="flex h-12 w-12 items-center justify-center rounded-full border border-[rgba(0,0,0,0.08)] bg-white text-[var(--ink-strong)] disabled:opacity-40"
+          aria-label="Retroceder 10 segundos"
+          className="editorial-icon-button editorial-icon-button--filled h-12 w-12 text-ink-strong disabled:opacity-40"
         >
           <SkipBack size={18} strokeWidth={1.8} />
         </button>
 
         <button
+          type="button"
           onClick={togglePlayPause}
           disabled={disabled}
-          className="relative flex h-16 w-16 items-center justify-center rounded-full bg-[var(--ink-strong)] text-white"
+          aria-label={disabled ? "Generando audio" : isPlaying ? "Pausar" : "Reproducir"}
+          className="editorial-icon-button editorial-icon-button--play relative"
         >
           {disabled ? (
             <>
@@ -338,9 +301,11 @@ export function GuidedAudioPlayer({
         </button>
 
         <button
+          type="button"
           onClick={() => jumpBy(10)}
           disabled={!src || disabled}
-          className="flex h-12 w-12 items-center justify-center rounded-full border border-[rgba(0,0,0,0.08)] bg-white text-[var(--ink-strong)] disabled:opacity-40"
+          aria-label="Adelantar 10 segundos"
+          className="editorial-icon-button editorial-icon-button--filled h-12 w-12 text-ink-strong disabled:opacity-40"
         >
           <SkipForward size={18} strokeWidth={1.8} />
         </button>

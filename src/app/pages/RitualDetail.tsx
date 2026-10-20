@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router";
+import { BackLink } from "../components/BackLink";
 import { motion, AnimatePresence } from "motion/react";
 import { useRitual } from "../context/RitualContext";
 import { useUser } from "../context/UserContext";
@@ -571,7 +572,7 @@ export function RitualDetail() {
   if (loadState === "loading") {
     return (
       <div className="editorial-page-bg items-center justify-center px-6">
-        <p className="font-serif text-[26px] text-[var(--ink-body)]">Cargando tu ritual...</p>
+        <p className="font-serif text-title-2 text-ink-muted" role="status">Cargando tu ritual…</p>
       </div>
     );
   }
@@ -579,13 +580,14 @@ export function RitualDetail() {
   if (loadState === "error") {
     return (
       <div className="editorial-page-bg flex-col items-center justify-center px-6 text-center">
-        <p className="font-serif text-[28px] text-[var(--ink-strong)] mb-2">No pudimos abrir este ritual</p>
-        <p className="editorial-body-muted mb-[18px]">
+        <p className="font-serif text-title-2 text-ink-strong mb-2">No pudimos abrir este ritual</p>
+        <p className="editorial-body-muted mb-5">
           Puede que todavía no esté disponible o que el enlace haya cambiado.
         </p>
         <button
+          type="button"
           onClick={() => navigate("/")}
-          className="editorial-button-primary px-5 py-3"
+          className="editorial-button editorial-button--primary"
         >
           Volver al inicio
         </button>
@@ -616,25 +618,20 @@ export function RitualDetail() {
 
         {/* Nav bar */}
         <div className="relative pt-14 px-6 flex items-center justify-between">
-          <button
+          <BackLink
+            label={fromAccount ? "Volver" : isViewMode ? "Explorar" : "Inicio"}
             onClick={() => {
               if (fromAccount) navigate("/cuenta");
               else if (isViewMode) navigate("/explorar");
               else navigate("/");
             }}
-            className="flex items-center gap-2 transition-opacity active:opacity-60"
-            style={{ fontFamily: "var(--font-sans-ui)", fontSize: "13px", color: "rgba(255,255,255,0.8)" }}
-          >
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <path d="M9 2L4 7L9 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-            </svg>
-            {fromAccount ? "Volver" : isViewMode ? "Explorar" : "Inicio"}
-          </button>
+            className="text-on-ink-muted hover:text-on-ink-strong"
+          />
           {!isPublic && (
             <button
+              type="button"
               onClick={() => navigate("/crear/1")}
-              className="transition-opacity active:opacity-60"
-              style={{ fontFamily: "var(--font-sans-ui)", fontSize: "13px", color: "rgba(255,255,255,0.8)" }}
+              className="editorial-back-link text-on-ink-muted hover:text-on-ink-strong"
             >
               Editar
             </button>
@@ -643,42 +640,32 @@ export function RitualDetail() {
 
         {/* Title + badges at bottom of hero */}
         <div className="absolute bottom-0 left-0 right-0 px-6 pb-8">
-          <h1
-            className="text-center"
-            style={{
-              fontFamily: "var(--font-serif-display)",
-              fontSize: "28px",
-              fontWeight: 400,
-              color: "#fff",
-              lineHeight: 1.2,
-              marginBottom: "14px",
-            }}
-          >
+          <h1 className="mb-3.5 text-center font-serif text-title-2 text-on-ink-strong">
             {displayRitual.title}
           </h1>
 
           <div className="flex flex-wrap items-center justify-center gap-1.5">
             {displayRitual.element && (
-              <span style={{ fontFamily: "var(--font-sans-ui)", fontSize: "11px", fontWeight: 400, padding: "4px 11px", borderRadius: "99px", background: "rgba(255,255,255,0.14)", color: "rgba(255,255,255,0.85)", backdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.18)" }}>
+              <span className="rounded-full border border-white/20 bg-white/15 px-2.5 py-1 font-sans text-caption text-on-ink-muted backdrop-blur-md">
                 {elementData?.label || displayRitual.element}
               </span>
             )}
             {displayRitual.energy && (
-              <span style={{ fontFamily: "var(--font-sans-ui)", fontSize: "11px", fontWeight: 400, padding: "4px 11px", borderRadius: "99px", background: "rgba(255,255,255,0.14)", color: "rgba(255,255,255,0.85)", backdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.18)" }}>
+              <span className="rounded-full border border-white/20 bg-white/15 px-2.5 py-1 font-sans text-caption text-on-ink-muted backdrop-blur-md">
                 {ENERGY_MAP[displayRitual.energy] || displayRitual.energy}
               </span>
             )}
             {displayRitual.intensity && (
-              <span style={{ fontFamily: "var(--font-sans-ui)", fontSize: "11px", fontWeight: 500, padding: "4px 11px", borderRadius: "99px", background: "rgba(255,255,255,0.88)", color: "#111" }}>
+              <span className="rounded-full bg-white/90 px-2.5 py-1 font-sans text-caption font-medium text-ink-strong">
                 {INTENSITY_MAP[displayRitual.intensity] || displayRitual.intensity}
               </span>
             )}
             {displayRitual.duration && (
-              <span style={{ fontFamily: "var(--font-sans-ui)", fontSize: "11px", fontWeight: 400, padding: "4px 11px", borderRadius: "99px", background: "rgba(255,255,255,0.14)", color: "rgba(255,255,255,0.85)", backdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.18)" }}>
+              <span className="rounded-full border border-white/20 bg-white/15 px-2.5 py-1 font-sans text-caption text-on-ink-muted backdrop-blur-md">
                 {displayRitual.duration} min
               </span>
             )}
-            <span style={{ fontFamily: "var(--font-sans-ui)", fontSize: "11px", fontWeight: 400, padding: "4px 11px", borderRadius: "99px", background: "rgba(255,255,255,0.14)", color: "rgba(255,255,255,0.85)", backdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.18)" }}>
+            <span className="rounded-full border border-white/20 bg-white/15 px-2.5 py-1 font-sans text-caption text-on-ink-muted backdrop-blur-md">
               Vela {candleGuide.color}
             </span>
           </div>
@@ -699,7 +686,7 @@ export function RitualDetail() {
         {displayRitual.intention && (
           <div className="mb-7">
             <p className="editorial-eyebrow mb-2">Intención</p>
-            <p style={{ fontFamily: "var(--font-sans-ui)", fontSize: "16px", fontWeight: 300, fontStyle: "italic", color: "var(--ink-body)", lineHeight: 1.6 }}>
+            <p className="font-sans text-title-4 text-ink-body">
               "{displayRitual.intention}"
             </p>
           </div>
@@ -727,22 +714,22 @@ export function RitualDetail() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.1 + i * 0.1 }}
-              className="editorial-card-soft mb-5 p-5 rounded-2xl"
+              className="editorial-card editorial-card--soft mb-4 p-5"
             >
               <div className="flex items-center gap-2 mb-3">
-                <span className="font-serif text-[14px] text-[var(--ink-decor)]" aria-hidden="true">{section.symbol}</span>
+                <span className="font-serif text-body text-ink-decor" aria-hidden="true">{section.symbol}</span>
                 <p className="editorial-eyebrow">{section.label}</p>
               </div>
-              <p style={{ fontFamily: "var(--font-sans-ui)", fontSize: "14px", fontWeight: 300, lineHeight: 1.7, color: "var(--ink-body)" }}>{section.text}</p>
+              <p className="font-sans text-body-lg text-ink-body">{section.text}</p>
             </motion.div>
           ))}
 
         {/* Anchor */}
-        <div className="mb-6 p-5 rounded-2xl border border-[var(--ink-strong)] bg-[var(--ink-strong)]">
-          <p className="font-sans text-[10px] font-medium tracking-[0.14em] uppercase text-white/40 mb-1.5">
+        <div className="editorial-card editorial-card--inverse mb-6 p-5">
+          <p className="editorial-eyebrow editorial-eyebrow--on-dark mb-1.5">
             Tu anclaje real
           </p>
-          <p style={{ fontFamily: "var(--font-sans-ui)", fontSize: "16px", fontWeight: 300, color: "#fff", lineHeight: 1.5 }}>
+          <p className="font-sans text-title-4 text-on-ink-strong">
             {anchorText}
           </p>
         </div>
@@ -760,20 +747,23 @@ export function RitualDetail() {
         {isOwnRitualView ? (
           <div className="flex gap-2.5">
             <button
+              type="button"
               onClick={handleStartRitual}
-              className="editorial-button-primary flex-1 py-3.5 transition-all active:scale-[0.98] cursor-pointer"
+              className="editorial-button editorial-button--primary min-h-[52px] flex-1"
             >
               Iniciar
             </button>
             <button
+              type="button"
               onClick={() => navigate("/compartir")}
-              className="editorial-button-soft px-4 py-3.5 transition-all active:scale-[0.98] cursor-pointer"
+              className="editorial-button editorial-button--secondary min-h-[52px] px-4"
             >
               Compartir
             </button>
             <button
+              type="button"
               onClick={handlePrintRitual}
-              className="editorial-button-soft h-[50px] w-[50px] transition-all active:scale-[0.98] cursor-pointer flex items-center justify-center"
+              className="editorial-button editorial-button--secondary h-[52px] w-[52px] !px-0"
               aria-label="Descargar o imprimir ritual"
             >
               <FileDown size={16} strokeWidth={1.6} />
@@ -783,19 +773,18 @@ export function RitualDetail() {
           <div className="flex gap-2.5">
             {isPublic ? (
               <button
+                type="button"
                 onClick={handleCreateOwnRitual}
-                className="editorial-button-primary flex-1 py-3.5 transition-all active:scale-[0.98] cursor-pointer"
+                className="editorial-button editorial-button--primary min-h-[52px] flex-1"
               >
                 Crear el mío
               </button>
             ) : null}
             <button
-              className={`${
-                isPublic ? "px-4" : "flex-1"
-              } py-3.5 border rounded-xl transition-all active:scale-[0.98] cursor-pointer flex items-center justify-center gap-2 font-sans text-[13px] ${
-                isCurrentRitualSaved
-                  ? "border-[var(--ink-strong)] bg-[var(--surface-soft)] text-[var(--ink-strong)]"
-                  : "border-[var(--border-default)] text-[var(--ink-muted)]"
+              type="button"
+              aria-pressed={isCurrentRitualSaved}
+              className={`editorial-button editorial-button--secondary min-h-[52px] ${isPublic ? "px-4" : "flex-1"} ${
+                isCurrentRitualSaved ? "!border-ink-strong" : ""
               }`}
               onClick={async () => {
                 if (!canSaveCurrentRitual) {
@@ -852,7 +841,7 @@ export function RitualDetail() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/40 z-[120]"
+              className="fixed inset-0 bg-scrim z-[120]"
               onClick={() => {
                 if (pricingPrompt) return;
                 audioRef.current?.pause();
@@ -881,18 +870,9 @@ export function RitualDetail() {
                   className="mb-6 space-y-5"
                 >
                   <div className="text-center">
-                    <CheckCircle2 size={34} strokeWidth={1.4} className="mx-auto mb-3 text-[var(--ink-strong)]" />
+                    <CheckCircle2 size={32} strokeWidth={1.4} className="mx-auto mb-3 text-ink-strong" aria-hidden="true" />
                     <p className="editorial-eyebrow mb-2">Ritual completado</p>
-                    <h3
-                      className="mx-auto max-w-[280px]"
-                      style={{
-                        fontFamily: "var(--font-serif-display)",
-                        fontSize: "25px",
-                        fontWeight: 400,
-                        lineHeight: 1.12,
-                        color: "var(--ink-strong)",
-                      }}
-                    >
+                    <h3 className="mx-auto max-w-[280px] font-serif text-title-2 text-ink-strong">
                       Que no quede solo en la escucha.
                     </h3>
                     <p className="editorial-body-muted mt-3">
@@ -900,11 +880,11 @@ export function RitualDetail() {
                     </p>
                   </div>
 
-                  <div className="rounded-2xl bg-[var(--ink-strong)] p-4">
-                    <p className="font-sans text-[9px] font-medium tracking-[0.14em] uppercase text-white/40 mb-2">
+                  <div className="editorial-card editorial-card--inverse p-4">
+                    <p className="editorial-eyebrow editorial-eyebrow--on-dark mb-2">
                       Tu anclaje real
                     </p>
-                    <p className="font-sans text-[14px] font-light leading-[1.55] text-white">
+                    <p className="font-sans text-body-lg text-on-ink-strong">
                       {anchorText}
                     </p>
                   </div>
@@ -912,29 +892,31 @@ export function RitualDetail() {
                   <button
                     type="button"
                     onClick={() => setAnchorConfirmed((current) => !current)}
-                    className={`flex w-full items-center gap-3 rounded-2xl border px-4 py-3 text-left transition-all ${
+                    aria-pressed={anchorConfirmed}
+                    className={`flex min-h-[52px] w-full items-center gap-3 rounded-md border px-4 py-3 text-left transition-all ${
                       anchorConfirmed
-                        ? "border-[var(--ink-strong)] bg-[var(--ink-strong)] text-white"
-                        : "border-[var(--border-default)] bg-white text-[var(--ink-strong)]"
+                        ? "border-ink-strong bg-ink-strong text-on-ink-strong"
+                        : "border-line-default bg-surface-base text-ink-strong"
                     }`}
                   >
                     <span
                       className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border ${
-                        anchorConfirmed ? "border-white bg-white text-[var(--ink-strong)]" : "border-[var(--border-strong)]"
+                        anchorConfirmed ? "border-white bg-white text-ink-strong" : "border-line-strong"
                       }`}
                     >
                       {anchorConfirmed ? <CheckCircle2 size={14} strokeWidth={2} /> : null}
                     </span>
-                    <span className="font-sans text-[13px] font-medium">
+                    <span className="font-sans text-body font-medium">
                       Confirmé mi anclaje
                     </span>
                   </button>
 
                   <div>
-                    <label className="editorial-field-label mb-2 block">
+                    <label htmlFor="ritual-reflection" className="editorial-field-label mb-2 block">
                       ¿Qué te dejó este ritual?
                     </label>
                     <textarea
+                      id="ritual-reflection"
                       value={reflectionText}
                       onChange={(event) => setReflectionText(event.target.value)}
                       rows={4}
@@ -946,11 +928,8 @@ export function RitualDetail() {
                   <button
                     onClick={handleSaveCompletion}
                     disabled={!anchorConfirmed || isSavingCompletion || completionSaved}
-                    className={`editorial-action-button ${
-                      anchorConfirmed && !completionSaved
-                        ? "editorial-action-button-primary"
-                        : "editorial-action-button-disabled"
-                    }`}
+                    aria-busy={isSavingCompletion}
+                    className="editorial-button editorial-button--primary editorial-button--lg"
                   >
                     {isSavingCompletion ? (
                       <span className="inline-flex items-center justify-center gap-2">
@@ -972,116 +951,64 @@ export function RitualDetail() {
                         initial={{ opacity: 0, y: 8 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 6 }}
-                        className="mb-5 rounded-2xl border border-[var(--border-soft)] bg-[var(--surface-softest)] p-4"
+                        className="editorial-card editorial-card--soft mb-5 p-4"
                       >
                         {!pricingPrompt.answer ? (
                           <>
                             <p className="editorial-eyebrow mb-2">Voz guiada</p>
-                            <h3
-                              className="mb-3"
-                              style={{
-                                fontFamily: "var(--font-serif-display)",
-                                fontSize: "22px",
-                                fontWeight: 400,
-                                lineHeight: 1.15,
-                                color: "var(--ink-strong)",
-                              }}
-                            >
+                            <h3 className="mb-3 font-serif text-title-3 text-ink-strong">
                               ¿Te haría sentido pagar por esta voz?
                             </h3>
-                            <div className="mb-3 rounded-2xl border border-[var(--border-soft)] bg-white px-4 py-3">
+                            <div className="editorial-card editorial-card--flat mb-3 rounded-md px-4 py-3">
                               <div className="flex items-baseline justify-center gap-1.5">
-                                <span
-                                  style={{
-                                    fontFamily: "var(--font-serif-display)",
-                                    fontSize: "34px",
-                                    fontWeight: 400,
-                                    lineHeight: 1,
-                                    color: "var(--ink-strong)",
-                                  }}
-                                >
+                                <span className="font-serif text-title-1 leading-none text-ink-strong">
                                   USD 10
                                 </span>
-                                <span
-                                  style={{
-                                    fontFamily: "var(--font-sans-ui)",
-                                    fontSize: "12px",
-                                    fontWeight: 400,
-                                    color: "var(--ink-subtle)",
-                                  }}
-                                >
+                                <span className="font-sans text-body text-ink-muted">
                                   / mes
                                 </span>
                               </div>
                             </div>
-                            <p
-                              className="mb-4"
-                              style={{
-                                fontFamily: "var(--font-sans-ui)",
-                                fontSize: "13px",
-                                fontWeight: 300,
-                                lineHeight: 1.55,
-                                color: "var(--ink-subtle)",
-                              }}
-                            >
+                            <p className="mb-4 font-sans text-body text-ink-muted">
                               La primera voz guiada queda disponible. Para sostener nuevas voces,
                               estamos probando una membresía mensual.
                             </p>
                             <div className="grid grid-cols-2 gap-2">
                               <button
+                                type="button"
                                 onClick={() => handlePricingResponse("accepted")}
-                                className="rounded-full bg-[var(--ink-strong)] px-4 py-3 text-white"
-                                style={{ fontFamily: "var(--font-sans-ui)", fontSize: "13px", fontWeight: 500 }}
+                                className="editorial-button editorial-button--primary"
                               >
                                 Sí
                               </button>
                               <button
+                                type="button"
                                 onClick={() => handlePricingResponse("declined")}
-                                className="rounded-full border border-[var(--border-default)] bg-white px-4 py-3 text-[var(--ink-strong)]"
-                                style={{ fontFamily: "var(--font-sans-ui)", fontSize: "13px", fontWeight: 500 }}
+                                className="editorial-button editorial-button--secondary"
                               >
                                 No por ahora
                               </button>
                             </div>
-                            <p
-                              className="mt-3 text-center"
-                              style={{ fontFamily: "var(--font-sans-ui)", fontSize: "11px", fontWeight: 300, color: "var(--ink-muted)" }}
-                            >
+                            <p className="mt-3 text-center font-sans text-caption text-ink-muted">
                               Tu ritual sigue después de responder.
                             </p>
                           </>
                         ) : (
                           <>
                             <p className="editorial-eyebrow mb-2">Una pregunta más</p>
-                            <h3
-                              className="mb-2"
-                              style={{
-                                fontFamily: "var(--font-serif-display)",
-                                fontSize: "22px",
-                                fontWeight: 400,
-                                lineHeight: 1.15,
-                                color: "var(--ink-strong)",
-                              }}
-                            >
+                            <h3 className="mb-2 font-serif text-title-3 text-ink-strong">
                               {pricingPrompt.answer === "yes"
                                 ? "¿Por qué te haría sentido?"
                                 : "¿Por qué no por ahora?"}
                             </h3>
-                            <p
-                              className="mb-3"
-                              style={{
-                                fontFamily: "var(--font-sans-ui)",
-                                fontSize: "12px",
-                                fontWeight: 300,
-                                color: "var(--ink-subtle)",
-                              }}
-                            >
+                            <p className="mb-3 font-sans text-body text-ink-muted">
                               Respuesta: {pricingPrompt.answer === "yes" ? "Sí" : "No por ahora"}
                             </p>
-                            <label className="editorial-field-label mb-2 block">
+                            <label htmlFor="pricing-reason" className="editorial-field-label mb-2 block">
                               Tu razón
                             </label>
                             <textarea
+                              id="pricing-reason"
                               value={pricingReason}
                               onChange={(event) => setPricingReason(event.target.value)}
                               rows={4}
@@ -1095,11 +1022,7 @@ export function RitualDetail() {
                             <button
                               onClick={handlePricingReasonSubmit}
                               disabled={pricingReason.trim().length < 3}
-                              className={`editorial-action-button ${
-                                pricingReason.trim().length >= 3
-                                  ? "editorial-action-button-primary"
-                                  : "editorial-action-button-disabled"
-                              }`}
+                              className="editorial-button editorial-button--primary editorial-button--lg"
                             >
                               Preparar la voz
                             </button>
@@ -1119,18 +1042,15 @@ export function RitualDetail() {
                     />
                   )}
                   {guidedAudioError && (
-                    <p
-                      className="mt-3 text-center"
-                      style={{ fontFamily: "var(--font-sans-ui)", fontSize: "12px", color: "var(--ink-muted)" }}
-                    >
+                    <p className="editorial-error mt-3 justify-center text-center" role="alert">
                       {guidedAudioError}
                     </p>
                   )}
                   {!pricingPrompt && (
                     <button
+                      type="button"
                       onClick={() => handleAudioTabChange("ambient")}
-                      className="mx-auto mt-5 block text-[var(--ink-subtle)] hover:text-[var(--ink-strong)] transition-colors"
-                      style={{ fontFamily: "var(--font-sans-ui)", fontSize: "13px", fontWeight: 300 }}
+                      className="editorial-button editorial-button--tertiary mx-auto mt-5 flex"
                     >
                       Prefiero solo música de fondo
                     </button>
@@ -1187,11 +1107,12 @@ export function RitualDetail() {
                       className={`editorial-option-card flex items-center justify-between ${isActive ? "editorial-option-card-active" : "editorial-card-soft"}`}
                     >
                       <div className="text-left">
-                        <p className="font-serif text-[18px] font-normal leading-[1.2]">{t.label}</p>
-                        <p className={`font-sans text-[11px] mt-0.5 ${isActive ? "opacity-60" : "text-[var(--ink-muted)] opacity-70"}`}>{t.sublabel}</p>
+                        <p className="font-sans text-title-4">{t.label}</p>
+                        <p className={`mt-0.5 font-sans text-caption ${isActive ? "text-on-ink-muted" : "text-ink-muted"}`}>{t.sublabel}</p>
                       </div>
                       <div
-                        className={`flex h-10 w-10 items-center justify-center rounded-full ${isActive ? "bg-white/15" : "bg-[var(--surface-soft)]"}`}
+                        className={`flex h-10 w-10 items-center justify-center rounded-full ${isActive ? "bg-white/15" : "bg-surface-soft"}`}
+                        aria-hidden="true"
                       >
                         {isThisPlaying ? (
                           <Pause size={16} strokeWidth={1.8} />
@@ -1203,9 +1124,9 @@ export function RitualDetail() {
                   );
                 })}
                   <button
+                    type="button"
                     onClick={() => handleAudioTabChange("guided")}
-                    className="mt-2 text-[var(--ink-subtle)] hover:text-[var(--ink-strong)] transition-colors"
-                    style={{ fontFamily: "var(--font-sans-ui)", fontSize: "13px", fontWeight: 300 }}
+                    className="editorial-button editorial-button--tertiary mx-auto mt-2 flex"
                   >
                     Volver a voz guiada
                   </button>
