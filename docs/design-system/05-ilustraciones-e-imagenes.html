@@ -103,12 +103,12 @@
         </div>
       </div>
       <div class="table-scroll"><table class="spec">
-        <thead><tr><th>Uso</th><th>Proporción</th><th>Tamaño de exportación</th><th>Carga</th></tr></thead>
+        <thead><tr><th>Uso</th><th>Proporción</th><th>Carga</th></tr></thead>
         <tbody>
-          <tr><td>Hero de Home</td><td>9:16, cubre la pantalla</td><td>1440 px de lado largo</td><td>Inmediata (es lo primero que se ve)</td></tr>
-          <tr><td>Portada en grilla y recomendación</td><td>3:4</td><td>800 px</td><td><code>loading="lazy"</code></td></tr>
-          <tr><td>Stories y detalle de ritual</td><td>9:16</td><td>1440 px</td><td>Inmediata la primera; el resto lazy</td></tr>
-          <tr><td>Wiki (card y nota)</td><td>4:5</td><td>800 px card · 1440 px nota</td><td><code>loading="lazy"</code></td></tr>
+          <tr><td>Hero de Home</td><td>9:16, cubre la pantalla</td><td>Inmediata (es lo primero que se ve)</td></tr>
+          <tr><td>Portada en grilla y recomendación</td><td>3:4</td><td><code>loading="lazy"</code></td></tr>
+          <tr><td>Stories y detalle de ritual</td><td>9:16</td><td>Inmediata la primera; el resto lazy</td></tr>
+          <tr><td>Wiki (card y nota)</td><td>4:5</td><td><code>loading="lazy"</code></td></tr>
         </tbody>
       </table></div>
 
@@ -136,21 +136,22 @@
           </div>
         </div>
       </div>
-      <div class="callout callout--rule"><strong>Reglas</strong>Velo de abajo hacia arriba: de transparente al 30 % a negro 55 % (o <code>--scrim</code> parejo si el texto está arriba). Texto en <code>--on-ink-strong</code> y <code>--on-ink-subtle</code>, nunca grises claros sueltos. Hoy el hero de Home elige entre texto claro y oscuro según la foto (<code>HERO_TEXT_THEMES</code>): con el velo, siempre claro.</div>
+      <div class="callout callout--rule"><strong>Reglas</strong>Velo del lado del texto: de negro 35–55 % a transparente (arriba o abajo, según dónde esté el texto). Texto en blanco al 82 % o más, nunca grises claros sueltos. <b>Excepción del hero de Home:</b> sobre los cielos claros va texto oscuro (cada foto tiene su tema en <code>HERO_TEXT_THEMES</code>); en ese caso, negro al 66 % o más y sin velo, para no apagar la foto.</div>
 
       <!-- ─────────────────────────────── Técnica -->
       <h2 id="tecnica">Peso y formato</h2>
       <div class="grid-3">
         <div class="panel" style="margin:0"><p class="type-display" style="margin:0;color:var(--danger)">146 MB</p><p class="type-body muted" style="margin:4px 0 0">de fotos en <code>public/</code> hoy</p></div>
         <div class="panel" style="margin:0"><p class="type-display" style="margin:0;color:var(--ink-strong)">6 MB</p><p class="type-body muted" style="margin:4px 0 0">la más pesada (<code>story-air-3.jpg</code>, 8165 × 12247 px)</p></div>
-        <div class="panel" style="margin:0"><p class="type-display" style="margin:0;color:var(--success)">~10 MB</p><p class="type-body muted" style="margin:4px 0 0">estimado en WebP a los tamaños de arriba</p></div>
+        <div class="panel" style="margin:0"><p class="type-display" style="margin:0;color:var(--success)">4,3 MB</p><p class="type-body muted" style="margin:4px 0 0">las 50 fotos en uso, en WebP (etapa 3)</p></div>
       </div>
       <p>Las fotos se suben tal como salen de la cámara o de Unsplash. Cada portada de la grilla descarga entre 0,5 y 6 MB para mostrarse a unos 170 px de ancho. Las fotos de rituales pesan 2,4 MB en promedio: cada 10 portadas son unos 24 MB de datos móviles.</p>
       <div class="table-scroll"><table class="spec">
         <thead><tr><th>Regla</th><th>Valor</th></tr></thead>
         <tbody>
           <tr><td>Formato</td><td>WebP calidad 75 (JPEG de respaldo solo si hace falta).</td></tr>
-          <tr><td>Tamaño</td><td>El de la tabla de fotografía: 800 o 1440 px de lado largo. Peso objetivo: menos de 250 KB.</td></tr>
+          <tr><td>Tamaño</td><td>1080 px de ancho, un solo archivo por foto (la misma foto se usa en la grilla y a pantalla completa). Peso objetivo: menos de 250 KB.</td></tr>
+          <tr><td>Cómo</td><td><code>scripts/optimize-images.sh foto.jpg</code> deja <code>foto.webp</code> al lado (usa <code>cwebp</code>; rechaza fotos con rotación EXIF).</td></tr>
           <tr><td>En el HTML</td><td><code>width</code> y <code>height</code> (o <code>aspect-ratio</code>) para que no salte el layout; <code>decoding="async"</code>; <code>loading="lazy"</code> salvo lo primero que se ve.</td></tr>
           <tr><td>Recorte</td><td><code>object-fit: cover</code> con <code>object-position</code> elegido por foto si el motivo no está centrado.</td></tr>
           <tr><td>Nombres</td><td><code>uso-tema-n.webp</code> en minúscula (<code>story-agua-1.webp</code>). Hoy conviven <code>abastract</code> (con error), inglés y castellano.</td></tr>
@@ -193,7 +194,7 @@
       <div class="callout callout--decision"><strong>Recomendación: quedarse con los íconos de línea</strong> (<code>MoonPhaseIcon</code>) y dejar los PNG solo donde la luna es protagonista (el calendario cósmico), como “foto” de la luna. Así hay un solo lenguaje para los íconos.</div>
 
       <h3>10. Optimizar las fotos</h3>
-      <div class="callout callout--decision"><strong>Recomendación: sí, como fase propia</strong> (“Imágenes”, entre Componentes y Pantallas del plan): exportar a WebP con los tamaños de esta spec, renombrar, sumar <code>width/height</code>, <code>loading</code> y <code>alt</code>, y borrar lo que no se usa. Es el cambio que más se nota en velocidad.</div>
+      <div class="callout callout--decision"><strong>Hecho en la etapa 3 (<a href="06-migracion.html#etapa-3">ver migración</a>).</strong> Recomendación original: sí, como fase propia (“Imágenes”, entre Componentes y Pantallas del plan): exportar a WebP con los tamaños de esta spec, renombrar, sumar <code>width/height</code>, <code>loading</code> y <code>alt</code>, y borrar lo que no se usa. Es el cambio que más se nota en velocidad.</div>
     </div>
   </main>
 </div>

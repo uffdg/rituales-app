@@ -22,7 +22,15 @@ const SCREENS = [
   const page = await context.newPage();
   for (const [name, route] of SCREENS) {
     await page.goto(`http://localhost:5173${route}`, { waitUntil: "networkidle" });
-    await page.waitForTimeout(1500);
+    // La captura completa agranda la ventana al alto de la página; lo que mide
+    // "100% de la pantalla" (el fondo de Home) se fija al alto de un teléfono.
+    await page.addStyleTag({ content: ".h-\\[100svh\\] { height: 844px !important; } .min-h-screen { min-height: 844px !important; }" });
+    // Las fotos con carga diferida no cargan sin scrollear: se fuerzan.
+    await page.evaluate(() => document.querySelectorAll('img[loading="lazy"]').forEach((img) => { img.loading = "eager"; }));
+    await page.waitForFunction(() => [...document.images].every((img) => img.complete), null, { timeout: 15000 }).catch(() => {});
+    // Con decoding="async", Chrome no pinta en la captura las fotos fuera de pantalla.
+    await page.evaluate(() => Promise.all([...document.images].map((img) => { img.decoding = "sync"; return img.decode().catch(() => {}); })));
+    await page.waitForTimeout(800);
     await page.screenshot({ path: path.join(outDir, `${name}.jpg`), type: "jpeg", quality: 70, fullPage: true });
     console.log("ok", name);
   }

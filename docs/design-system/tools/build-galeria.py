@@ -253,6 +253,8 @@ def main():
     if sys.platform != "darwin":
         sys.exit("Este script usa `sips`, que solo existe en macOS.")
     OUT.mkdir(parents=True, exist_ok=True)
+    # Miniaturas desde cero: así no quedan las de archivos que ya no existen.
+    shutil.rmtree(OUT / "fotos", ignore_errors=True)
     meta = export_illustrations()
     groups = collect_photos(source_files())
     (DOCS / "galeria.html").write_text(build(meta, groups), encoding="utf-8")

@@ -35,7 +35,7 @@
         <tbody>
           <tr class="stage-row"><td><b>1 · Tokens</b></td><td>Tokens v1 en <code>theme.css</code> y escalas de Tailwind; grises legibles; fuentes y reducir movimiento.</td><td><span class="pass">Hecha</span></td><td><code>e6b14f4</code></td></tr>
           <tr class="stage-row"><td><b>2 · Componentes base</b></td><td>Clases del sistema, foco visible, <code>BackLink</code>, campos y toasts.</td><td><span class="pass">Hecha</span></td><td><code>89be7b7</code></td></tr>
-          <tr class="stage-row"><td><b>3 · Imágenes</b></td><td>Fotos a WebP con tamaño por uso, <code>loading</code>, <code>alt</code>, velo en texto sobre foto.</td><td><span class="muted" style="font-size:12px">Pendiente</span></td><td>—</td></tr>
+          <tr class="stage-row"><td><b>3 · Imágenes</b></td><td>Fotos a WebP, <code>loading</code>, <code>alt</code>, velo en texto sobre foto.</td><td><span class="pass">Hecha</span></td><td><code>bd7c4e2</code></td></tr>
           <tr class="stage-row"><td><b>4 · Pantallas</b></td><td>Cada pantalla a tokens y piezas, de a una.</td><td><span class="muted" style="font-size:12px">Pendiente</span></td><td>—</td></tr>
           <tr class="stage-row"><td><b>5 · Limpieza</b></td><td>Clases y nombres viejos, shadcn sin uso, archivos sin uso, <code>.dark</code>.</td><td><span class="muted" style="font-size:12px">Pendiente</span></td><td>—</td></tr>
         </tbody>
@@ -65,6 +65,22 @@
       <p class="muted">Verificado: build y tipos; recorrido con Tab en Login y Explorar (cada elemento muestra el contorno o el borde de foco).</p>
       <div class="callout"><strong>Queda para la etapa de pantallas</strong>La sombra de la card base y el estilo de la opción elegida en los pasos de creación (hoy invertida, en la spec con borde): cambian mucho el aspecto y se revisan con cada pantalla.</div>
 
+      <h2 id="etapa-3">Etapa 3 · Imágenes</h2>
+      <div class="grid-3">
+        <div class="panel" style="margin:0"><p class="type-display" style="margin:0;color:var(--danger)">146 MB</p><p class="type-body muted" style="margin:4px 0 0">fotos antes</p></div>
+        <div class="panel" style="margin:0"><p class="type-display" style="margin:0;color:var(--success)">4,3 MB</p><p class="type-body muted" style="margin:4px 0 0">las 50 fotos en uso, en WebP</p></div>
+        <div class="panel" style="margin:0"><p class="type-display" style="margin:0;color:var(--ink-strong)">8</p><p class="type-body muted" style="margin:4px 0 0">originales sin uso que se borran en la etapa 5</p></div>
+      </div>
+      <ul class="type-body-lg" style="padding-left:20px;max-width:760px">
+        <li>Las 50 fotos en uso pasan a WebP de 1080 px de ancho y calidad 75 con <code>scripts/optimize-images.sh</code>. Se revisaron a ojo las que más bajaron de peso (cielos lisos, sin pérdida visible). Las originales siguen en el historial de git.</li>
+        <li>Referencias a <code>.webp</code> y el nombre <code>abastract</code> corregido a <code>abstract</code>. Verificado: las 50 rutas responden <code>200 image/webp</code>.</li>
+        <li><code>loading="lazy"</code> y <code>decoding="async"</code> en todas las fotos salvo las que se ven primero (hero de Home y del detalle de ritual); <code>alt=""</code> donde el título ya está al lado (el hero decía “Cielo actual”).</li>
+        <li>Tarjetas de ritual y de recomendación: velo más fuerte arriba y el rótulo pasa al eyebrow del sistema (10 px en blanco). Ahora se leen “CLARIDAD” sobre las dunas y “AMOR PROPIO” sobre el agua.</li>
+        <li>Hero de Home: se mantiene texto oscuro sobre cielos claros (es una decisión de diseño que funciona), pero los rótulos pasan de negro 48 % a 66 % y de blanco 68 % a 82 %; con texto claro, velo arriba. La regla quedó documentada como excepción en la <a href="05-ilustraciones-e-imagenes.html#texto-sobre-foto">spec 05</a>.</li>
+      </ul>
+      <div class="callout"><strong>Ajuste a la spec</strong>Se exporta un solo tamaño (1080 px) en vez de 800 y 1440: la misma foto se usa en la grilla y a pantalla completa, y con un solo archivo no hace falta <code>srcset</code>.</div>
+      <p class="muted">Verificado: build y tipos; capturas de las 5 pantallas públicas (la herramienta de capturas ahora fuerza la carga de las fotos diferidas antes de sacar la imagen).</p>
+
       <h2 id="comparacion">Antes y después</h2>
       <p class="muted">Pantallas públicas en 390 px, mismas condiciones (se puede scrollear cada captura). Las capturas se regeneran con <code>tools/capture-screens.cjs</code>.</p>
 
@@ -72,15 +88,15 @@
       <div class="compare">
         <figure><div class="shot"><img src="assets/migracion/antes/explorar.jpg" alt="Explorar antes del design system" loading="lazy"></div><figcaption>Antes</figcaption></figure>
         <figure><div class="shot"><img src="assets/migracion/etapa-1/explorar.jpg" alt="Explorar después de la etapa 1" loading="lazy"></div><figcaption>Etapa 1</figcaption></figure>
-        <figure><div class="shot"><img src="assets/migracion/etapa-2/explorar.jpg" alt="Explorar después de la etapa 2" loading="lazy"></div><figcaption>Etapa 2</figcaption></figure>
+        <figure><div class="shot"><img src="assets/migracion/etapa-3/explorar.jpg" alt="Explorar después de la etapa 3" loading="lazy"></div><figcaption>Etapa 3</figcaption></figure>
       </div>
-      <p class="type-body muted">“Agua · 10 min” y los metadatos ahora se leen. Pendiente (etapa 3): los rótulos sobre fotos claras, como “AMOR PROPIO”, no tienen velo.</p>
+      <p class="type-body muted">Etapa 1: “Agua · 10 min” y los metadatos se leen. Etapa 3: los rótulos sobre fotos claras (“CLARIDAD”, “AMOR PROPIO”) tienen velo, y las fotos pesan 30 veces menos.</p>
 
       <h3>Home</h3>
       <div class="compare">
         <figure><div class="shot"><img src="assets/migracion/antes/home.jpg" alt="Home antes del design system" loading="lazy"></div><figcaption>Antes</figcaption></figure>
         <figure><div class="shot"><img src="assets/migracion/etapa-1/home.jpg" alt="Home después de la etapa 1" loading="lazy"></div><figcaption>Etapa 1</figcaption></figure>
-        <figure><div class="shot"><img src="assets/migracion/etapa-2/home.jpg" alt="Home después de la etapa 2" loading="lazy"></div><figcaption>Etapa 2</figcaption></figure>
+        <figure><div class="shot"><img src="assets/migracion/etapa-3/home.jpg" alt="Home después de la etapa 3" loading="lazy"></div><figcaption>Etapa 3</figcaption></figure>
       </div>
 
       <h3>Login</h3>
@@ -94,7 +110,7 @@
       <div class="compare">
         <figure><div class="shot"><img src="assets/migracion/antes/calendario.jpg" alt="Calendario cósmico antes" loading="lazy"></div><figcaption>Calendario · antes</figcaption></figure>
         <figure><div class="shot"><img src="assets/migracion/etapa-2/calendario.jpg" alt="Calendario cósmico después de la etapa 2" loading="lazy"></div><figcaption>Calendario · etapa 2</figcaption></figure>
-        <figure><div class="shot"><img src="assets/migracion/etapa-2/wiki.jpg" alt="Wiki después de la etapa 2" loading="lazy"></div><figcaption>Wiki · etapa 2</figcaption></figure>
+        <figure><div class="shot"><img src="assets/migracion/etapa-3/wiki.jpg" alt="Wiki después de la etapa 3" loading="lazy"></div><figcaption>Wiki · etapa 3</figcaption></figure>
       </div>
       <p class="type-body muted">Las pantallas con login (Cuenta, detalle de ritual, pasos de creación) no se capturan automáticamente: se revisan a mano en cada etapa.</p>
     </div>
