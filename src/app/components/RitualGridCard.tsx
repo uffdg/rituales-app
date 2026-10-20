@@ -92,8 +92,7 @@ export function RitualGridCard({
 
   return (
     <div
-      className="flex flex-col rounded-2xl overflow-hidden active:scale-[0.97] transition-transform cursor-pointer"
-      style={{ background: "#fff", boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}
+      className="editorial-card flex flex-col overflow-hidden active:scale-[0.98] transition-transform cursor-pointer"
       onClick={onOpen}
     >
       {/* Cover image */}
@@ -132,13 +131,18 @@ export function RitualGridCard({
               onSave(e);
             }}
             disabled={saving}
-            className="absolute top-2 right-2 h-7 w-7 rounded-full flex items-center justify-center transition-all active:scale-90"
-            style={{
-              background: saved ? "rgba(255,255,255,0.95)" : "rgba(0,0,0,0.32)",
-              backdropFilter: "blur(8px)",
-            }}
-            aria-label="Guardar ritual"
+            className="group absolute top-0 right-0 flex h-11 w-11 items-center justify-center"
+            aria-pressed={saved}
+            aria-label={saved ? "Quitar de guardados" : "Guardar ritual"}
           >
+            {/* Círculo visible de 28; el área táctil es de 44 (spec 03). */}
+            <span
+              className="flex h-7 w-7 items-center justify-center rounded-full transition-transform group-active:scale-90"
+              style={{
+                background: saved ? "rgba(255,255,255,0.95)" : "rgba(0,0,0,0.32)",
+                backdropFilter: "blur(8px)",
+              }}
+            >
             {saving ? (
               <Loader2 size={13} strokeWidth={1.8} className="animate-spin" color={saved ? "var(--ink-strong)" : "rgba(255,255,255,0.9)"} />
             ) : saved ? (
@@ -146,19 +150,14 @@ export function RitualGridCard({
             ) : (
               <Bookmark size={13} strokeWidth={1.8} color="rgba(255,255,255,0.9)" fill="none" />
             )}
+            </span>
           </button>
         )}
 
         {/* Likes bottom-right */}
         {typeof likes === "number" && (
           <div className="absolute bottom-2.5 right-3">
-            <span
-              style={{
-                fontFamily: "var(--font-sans-ui)",
-                fontSize: "10px",
-                color: "rgba(255,255,255,0.6)",
-              }}
-            >
+            <span className="font-sans text-caption" style={{ color: "rgba(255,255,255,0.88)" }}>
               ♥ {likes}
             </span>
           </div>
@@ -167,25 +166,11 @@ export function RitualGridCard({
 
       {/* Text area */}
       <div className="px-3 pt-2.5 pb-3 flex flex-col gap-0.5">
-        <p
-          className="line-clamp-2 leading-[1.3]"
-          style={{
-            fontFamily: "var(--font-serif-display)",
-            fontSize: "13px",
-            fontWeight: 400,
-            color: "var(--ink-strong)",
-          }}
-        >
+        {/* Serif solo para titulares de 20 px o más: el título chico va en sans. */}
+        <p className="line-clamp-2 font-sans text-label font-medium leading-[1.3] text-ink-strong">
           {title}
         </p>
-        <p
-          style={{
-            fontFamily: "var(--font-sans-ui)",
-            fontSize: "10px",
-            fontWeight: 300,
-            color: "var(--ink-subtle)",
-          }}
-        >
+        <p className="font-sans text-caption text-ink-muted">
           {element} · {duration} min
         </p>
       </div>

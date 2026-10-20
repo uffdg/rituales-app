@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { track } from "../lib/analytics";
 import { getUserFacingErrorMessage } from "../lib/errors";
 import { drawDailyOracleCard, getDailyOracleCard, type DailyOracleCard } from "../lib/daily-service";
-import { ArcanaArt, ArcanaBack, ARCANA_GOLD, ARCANA_INK } from "./arcana/ArcanaArt";
+import { ArcanaArt, ArcanaBack } from "./arcana/ArcanaArt";
 
 // Mínimo de "barajado" antes de dar vuelta la carta, para que el revelado no
 // dependa de cuánto tarde la API.
@@ -12,7 +12,6 @@ const POSITIONS = [0, 1, 2] as const;
 // Si el pedido tarda más que esto, se avisa que va lento en vez de parecer
 // colgado (Supabase a veces tarda varios segundos en validar la sesión).
 const SLOW_HINT_MS = 4000;
-const CARD_TEXT = "#f3ede2";
 
 type Phase = "loading" | "deck" | "spread" | "drawing" | "revealed";
 
@@ -26,7 +25,7 @@ function wait(ms: number) {
 
 function Eyebrow({ children }: { children: React.ReactNode }) {
   return (
-    <p className="editorial-eyebrow" style={{ color: ARCANA_GOLD }}>
+    <p className="editorial-eyebrow editorial-eyebrow--oracle">
       {children}
     </p>
   );
@@ -42,11 +41,11 @@ function CardFront({
   animate: boolean;
 }) {
   return (
-    <div className="relative overflow-hidden rounded-[28px] px-6 pb-7 pt-6" style={{ background: ARCANA_INK }}>
+    <div className="editorial-card editorial-card--oracle relative overflow-hidden px-6 pb-7 pt-6">
       <div className="flex items-baseline justify-between">
         <Eyebrow>Tu arcano de hoy</Eyebrow>
         {moonPhase ? (
-          <p className="font-sans text-[11px] font-light" style={{ color: "rgba(243,237,226,0.6)" }}>
+          <p className="font-sans text-caption text-oracle-paper-muted">
             {moonPhase}
           </p>
         ) : null}
@@ -57,30 +56,30 @@ function CardFront({
       </div>
 
       <div className="mt-6 text-center">
-        <p className="font-sans text-[12px] font-medium tracking-[0.3em]" style={{ color: ARCANA_GOLD }}>
+        {/* El .3em del número romano es la excepción de espaciado documentada (spec 02). */}
+        <p className="font-sans text-body font-medium tracking-[0.3em] text-oracle-gold">
           {card.number}
         </p>
-        <h3 className="mt-1 font-serif text-[32px] leading-[1.1]" style={{ fontWeight: 400, color: CARD_TEXT }}>
+        <h3 className="mt-1 font-serif text-title-1 text-oracle-paper">
           {card.name}
         </h3>
-        <p className="mt-2 font-sans text-[12px] font-light tracking-[0.04em]" style={{ color: ARCANA_GOLD }}>
+        <p className="mt-2 font-sans text-body text-oracle-gold">
           {card.keywords.join(" · ")}
         </p>
       </div>
 
-      <div className="mt-6 space-y-5 pt-5" style={{ borderTop: "1px solid rgba(201,166,107,0.25)" }}>
+      <div className="mt-6 space-y-5 border-t border-[var(--oracle-line)] pt-5">
         <div>
           <Eyebrow>La mirada</Eyebrow>
           <p
-            className="mt-2 font-serif text-[19px] leading-[1.4]"
-            style={{ fontWeight: 400, fontStyle: "italic", color: "rgba(243,237,226,0.9)" }}
+            className="mt-2 font-sans text-title-4 text-oracle-paper"
           >
             {card.mirada}
           </p>
         </div>
         <div>
           <Eyebrow>El consejo</Eyebrow>
-          <p className="mt-2 font-sans text-[15px] font-light leading-[1.55]" style={{ color: CARD_TEXT }}>
+          <p className="mt-2 font-sans text-body-lg text-oracle-paper">
             {card.consejo}
           </p>
         </div>
@@ -195,7 +194,7 @@ export function OracleCard({
       <div className="mb-5 flex items-baseline justify-between">
         <p className="editorial-eyebrow">Oráculo del día</p>
         {phase === "revealed" ? (
-          <p className="font-sans text-[11px] font-light text-[var(--ink-muted)]">Vuelve a abrirse mañana</p>
+          <p className="font-sans text-caption text-ink-muted">Vuelve a abrirse mañana</p>
         ) : null}
       </div>
 
@@ -206,7 +205,7 @@ export function OracleCard({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="h-[340px] rounded-[28px] bg-[var(--surface-muted)] animate-pulse"
+            className="editorial-skeleton h-[340px]"
           />
         ) : null}
 
@@ -219,10 +218,10 @@ export function OracleCard({
             className="space-y-5"
           >
             <div>
-              <h3 className="font-serif text-[26px] leading-[1.15] text-[var(--ink-strong)]" style={{ fontWeight: 400 }}>
+              <h3 className="font-serif text-title-2 text-ink-strong">
                 Tu arcano de hoy te espera
               </h3>
-              <p className="mt-2 font-sans text-[13px] font-light leading-[1.55] text-[var(--ink-subtle)]">
+              <p className="mt-2 font-sans text-body text-ink-muted">
                 Sacá una carta de los 22 arcanos mayores: cada uno trae una mirada sobre el día y un consejo.
               </p>
             </div>
@@ -248,13 +247,13 @@ export function OracleCard({
             </button>
 
             {error ? (
-              <p className="text-center font-sans text-[12px] font-light text-[var(--ink-muted)]">{error}</p>
+              <p className="editorial-error justify-center text-center" role="alert">{error}</p>
             ) : null}
 
             <button
               type="button"
               onClick={handleOpenDeck}
-              className="editorial-action-button editorial-action-button-primary"
+              className="editorial-button editorial-button--primary editorial-button--lg"
             >
               {!isLoggedIn ? "Ingresá para sacar tu carta" : error ? "Probar de nuevo" : "Sacar una carta"}
             </button>
@@ -269,7 +268,7 @@ export function OracleCard({
             exit={{ opacity: 0 }}
             className="space-y-5"
           >
-            <p className="text-center font-sans text-[13px] font-light text-[var(--ink-muted)]">
+            <p className="text-center font-sans text-body text-ink-muted">
               {phase !== "drawing"
                 ? "Elegí la que te llame."
                 : isSlow
@@ -303,7 +302,7 @@ export function OracleCard({
                     {isChosen && !reducedMotion ? (
                       <motion.div
                         className="absolute inset-0 rounded-full"
-                        style={{ boxShadow: `0 0 0 1.5px ${ARCANA_GOLD}, 0 0 22px rgba(201,166,107,0.45)` }}
+                        style={{ boxShadow: "0 0 0 1.5px var(--oracle-gold), 0 0 22px var(--oracle-glow)" }}
                         animate={{ opacity: [0.2, 1, 0.2] }}
                         transition={{ duration: 1.1, repeat: Infinity }}
                       />

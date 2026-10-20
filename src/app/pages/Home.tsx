@@ -277,7 +277,7 @@ export function Home() {
 
       <div className="editorial-page-sheet w-full flex-1 relative z-20 mt-[-32px] pt-10 pb-10">
         {/* Intención del día */}
-        <div id="daily-intention" className="px-5 mb-12">
+        <div id="daily-intention" className="px-6 mb-12">
           <DailyIntention
             dateKey={todayDateKey}
             isLoggedIn={Boolean(session)}
@@ -288,7 +288,7 @@ export function Home() {
         </div>
 
         {/* Oráculo del día */}
-        <div id="daily-oracle" className="px-5 mb-12">
+        <div id="daily-oracle" className="px-6 mb-12">
           <OracleCard
             dateKey={todayDateKey}
             moonPhase={cosmicContext.day.moonPhase}
@@ -386,10 +386,10 @@ export function Home() {
                         <MoonPhaseIcon phase={day.moonPhase} size={14} className="scale-[0.72]" />
                       </div>
                     </div>
-                    <p className="font-serif text-[22px] text-[var(--ink-strong)] leading-none mb-1.5">
+                    <p className="font-serif text-title-3 leading-none text-ink-strong mb-1.5">
                       {day.shortLabel}
                     </p>
-                    <p className="font-sans text-[10px] text-[var(--ink-muted)] leading-[1.3] mb-4 opacity-90">
+                    <p className="font-sans text-caption text-ink-muted mb-4">
                       {day.moonPhase}
                     </p>
                   </button>
@@ -402,13 +402,14 @@ export function Home() {
         {selectedCosmicDay ? (
           <div className="fixed inset-0 z-40">
             <div
-              className="absolute inset-0 bg-black/35"
+              className="absolute inset-0 bg-scrim"
               onClick={() => setSelectedCosmicDay(null)}
             />
             <div className="editorial-calendar-dialog absolute left-1/2 top-1/2 w-[calc(100%-3rem)] max-w-[330px] -translate-x-1/2 -translate-y-1/2 px-5 py-5">
               <button
                 onClick={() => setSelectedCosmicDay(null)}
-                className="editorial-icon-button absolute top-5 right-5 h-8 w-8 rounded-full text-[var(--ink-muted)]"
+                className="editorial-icon-button absolute top-3 right-3 text-ink-muted"
+                aria-label="Cerrar"
               >
                 <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
                   <path d="M1 1L9 9M9 1L1 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
@@ -417,7 +418,7 @@ export function Home() {
 
               <p className="editorial-eyebrow mb-2.5">{selectedCosmicDay.weekdayLabel}</p>
 
-              <p className="editorial-title-section !text-[26px] leading-[1.1] mb-2.5 pr-6">
+              <p className="editorial-title-section mb-2.5 pr-8">
                 {format(selectedCosmicDay.date, "d 'de' LLLL", { locale: es })}
               </p>
 
@@ -426,11 +427,11 @@ export function Home() {
                   <p className="editorial-eyebrow mb-2.5">Tu práctica este día</p>
                   {journalByDate.get(selectedCosmicDay.dateKey)!.map((entry, i) => (
                     <div key={i} className={i > 0 ? "mt-3 pt-3 border-t border-[var(--border-soft)]" : ""}>
-                      <p className="editorial-title-card !text-[16px] !leading-[1.4]">
+                      <p className="font-sans text-title-4 text-ink-strong">
                         "{entry.anchor}"
                       </p>
                       {entry.element ? (
-                        <p className="font-sans text-[10px] text-[var(--ink-subtle)] mt-1 capitalize tracking-[0.04em]">
+                        <p className="font-sans text-caption text-ink-muted mt-1 capitalize">
                           {entry.ritualType} · {entry.element}
                         </p>
                       ) : null}
@@ -447,7 +448,7 @@ export function Home() {
 
                   <div className="editorial-calendar-soft-block">
                     <p className="editorial-eyebrow mb-2">Posición exacta</p>
-                    <p className="editorial-title-card !text-[18px] !leading-[1.2] mb-1.5">
+                    <p className="editorial-title-card mb-1.5">
                       {selectedCosmicDay.perfection.timeBuenosAires} hs en Buenos Aires
                     </p>
                     <p className="editorial-body-muted">
@@ -465,7 +466,7 @@ export function Home() {
                     {nextEventData ? (
                       <>
                         <p className="editorial-eyebrow mb-2">Próximo evento</p>
-                        <p className="editorial-title-card !text-[18px] !leading-[1.2] mb-0.5">
+                        <p className="editorial-title-card mb-0.5">
                           {nextEventData.perfection.label}
                         </p>
                         <p className="editorial-body-muted">
@@ -480,7 +481,7 @@ export function Home() {
                           setSelectedCosmicDay(null);
                           navigate("/wiki/las-lunas-y-su-energia");
                         }}
-                        className="font-sans text-[12px] text-[var(--ink-strong)] font-medium underline underline-offset-[3px] hover:opacity-60 transition-opacity"
+                        className="editorial-button editorial-button--tertiary"
                       >
                         Abrir información de lunas
                       </button>

@@ -30,11 +30,7 @@ export function RitualRecommendationCard({
   const imageUrl = getImageUrl(element, id);
 
   return (
-    <div
-      className="rounded-[24px] overflow-hidden cursor-pointer"
-      style={{ background: "#fff", boxShadow: "0 2px 20px rgba(0,0,0,0.09)" }}
-      onClick={onOpen}
-    >
+    <div className="editorial-card editorial-card--raised overflow-hidden cursor-pointer" onClick={onOpen}>
       {/* Cover image */}
       <div className="relative w-full" style={{ aspectRatio: "4/3" }}>
         <img
@@ -56,18 +52,8 @@ export function RitualRecommendationCard({
         {/* Eyebrow pill — top left */}
         <div className="absolute top-3.5 left-3.5">
           <span
-            style={{
-              fontFamily: "var(--font-sans-ui)",
-              fontSize: "10px",
-              fontWeight: 500,
-              letterSpacing: "0.1em",
-              textTransform: "uppercase",
-              color: "rgba(255,255,255,0.9)",
-              background: "rgba(0,0,0,0.28)",
-              backdropFilter: "blur(8px)",
-              padding: "4px 10px",
-              borderRadius: "99px",
-            }}
+            className="editorial-eyebrow inline-flex rounded-full px-2.5 py-1"
+            style={{ color: "rgba(255,255,255,0.92)", background: "rgba(0,0,0,0.32)", backdropFilter: "blur(8px)" }}
           >
             {eyebrow}
           </span>
@@ -76,44 +62,16 @@ export function RitualRecommendationCard({
 
       {/* Content */}
       <div className="px-4 pt-3.5 pb-4">
-        <h3
-          style={{
-            fontFamily: "var(--font-serif-display)",
-            fontSize: "22px",
-            fontWeight: 400,
-            color: "var(--ink-strong)",
-            lineHeight: 1.2,
-            marginBottom: "6px",
-          }}
-        >
+        <h3 className="mb-1.5 font-serif text-title-3 text-ink-strong">
           {title}
         </h3>
 
-        <p
-          className="line-clamp-2"
-          style={{
-            fontFamily: "var(--font-sans-ui)",
-            fontSize: "13px",
-            fontWeight: 300,
-            color: "var(--ink-subtle)",
-            lineHeight: 1.55,
-            marginBottom: "14px",
-          }}
-        >
+        <p className="mb-3.5 line-clamp-2 font-sans text-body text-ink-muted">
           {description}
         </p>
 
         {/* Meta row */}
-        <p
-          style={{
-            fontFamily: "var(--font-sans-ui)",
-            fontSize: "11px",
-            fontWeight: 400,
-            color: "var(--ink-muted)",
-            marginBottom: "16px",
-            letterSpacing: "0.02em",
-          }}
-        >
+        <p className="mb-4 font-sans text-caption text-ink-muted">
           {meta.join(" · ")}
         </p>
 
@@ -122,14 +80,7 @@ export function RitualRecommendationCard({
           <button
             type="button"
             onClick={onOpen}
-            className="flex-1 rounded-full py-3 transition-all active:scale-[0.97]"
-            style={{
-              background: "var(--ink-strong)",
-              color: "#fff",
-              fontFamily: "var(--font-sans-ui)",
-              fontSize: "13px",
-              fontWeight: 400,
-            }}
+            className="editorial-button editorial-button--primary flex-1"
           >
             Ver ritual
           </button>
@@ -137,12 +88,13 @@ export function RitualRecommendationCard({
             type="button"
             onClick={onSave}
             disabled={saving}
-            className="h-[46px] w-[46px] rounded-full border flex items-center justify-center transition-all active:scale-90"
+            className="editorial-icon-button border transition-all active:scale-90"
             style={{
-              borderColor: saved ? "var(--ink-strong)" : "var(--border-default)",
+              borderColor: saved ? "var(--ink-strong)" : "var(--line-default)",
               background: saved ? "var(--ink-strong)" : "transparent",
             }}
-            aria-label="Guardar ritual"
+            aria-pressed={saved}
+            aria-label={saved ? "Quitar de guardados" : "Guardar ritual"}
           >
             {saved ? (
               <BookmarkCheck size={16} strokeWidth={1.8} color="#fff" />

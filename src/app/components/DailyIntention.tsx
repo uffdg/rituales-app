@@ -222,7 +222,7 @@ export function DailyIntention({
           <button
             type="button"
             onClick={onOpenRecords}
-            className="font-sans text-[11px] font-light text-[var(--ink-muted)] underline-offset-2 hover:underline"
+            className="editorial-section-link"
           >
             Tu registro →
           </button>
@@ -236,7 +236,7 @@ export function DailyIntention({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="h-[300px] rounded-[22px] bg-[var(--surface-muted)] animate-pulse"
+            className="editorial-skeleton h-[300px]"
           />
         ) : null}
 
@@ -250,20 +250,17 @@ export function DailyIntention({
           >
             <WishIllustration active={isListening || isWriting} />
             <div>
-              <h3 className="font-serif text-[26px] leading-[1.15] text-[var(--ink-strong)]" style={{ fontWeight: 400 }}>
+              <h3 className="font-serif text-title-2 text-ink-strong">
                 ¿Qué deseás hoy?
               </h3>
-              <p className="mt-2 font-sans text-[13px] font-light leading-[1.55] text-[var(--ink-subtle)]">
+              <p className="mt-2 font-sans text-body text-ink-muted">
                 Contalo en pocas palabras y te devolvemos una intención clara para el día.
               </p>
             </div>
 
             <div
-              className="relative rounded-2xl px-5 pb-14 pt-4 focus-within:shadow-[inset_0_0_0_1.5px_var(--ink-strong)]"
-              style={{
-                background: "var(--surface-muted)",
-                boxShadow: isListening ? "inset 0 0 0 1.5px var(--ink-strong)" : undefined,
-              }}
+              className="relative rounded-md bg-surface-muted px-4 pb-14 pt-3.5 focus-within:bg-surface-base focus-within:shadow-[inset_0_0_0_1px_var(--ink-strong)]"
+              style={{ boxShadow: isListening ? "inset 0 0 0 1.5px var(--ink-strong)" : undefined }}
             >
               <textarea
                 value={inputText}
@@ -272,15 +269,16 @@ export function DailyIntention({
                 maxLength={1000}
                 placeholder="Ej.: terminar la entrega sin perder la calma"
                 aria-label="Qué deseás hoy"
-                className="min-h-[88px] w-full resize-none bg-transparent font-sans text-[15px] font-light leading-[1.6] text-[var(--ink-strong)] outline-none placeholder:text-[var(--ink-subtle)] disabled:opacity-60"
+                className="min-h-[88px] w-full resize-none bg-transparent font-sans text-body-lg text-ink-strong outline-none placeholder:text-ink-subtle disabled:opacity-60"
               />
               {hasSpeechRecognition && isLoggedIn ? (
                 <button
                   type="button"
                   onClick={handleMic}
                   disabled={isWriting}
-                  className={`absolute bottom-3 right-3 inline-flex items-center gap-2 rounded-full px-3.5 py-2 font-sans text-[12px] font-light transition-all active:scale-[0.97] disabled:opacity-40 ${
-                    isListening ? "bg-[var(--ink-strong)] text-white" : "bg-white text-[var(--ink-body)]"
+                  aria-pressed={isListening}
+                  className={`editorial-pill-button absolute bottom-3 right-3 disabled:opacity-40 ${
+                    isListening ? "editorial-pill-button-active" : "bg-surface-base"
                   }`}
                 >
                   {isListening ? (
@@ -308,14 +306,15 @@ export function DailyIntention({
             </div>
 
             {error ? (
-              <p className="font-sans text-[12px] font-light text-[var(--ink-muted)]">{error}</p>
+              <p className="editorial-error" role="alert">{error}</p>
             ) : null}
 
             <button
               type="button"
               onClick={() => void handleSubmit()}
               disabled={isLoggedIn && (!inputText.trim() || isWriting)}
-              className="editorial-action-button editorial-action-button-primary"
+              aria-busy={isWriting}
+              className="editorial-button editorial-button--primary editorial-button--lg"
             >
               {!isLoggedIn
                 ? "Ingresá para escribir tu intención"
@@ -339,23 +338,21 @@ export function DailyIntention({
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             className="space-y-4"
           >
-            <div className="rounded-[22px] bg-[var(--surface-muted)] p-6">
+            <div className="editorial-card editorial-card--muted editorial-card--feature">
               <WishIllustration active={false} />
-              <p className="editorial-eyebrow mt-3" style={{ color: "var(--ink-muted)" }}>
+              {/* Sobre --surface-muted el gris secundario es --ink-muted (spec 02). */}
+              <p className="editorial-eyebrow mt-3 text-ink-muted">
                 Tu intención de hoy
               </p>
-              <p className="mt-3 whitespace-pre-line font-serif text-[24px] leading-[1.3] text-[var(--ink-strong)]" style={{ fontWeight: 400 }}>
+              <p className="mt-3 whitespace-pre-line font-sans text-title-4 text-ink-strong">
                 {intention.intentionText}
               </p>
-              <p className="mt-4 font-sans text-[12px] font-light leading-[1.5] text-[var(--ink-muted)]">
+              <p className="mt-4 font-sans text-body text-ink-muted">
                 Lo que deseabas: «{intention.inputText}»
               </p>
             </div>
 
-            <p
-              className="px-1 pt-1 text-center font-serif text-[17px] leading-[1.45] text-[var(--ink-body)]"
-              style={{ fontWeight: 400, fontStyle: "italic" }}
-            >
+            <p className="px-1 pt-1 text-center font-sans text-body-lg text-ink-body">
               Llevate esta intención durante el resto del día.
               <br />
               Pensala y releela.
@@ -364,16 +361,16 @@ export function DailyIntention({
             <button
               type="button"
               onClick={handleCreateRitual}
-              className="editorial-action-button editorial-action-button-secondary inline-flex items-center justify-center gap-1.5"
+              className="editorial-button editorial-button--secondary editorial-button--lg"
             >
               Hacer un ritual con esta intención
-              <ArrowUpRight size={13} strokeWidth={1.5} />
+              <ArrowUpRight size={16} strokeWidth={1.5} aria-hidden="true" />
             </button>
 
             <button
               type="button"
               onClick={handleAskAgain}
-              className="mx-auto block min-h-[44px] px-4 font-sans text-[13px] font-light text-[var(--ink-muted)] underline underline-offset-4"
+              className="editorial-button editorial-button--tertiary mx-auto flex"
             >
               Pedir otra intención
             </button>

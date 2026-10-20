@@ -194,29 +194,16 @@ export function TodayContextCard({
         <MoonPhaseIcon phase={phase} size={18} darkTheme={isLight} />
         <div className="flex min-w-0 flex-col items-start gap-1">
           <span
-            className="rounded-full px-4 py-2"
-            style={{
-              background: chipBackground,
-              backdropFilter: "blur(12px)",
-              fontFamily: "var(--font-sans-ui)",
-              fontSize: "13px",
-              fontWeight: 600,
-              color: chipText,
-            }}
+            className="rounded-full px-4 py-2 font-sans text-body font-medium"
+            style={{ background: chipBackground, backdropFilter: "blur(12px)", color: chipText }}
           >
             {phase}
           </span>
           {nextEventLabel ? (
             <span
+              className="pl-4 text-left font-sans text-body"
               style={{
-                fontFamily: "var(--font-sans-ui)",
-                fontSize: "12px",
-                fontWeight: 300,
                 color: chipText,
-                opacity: 0.82,
-                paddingLeft: "16px",
-                lineHeight: 1.2,
-                textAlign: "left",
                 textShadow: isLight ? "0 1px 8px rgba(0,0,0,0.18)" : "0 1px 8px rgba(255,255,255,0.18)",
               }}
             >
@@ -228,15 +215,7 @@ export function TodayContextCard({
 
       <div className="relative z-10 flex items-start justify-between gap-3 pt-1">
         <div>
-          <p
-            style={{
-              fontFamily: "var(--font-serif-display)",
-              fontSize: "32px",
-              fontWeight: 400,
-              letterSpacing: "0",
-              color: labelColor,
-            }}
-          >
+          <p className="font-serif text-title-1" style={{ color: labelColor }}>
             Rituales
           </p>
         </div>
@@ -249,72 +228,31 @@ export function TodayContextCard({
           }}
         >
           <MoodIcon size={12} strokeWidth={1.8} color={chipText} />
-          <span
-            style={{
-              fontFamily: "var(--font-sans-ui)",
-              fontSize: "10px",
-              color: chipText,
-              letterSpacing: "0.02em",
-              fontWeight: 500
-            }}
-          >
+          <span className="font-sans text-caption font-medium" style={{ color: chipText }}>
             {localTimeLabel} · {mood.label}
           </span>
         </div>
       </div>
 
       <div className="relative z-10 mt-auto pb-6">
-        <p
-          style={{
-            fontFamily: "var(--font-sans-ui)",
-            fontSize: "10px",
-            fontWeight: 600,
-            textTransform: "uppercase",
-            letterSpacing: "0.18em",
-            color: labelColor,
-            marginBottom: "10px",
-          }}
-        >
+        <p className="editorial-eyebrow mb-3" style={{ color: labelColor }}>
           Tu cielo hoy
         </p>
-        <h3
-          style={{
-            fontFamily: "var(--font-serif-display)",
-            fontSize: "54px",
-            lineHeight: 0.94,
-            color: titleColor,
-            marginBottom: "14px",
-            fontStyle: "italic",
-            maxWidth: "330px",
-          }}
-        >
+        <h3 className="mb-3 max-w-[330px] font-serif text-display italic" style={{ color: titleColor }}>
           {phrase}
         </h3>
-        <p
-          style={{
-            fontFamily: "var(--font-sans-ui)",
-            fontSize: "13px",
-            color: bodyColor,
-            lineHeight: 1.6,
-            maxWidth: "292px",
-            marginBottom: "22px",
-          }}
-        >
+        <p className="mb-5 max-w-[292px] font-sans text-body" style={{ color: bodyColor }}>
           {subphrase}
         </p>
 
+        {/* Primario del sistema: sobre fotos oscuras, blanco (decisión 3 de la spec 04). */}
         <button
           type="button"
           onClick={onCreateRitual}
-          className="flex h-[58px] w-full items-center justify-center gap-2 rounded-none bg-black text-white transition-transform active:scale-[0.99]"
-          style={{
-            fontFamily: "var(--font-sans-ui)",
-            fontSize: "14px",
-            fontWeight: 600,
-          }}
+          className={`editorial-button editorial-button--primary editorial-button--lg ${isLight ? "editorial-button--on-dark" : ""}`}
         >
           Crear un ritual
-          <ArrowUpRight size={16} strokeWidth={1.8} />
+          <ArrowUpRight size={16} strokeWidth={1.5} aria-hidden="true" />
         </button>
       </div>
     </div>
