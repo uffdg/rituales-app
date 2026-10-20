@@ -36,7 +36,7 @@
           <tr class="stage-row"><td><b>1 · Tokens</b></td><td>Tokens v1 en <code>theme.css</code> y escalas de Tailwind; grises legibles; fuentes y reducir movimiento.</td><td><span class="pass">Hecha</span></td><td><code>e6b14f4</code></td></tr>
           <tr class="stage-row"><td><b>2 · Componentes base</b></td><td>Clases del sistema, foco visible, <code>BackLink</code>, campos y toasts.</td><td><span class="pass">Hecha</span></td><td><code>89be7b7</code></td></tr>
           <tr class="stage-row"><td><b>3 · Imágenes</b></td><td>Fotos a WebP, <code>loading</code>, <code>alt</code>, velo en texto sobre foto.</td><td><span class="pass">Hecha</span></td><td><code>bd7c4e2</code></td></tr>
-          <tr class="stage-row"><td><b>4 · Pantallas</b></td><td>Cada pantalla a tokens y piezas, de a una.</td><td><span class="muted" style="font-size:12px">Pendiente</span></td><td>—</td></tr>
+          <tr class="stage-row"><td><b>4 · Pantallas</b></td><td>Cada pantalla a tokens y piezas, de a una. Hecha: Home.</td><td><span class="warn">En curso · 1 de 7</span></td><td><code>1e75108</code> Home</td></tr>
           <tr class="stage-row"><td><b>5 · Limpieza</b></td><td>Clases y nombres viejos, shadcn sin uso, archivos sin uso, <code>.dark</code>.</td><td><span class="muted" style="font-size:12px">Pendiente</span></td><td>—</td></tr>
         </tbody>
       </table></div>
@@ -80,6 +80,35 @@
       </ul>
       <div class="callout"><strong>Ajuste a la spec</strong>Se exporta un solo tamaño (1080 px) en vez de 800 y 1440: la misma foto se usa en la grilla y a pantalla completa, y con un solo archivo no hace falta <code>srcset</code>.</div>
       <p class="muted">Verificado: build y tipos; capturas de las 5 pantallas públicas (la herramienta de capturas ahora fuerza la carga de las fotos diferidas antes de sacar la imagen).</p>
+
+      <h2 id="etapa-4">Etapa 4 · Pantallas</h2>
+      <div class="table-scroll"><table class="spec">
+        <thead><tr><th>Pantalla</th><th>Estado</th></tr></thead>
+        <tbody>
+          <tr><td>Home (hero, intención, oráculo, tarjetas)</td><td><span class="pass">Hecha</span> <code>1e75108</code></td></tr>
+          <tr><td>Cuenta y registro diario</td><td class="muted">Pendiente</td></tr>
+          <tr><td>Detalle de ritual y reproductor</td><td class="muted">Pendiente</td></tr>
+          <tr><td>Pasos de creación</td><td class="muted">Pendiente</td></tr>
+          <tr><td>Compartir, Explorar y Wiki</td><td class="muted">Pendiente</td></tr>
+          <tr><td>Login y Onboarding</td><td class="muted">Pendiente</td></tr>
+          <tr><td>Stories y calendario</td><td class="muted">Pendiente</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3>Home</h3>
+      <ul class="type-body-lg" style="padding-left:20px;max-width:760px">
+        <li><b>Hero:</b> sin estilos escritos a mano; eyebrow del sistema, título en <code>display</code> (48) y el primario del sistema en lugar del botón recto de 58 px con peso 600 (decisión 3). Sobre fotos oscuras el primario es blanco.</li>
+        <li><b>Intención y oráculo:</b> títulos en <code>title-2</code>; la intención y “La mirada” del arcano pasan a sans (serif solo en titulares); botones, pill, skeleton y error del sistema; el oráculo usa los tokens <code>--oracle-*</code> en vez de dorado y carbón escritos a mano; margen lateral de 24 como el resto.</li>
+        <li><b>“Tu camino”:</b> el texto de las tres tarjetas pasa de 9 y 11 px (peso 600 sin cargar) a 11 y 14 px.</li>
+        <li><b>Recomendación y grilla de rituales:</b> card del sistema; el título chico de la grilla deja la serif de 13 px y pasa a sans 14; metadatos en 11 legibles; “Ver ritual” es el primario; guardar tiene área de 44.</li>
+        <li><b>Cielo de la semana, diálogo del día y notas:</b> a la escala (títulos de 20/26, caption 11) y a los radios (32 el diálogo, 16 los bloques internos). El calendario cósmico usa las mismas clases del diálogo, así que heredó esos radios.</li>
+      </ul>
+      <div class="compare">
+        <figure><div class="shot"><img src="assets/migracion/antes/home.jpg" alt="Home antes del design system" loading="lazy"></div><figcaption>Antes</figcaption></figure>
+        <figure><div class="shot"><img src="assets/migracion/etapa-3/home.jpg" alt="Home después de la etapa 3" loading="lazy"></div><figcaption>Etapa 3</figcaption></figure>
+        <figure><div class="shot"><img src="assets/migracion/etapa-4-home/home.jpg" alt="Home migrada al design system" loading="lazy"></div><figcaption>Home migrada</figcaption></figure>
+      </div>
+      <p class="type-body muted">Con sesión iniciada (intención escrita, carta revelada) no se captura automáticamente: revisar a mano.</p>
 
       <h2 id="comparacion">Antes y después</h2>
       <p class="muted">Pantallas públicas en 390 px, mismas condiciones (se puede scrollear cada captura). Las capturas se regeneran con <code>tools/capture-screens.cjs</code>.</p>
