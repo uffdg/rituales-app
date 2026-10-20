@@ -162,12 +162,14 @@ export function Layout() {
             border: "none",
             borderRadius: "12px",
             fontSize: "14px",
+            fontWeight: 400,
             fontFamily: "var(--font-sans-ui)",
+            boxShadow: "var(--shadow-lifted)",
           },
           classNames: {
-            toast: "border-0 shadow-2xl",
+            toast: "border-0",
             title: "text-white",
-            description: "text-[#C9C9C9] opacity-100",
+            description: "text-[var(--on-ink-muted)] opacity-100",
           },
         }}
       />

@@ -981,12 +981,8 @@ export function Account() {
                 value={fullNameDraft}
                 onChange={(event) => setFullNameDraft(event.target.value)}
                 placeholder="Cómo querés aparecer"
-                className="w-full px-5 py-4 rounded-[28px] border border-[rgba(0,0,0,0.08)] bg-[var(--surface-softest)] outline-none"
-                style={{
-                  fontFamily: "var(--font-serif-display)",
-                  fontSize: "22px",
-                  color: "var(--ink-strong)",
-                }}
+                aria-label="Tu nombre"
+                className="editorial-input"
               />
               <button
                 onClick={handleSaveName}

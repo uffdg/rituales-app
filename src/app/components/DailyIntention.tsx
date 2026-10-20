@@ -259,7 +259,7 @@ export function DailyIntention({
             </div>
 
             <div
-              className="relative rounded-2xl px-5 pb-14 pt-4"
+              className="relative rounded-2xl px-5 pb-14 pt-4 focus-within:shadow-[inset_0_0_0_1.5px_var(--ink-strong)]"
               style={{
                 background: "var(--surface-muted)",
                 boxShadow: isListening ? "inset 0 0 0 1.5px var(--ink-strong)" : undefined,

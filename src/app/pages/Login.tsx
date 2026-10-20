@@ -212,8 +212,8 @@ export function Login() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="tu@email.com"
                   autoFocus
-                  className="w-full px-4 py-4 rounded-2xl border bg-[var(--surface-softest)] focus:outline-none"
-                  style={{ borderColor: "var(--border-default)", fontFamily: "var(--font-sans-ui)", fontSize: "15px", fontWeight: 300, color: "var(--ink-strong)" }}
+                  aria-label="Email"
+                  className="editorial-input"
                 />
 
                 {error && (
