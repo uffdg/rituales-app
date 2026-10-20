@@ -29,6 +29,7 @@
     { group: "Proceso", items: [
       { href: "01-diagnostico.html", label: "Diagnóstico", tag: "Hecho" },
       { href: "04-validacion.html", label: "Validación e implementación", tag: "Validar" },
+      { href: "06-migracion.html", label: "Migración", tag: "2 de 5" },
     ] },
   ];
 

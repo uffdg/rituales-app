@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>06 · Migración — Design System Rituales</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,300;1,400&family=Inter:wght@300;400;500&display=swap">
+<link rel="stylesheet" href="assets/ds.css">
+<link rel="stylesheet" href="assets/nav.css">
+<style>
+  .compare { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  .compare figure { margin: 0; }
+  .compare .shot { height: 560px; overflow-y: auto; border-radius: 18px; border: 1px solid var(--line-default); background: #fff; }
+  .compare img { width: 100%; display: block; }
+  .compare figcaption { font-size: 12px; color: var(--ink-muted); margin-top: 6px; text-align: center; }
+  .stage-row td:nth-child(3) { white-space: nowrap; }
+  @media (max-width: 860px) { .compare { grid-template-columns: 1fr; } .compare .shot { height: 420px; } }
+</style>
+</head>
+<body>
+<div class="docs">
+  <nav class="docs-nav" id="docs-nav" aria-label="Design system"><noscript><a href="index.html">Inicio</a></noscript></nav>
+
+  <main class="docs-main">
+    <div class="docs-content">
+      <p class="docs-eyebrow">Spec 06 · En curso · branch design-system-v1</p>
+      <h1>Migración</h1>
+      <p class="docs-lede">El registro de cómo el design system entra en la app, etapa por etapa: qué cambió, cómo se verificó y el antes y después de las pantallas públicas. Se actualiza al cerrar cada etapa.</p>
+
+      <h2 id="estado">Estado</h2>
+      <div class="table-scroll"><table class="spec">
+        <thead><tr><th>Etapa</th><th>Qué</th><th>Estado</th><th>Commit</th></tr></thead>
+        <tbody>
+          <tr class="stage-row"><td><b>1 · Tokens</b></td><td>Tokens v1 en <code>theme.css</code> y escalas de Tailwind; grises legibles; fuentes y reducir movimiento.</td><td><span class="pass">Hecha</span></td><td><code>e6b14f4</code></td></tr>
+          <tr class="stage-row"><td><b>2 · Componentes base</b></td><td>Clases del sistema, foco visible, <code>BackLink</code>, campos y toasts.</td><td><span class="pass">Hecha</span></td><td><code>89be7b7</code></td></tr>
+          <tr class="stage-row"><td><b>3 · Imágenes</b></td><td>Fotos a WebP con tamaño por uso, <code>loading</code>, <code>alt</code>, velo en texto sobre foto.</td><td><span class="muted" style="font-size:12px">Pendiente</span></td><td>—</td></tr>
+          <tr class="stage-row"><td><b>4 · Pantallas</b></td><td>Cada pantalla a tokens y piezas, de a una.</td><td><span class="muted" style="font-size:12px">Pendiente</span></td><td>—</td></tr>
+          <tr class="stage-row"><td><b>5 · Limpieza</b></td><td>Clases y nombres viejos, shadcn sin uso, archivos sin uso, <code>.dark</code>.</td><td><span class="muted" style="font-size:12px">Pendiente</span></td><td>—</td></tr>
+        </tbody>
+      </table></div>
+      <div class="callout callout--rule"><strong>Decisiones tomadas para avanzar</strong>Se aplicaron las recomendaciones de las decisiones 1 a 8 (<a href="04-validacion.html#decisiones">spec 04</a>): fondo frío, botones en 400, botón de Home igual al resto, chips de 13 px, borrar shadcn sin uso, prefijo <code>editorial-</code>, calendario cósmico aparte y sin modo oscuro. Las que borran archivos se ejecutan recién en la etapa 5.</div>
+
+      <h2 id="etapa-1">Etapa 1 · Tokens</h2>
+      <ul class="type-body-lg" style="padding-left:20px;max-width:760px">
+        <li><code>--ink-subtle</code> pasa de #9ca3ad (2,5:1) a <b>#6b727c (4,9:1)</b>. Los 53 usos de <code>--ink-soft</code> en texto pasan a <code>--ink-subtle</code>; <code>--ink-soft</code> deja de existir y lo decorativo usa <code>--ink-decor</code>.</li>
+        <li>Tokens nuevos: <code>--on-ink-*</code>, <code>--surface-*</code>, <code>--line-*</code>, <code>--danger</code>, <code>--success</code>, <code>--oracle-*</code>, foco y movimiento. Los nombres viejos (<code>--app-page</code>, <code>--border-*</code>, <code>--surface-softest</code>) quedan como alias hasta la etapa 5.</li>
+        <li>Escalas de Tailwind: <code>text-display</code> … <code>text-eyebrow</code>, <code>rounded-xs</code> … <code>rounded-panel</code>, <code>shadow-soft/lifted/shell</code>, <code>ease-editorial</code>, y colores como clases (<code>text-ink-muted</code>, <code>bg-surface-muted</code>, <code>border-line-default</code>).</li>
+        <li>shadcn apunta a los tokens editoriales (el diálogo y el menú ya usan la misma paleta).</li>
+        <li>Una sola carga de fuentes desde <code>index.html</code>: fuera Source Serif 4 y el Inter repetido.</li>
+        <li>Reducir movimiento global: CSS + <code>&lt;MotionConfig reducedMotion="user"&gt;</code>.</li>
+      </ul>
+      <p class="muted">Verificado: build y tipos sin errores nuevos; los tokens llegan al CSS final; capturas de las 5 pantallas públicas.</p>
+
+      <h2 id="etapa-2">Etapa 2 · Componentes base</h2>
+      <ul class="type-body-lg" style="padding-left:20px;max-width:760px">
+        <li>Clases nuevas: <code>editorial-button</code> (primario, secundario, terciario, peligro, sobre oscuro, <code>--lg</code>), <code>editorial-input</code>, <code>editorial-notice</code>, <code>editorial-skeleton</code>, <code>editorial-badge</code>, <code>editorial-option</code>, <code>editorial-back-link</code> y variantes de card y eyebrow.</li>
+        <li>Actualizadas en el lugar: botones viejos a peso 400; botón de ícono redondo de 44; textarea en sans; error en <code>--danger</code>; rótulo y ayuda de campos; pill y chip de 13 px; link de sección con área de 44.</li>
+        <li>Foco visible con teclado en toda la app (antes no había).</li>
+        <li>Componente <code>BackLink</code> (texto o ícono), listo para la etapa de pantallas.</li>
+        <li>El email de Login y el nombre de Cuenta pasan a <code>editorial-input</code> (tenían el foco desactivado); el nombre deja la serif de 22 px.</li>
+        <li>Toasts con los valores de la spec.</li>
+      </ul>
+      <p class="muted">Verificado: build y tipos; recorrido con Tab en Login y Explorar (cada elemento muestra el contorno o el borde de foco).</p>
+      <div class="callout"><strong>Queda para la etapa de pantallas</strong>La sombra de la card base y el estilo de la opción elegida en los pasos de creación (hoy invertida, en la spec con borde): cambian mucho el aspecto y se revisan con cada pantalla.</div>
+
+      <h2 id="comparacion">Antes y después</h2>
+      <p class="muted">Pantallas públicas en 390 px, mismas condiciones (se puede scrollear cada captura). Las capturas se regeneran con <code>tools/capture-screens.cjs</code>.</p>
+
+      <h3>Explorar</h3>
+      <div class="compare">
+        <figure><div class="shot"><img src="assets/migracion/antes/explorar.jpg" alt="Explorar antes del design system" loading="lazy"></div><figcaption>Antes</figcaption></figure>
+        <figure><div class="shot"><img src="assets/migracion/etapa-1/explorar.jpg" alt="Explorar después de la etapa 1" loading="lazy"></div><figcaption>Etapa 1</figcaption></figure>
+        <figure><div class="shot"><img src="assets/migracion/etapa-2/explorar.jpg" alt="Explorar después de la etapa 2" loading="lazy"></div><figcaption>Etapa 2</figcaption></figure>
+      </div>
+      <p class="type-body muted">“Agua · 10 min” y los metadatos ahora se leen. Pendiente (etapa 3): los rótulos sobre fotos claras, como “AMOR PROPIO”, no tienen velo.</p>
+
+      <h3>Home</h3>
+      <div class="compare">
+        <figure><div class="shot"><img src="assets/migracion/antes/home.jpg" alt="Home antes del design system" loading="lazy"></div><figcaption>Antes</figcaption></figure>
+        <figure><div class="shot"><img src="assets/migracion/etapa-1/home.jpg" alt="Home después de la etapa 1" loading="lazy"></div><figcaption>Etapa 1</figcaption></figure>
+        <figure><div class="shot"><img src="assets/migracion/etapa-2/home.jpg" alt="Home después de la etapa 2" loading="lazy"></div><figcaption>Etapa 2</figcaption></figure>
+      </div>
+
+      <h3>Login</h3>
+      <div class="compare">
+        <figure><div class="shot"><img src="assets/migracion/antes/login.jpg" alt="Login antes del design system" loading="lazy"></div><figcaption>Antes</figcaption></figure>
+        <figure><div class="shot"><img src="assets/migracion/etapa-1/login.jpg" alt="Login después de la etapa 1" loading="lazy"></div><figcaption>Etapa 1</figcaption></figure>
+        <figure><div class="shot"><img src="assets/migracion/etapa-2/login.jpg" alt="Login después de la etapa 2" loading="lazy"></div><figcaption>Etapa 2</figcaption></figure>
+      </div>
+
+      <h3>Calendario y Wiki</h3>
+      <div class="compare">
+        <figure><div class="shot"><img src="assets/migracion/antes/calendario.jpg" alt="Calendario cósmico antes" loading="lazy"></div><figcaption>Calendario · antes</figcaption></figure>
+        <figure><div class="shot"><img src="assets/migracion/etapa-2/calendario.jpg" alt="Calendario cósmico después de la etapa 2" loading="lazy"></div><figcaption>Calendario · etapa 2</figcaption></figure>
+        <figure><div class="shot"><img src="assets/migracion/etapa-2/wiki.jpg" alt="Wiki después de la etapa 2" loading="lazy"></div><figcaption>Wiki · etapa 2</figcaption></figure>
+      </div>
+      <p class="type-body muted">Las pantallas con login (Cuenta, detalle de ritual, pasos de creación) no se capturan automáticamente: se revisan a mano en cada etapa.</p>
+    </div>
+  </main>
+</div>
+<script src="assets/nav.js"></script>
+</body>
+</html>

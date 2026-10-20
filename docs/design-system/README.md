@@ -15,6 +15,7 @@ Abrí `index.html` con doble clic y navegá con el menú lateral (en el celular,
 - `04-validacion.html`: decisiones a cerrar, plan por fases y criterios de verificación.
 - `05-ilustraciones-e-imagenes.html`: familias de ilustración, fotografía, texto sobre foto, peso y formato, accesibilidad, archivos sin uso.
 - `galeria.html`: galería de todos los assets (ilustraciones exportadas y miniaturas de las fotos) con ruta, medidas, peso y dónde se usan. **Se genera**: no la edites a mano.
+- `06-migracion.html`: registro de la implementación por etapas (branch `design-system-v1`), con capturas antes/después en `assets/migracion/` generadas por `tools/capture-screens.cjs`.
 - `assets/nav.js` y `assets/nav.css`: la navegación (menú lateral agrupado en Sistema, Recursos y Proceso; botón "Menú" en pantallas chicas; anterior/siguiente). Única lista de páginas: `PAGES` en `nav.js`.
 - `assets/ds.css`: estilos compartidos. La sección **1. SISTEMA** son los tokens y componentes tal como van a `src/styles/theme.css`; la sección **2. DOCS** es solo el armazón de estas páginas.
 
