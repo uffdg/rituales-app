@@ -1,0 +1,27 @@
+[
+  {
+    "id": "m1",
+    "file": "m1.wav",
+    "label": "Como hoy: una llamada por frase, estabilidad 0,78, pausas de 300 ms"
+  },
+  {
+    "id": "m2",
+    "file": "m2.mp3",
+    "label": "Segmento entero en una llamada, ajustes actuales (0,78)"
+  },
+  {
+    "id": "m3",
+    "file": "m3.mp3",
+    "label": "Segmento entero, estabilidad 0,5, estilo 0,15, velocidad 0,85"
+  },
+  {
+    "id": "m4",
+    "file": "m4.mp3",
+    "label": "Segmento entero, estabilidad 0,32, estilo 0,3, velocidad 0,85"
+  },
+  {
+    "id": "m5",
+    "file": "m5.mp3",
+    "label": "Eleven v3 con etiquetas de audio ([calmly], [softly], [whispers]) y puntos suspensivos"
+  }
+]

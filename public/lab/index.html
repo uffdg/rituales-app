@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Laboratorio de audio</title>
+<link rel="icon" href="data:,">
+<style>
+  :root { --ink:#0a0a0a; --muted:#5e646d; --line:rgba(15,23,42,.12); --soft:#f3f4f6; --ok:#1e6b47; --bad:#b42318; --bg:#fbfcfd; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.5 -apple-system, system-ui, sans-serif; }
+  main { max-width:560px; margin:0 auto; padding:24px 16px 80px; }
+  h1 { font-size:26px; margin:0 0 4px; }
+  h2 { font-size:20px; margin:36px 0 8px; }
+  h3 { font-size:16px; margin:0 0 4px; }
+  p { margin:0 0 12px; }
+  .muted { color:var(--muted); }
+  .card { border:1px solid var(--line); border-radius:16px; padding:16px; margin:12px 0; background:#fff; }
+  ol { padding-left:20px; margin:0 0 12px; }
+  button { font:inherit; border-radius:999px; border:1px solid var(--ink); background:var(--ink); color:#fff; padding:12px 18px; min-height:44px; cursor:pointer; }
+  button.secondary { background:#fff; color:var(--ink); }
+  button:disabled { opacity:.4; }
+  .row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .status { font-variant-numeric:tabular-nums; margin-top:10px; }
+  .log { font:12px/1.5 ui-monospace, monospace; background:var(--soft); border-radius:12px; padding:10px; margin-top:10px; max-height:220px; overflow:auto; white-space:pre-wrap; }
+  .verdict { margin-top:10px; padding:10px 12px; border-radius:12px; font-weight:600; }
+  .verdict.ok { background:#ecf6f0; color:var(--ok); }
+  .verdict.bad { background:#fef3f2; color:var(--bad); }
+  audio { width:100%; margin:8px 0; }
+  select, textarea { font:inherit; width:100%; border:1px solid var(--line); border-radius:12px; padding:10px; background:#fff; }
+  textarea { min-height:60px; }
+  label { display:block; font-size:13px; color:var(--muted); margin-top:8px; }
+  .reveal { display:none; font-size:13px; color:var(--muted); margin-top:6px; }
+  .revealed .reveal { display:block; }
+  pre#summary { white-space:pre-wrap; background:var(--soft); border-radius:12px; padding:12px; font-size:13px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Laboratorio de audio</h1>
+  <p class="muted">Dos pruebas para decidir cómo hacer el nuevo motor de rituales. Abrilo en el iPhone, con Safari y con auriculares si podés.</p>
+
+  <h2>Prueba 1 · Pantalla bloqueada</h2>
+  <p>Cada botón reproduce 2 minutos de música con la voz entrando 3 veces (al empezar, al minuto 0:45 y al 1:30), como sería un ritual. Para cada uno:</p>
+  <ol>
+    <li>Tocá <b>Empezar</b> y esperá a que arranque la voz.</li>
+    <li><b>Bloqueá el iPhone</b> con el botón lateral y escuchá durante 1 minuto, más o menos.</li>
+    <li>Desbloqueá y volvé a esta página: abajo del botón aparece si siguió sonando.</li>
+  </ol>
+  <p class="muted">Anotá también lo que escuchaste: si la música bajó cuando hablaba la voz, si se cortó algo y si aparecieron los controles en la pantalla bloqueada.</p>
+
+  <div class="card" id="test-a">
+    <h3>A · Web Audio (lo que propone el brief)</h3>
+    <p class="muted">Música y voz programadas con Web Audio; la música baja sola cuando habla la voz.</p>
+    <div class="row"><button data-start="a">Empezar</button><button class="secondary" data-stop="a">Parar</button></div>
+    <div class="status" data-status="a"></div><div class="verdict" data-verdict="a" hidden></div><div class="log" data-log="a" hidden></div>
+  </div>
+
+  <div class="card" id="test-b">
+    <h3>B · Dos reproductores comunes</h3>
+    <p class="muted">Un archivo de voz de 2 minutos (voz y silencios) y la música en loop, con elementos &lt;audio&gt;. Intenta bajar la música con el volumen.</p>
+    <div class="row"><button data-start="b">Empezar</button><button class="secondary" data-stop="b">Parar</button></div>
+    <div class="status" data-status="b"></div><div class="verdict" data-verdict="b" hidden></div><div class="log" data-log="b" hidden></div>
+  </div>
+
+  <div class="card" id="test-c">
+    <h3>C · Híbrido</h3>
+    <p class="muted">Los mismos dos &lt;audio&gt; de B, pero pasando por Web Audio para poder bajar la música.</p>
+    <div class="row"><button data-start="c">Empezar</button><button class="secondary" data-stop="c">Parar</button></div>
+    <div class="status" data-status="c"></div><div class="verdict" data-verdict="c" hidden></div><div class="log" data-log="c" hidden></div>
+  </div>
+
+  <h2>Prueba 2 · Escucha a ciegas</h2>
+  <p>El mismo momento guiado, con la misma voz, generado de 5 maneras. El orden es al azar y no dice cuál es cuál. Escuchalas todas y puntuá cada una: <b>¿suena a una persona guiándote?</b></p>
+  <div id="samples"></div>
+  <div class="row" style="margin-top:16px">
+    <button id="reveal">Mostrar cuál es cuál</button>
+  </div>
+  <div id="summary-wrap" hidden>
+    <p style="margin-top:16px">Copiá esto y pegámelo en el chat:</p>
+    <pre id="summary"></pre>
+  </div>
+</main>
+
+<script>
+const VOICE_STARTS = [0, 45, 90];   // segundos, igual que voice-track.wav
+const TOTAL = 120;
+const MUSIC_LEVEL = 0.6, DUCK_LEVEL = 0.22;
+const store = {
+  get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+};
+
+// ── Prueba 1 ─────────────────────────────────────────────
+const runs = {};
+const $ = (sel) => document.querySelector(sel);
+
+function makeRun(id) {
+  const run = { id, t0: Date.now(), lines: [], hiddenAt: null, stopFns: [] };
+  const logEl = $(`[data-log="${id}"]`); logEl.hidden = false; logEl.textContent = "";
+  $(`[data-verdict="${id}"]`).hidden = true;
+  run.log = (msg) => {
+    const line = `${((Date.now() - run.t0) / 1000).toFixed(1).padStart(6)} s  ${msg}`;
+    run.lines.push(line); logEl.textContent = run.lines.join("\n"); logEl.scrollTop = 1e9;
+  };
+  return run;
+}
+
+function setupSession(run, onStop) {
+  if (navigator.audioSession) {
+    try { navigator.audioSession.type = "playback"; run.log(`audioSession.type = ${navigator.audioSession.type}`); }
+    catch (e) { run.log(`audioSession falló: ${e.message}`); }
+  } else run.log("navigator.audioSession no existe en este navegador");
+  if ("mediaSession" in navigator) {
+    navigator.mediaSession.metadata = new MediaMetadata({ title: `Prueba ${run.id.toUpperCase()}`, artist: "Rituales · laboratorio de audio" });
+    try { navigator.mediaSession.setActionHandler("pause", onStop); navigator.mediaSession.setActionHandler("stop", onStop); } catch {}
+  }
+}
+
+function watchVisibility(run, mediaTime) {
+  const onVis = () => {
+    if (document.visibilityState === "hidden") {
+      run.hiddenAt = { wall: Date.now(), media: mediaTime() };
+      run.log(`pantalla oculta (tiempo de audio ${run.hiddenAt.media.toFixed(1)} s)`);
+    } else if (run.hiddenAt) {
+      const wall = (Date.now() - run.hiddenAt.wall) / 1000;
+      const media = mediaTime() - run.hiddenAt.media;
+      run.log(`pantalla visible: pasaron ${wall.toFixed(1)} s, el audio avanzó ${media.toFixed(1)} s`);
+      const v = $(`[data-verdict="${run.id}"]`); v.hidden = false;
+      const ok = wall < 5 || media >= wall * 0.9;
+      v.className = `verdict ${ok ? "ok" : "bad"}`;
+      v.textContent = wall < 5
+        ? "La pantalla estuvo oculta muy poco tiempo; probá de nuevo con 1 minuto bloqueado."
+        : ok ? `Siguió sonando con el iPhone bloqueado (${media.toFixed(0)} de ${wall.toFixed(0)} s).`
+             : `Se cortó con el iPhone bloqueado: sonó ${Math.max(0, media).toFixed(0)} de ${wall.toFixed(0)} s.`;
+      run.hiddenAt = null;
+    }
+  };
+  document.addEventListener("visibilitychange", onVis);
+  run.stopFns.push(() => document.removeEventListener("visibilitychange", onVis));
+}
+
+function tick(run, mediaTime) {
+  const el = $(`[data-status="${run.id}"]`);
+  const iv = setInterval(() => {
+    const t = mediaTime();
+    el.textContent = `Tiempo del audio: ${Math.floor(t / 60)}:${String(Math.floor(t % 60)).padStart(2, "0")} de 2:00`;
+  }, 500);
+  run.stopFns.push(() => clearInterval(iv));
+}
+
+async function decode(ctx, url) {
+  const buf = await (await fetch(url)).arrayBuffer();
+  return await new Promise((res, rej) => ctx.decodeAudioData(buf, res, rej));
+}
+
+// A · Web Audio puro: buffers decodificados y programados en el reloj del contexto.
+async function startA(run) {
+  const ctx = new (window.AudioContext || window.webkitAudioContext)();
+  ctx.onstatechange = () => run.log(`AudioContext: ${ctx.state}`);
+  await ctx.resume();
+  run.log("decodificando música y voz…");
+  const [music, voice] = await Promise.all([decode(ctx, "music-loop.mp3"), decode(ctx, "voice-clip.mp3")]);
+  const t0 = ctx.currentTime + 0.3;
+  const musicGain = ctx.createGain(); musicGain.connect(ctx.destination);
+  musicGain.gain.setValueAtTime(0, t0); musicGain.gain.linearRampToValueAtTime(MUSIC_LEVEL, t0 + 4);
+  const m = ctx.createBufferSource(); m.buffer = music; m.loop = true; m.connect(musicGain); m.start(t0);
+  for (const s of VOICE_STARTS) {
+    const at = t0 + s + 3;
+    const v = ctx.createBufferSource(); v.buffer = voice; v.connect(ctx.destination); v.start(at);
+    musicGain.gain.setValueAtTime(MUSIC_LEVEL, at - 1);
+    musicGain.gain.linearRampToValueAtTime(DUCK_LEVEL, at);
+    musicGain.gain.setValueAtTime(DUCK_LEVEL, at + voice.duration);
+    musicGain.gain.linearRampToValueAtTime(MUSIC_LEVEL, at + voice.duration + 2);
+  }
+  musicGain.gain.setValueAtTime(MUSIC_LEVEL, t0 + TOTAL - 5);
+  musicGain.gain.linearRampToValueAtTime(0, t0 + TOTAL);
+  m.stop(t0 + TOTAL);
+  run.log(`programado: música en loop + voz en ${VOICE_STARTS.map((s) => s + 3).join(", ")} s`);
+  const mediaTime = () => Math.max(0, ctx.currentTime - t0);
+  run.stopFns.push(() => ctx.close());
+  return mediaTime;
+}
+
+// B · Dos <audio>: la voz es un solo archivo con silencios; la música en loop.
+async function startB(run) {
+  const voice = new Audio("voice-track.wav"); const music = new Audio("music-loop.mp3");
+  music.loop = true; voice.preload = music.preload = "auto";
+  for (const [name, el] of [["voz", voice], ["música", music]]) {
+    for (const ev of ["pause", "play", "stalled", "ended"]) el.addEventListener(ev, () => run.log(`${name}: ${ev}`));
+  }
+  music.volume = 0.5;
+  const volumeWorks = Math.abs(music.volume - 0.5) < 0.01;
+  run.log(volumeWorks ? "el volumen se puede cambiar (fades y bajar la música posibles)" : "el volumen NO se puede cambiar (iOS lo ignora: sin fades ni bajar la música)");
+  music.volume = volumeWorks ? 0 : 1;
+  await Promise.all([voice.play(), music.play()]);
+  if (volumeWorks) {
+    // Fade-in y "ducking" a mano según el tiempo de la voz.
+    const iv = setInterval(() => {
+      const t = voice.currentTime;
+      const speaking = VOICE_STARTS.some((s) => t >= s - 1 && t <= s + 30);
+      const target = t < 4 ? MUSIC_LEVEL * (t / 4) : speaking ? DUCK_LEVEL : MUSIC_LEVEL;
+      music.volume += (target - music.volume) * 0.3;
+    }, 100);
+    run.stopFns.push(() => clearInterval(iv));
+  }
+  voice.addEventListener("ended", () => { music.pause(); run.log("fin"); });
+  run.stopFns.push(() => { voice.pause(); music.pause(); });
+  return () => voice.currentTime;
+}
+
+// C · Híbrido: los <audio> de B pasan por nodos de ganancia de Web Audio.
+async function startC(run) {
+  const ctx = new (window.AudioContext || window.webkitAudioContext)();
+  ctx.onstatechange = () => run.log(`AudioContext: ${ctx.state}`);
+  const voice = new Audio("voice-track.wav"); const music = new Audio("music-loop.mp3");
+  music.loop = true;
+  for (const [name, el] of [["voz", voice], ["música", music]]) {
+    for (const ev of ["pause", "play", "stalled", "ended"]) el.addEventListener(ev, () => run.log(`${name}: ${ev}`));
+  }
+  const musicGain = ctx.createGain(); musicGain.connect(ctx.destination);
+  ctx.createMediaElementSource(music).connect(musicGain);
+  ctx.createMediaElementSource(voice).connect(ctx.destination);
+  await ctx.resume();
+  musicGain.gain.value = 0;
+  await Promise.all([voice.play(), music.play()]);
+  const iv = setInterval(() => {
+    const t = voice.currentTime;
+    const speaking = VOICE_STARTS.some((s) => t >= s - 1 && t <= s + 30);
+    const target = t < 4 ? MUSIC_LEVEL * (t / 4) : speaking ? DUCK_LEVEL : MUSIC_LEVEL;
+    musicGain.gain.setTargetAtTime(target, ctx.currentTime, 0.4);
+  }, 200);
+  voice.addEventListener("ended", () => { music.pause(); run.log("fin"); });
+  run.stopFns.push(() => { clearInterval(iv); voice.pause(); music.pause(); ctx.close(); });
+  return () => voice.currentTime;
+}
+
+const STARTERS = { a: startA, b: startB, c: startC };
+function stop(id) { const run = runs[id]; if (!run) return; run.stopFns.forEach((f) => { try { f(); } catch {} }); run.log("parado"); delete runs[id]; }
+
+document.querySelectorAll("[data-start]").forEach((btn) => btn.addEventListener("click", async () => {
+  const id = btn.dataset.start;
+  Object.keys(runs).forEach(stop);
+  const run = runs[id] = makeRun(id);
+  setupSession(run, () => stop(id));
+  try {
+    const mediaTime = await STARTERS[id](run);
+    tick(run, mediaTime); watchVisibility(run, mediaTime);
+    run.log("sonando: ahora bloqueá el iPhone");
+  } catch (e) { run.log(`error: ${e.message}`); }
+}));
+document.querySelectorAll("[data-stop]").forEach((btn) => btn.addEventListener("click", () => stop(btn.dataset.stop)));
+
+// ── Prueba 2 ─────────────────────────────────────────────
+(async () => {
+  const meta = await (await fetch("samples/meta.json")).json();
+  let order = store.get("lab-order");
+  if (!order || order.length !== meta.length) {
+    order = meta.map((m) => m.id).sort(() => Math.random() - 0.5);
+    store.set("lab-order", order);
+  }
+  const ratings = store.get("lab-ratings") || {};
+  const box = document.getElementById("samples");
+  order.forEach((id, i) => {
+    const m = meta.find((x) => x.id === id);
+    const card = document.createElement("div"); card.className = "card";
+    card.innerHTML = `
+      <h3>Muestra ${i + 1}</h3>
+      <audio controls preload="none" src="samples/${m.file}"></audio>
+      <label>¿Suena a una persona guiándote?</label>
+      <select data-rate="${id}">
+        <option value="">Elegí…</option>
+        <option value="1">1 · Suena a máquina leyendo</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5 · Suena a una persona guiándome</option>
+      </select>
+      <label>Notas (opcional)</label>
+      <textarea data-note="${id}" placeholder="Ritmo, pausas, entonación, algo raro…"></textarea>
+      <p class="reveal">${m.label}</p>`;
+    box.appendChild(card);
+    const sel = card.querySelector("select"), note = card.querySelector("textarea");
+    sel.value = ratings[id]?.rate || ""; note.value = ratings[id]?.note || "";
+    const save = () => { ratings[id] = { rate: sel.value, note: note.value }; store.set("lab-ratings", ratings); };
+    sel.addEventListener("change", save); note.addEventListener("input", save);
+  });
+  // Una sola muestra suena a la vez.
+  box.addEventListener("play", (e) => box.querySelectorAll("audio").forEach((a) => a !== e.target && a.pause()), true);
+
+  document.getElementById("reveal").addEventListener("click", () => {
+    box.classList.add("revealed");
+    const lines = order.map((id, i) => {
+      const m = meta.find((x) => x.id === id), r = ratings[id] || {};
+      return `Muestra ${i + 1} (${id}) · ${r.rate || "sin puntaje"}/5 · ${m.label}${r.note ? `\n   Notas: ${r.note}` : ""}`;
+    });
+    document.getElementById("summary").textContent = lines.join("\n");
+    document.getElementById("summary-wrap").hidden = false;
+  });
+})();
+</script>
+</body>
+</html>
