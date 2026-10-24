@@ -1,0 +1,38 @@
+[
+  {
+    "id": "v1",
+    "file": "v1.mp3",
+    "label": "Maru (la voz actual, diseñada por IA)",
+    "speechSec": 33.2
+  },
+  {
+    "id": "v2",
+    "file": "v2.mp3",
+    "label": "Isabela · argentina, meditación y ASMR",
+    "speechSec": 33.9
+  },
+  {
+    "id": "v3",
+    "file": "v3.mp3",
+    "label": "Carolina · rioplatense, conversacional",
+    "speechSec": 31.2
+  },
+  {
+    "id": "v4",
+    "file": "v4.mp3",
+    "label": "Kate · latinoamericana, meditación y sueño",
+    "speechSec": 33
+  },
+  {
+    "id": "v5",
+    "file": "v5.mp3",
+    "label": "Octavio · argentino, narrador calmo",
+    "speechSec": 28.2
+  },
+  {
+    "id": "v6",
+    "file": "v6.mp3",
+    "label": "Aletto · argentino, calmo",
+    "speechSec": 30.3
+  }
+]

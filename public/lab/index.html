@@ -71,16 +71,16 @@
     <div class="status" data-status="c"></div><div class="verdict" data-verdict="c" hidden></div><div class="log" data-log="c" hidden></div>
   </div>
 
-  <h2>Prueba 2 · Escucha a ciegas</h2>
-  <p>El mismo momento guiado, con la misma voz, generado de 5 maneras. El orden es al azar y no dice cuál es cuál. Escuchalas todas y puntuá cada una: <b>¿suena a una persona guiándote?</b></p>
-  <div id="samples"></div>
-  <div class="row" style="margin-top:16px">
-    <button id="reveal">Mostrar cuál es cuál</button>
-  </div>
-  <div id="summary-wrap" hidden>
-    <p style="margin-top:16px">Copiá esto y pegámelo en el chat:</p>
-    <pre id="summary"></pre>
-  </div>
+  <h2>Prueba 2 · Escucha a ciegas · ronda 2: voces</h2>
+  <p>Ganó Eleven v3, pero leía de corrido y todas tenían resonancia. Ahora todas usan v3, frase por frase, con pausas como las de una guía; lo único que cambia es <b>la voz</b>. Son 6, en orden al azar.</p>
+  <div id="samples-2"></div>
+  <div class="row" style="margin-top:16px"><button data-reveal="2">Mostrar cuál es cuál</button></div>
+  <div data-wrap="2" hidden><p style="margin-top:16px">Copiá esto y pegámelo en el chat:</p><pre data-summary="2"></pre></div>
+
+  <h2>Ronda 1: métodos (ya hecha)</h2>
+  <div id="samples-1"></div>
+  <div class="row" style="margin-top:16px"><button data-reveal="1">Mostrar cuál es cuál</button></div>
+  <div data-wrap="1" hidden><p style="margin-top:16px">Copiá esto y pegámelo en el chat:</p><pre data-summary="1"></pre></div>
 </main>
 
 <script>
@@ -253,21 +253,21 @@ document.querySelectorAll("[data-start]").forEach((btn) => btn.addEventListener(
 document.querySelectorAll("[data-stop]").forEach((btn) => btn.addEventListener("click", () => stop(btn.dataset.stop)));
 
 // ── Prueba 2 ─────────────────────────────────────────────
-(async () => {
-  const meta = await (await fetch("samples/meta.json")).json();
-  let order = store.get("lab-order");
+async function renderRound(dir, round) {
+  const meta = await (await fetch(`${dir}/meta.json`)).json();
+  let order = store.get(`lab-order-${round}`);
   if (!order || order.length !== meta.length) {
     order = meta.map((m) => m.id).sort(() => Math.random() - 0.5);
-    store.set("lab-order", order);
+    store.set(`lab-order-${round}`, order);
   }
-  const ratings = store.get("lab-ratings") || {};
-  const box = document.getElementById("samples");
+  const ratings = store.get(`lab-ratings-${round}`) || {};
+  const box = document.getElementById(`samples-${round}`);
   order.forEach((id, i) => {
     const m = meta.find((x) => x.id === id);
     const card = document.createElement("div"); card.className = "card";
     card.innerHTML = `
       <h3>Muestra ${i + 1}</h3>
-      <audio controls preload="none" src="samples/${m.file}"></audio>
+      <audio controls preload="none" src="${dir}/${m.file}"></audio>
       <label>¿Suena a una persona guiándote?</label>
       <select data-rate="${id}">
         <option value="">Elegí…</option>
@@ -283,22 +283,24 @@ document.querySelectorAll("[data-stop]").forEach((btn) => btn.addEventListener("
     box.appendChild(card);
     const sel = card.querySelector("select"), note = card.querySelector("textarea");
     sel.value = ratings[id]?.rate || ""; note.value = ratings[id]?.note || "";
-    const save = () => { ratings[id] = { rate: sel.value, note: note.value }; store.set("lab-ratings", ratings); };
+    const save = () => { ratings[id] = { rate: sel.value, note: note.value }; store.set(`lab-ratings-${round}`, ratings); };
     sel.addEventListener("change", save); note.addEventListener("input", save);
   });
   // Una sola muestra suena a la vez.
   box.addEventListener("play", (e) => box.querySelectorAll("audio").forEach((a) => a !== e.target && a.pause()), true);
 
-  document.getElementById("reveal").addEventListener("click", () => {
+  document.querySelector(`[data-reveal="${round}"]`).addEventListener("click", () => {
     box.classList.add("revealed");
     const lines = order.map((id, i) => {
       const m = meta.find((x) => x.id === id), r = ratings[id] || {};
-      return `Muestra ${i + 1} (${id}) · ${r.rate || "sin puntaje"}/5 · ${m.label}${r.note ? `\n   Notas: ${r.note}` : ""}`;
+      return `Ronda ${round} · Muestra ${i + 1} (${id}) · ${r.rate || "sin puntaje"}/5 · ${m.label}${r.note ? `\n   Notas: ${r.note}` : ""}`;
     });
-    document.getElementById("summary").textContent = lines.join("\n");
-    document.getElementById("summary-wrap").hidden = false;
+    document.querySelector(`[data-summary="${round}"]`).textContent = lines.join("\n");
+    document.querySelector(`[data-wrap="${round}"]`).hidden = false;
   });
-})();
+}
+renderRound("samples2", 2);
+renderRound("samples", 1);
 </script>
 </body>
 </html>
