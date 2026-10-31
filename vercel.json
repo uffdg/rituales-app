@@ -1,10 +1,6 @@
 {
-  "redirects": [
-    {
-      "source": "/pitch",
-      "destination": "https://claude.ai/artifact/NJqV9mtsa66TzKxXbPnGXw",
-      "permanent": false
-    }
-  ],
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+  "rewrites": [
+    { "source": "/pitch", "destination": "/pitch/index.html" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
 }
